@@ -1,4 +1,4 @@
-import { Calendar, Clock, Mail, MapPin, Phone, User } from 'lucide-react';
+import { Calendar, Clock, Mail, MapPin, Pencil, Phone, User } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -23,12 +23,16 @@ type Props = {
     appointment: Appointment | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    canEdit?: boolean;
+    onEdit?: (appointment: Appointment) => void;
 };
 
 export default function AppointmentDetailsModal({
     appointment,
     open,
     onOpenChange,
+    canEdit = false,
+    onEdit,
 }: Props) {
     const isOnline = appointment ? appointment.location === null : false;
 
@@ -155,6 +159,14 @@ export default function AppointmentDetailsModal({
                             <DialogClose asChild>
                                 <Button variant="secondary">Close</Button>
                             </DialogClose>
+                            {canEdit && onEdit && (
+                                <Button
+                                    data-test="appointment-details-edit-button"
+                                    onClick={() => onEdit(appointment)}
+                                >
+                                    <Pencil /> Edit
+                                </Button>
+                            )}
                         </DialogFooter>
                     </>
                 )}

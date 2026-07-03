@@ -162,22 +162,13 @@ class DashboardController extends Controller
     protected function upcomingAppointments(Team $team, string $timezone, ?int $specialistId = null): array
     {
         return $team->appointments()
-            ->with(['service:id,title', 'location:id,name', 'specialist:id,name', 'customer:id,name'])
+            ->with(['service:id,title', 'location:id,name', 'specialist:id,name', 'customer:id,name,email,phone'])
             ->when($specialistId, fn ($query) => $query->where('specialist_id', $specialistId))
             ->where('start_at', '>=', now())
             ->orderBy('start_at')
             ->limit(6)
             ->get()
-            ->map(fn (Appointment $appointment): array => [
-                'id' => $appointment->id,
-                'start_at' => $appointment->start_at->toIso8601String(),
-                'end_at' => $appointment->end_at->toIso8601String(),
-                'timezone' => $timezone,
-                'service' => ['title' => $appointment->service->title],
-                'location' => $appointment->location ? ['name' => $appointment->location->name] : null,
-                'specialist' => ['name' => $appointment->specialist->name],
-                'customer' => ['name' => $appointment->customer->name],
-            ])
+            ->map(fn (Appointment $appointment): array => $this->toAppointmentArray($appointment, $timezone))
             ->all();
     }
 

@@ -49,8 +49,15 @@ export default function AppointmentsIndex({
     specialists,
     availableSlots = [],
 }: Props) {
-    const { currentTeam } = usePage().props;
+    const { auth, currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
+
+    // Admins and owners may edit any appointment; members only the ones where
+    // they are the assigned specialist. Mirrors the backend authorization.
+    const isTeamAdmin =
+        currentTeam?.role === 'admin' || currentTeam?.role === 'owner';
+    const canEditAppointment = (appointment: Appointment) =>
+        isTeamAdmin || appointment.specialist_id === auth.user.id;
 
     // Keep the list fresh without a full reload: every 5s Inertia re-runs only
     // the `appointments` prop on the server and merges it in, preserving local
@@ -271,6 +278,11 @@ export default function AppointmentsIndex({
                 appointment={viewing}
                 open={detailsOpen}
                 onOpenChange={setDetailsOpen}
+                canEdit={viewing ? canEditAppointment(viewing) : false}
+                onEdit={(appointment) => {
+                    setDetailsOpen(false);
+                    openEdit(appointment);
+                }}
             />
         </>
     );

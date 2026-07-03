@@ -11,12 +11,14 @@ type Props = {
     appointments: UpcomingAppointment[];
     teamSlug: string;
     onAddAppointment: () => void;
+    onView: (appointment: UpcomingAppointment) => void;
 };
 
 export default function UpcomingAppointments({
     appointments,
     teamSlug,
     onAddAppointment,
+    onView,
 }: Props) {
     return (
         <Card className="h-full">
@@ -57,7 +59,16 @@ export default function UpcomingAppointments({
                         {appointments.map((appointment) => (
                             <li
                                 key={appointment.id}
-                                className="group flex items-stretch gap-3 rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => onView(appointment)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        onView(appointment);
+                                    }
+                                }}
+                                className="group flex cursor-pointer items-stretch gap-3 rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm"
                             >
                                 <span className="w-1 shrink-0 rounded-full bg-gradient-to-b from-[#0063ff] to-[#3884fe]" />
                                 <div className="min-w-0 flex-1 space-y-0.5">

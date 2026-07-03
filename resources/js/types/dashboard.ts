@@ -1,4 +1,5 @@
 import type {
+    Appointment,
     AppointmentLocationOption,
     AppointmentServiceOption,
     AppointmentSpecialistOption,
@@ -21,16 +22,7 @@ export type DashboardTrendDay = {
     isToday: boolean;
 };
 
-export type UpcomingAppointment = {
-    id: number;
-    start_at: string;
-    end_at: string;
-    timezone: string;
-    service: { title: string };
-    location: { name: string } | null;
-    specialist: { name: string };
-    customer: { name: string };
-};
+export type UpcomingAppointment = Appointment;
 
 export type DashboardFormOptions = {
     appointments: {

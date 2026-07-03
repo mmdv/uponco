@@ -99,6 +99,43 @@ trait InteractsWithAppointmentBooking
     }
 
     /**
+     * Transform an appointment into its array representation.
+     *
+     * @return array<string, mixed>
+     */
+    protected function toAppointmentArray(Appointment $appointment, string $timezone): array
+    {
+        return [
+            'id' => $appointment->id,
+            'start_at' => $appointment->start_at->toIso8601String(),
+            'end_at' => $appointment->end_at->toIso8601String(),
+            'timezone' => $timezone,
+            'notes' => $appointment->notes,
+            'service' => [
+                'id' => $appointment->service->id,
+                'title' => $appointment->service->title,
+            ],
+            'location' => $appointment->location ? [
+                'id' => $appointment->location->id,
+                'name' => $appointment->location->name,
+            ] : null,
+            'specialist' => [
+                'id' => $appointment->specialist->id,
+                'name' => $appointment->specialist->name,
+            ],
+            'customer' => [
+                'id' => $appointment->customer->id,
+                'name' => $appointment->customer->name,
+                'email' => $appointment->customer->email,
+                'phone' => $appointment->customer->phone,
+            ],
+            'service_id' => $appointment->service_id,
+            'location_id' => $appointment->location_id,
+            'specialist_id' => $appointment->specialist_id,
+        ];
+    }
+
+    /**
      * Resolve the available slots for the current picker selection.
      *
      * @return array<int, array{start: string, end: string, label: string, available: bool}>

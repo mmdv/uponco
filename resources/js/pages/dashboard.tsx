@@ -1,6 +1,8 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
+import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
+import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
 import BookingsChart from '@/components/dashboard/bookings-chart';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
@@ -10,6 +12,7 @@ import QuickCreateForms from '@/components/dashboard/quick-create-forms';
 import type { QuickCreateForm } from '@/components/dashboard/quick-create-forms';
 import UpcomingAppointments from '@/components/dashboard/upcoming-appointments';
 import OnboardingWizard from '@/components/onboarding/onboarding-wizard';
+import { toDateInputValue } from '@/lib/appointments';
 import { dashboard } from '@/routes';
 import type {
     AppointmentSlot,
@@ -51,8 +54,21 @@ export default function Dashboard({
     const teamSlug = currentTeam?.slug ?? '';
     const firstName = auth.user.name.split(' ')[0];
 
+    // Admins and owners may edit any appointment; members only the ones where
+    // they are the assigned specialist. Mirrors the backend authorization.
+    const isTeamAdmin =
+        currentTeam?.role === 'admin' || currentTeam?.role === 'owner';
+    const canEditAppointment = (appointment: UpcomingAppointment) =>
+        isTeamAdmin || appointment.specialist_id === auth.user.id;
+
     const [openForm, setOpenForm] = useState<QuickCreateForm | null>(null);
     const [slotsLoading, setSlotsLoading] = useState(false);
+    const [viewingAppointment, setViewingAppointment] =
+        useState<UpcomingAppointment | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [editingAppointment, setEditingAppointment] =
+        useState<UpcomingAppointment | null>(null);
+    const [editOpen, setEditOpen] = useState(false);
 
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
@@ -60,6 +76,19 @@ export default function Dashboard({
 
         return () => cancelAnimationFrame(frame);
     }, []);
+
+    const openEditAppointment = (appointment: UpcomingAppointment) => {
+        setDetailsOpen(false);
+        setEditingAppointment(appointment);
+        setEditOpen(true);
+
+        requestSlots({
+            serviceId: appointment.service_id,
+            specialistId: appointment.specialist_id,
+            date: toDateInputValue(appointment.start_at, timezone),
+            appointmentId: appointment.id,
+        });
+    };
 
     const requestSlots = (request: SlotRequest) => {
         router.reload({
@@ -126,6 +155,10 @@ export default function Dashboard({
                             appointments={upcoming}
                             teamSlug={teamSlug}
                             onAddAppointment={() => setOpenForm('appointment')}
+                            onView={(appointment) => {
+                                setViewingAppointment(appointment);
+                                setDetailsOpen(true);
+                            }}
                         />
                     </div>
                 </div>
@@ -137,6 +170,34 @@ export default function Dashboard({
                 onAddService={() => setOpenForm('service')}
                 onAddLocation={() => setOpenForm('location')}
             />
+
+            <AppointmentDetailsModal
+                appointment={viewingAppointment}
+                open={detailsOpen}
+                onOpenChange={setDetailsOpen}
+                canEdit={
+                    viewingAppointment
+                        ? canEditAppointment(viewingAppointment)
+                        : false
+                }
+                onEdit={openEditAppointment}
+            />
+
+            {formOptions && (
+                <AppointmentFormDrawer
+                    open={editOpen}
+                    onOpenChange={setEditOpen}
+                    appointment={editingAppointment}
+                    teamSlug={teamSlug}
+                    timezone={timezone}
+                    services={formOptions.appointments.services}
+                    locations={formOptions.appointments.locations}
+                    specialists={formOptions.appointments.specialists}
+                    availableSlots={availableSlots}
+                    slotsLoading={slotsLoading}
+                    onRequestSlots={requestSlots}
+                />
+            )}
 
             {formOptions && (
                 <QuickCreateForms
