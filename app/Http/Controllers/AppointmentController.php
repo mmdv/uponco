@@ -132,10 +132,11 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Ensure the user may act on the appointment.
+     * Ensure the user may modify the appointment.
      *
      * The appointment must belong to the user's current team, and members may
      * only touch their own appointments while admins and owners may touch any.
+     * Past appointments are read-only for everyone — they can only be previewed.
      */
     protected function authorizeAppointment(Request $request, Appointment $appointment): void
     {
@@ -148,5 +149,7 @@ class AppointmentController extends Controller
             $user->teamRole($team)?->isAtLeast(TeamRole::Admin) || $appointment->specialist_id === $user->id,
             403,
         );
+
+        abort_if($appointment->isPast(), 403, __('Past appointments cannot be changed.'));
     }
 }

@@ -302,6 +302,15 @@ export function dayLabel(iso: string, timezone: string): string {
     })}, ${part({ weekday: 'short' })}`;
 }
 
+/**
+ * Whether the appointment has already started. Past appointments are read-only:
+ * they can be previewed but not edited, rescheduled or deleted. Matches the
+ * upcoming/past split, which buckets appointments by their start time.
+ */
+export function isPastAppointment(appointment: Appointment): boolean {
+    return new Date(appointment.start_at).getTime() < Date.now();
+}
+
 export type AppointmentDayGroup = {
     /** `YYYY-MM-DD` key used to bucket appointments by calendar day. */
     key: string;

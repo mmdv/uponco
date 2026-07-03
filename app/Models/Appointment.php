@@ -42,21 +42,27 @@ class Appointment extends Model
     /**
      * Get the booked service.
      *
+     * Services are soft-deleted rather than removed, so an appointment can always
+     * resolve the service it was booked for even after it has been "deleted".
+     *
      * @return BelongsTo<Service, $this>
      */
     public function service(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Service::class)->withTrashed();
     }
 
     /**
      * Get the location (branch) where the appointment takes place.
      *
+     * Locations are soft-deleted, so historical appointments keep resolving their
+     * original branch even after it has been removed.
+     *
      * @return BelongsTo<Location, $this>
      */
     public function location(): BelongsTo
     {
-        return $this->belongsTo(Location::class);
+        return $this->belongsTo(Location::class)->withTrashed();
     }
 
     /**
@@ -72,11 +78,26 @@ class Appointment extends Model
     /**
      * Get the customer the appointment is for.
      *
+     * Customers are soft-deleted, so an appointment always resolves the customer
+     * it belongs to even after they have been removed.
+     *
      * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class)->withTrashed();
+    }
+
+    /**
+     * Determine whether the appointment has already started.
+     *
+     * Past appointments are read-only: they can be previewed but not edited,
+     * rescheduled or deleted. This mirrors the upcoming/past split in the UI,
+     * which buckets appointments by their start time.
+     */
+    public function isPast(): bool
+    {
+        return $this->start_at->isPast();
     }
 
     /**

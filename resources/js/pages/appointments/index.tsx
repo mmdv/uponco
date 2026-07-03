@@ -19,7 +19,7 @@ import DeleteAppointmentModal from '@/components/appointments/delete-appointment
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import { toDateInputValue } from '@/lib/appointments';
+import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
 import {
     index as appointmentsIndex,
     reschedule as rescheduleRoute,
@@ -56,8 +56,11 @@ export default function AppointmentsIndex({
     // they are the assigned specialist. Mirrors the backend authorization.
     const isTeamAdmin =
         currentTeam?.role === 'admin' || currentTeam?.role === 'owner';
+    // Past appointments are read-only: they can only be previewed, never edited,
+    // rescheduled or deleted. The backend enforces this too.
     const canEditAppointment = (appointment: Appointment) =>
-        isTeamAdmin || appointment.specialist_id === auth.user.id;
+        !isPastAppointment(appointment) &&
+        (isTeamAdmin || appointment.specialist_id === auth.user.id);
 
     // Keep the list fresh without a full reload: every 5s Inertia re-runs only
     // the `appointments` prop on the server and merges it in, preserving local
@@ -160,6 +163,14 @@ export default function AppointmentsIndex({
     };
 
     const openEdit = (appointment: Appointment) => {
+        // Past appointments are read-only — surface the preview instead of the
+        // edit form (e.g. when a past event is clicked in the calendar).
+        if (isPastAppointment(appointment)) {
+            openDetails(appointment);
+
+            return;
+        }
+
         setEditing(appointment);
         setFormOpen(true);
 
@@ -182,6 +193,10 @@ export default function AppointmentsIndex({
     };
 
     const reschedule = (appointment: Appointment, startIso: string) => {
+        if (isPastAppointment(appointment)) {
+            return;
+        }
+
         router.patch(
             rescheduleRoute.url([teamSlug, appointment.id]),
             { start_at: startIso },
@@ -233,6 +248,9 @@ export default function AppointmentsIndex({
                         onView={openDetails}
                         onEdit={openEdit}
                         onDelete={confirmDelete}
+                        canModify={(appointment) =>
+                            !isPastAppointment(appointment)
+                        }
                         emptyMessage={
                             tab === 'upcoming'
                                 ? 'No upcoming appointments.'

@@ -27,6 +27,8 @@ type Props = {
     onView: (appointment: Appointment) => void;
     onEdit: (appointment: Appointment) => void;
     onDelete: (appointment: Appointment) => void;
+    /** Whether the appointment may be edited/deleted; read-only rows show only View. */
+    canModify?: (appointment: Appointment) => boolean;
     emptyMessage?: string;
 };
 
@@ -35,6 +37,7 @@ export default function AppointmentsTable({
     onView,
     onEdit,
     onDelete,
+    canModify = () => true,
     emptyMessage = 'No appointments yet. Book your first appointment to get started.',
 }: Props) {
     if (appointments.length === 0) {
@@ -114,46 +117,58 @@ export default function AppointmentsTable({
                                                         <p>View details</p>
                                                     </TooltipContent>
                                                 </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            data-test="appointment-edit-button"
-                                                            onClick={() =>
-                                                                onEdit(
-                                                                    appointment,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Pencil className="size-4" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Edit appointment</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            data-test="appointment-delete-button"
-                                                            onClick={() =>
-                                                                onDelete(
-                                                                    appointment,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2 className="size-4 text-destructive" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>
-                                                            Delete appointment
-                                                        </p>
-                                                    </TooltipContent>
-                                                </Tooltip>
+                                                {canModify(appointment) && (
+                                                    <>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    data-test="appointment-edit-button"
+                                                                    onClick={() =>
+                                                                        onEdit(
+                                                                            appointment,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Edit
+                                                                    appointment
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    data-test="appointment-delete-button"
+                                                                    onClick={() =>
+                                                                        onDelete(
+                                                                            appointment,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4 text-destructive" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    Delete
+                                                                    appointment
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </>
+                                                )}
                                             </div>
                                         </TooltipProvider>
                                     </TableCell>

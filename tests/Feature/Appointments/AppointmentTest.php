@@ -77,6 +77,31 @@ test('the appointments page can be rendered', function () {
         ->assertOk();
 });
 
+test('the appointments page still renders after the booked service is deleted', function () {
+    $setup = bookableSetup();
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+    ]);
+
+    // Soft-delete the service and location the appointment was booked against.
+    $setup['service']->delete();
+    $setup['location']->delete();
+
+    $this
+        ->actingAs($setup['user'])
+        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('appointments', 1)
+            // The trashed service and location still resolve their original details.
+            ->where('appointments.0.service.title', $setup['service']->title)
+            ->where('appointments.0.location.name', $setup['location']->name));
+});
+
 test('admins see every appointment in the team', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
@@ -440,6 +465,71 @@ test('an appointment can be updated', function () {
         'id' => $appointment->id,
         'notes' => 'Updated note',
         'start_at' => $setup['startAt']->toDateTimeString(),
+    ]);
+});
+
+test('a past appointment cannot be updated', function () {
+    $setup = bookableSetup();
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => now()->subDay(),
+        'end_at' => now()->subDay()->addMinutes(60),
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.update', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), appointmentPayload($setup, [
+            'notes' => 'Updated note',
+        ]))
+        ->assertForbidden();
+
+    $this->assertDatabaseMissing('appointments', [
+        'id' => $appointment->id,
+        'notes' => 'Updated note',
+    ]);
+});
+
+test('a past appointment cannot be rescheduled', function () {
+    $setup = bookableSetup();
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => now()->subDay(),
+        'end_at' => now()->subDay()->addMinutes(60),
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.reschedule', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), [
+            'start_at' => $setup['startAt']->toIso8601String(),
+        ])
+        ->assertForbidden();
+});
+
+test('a past appointment cannot be deleted', function () {
+    $setup = bookableSetup();
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => now()->subDay(),
+        'end_at' => now()->subDay()->addMinutes(60),
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]))
+        ->assertForbidden();
+
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'deleted_at' => null,
     ]);
 });
 
