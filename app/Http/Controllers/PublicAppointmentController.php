@@ -26,6 +26,7 @@ class PublicAppointmentController extends Controller
             'company' => [
                 'name' => $company->name,
                 'slug' => $company->slug,
+                'logo' => $company->logoUrl(),
             ],
             'timezone' => $timezone,
             'services' => AppointmentOptions::services($company),

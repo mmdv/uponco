@@ -39,6 +39,33 @@ test('the booking page exposes service pricing and specialist availability', fun
         );
 });
 
+test('the booking page exposes the company logo and specialist avatars', function () {
+    $setup = bookableSetup();
+
+    $setup['team']->update(['logo_path' => 'team-logos/logo.png']);
+    $setup['user']->update(['avatar_path' => 'avatars/me.png']);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('company.logo', fn (?string $logo) => str_contains((string) $logo, '/storage/team-logos/logo.png'))
+            ->where('specialists.0.avatar', fn (?string $avatar) => str_contains((string) $avatar, '/storage/avatars/me.png'))
+        );
+});
+
+test('the booking page returns null media when none is set', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('company.logo', null)
+            ->where('specialists.0.avatar', null)
+        );
+});
+
 test('specialist availability excludes fully booked days and reflects only free slots', function () {
     $setup = bookableSetup();
 

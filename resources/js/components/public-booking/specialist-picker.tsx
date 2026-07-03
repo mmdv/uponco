@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { filterPreviewSlotsByDuration } from '@/lib/appointments';
 import { cn } from '@/lib/utils';
 import type { AppointmentSpecialistOption } from '@/types';
@@ -71,6 +71,13 @@ export default function SpecialistPicker({
                         )}
                     >
                         <Avatar className="size-11 shrink-0">
+                            {specialist.avatar ? (
+                                <AvatarImage
+                                    src={specialist.avatar}
+                                    alt={specialist.name}
+                                    className="object-cover"
+                                />
+                            ) : null}
                             <AvatarFallback className="bg-muted text-xs font-medium">
                                 {initials(specialist.name)}
                             </AvatarFallback>

@@ -1,6 +1,7 @@
 import { Head, router } from '@inertiajs/react';
-import { ChevronDown, Mail, UserPlus, X } from 'lucide-react';
+import { ChevronDown, Mail, UserPlus, UserRoundPlus, X } from 'lucide-react';
 import { useState } from 'react';
+import AddMemberModal from '@/components/add-member-modal';
 import CancelInvitationModal from '@/components/cancel-invitation-modal';
 import Heading from '@/components/heading';
 import InviteMemberModal from '@/components/invite-member-modal';
@@ -52,6 +53,7 @@ export default function BusinessMembers({
 }: Props) {
     const getInitials = useInitials();
 
+    const [addDialogOpen, setAddDialogOpen] = useState(false);
     const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
     const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
     const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(
@@ -92,20 +94,33 @@ export default function BusinessMembers({
                             variant="small"
                             title="Team members"
                             description={
+                                permissions.canAddMember ||
                                 permissions.canCreateInvitation
                                     ? 'Manage who belongs to this team'
                                     : ''
                             }
                         />
 
-                        {permissions.canCreateInvitation ? (
-                            <Button
-                                data-test="invite-member-button"
-                                onClick={() => setInviteDialogOpen(true)}
-                            >
-                                <UserPlus /> Invite member
-                            </Button>
-                        ) : null}
+                        <div className="flex items-center gap-2">
+                            {permissions.canAddMember ? (
+                                <Button
+                                    variant="outline"
+                                    data-test="add-member-button"
+                                    onClick={() => setAddDialogOpen(true)}
+                                >
+                                    <UserRoundPlus /> Add member
+                                </Button>
+                            ) : null}
+
+                            {permissions.canCreateInvitation ? (
+                                <Button
+                                    data-test="invite-member-button"
+                                    onClick={() => setInviteDialogOpen(true)}
+                                >
+                                    <UserPlus /> Invite member
+                                </Button>
+                            ) : null}
+                        </div>
                     </div>
 
                     <div className="space-y-3">
@@ -262,6 +277,14 @@ export default function BusinessMembers({
                     </div>
                 ) : null}
             </div>
+
+            {permissions.canAddMember ? (
+                <AddMemberModal
+                    team={team}
+                    open={addDialogOpen}
+                    onOpenChange={setAddDialogOpen}
+                />
+            ) : null}
 
             {permissions.canCreateInvitation ? (
                 <InviteMemberModal

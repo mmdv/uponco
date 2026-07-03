@@ -35,6 +35,7 @@ export type SpecialistAvailabilityPreview = {
 export type AppointmentSpecialistOption = {
     id: number;
     name: string;
+    avatar?: string | null;
     service_ids: number[];
     location_ids: number[];
     next_available: SpecialistAvailabilityPreview | null;

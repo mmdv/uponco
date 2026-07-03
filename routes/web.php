@@ -75,6 +75,7 @@ Route::prefix('{current_team}')
             Route::delete('company/business/general/logo', [BusinessController::class, 'destroyLogo'])->name('company.business.logo.destroy');
 
             Route::get('company/business/members', [BusinessController::class, 'members'])->name('company.business.members.index');
+            Route::post('company/business/members', [BusinessMemberController::class, 'store'])->name('company.business.members.store');
             Route::patch('company/business/members/{user}', [BusinessMemberController::class, 'update'])->name('company.business.members.update');
             Route::delete('company/business/members/{user}', [BusinessMemberController::class, 'destroy'])->name('company.business.members.destroy');
 
