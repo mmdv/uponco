@@ -4,6 +4,8 @@ use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Build the business route for the given team acting as its current team.
@@ -215,6 +217,157 @@ test('the team cannot be deleted by non owners', function () {
         ->delete(businessRoute('company.business.destroy', $team), [
             'name' => $team->name,
         ])
+        ->assertForbidden();
+});
+
+test('the team logo can be uploaded by admins', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+
+    $this
+        ->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->image('logo.png', 200, 200),
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $path = $team->fresh()->logo_path;
+
+    expect($path)->not->toBeNull();
+    Storage::disk('public')->assertExists($path);
+});
+
+test('uploading a new logo removes the previous file', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+
+    $this->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->image('first.png'),
+        ]);
+
+    $firstPath = $team->fresh()->logo_path;
+
+    $this->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->image('second.png'),
+        ]);
+
+    $secondPath = $team->fresh()->logo_path;
+
+    expect($secondPath)->not->toEqual($firstPath);
+    Storage::disk('public')->assertMissing($firstPath);
+    Storage::disk('public')->assertExists($secondPath);
+});
+
+test('an svg logo is accepted', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>';
+
+    $this
+        ->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->createWithContent('logo.svg', $svg),
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($team->fresh()->logo_path)->not->toBeNull();
+});
+
+test('a non image file is rejected as a logo', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+
+    $this
+        ->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
+        ])
+        ->assertSessionHasErrors('logo');
+});
+
+test('a logo larger than 2MB is rejected', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+
+    $this
+        ->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->create('logo.png', 3 * 1024, 'image/png'),
+        ])
+        ->assertSessionHasErrors('logo');
+});
+
+test('the team logo cannot be uploaded by members', function () {
+    Storage::fake('public');
+
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $this
+        ->actingAs($member)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->image('logo.png'),
+        ])
+        ->assertForbidden();
+});
+
+test('the team logo can be removed by admins', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+
+    $this->actingAs($user)
+        ->post(businessRoute('company.business.logo.update', $team), [
+            'logo' => UploadedFile::fake()->image('logo.png'),
+        ]);
+
+    $path = $team->fresh()->logo_path;
+
+    $this
+        ->actingAs($user)
+        ->delete(businessRoute('company.business.logo.destroy', $team))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($team->fresh()->logo_path)->toBeNull();
+    Storage::disk('public')->assertMissing($path);
+});
+
+test('the team logo cannot be removed by members', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $this
+        ->actingAs($member)
+        ->delete(businessRoute('company.business.logo.destroy', $team))
         ->assertForbidden();
 });
 

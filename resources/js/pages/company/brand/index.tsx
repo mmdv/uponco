@@ -1,8 +1,31 @@
 import { Head } from '@inertiajs/react';
+import { Image, Palette, Sparkles, Type } from 'lucide-react';
 
 import Heading from '@/components/heading';
+import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
 import { index as brandIndex } from '@/routes/company/brand';
+
+/** Brand-primary gradient reused across the company surfaces. */
+const PRIMARY_GRADIENT = 'from-[#0063ff] to-[#3884fe]';
+
+const UPCOMING_FEATURES = [
+    {
+        icon: Palette,
+        title: 'Brand colors',
+        description: 'Pick the palette that shows up across your booking page.',
+    },
+    {
+        icon: Image,
+        title: 'Logo & imagery',
+        description: 'Showcase your logo and cover photos to customers.',
+    },
+    {
+        icon: Type,
+        title: 'Typography',
+        description: 'Choose fonts that match your brand personality.',
+    },
+];
 
 export default function BrandIndex() {
     return (
@@ -15,6 +38,66 @@ export default function BrandIndex() {
                     title="Brand"
                     description="Manage your company brand"
                 />
+
+                <div className="relative overflow-hidden rounded-2xl border bg-card">
+                    {/* Ambient gradient glow */}
+                    <div
+                        aria-hidden
+                        className={cn(
+                            'pointer-events-none absolute -top-24 -right-24 size-64 rounded-full bg-gradient-to-br opacity-15 blur-3xl',
+                            PRIMARY_GRADIENT,
+                        )}
+                    />
+
+                    <div className="relative flex flex-col items-center px-6 py-16 text-center">
+                        <div
+                            className={cn(
+                                'flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg',
+                                PRIMARY_GRADIENT,
+                            )}
+                        >
+                            <Palette className="size-8" />
+                        </div>
+
+                        <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+                            <Sparkles className="size-3.5" />
+                            Coming soon
+                        </span>
+
+                        <h3 className="mt-4 text-xl font-semibold tracking-tight">
+                            Brand customization is on the way
+                        </h3>
+                        <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                            Soon you'll be able to tailor how your business
+                            looks to customers — colors, logo, and typography,
+                            all in one place.
+                        </p>
+
+                        <div className="mt-10 grid w-full max-w-3xl gap-4 sm:grid-cols-3">
+                            {UPCOMING_FEATURES.map((feature) => (
+                                <div
+                                    key={feature.title}
+                                    className="flex flex-col items-center gap-3 rounded-xl border bg-muted/30 p-5 text-center"
+                                >
+                                    <div
+                                        className={cn(
+                                            'flex size-10 items-center justify-center rounded-lg bg-gradient-to-br text-white',
+                                            PRIMARY_GRADIENT,
+                                        )}
+                                    >
+                                        <feature.icon className="size-5" />
+                                    </div>
+                                    <div className="text-sm font-medium">
+                                        {feature.title}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        {feature.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
         </>
     );

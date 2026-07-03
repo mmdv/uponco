@@ -4,6 +4,7 @@ import BusinessController from '@/actions/App/Http/Controllers/Company/BusinessC
 import DeleteTeamModal from '@/components/delete-team-modal';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import TeamLogoUploader from '@/components/team-logo-uploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +42,18 @@ export default function BusinessGeneral({
             <h1 className="sr-only">Business settings</h1>
 
             <div className="flex flex-col space-y-10">
+                {permissions.canUpdateTeam ? (
+                    <div className="space-y-6">
+                        <Heading
+                            variant="small"
+                            title="Logo"
+                            description="Add or update your company logo"
+                        />
+
+                        <TeamLogoUploader team={team} teamSlug={teamSlug} />
+                    </div>
+                ) : null}
+
                 <div className="space-y-6">
                     {permissions.canUpdateTeam ? (
                         <>

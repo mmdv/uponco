@@ -6,6 +6,7 @@ use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\DeleteBusinessRequest;
+use App\Http\Requests\Company\SaveTeamLogoRequest;
 use App\Http\Requests\Teams\SaveTeamRequest;
 use App\Models\Team;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -53,6 +55,58 @@ class BusinessController extends Controller
         $team->refresh();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team updated.')]);
+
+        return to_route('company.business.edit', ['current_team' => $team->slug]);
+    }
+
+    /**
+     * Store or replace the current team's logo.
+     */
+    public function updateLogo(SaveTeamLogoRequest $request): RedirectResponse
+    {
+        $team = $request->user()->currentTeam;
+
+        $path = $request->file('logo')->store('team-logos', 'public');
+
+        DB::transaction(function () use ($team, $path): void {
+            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
+
+            $previousPath = $locked->logo_path;
+
+            $locked->update(['logo_path' => $path]);
+
+            if ($previousPath && $previousPath !== $path) {
+                Storage::disk('public')->delete($previousPath);
+            }
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Logo updated.')]);
+
+        return to_route('company.business.edit', ['current_team' => $team->slug]);
+    }
+
+    /**
+     * Remove the current team's logo.
+     */
+    public function destroyLogo(Request $request): RedirectResponse
+    {
+        $team = $request->user()->currentTeam;
+
+        Gate::authorize('update', $team);
+
+        DB::transaction(function () use ($team): void {
+            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
+
+            $previousPath = $locked->logo_path;
+
+            $locked->update(['logo_path' => null]);
+
+            if ($previousPath) {
+                Storage::disk('public')->delete($previousPath);
+            }
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Logo removed.')]);
 
         return to_route('company.business.edit', ['current_team' => $team->slug]);
     }
@@ -120,7 +174,7 @@ class BusinessController extends Controller
     /**
      * Transform a team into its array representation for the frontend.
      *
-     * @return array{id: int, name: string, slug: string, isPersonal: bool, timezone: ?string, businessCategory: ?string}
+     * @return array{id: int, name: string, slug: string, isPersonal: bool, timezone: ?string, businessCategory: ?string, logoUrl: ?string}
      */
     protected function toTeamArray(Team $team): array
     {
@@ -131,6 +185,7 @@ class BusinessController extends Controller
             'isPersonal' => $team->is_personal,
             'timezone' => $team->timezone,
             'businessCategory' => $team->business_category?->value,
+            'logoUrl' => $team->logoUrl(),
         ];
     }
 }

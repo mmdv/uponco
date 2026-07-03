@@ -7,6 +7,7 @@ export type Team = {
     isPersonal: boolean;
     timezone?: string | null;
     businessCategory?: string | null;
+    logoUrl?: string | null;
     role?: TeamRole;
     roleLabel?: string;
     isCurrent?: boolean;

@@ -13,8 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'slug', 'is_personal', 'timezone', 'business_category'])]
+#[Fillable(['name', 'slug', 'is_personal', 'timezone', 'business_category', 'logo_path'])]
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -38,6 +39,18 @@ class Team extends Model
                 $team->slug = static::generateUniqueTeamSlug((string) $team->name, $team->id);
             }
         });
+    }
+
+    /**
+     * Get the publicly accessible URL for the team's logo, if any.
+     */
+    public function logoUrl(): ?string
+    {
+        if (blank($this->logo_path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->logo_path);
     }
 
     /**

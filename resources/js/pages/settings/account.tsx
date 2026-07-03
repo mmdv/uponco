@@ -1,6 +1,7 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
 import AccountController from '@/actions/App/Http/Controllers/Settings/AccountController';
+import AvatarUploader from '@/components/avatar-uploader';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -31,6 +32,14 @@ export default function Account({
             <h1 className="sr-only">Account settings</h1>
 
             <div className="space-y-6">
+                <Heading
+                    variant="small"
+                    title="Profile picture"
+                    description="Upload a photo so teammates can recognize you"
+                />
+
+                <AvatarUploader user={auth.user} />
+
                 <Heading
                     variant="small"
                     title="Account"

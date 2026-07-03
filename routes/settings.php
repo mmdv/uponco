@@ -12,6 +12,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/account', [AccountController::class, 'edit'])->name('account.edit');
     Route::patch('settings/account', [AccountController::class, 'update'])->name('account.update');
+
+    Route::post('settings/account/avatar', [AccountController::class, 'updateAvatar'])->name('account.avatar.update');
+    Route::delete('settings/account/avatar', [AccountController::class, 'destroyAvatar'])->name('account.avatar.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
