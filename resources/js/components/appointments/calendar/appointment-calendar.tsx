@@ -97,6 +97,10 @@ export default function AppointmentCalendar({
                     appointments={appointments}
                     timezone={timezone}
                     onSelectAppointment={onSelectAppointment}
+                    onSelectDay={(day) => {
+                        onDateChange(day);
+                        onViewChange('day');
+                    }}
                 />
             )}
 

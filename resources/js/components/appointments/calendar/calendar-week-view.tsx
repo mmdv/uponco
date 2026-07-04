@@ -29,6 +29,7 @@ type Props = {
     appointments: Appointment[];
     timezone: string;
     onSelectAppointment: (appointment: Appointment) => void;
+    onSelectDay: (day: Date) => void;
 };
 
 export default function CalendarWeekView({
@@ -36,6 +37,7 @@ export default function CalendarWeekView({
     appointments,
     timezone,
     onSelectAppointment,
+    onSelectDay,
 }: Props) {
     const days = useMemo(() => weekDays(date), [date]);
     const todayKey = dateKey(new Date());
@@ -51,9 +53,12 @@ export default function CalendarWeekView({
                         const isToday = key === todayKey;
 
                         return (
-                            <div
+                            <button
                                 key={key}
-                                className="flex-1 border-r py-2 text-center last:border-r-0"
+                                type="button"
+                                onClick={() => onSelectDay(day)}
+                                aria-label={`View ${weekdayFormatter.format(day)} ${day.getDate()} in day view`}
+                                className="flex-1 cursor-pointer border-r border-b-2 border-b-transparent py-2 text-center transition-colors last:border-r-0 hover:border-b-primary hover:bg-primary/5"
                             >
                                 <p className="text-xs text-muted-foreground">
                                     {weekdayFormatter.format(day)}
@@ -67,7 +72,7 @@ export default function CalendarWeekView({
                                 >
                                     {day.getDate()}
                                 </p>
-                            </div>
+                            </button>
                         );
                     })}
                 </div>
