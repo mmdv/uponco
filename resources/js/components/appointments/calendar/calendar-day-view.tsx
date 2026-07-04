@@ -46,7 +46,7 @@ type Props = {
     date: Date;
     appointments: Appointment[];
     timezone: string;
-    onEditAppointment: (appointment: Appointment) => void;
+    onSelectAppointment: (appointment: Appointment) => void;
     onReschedule: (appointment: Appointment, startIso: string) => void;
 };
 
@@ -54,7 +54,7 @@ export default function CalendarDayView({
     date,
     appointments,
     timezone,
-    onEditAppointment,
+    onSelectAppointment,
     onReschedule,
 }: Props) {
     const gridRef = useRef<HTMLDivElement>(null);
@@ -276,10 +276,15 @@ export default function CalendarDayView({
                                 key={item.appointment.id}
                                 data-test="calendar-appointment"
                                 className={cn(
-                                    'absolute inset-x-1 z-10 flex overflow-hidden rounded-md border border-primary/30 bg-primary/10 text-xs shadow-sm transition-shadow',
+                                    'absolute z-10 flex overflow-hidden rounded-md border border-primary/30 bg-primary/10 text-xs shadow-sm transition-shadow',
                                     isDragged && 'opacity-40',
                                 )}
-                                style={{ top: item.top, height: item.height }}
+                                style={{
+                                    top: item.top,
+                                    height: item.height,
+                                    left: `calc(${item.left * 100}% + 4px)`,
+                                    width: `calc(${item.width * 100}% - 8px)`,
+                                }}
                             >
                                 {/* Drag handle */}
                                 <button
@@ -302,11 +307,11 @@ export default function CalendarDayView({
                                     <GripVertical className="size-3.5" />
                                 </button>
 
-                                {/* Content (click to edit) */}
+                                {/* Content (click to preview) */}
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        onEditAppointment(item.appointment)
+                                        onSelectAppointment(item.appointment)
                                     }
                                     className="min-w-0 flex-1 px-2 py-1 text-left"
                                 >
@@ -321,7 +326,7 @@ export default function CalendarDayView({
                                         {item.appointment.service.title}
                                     </p>
                                     <p className="truncate text-muted-foreground">
-                                        {item.appointment.customer.name}
+                                        {item.appointment.specialist.name}
                                     </p>
                                 </button>
                             </div>

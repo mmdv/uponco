@@ -265,7 +265,7 @@ export default function AppointmentsIndex({
                         onViewChange={setView}
                         appointments={activeAppointments}
                         timezone={timezone}
-                        onEditAppointment={openEdit}
+                        onSelectAppointment={openDetails}
                         onReschedule={reschedule}
                     />
                 )}

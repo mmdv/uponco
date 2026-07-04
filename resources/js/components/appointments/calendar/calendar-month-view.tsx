@@ -17,7 +17,7 @@ type Props = {
     date: Date;
     appointments: Appointment[];
     timezone: string;
-    onEditAppointment: (appointment: Appointment) => void;
+    onSelectAppointment: (appointment: Appointment) => void;
     onSelectDay: (day: Date) => void;
 };
 
@@ -25,7 +25,7 @@ export default function CalendarMonthView({
     date,
     appointments,
     timezone,
-    onEditAppointment,
+    onSelectAppointment,
     onSelectDay,
 }: Props) {
     const days = useMemo(() => monthGridDays(date), [date]);
@@ -110,7 +110,7 @@ export default function CalendarMonthView({
                                             type="button"
                                             data-test="calendar-appointment"
                                             onClick={() =>
-                                                onEditAppointment(appointment)
+                                                onSelectAppointment(appointment)
                                             }
                                             className="flex w-full items-center gap-1 overflow-hidden rounded bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:bg-primary/20"
                                         >

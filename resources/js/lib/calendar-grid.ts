@@ -177,6 +177,10 @@ export type PositionedAppointment = {
     endMinutes: number;
     top: number;
     height: number;
+    /** Horizontal offset as a fraction (0–1) of the column area. */
+    left: number;
+    /** Width as a fraction (0–1) of the column area. */
+    width: number;
 };
 
 /**
@@ -210,7 +214,7 @@ export function positionAppointments(
     dayKey: string,
     timezone: string,
 ): PositionedAppointment[] {
-    return appointments
+    const blocks = appointments
         .filter(
             (appointment) =>
                 appointmentDateKey(appointment, timezone) === dayKey,
@@ -234,7 +238,78 @@ export function positionAppointments(
 
             return { appointment, startMinutes, endMinutes, top, height };
         })
-        .sort((a, b) => a.startMinutes - b.startMinutes);
+        .sort(
+            (a, b) =>
+                a.startMinutes - b.startMinutes || a.endMinutes - b.endMinutes,
+        );
+
+    return layoutColumns(blocks);
+}
+
+type Block = Omit<PositionedAppointment, 'left' | 'width'>;
+
+/**
+ * Lay overlapping appointments out side by side. Blocks are grouped into
+ * clusters of transitively overlapping items; within each cluster every block
+ * is placed in the first free column, and all blocks share the cluster's column
+ * count so their widths line up. Different customers booking different
+ * specialists for the same slot therefore sit next to each other rather than
+ * stacking on top of one another.
+ */
+function layoutColumns(blocks: Block[]): PositionedAppointment[] {
+    const positioned: PositionedAppointment[] = [];
+    let cluster: Block[] = [];
+    let clusterEnd = -Infinity;
+
+    const flush = () => {
+        // Column ends: the latest `endMinutes` currently occupying each column.
+        const columnEnds: number[] = [];
+        const columnOf = new Map<Block, number>();
+
+        for (const block of cluster) {
+            let column = columnEnds.findIndex(
+                (end) => end <= block.startMinutes,
+            );
+
+            if (column === -1) {
+                column = columnEnds.length;
+                columnEnds.push(block.endMinutes);
+            } else {
+                columnEnds[column] = block.endMinutes;
+            }
+
+            columnOf.set(block, column);
+        }
+
+        const count = columnEnds.length;
+
+        for (const block of cluster) {
+            const column = columnOf.get(block) ?? 0;
+
+            positioned.push({
+                ...block,
+                left: column / count,
+                width: 1 / count,
+            });
+        }
+    };
+
+    for (const block of blocks) {
+        if (cluster.length > 0 && block.startMinutes >= clusterEnd) {
+            flush();
+            cluster = [];
+            clusterEnd = -Infinity;
+        }
+
+        cluster.push(block);
+        clusterEnd = Math.max(clusterEnd, block.endMinutes);
+    }
+
+    if (cluster.length > 0) {
+        flush();
+    }
+
+    return positioned;
 }
 
 /**

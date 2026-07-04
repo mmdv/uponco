@@ -18,7 +18,7 @@ type Props = {
     onViewChange: (view: CalendarView) => void;
     appointments: Appointment[];
     timezone: string;
-    onEditAppointment: (appointment: Appointment) => void;
+    onSelectAppointment: (appointment: Appointment) => void;
     onReschedule: (appointment: Appointment, startIso: string) => void;
 };
 
@@ -29,7 +29,7 @@ export default function AppointmentCalendar({
     onViewChange,
     appointments,
     timezone,
-    onEditAppointment,
+    onSelectAppointment,
     onReschedule,
 }: Props) {
     const title = useMemo(() => formatTitle(view, date), [view, date]);
@@ -86,7 +86,7 @@ export default function AppointmentCalendar({
                     date={date}
                     appointments={appointments}
                     timezone={timezone}
-                    onEditAppointment={onEditAppointment}
+                    onSelectAppointment={onSelectAppointment}
                     onReschedule={onReschedule}
                 />
             )}
@@ -96,7 +96,7 @@ export default function AppointmentCalendar({
                     date={date}
                     appointments={appointments}
                     timezone={timezone}
-                    onEditAppointment={onEditAppointment}
+                    onSelectAppointment={onSelectAppointment}
                 />
             )}
 
@@ -105,7 +105,7 @@ export default function AppointmentCalendar({
                     date={date}
                     appointments={appointments}
                     timezone={timezone}
-                    onEditAppointment={onEditAppointment}
+                    onSelectAppointment={onSelectAppointment}
                     onSelectDay={(day) => {
                         onDateChange(day);
                         onViewChange('day');

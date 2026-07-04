@@ -28,14 +28,14 @@ type Props = {
     date: Date;
     appointments: Appointment[];
     timezone: string;
-    onEditAppointment: (appointment: Appointment) => void;
+    onSelectAppointment: (appointment: Appointment) => void;
 };
 
 export default function CalendarWeekView({
     date,
     appointments,
     timezone,
-    onEditAppointment,
+    onSelectAppointment,
 }: Props) {
     const days = useMemo(() => weekDays(date), [date]);
     const todayKey = dateKey(new Date());
@@ -143,12 +143,14 @@ export default function CalendarWeekView({
                                         type="button"
                                         data-test="calendar-appointment"
                                         onClick={() =>
-                                            onEditAppointment(item.appointment)
+                                            onSelectAppointment(item.appointment)
                                         }
-                                        className="absolute inset-x-0.5 z-10 overflow-hidden rounded border border-primary/30 bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:shadow-md"
+                                        className="absolute z-10 overflow-hidden rounded border border-primary/30 bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:shadow-md"
                                         style={{
                                             top: item.top,
                                             height: item.height,
+                                            left: `calc(${item.left * 100}% + 2px)`,
+                                            width: `calc(${item.width * 100}% - 4px)`,
                                         }}
                                     >
                                         <p className="font-medium text-foreground">
