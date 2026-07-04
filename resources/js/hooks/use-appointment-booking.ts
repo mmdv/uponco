@@ -371,21 +371,18 @@ export function useAppointmentBooking({
 
     const handleContinue = () => {
         if (step === 0) {
-            // Default to (or fall back to) the specialist's closest bookable
-            // day, re-picking whenever the current day isn't one they can take.
+            // Keep the chosen day only when the selected specialist can take it,
+            // otherwise fall back to their closest bookable day. Always refetch
+            // slots here so changing the specialist (or service) never leaves the
+            // previous specialist's slots on screen.
             const bookableDays = selectedSpecialist?.available_days ?? [];
+            const nextDate =
+                date !== '' && bookableDays.includes(date)
+                    ? date
+                    : (bookableDays[0] ?? '');
 
-            if (date === '' || !bookableDays.includes(date)) {
-                const closest = bookableDays[0] ?? '';
-
-                if (closest === '') {
-                    setDate('');
-                    setSelectedStart('');
-                    setSelectedEnd('');
-                } else {
-                    handleDateChange(closest);
-                }
-            }
+            setDate(nextDate);
+            requestSlots({ serviceId, specialistId, date: nextDate });
 
             goToStep(1);
 

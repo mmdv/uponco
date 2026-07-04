@@ -58,7 +58,7 @@ export default function AppointmentsTable({
                         <TableHead>Time</TableHead>
                         <TableHead>Service</TableHead>
                         <TableHead>Location</TableHead>
-                        <TableHead>Customer</TableHead>
+                        <TableHead>Specialist</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -93,7 +93,7 @@ export default function AppointmentsTable({
                                         {appointment.location?.name ?? 'Online'}
                                     </TableCell>
                                     <TableCell>
-                                        {appointment.customer.name}
+                                        {appointment.specialist.name}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <TooltipProvider>
