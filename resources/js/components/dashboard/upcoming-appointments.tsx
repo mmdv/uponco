@@ -21,7 +21,7 @@ export default function UpcomingAppointments({
     onView,
 }: Props) {
     return (
-        <Card className="h-full">
+        <Card className="h-full max-w-full">
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="text-base font-medium">

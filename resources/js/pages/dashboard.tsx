@@ -137,12 +137,12 @@ export default function Dashboard({
                 */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {trend.length > 0 && (
-                        <div className="order-2 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-1">
+                        <div className="order-2 min-w-0 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-1">
                             <BookingsChart trend={trend} mounted={mounted} />
                         </div>
                     )}
 
-                    <div className="order-3 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-2">
+                    <div className="order-3 min-w-0 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-2">
                         <DashboardStats
                             stats={safeStats}
                             teamSlug={teamSlug}
@@ -150,7 +150,7 @@ export default function Dashboard({
                         />
                     </div>
 
-                    <div className="order-1 lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
+                    <div className="order-1 min-w-0 lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
                         <UpcomingAppointments
                             appointments={upcoming}
                             teamSlug={teamSlug}

@@ -14,7 +14,7 @@ export default function BookingsChart({ trend, mounted }: Props) {
     const max = Math.max(...trend.map((day) => day.count), 1);
 
     return (
-        <Card className="overflow-hidden">
+        <Card className="max-w-full overflow-hidden">
             <CardContent className="space-y-5">
                 <div className="flex items-start justify-between">
                     <div className="space-y-0.5">
