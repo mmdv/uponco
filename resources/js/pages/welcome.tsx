@@ -408,7 +408,7 @@ export default function Welcome() {
         <>
             <Head title="Your digital bridge to your customers" />
 
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
                 {/* Header */}
                 <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur">
                     <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
