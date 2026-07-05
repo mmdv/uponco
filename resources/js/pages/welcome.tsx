@@ -1,57 +1,404 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, login, register } from '@/routes';
-import AppLogoIcon from '@/components/app-logo-icon';
 import {
-    CalendarCheck,
-    MapPin,
-    Layers,
-    Users,
-    Globe,
-    BellRing,
-    Rocket,
     ArrowRight,
+    BellRing,
+    CalendarCheck,
     Check,
+    Clock,
+    Globe,
+    Layers,
+    MapPin,
+    Rocket,
+    Users,
+    Video,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import AppLogoIcon from '@/components/app-logo-icon';
+import { dashboard, login, register } from '@/routes';
 
-const features: { icon: ReactNode; title: string; description: string }[] = [
+const currentYear = new Date().getFullYear();
+
+const demoDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const demoSlots = ['09:00', '09:45', '10:30', '11:15', '13:00', '13:45'];
+
+/**
+ * Looping mini booking flow shown in the hero: a slot gets picked, the
+ * booking confirms, then a reminder toast pops in — and it starts over.
+ */
+function BookingDemo() {
+    const [step, setStep] = useState(0);
+
+    useEffect(() => {
+        const id = setInterval(() => setStep((s) => (s + 1) % 4), 1700);
+
+        return () => clearInterval(id);
+    }, []);
+
+    const slotPicked = step >= 1;
+    const confirmed = step >= 2;
+    const reminderSent = step >= 3;
+
+    return (
+        <div className="relative mx-auto w-full max-w-sm">
+            <div
+                aria-hidden
+                className="absolute -inset-8 -z-10 rounded-full bg-primary/10 blur-3xl"
+            />
+
+            <div className="rounded-2xl border border-border bg-background p-5 shadow-soft">
+                <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-primary-gradient text-sm font-semibold text-white">
+                        GS
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold">Glow Studio</p>
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="size-3" />
+                            Haircut · 45 min · Downtown
+                        </p>
+                    </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-5 gap-1.5">
+                    {demoDays.map((day, i) => (
+                        <div
+                            key={day}
+                            className={`rounded-md py-1.5 text-center text-xs font-medium transition-colors ${
+                                i === 2
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-secondary text-muted-foreground'
+                            }`}
+                        >
+                            {day}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    {demoSlots.map((slot, i) => (
+                        <div
+                            key={slot}
+                            className={`rounded-md border py-2 text-center text-xs font-medium transition-all duration-300 ${
+                                slotPicked && i === 2
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'border-border text-muted-foreground'
+                            }`}
+                        >
+                            {slot}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-4 h-11">
+                    {confirmed ? (
+                        <div className="flex h-full animate-in items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground duration-300 zoom-in-95 motion-reduce:animate-none">
+                            <CalendarCheck className="size-4" />
+                            Booked — Wed, 10:30
+                        </div>
+                    ) : (
+                        <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
+                            {slotPicked
+                                ? 'Confirming…'
+                                : 'Pick a time that works'}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {reminderSent && (
+                <div className="absolute -top-4 -right-3 flex animate-in items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium shadow-soft duration-300 fade-in slide-in-from-top-2 motion-reduce:animate-none">
+                    <BellRing className="size-3.5 text-primary" />
+                    Reminder sent
+                </div>
+            )}
+        </div>
+    );
+}
+
+const spotlightFeatures: {
+    icon: ReactNode;
+    title: string;
+    description: string;
+    visual: ReactNode;
+}[] = [
     {
-        icon: <MapPin className="size-5" />,
+        icon: <MapPin className="size-4" />,
         title: 'Multi-location',
         description:
             'Manage bookings across every branch from a single, unified calendar.',
+        visual: (
+            <div className="w-full max-w-xs space-y-2.5">
+                {[
+                    {
+                        name: 'Downtown Studio',
+                        count: '14 today',
+                        active: true,
+                    },
+                    { name: 'Riverside Branch', count: '9 today' },
+                    { name: 'Airport Mall', count: '11 today' },
+                ].map((location) => (
+                    <div
+                        key={location.name}
+                        className={`flex items-center justify-between rounded-lg border bg-background px-3.5 py-2.5 ${
+                            location.active
+                                ? 'border-primary/40 shadow-soft'
+                                : 'border-border'
+                        }`}
+                    >
+                        <span className="flex items-center gap-2 text-sm font-medium">
+                            <MapPin className="size-3.5 text-primary" />
+                            {location.name}
+                        </span>
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                            {location.count}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        ),
     },
     {
-        icon: <Layers className="size-5" />,
+        icon: <Layers className="size-4" />,
         title: 'Multi-service',
         description:
             'Offer any number of services, each with its own duration and team.',
+        visual: (
+            <div className="flex max-w-xs flex-wrap justify-center gap-2">
+                {[
+                    'Haircut · 45m',
+                    'Deep massage · 60m',
+                    'Consultation · 30m',
+                    'Group yoga · 90m',
+                    'Coaching call · 45m',
+                    'Follow-up · 15m',
+                ].map((service, i) => (
+                    <span
+                        key={service}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium ${
+                            i === 1
+                                ? 'border-primary/40 bg-primary/10 text-primary'
+                                : 'border-border bg-background text-muted-foreground'
+                        }`}
+                    >
+                        <Clock className="size-3" />
+                        {service}
+                    </span>
+                ))}
+            </div>
+        ),
     },
     {
-        icon: <Users className="size-5" />,
+        icon: <Users className="size-4" />,
         title: 'Individual & group',
         description:
             'Take one-on-one appointments or fill group sessions with ease.',
+        visual: (
+            <div className="w-full max-w-xs rounded-lg border border-border bg-background p-4">
+                <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold">Morning yoga</p>
+                    <span className="text-xs text-muted-foreground">
+                        Wed · 08:00
+                    </span>
+                </div>
+                <div className="mt-3 flex -space-x-2">
+                    {['AK', 'LM', 'JS', 'RB', 'TN', 'EC'].map((initials) => (
+                        <div
+                            key={initials}
+                            className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-secondary text-[10px] font-semibold text-secondary-foreground"
+                        >
+                            {initials}
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary">
+                    <div className="h-full w-3/4 rounded-full bg-primary" />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                    6 of 8 spots filled
+                </p>
+            </div>
+        ),
     },
     {
-        icon: <Globe className="size-5" />,
+        icon: <Globe className="size-4" />,
         title: 'Online or onsite',
         description:
             'Host virtual meetings or in-person visits — your customers choose.',
+        visual: (
+            <div className="grid w-full max-w-xs grid-cols-2 gap-2.5">
+                <div className="rounded-lg border border-primary/40 bg-background p-4 shadow-soft">
+                    <Video className="size-5 text-primary" />
+                    <p className="mt-2.5 text-sm font-semibold">Online</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        Meeting link sent automatically
+                    </p>
+                </div>
+                <div className="rounded-lg border border-border bg-background p-4">
+                    <MapPin className="size-5 text-primary" />
+                    <p className="mt-2.5 text-sm font-semibold">Onsite</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        Location shared with every booking
+                    </p>
+                </div>
+            </div>
+        ),
     },
     {
-        icon: <BellRing className="size-5" />,
+        icon: <BellRing className="size-4" />,
         title: 'Automatic reminders',
         description:
             'Cut no-shows with timely reminders sent to every customer.',
+        visual: (
+            <div className="w-full max-w-xs space-y-2.5">
+                <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-3.5 py-3 shadow-soft">
+                    <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <BellRing className="size-4" />
+                    </span>
+                    <div>
+                        <p className="text-xs font-semibold">
+                            Reminder · 24h before
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            “See you tomorrow at 10:30!”
+                        </p>
+                    </div>
+                </div>
+                <div className="mx-3 flex items-center gap-3 rounded-lg border border-border bg-background px-3.5 py-3 opacity-70">
+                    <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <BellRing className="size-4" />
+                    </span>
+                    <div>
+                        <p className="text-xs font-semibold">
+                            Reminder · 1h before
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            “Your appointment starts soon.”
+                        </p>
+                    </div>
+                </div>
+            </div>
+        ),
     },
     {
-        icon: <Rocket className="size-5" />,
+        icon: <Rocket className="size-4" />,
         title: '5-minute onboarding',
         description:
             'Set up your locations, services and team and start taking bookings today.',
+        visual: (
+            <div className="w-full max-w-xs space-y-2">
+                {[
+                    'Add your locations',
+                    'Create your services',
+                    'Invite your team',
+                    'Share your booking link',
+                ].map((task) => (
+                    <div
+                        key={task}
+                        className="flex items-center gap-2.5 rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm font-medium"
+                    >
+                        <span className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Check className="size-3" />
+                        </span>
+                        {task}
+                    </div>
+                ))}
+                <p className="flex items-center justify-center gap-1.5 pt-1 text-xs text-muted-foreground">
+                    <Rocket className="size-3.5 text-primary" />
+                    Ready in about 5 minutes
+                </p>
+            </div>
+        ),
     },
 ];
+
+/**
+ * Auto-advancing feature carousel. Clicking a tab jumps to it; hovering
+ * pauses the rotation.
+ */
+function FeatureSpotlight() {
+    const [active, setActive] = useState(0);
+    const [paused, setPaused] = useState(false);
+
+    useEffect(() => {
+        if (paused) {
+            return;
+        }
+
+        const id = setTimeout(
+            () => setActive((i) => (i + 1) % spotlightFeatures.length),
+            5000,
+        );
+
+        return () => clearTimeout(id);
+    }, [active, paused]);
+
+    const feature = spotlightFeatures[active];
+
+    return (
+        <div
+            className="mt-10 grid gap-4 lg:grid-cols-[2fr_3fr]"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+        >
+            <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+                {spotlightFeatures.map((item, i) => (
+                    <button
+                        key={item.title}
+                        type="button"
+                        onClick={() => setActive(i)}
+                        className={`relative shrink-0 overflow-hidden rounded-lg border text-left transition-colors ${
+                            i === active
+                                ? 'border-primary/40 bg-secondary'
+                                : 'border-transparent hover:bg-secondary/60'
+                        }`}
+                    >
+                        <span className="flex items-center gap-2.5 px-3.5 py-2.5 lg:py-3">
+                            <span
+                                className={`flex size-7 shrink-0 items-center justify-center rounded-md ${
+                                    i === active
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-primary/10 text-primary'
+                                }`}
+                            >
+                                {item.icon}
+                            </span>
+                            <span className="text-sm font-medium whitespace-nowrap">
+                                {item.title}
+                            </span>
+                        </span>
+                        {i === active && (
+                            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-border">
+                                <span
+                                    key={active}
+                                    className={`block h-full animate-progress-fill bg-primary motion-reduce:w-full motion-reduce:animate-none ${
+                                        paused
+                                            ? '[animation-play-state:paused]'
+                                            : ''
+                                    }`}
+                                />
+                            </span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            <div className="rounded-xl border border-border bg-secondary/50 p-6 sm:p-8">
+                <div
+                    key={active}
+                    className="flex h-full animate-in flex-col duration-500 fade-in slide-in-from-bottom-2 motion-reduce:animate-none"
+                >
+                    <div className="flex min-h-56 flex-1 items-center justify-center py-2">
+                        {feature.visual}
+                    </div>
+                    <p className="mt-4 text-center text-sm text-balance text-muted-foreground">
+                        {feature.description}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function Welcome() {
     const { auth, currentTeam } = usePage().props;
@@ -105,54 +452,80 @@ export default function Welcome() {
                 </header>
 
                 {/* Hero */}
-                <section className="mx-auto w-full max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28 sm:pb-24">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-                        <Check className="size-3.5 text-primary" />
-                        First 100 bookings free — no card required
-                    </span>
+                <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pt-14 pb-14 sm:pt-20 lg:grid-cols-2 lg:gap-8">
+                    <div className="text-center lg:text-left">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
+                            <span className="relative flex size-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
+                                <span className="relative inline-flex size-2 rounded-full bg-primary" />
+                            </span>
+                            First 100 appointments free — no card required
+                        </span>
 
-                    <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
-                        Your digital bridge to your{' '}
-                        <span className="text-primary">customers</span>
-                    </h1>
+                        <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
+                            Your digital bridge to your{' '}
+                            <span className="text-primary">customers</span>
+                        </h1>
 
-                    <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground text-balance">
-                        Easy appointment booking for your business — multiple
-                        locations, every service, online or onsite. Set up in
-                        five minutes and let customers book in seconds.
-                    </p>
+                        <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-muted-foreground lg:mx-0">
+                            Easy appointment booking for your business — every
+                            location, every service, online or onsite. Set up in
+                            five minutes and let customers book in seconds.
+                        </p>
 
-                    <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                        {auth.user ? (
-                            <Link
-                                href={dashboardUrl}
-                                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto"
-                            >
-                                Go to dashboard
-                                <ArrowRight className="size-4" />
-                            </Link>
-                        ) : (
-                            <>
+                        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                            {auth.user ? (
                                 <Link
-                                    href={register()}
-                                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto"
+                                    href={dashboardUrl}
+                                    className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
                                 >
-                                    Start free
-                                    <ArrowRight className="size-4" />
+                                    Go to dashboard
+                                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                                 </Link>
-                                <Link
-                                    href={login()}
-                                    className="inline-flex w-full items-center justify-center rounded-md border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary sm:w-auto"
+                            ) : (
+                                <>
+                                    <Link
+                                        href={register()}
+                                        className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
+                                    >
+                                        Start free
+                                        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                    </Link>
+                                    <a
+                                        href="#features"
+                                        className="inline-flex w-full items-center justify-center rounded-md border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary sm:w-auto"
+                                    >
+                                        See how it works
+                                    </a>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground lg:justify-start">
+                            {[
+                                'No credit card',
+                                '5-minute setup',
+                                'Cancel anytime',
+                            ].map((item) => (
+                                <span
+                                    key={item}
+                                    className="inline-flex items-center gap-1.5"
                                 >
-                                    Sign in
-                                </Link>
-                            </>
-                        )}
+                                    <Check className="size-3.5 text-primary" />
+                                    {item}
+                                </span>
+                            ))}
+                        </div>
                     </div>
+
+                    <BookingDemo />
                 </section>
 
-                {/* Features */}
-                <section className="mx-auto w-full max-w-6xl px-6 py-16">
+                {/* Feature spotlight */}
+                <section
+                    id="features"
+                    className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-14"
+                >
                     <div className="mx-auto max-w-2xl text-center">
                         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                             Everything you need to take bookings
@@ -163,49 +536,44 @@ export default function Welcome() {
                         </p>
                     </div>
 
-                    <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-                        {features.map((feature) => (
-                            <div
-                                key={feature.title}
-                                className="bg-background p-6"
-                            >
-                                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    {feature.icon}
-                                </div>
-                                <h3 className="mt-4 font-medium">
-                                    {feature.title}
-                                </h3>
-                                <p className="mt-1.5 text-sm text-muted-foreground">
-                                    {feature.description}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
+                    <FeatureSpotlight />
                 </section>
 
-                {/* Pricing highlight */}
-                <section className="mx-auto w-full max-w-6xl px-6 py-16">
-                    <div className="relative overflow-hidden rounded-2xl border border-border bg-secondary px-6 py-14 text-center sm:px-12">
-                        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            <CalendarCheck className="size-6" />
+                {/* Free 100 highlight */}
+                <section className="mx-auto w-full max-w-6xl px-6 py-14">
+                    <div className="flex flex-col items-center gap-8 rounded-2xl bg-primary-gradient px-6 py-10 text-white sm:px-12 lg:flex-row lg:justify-between">
+                        <div className="text-center lg:text-left">
+                            <p className="text-5xl font-semibold tracking-tight sm:text-6xl">
+                                100
+                            </p>
+                            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                                Your first 100 appointments are free
+                            </h2>
+                            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/90 lg:justify-start">
+                                {[
+                                    'No payment, no commitment',
+                                    'All features included',
+                                    'Pay only as you grow',
+                                ].map((item) => (
+                                    <span
+                                        key={item}
+                                        className="inline-flex items-center gap-1.5"
+                                    >
+                                        <Check className="size-4" />
+                                        {item}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                        <h2 className="mx-auto mt-6 max-w-2xl text-2xl font-semibold tracking-tight text-balance sm:text-4xl">
-                            Your first 100 bookings are free
-                        </h2>
-                        <p className="mx-auto mt-4 max-w-lg text-muted-foreground text-balance">
-                            No payment, no commitment. Get your business online,
-                            start booking customers, and only pay once you’ve
-                            grown.
-                        </p>
-                        {!auth.user && (
-                            <Link
-                                href={register()}
-                                className="mt-8 inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-                            >
-                                Create your account
-                                <ArrowRight className="size-4" />
-                            </Link>
-                        )}
+                        <Link
+                            href={auth.user ? dashboardUrl : register()}
+                            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
+                        >
+                            {auth.user
+                                ? 'Go to dashboard'
+                                : 'Claim your free 100'}
+                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                        </Link>
                     </div>
                 </section>
 
@@ -219,8 +587,8 @@ export default function Welcome() {
                             Uponco
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            © {new Date().getFullYear()} Uponco. Your digital
-                            bridge to your customers.
+                            © {currentYear} Uponco. Your digital bridge to your
+                            customers.
                         </p>
                     </div>
                 </footer>
