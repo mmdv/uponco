@@ -15,6 +15,11 @@ class AppointmentBooked extends Notification implements ShouldQueue
     use Queueable;
 
     /**
+     * The dedicated sender for appointment emails.
+     */
+    protected const FROM_ADDRESS = 'appointment@uponco.com';
+
+    /**
      * Create a new notification instance.
      *
      * The wording adapts to whether the appointment was just created or an
@@ -49,35 +54,47 @@ class AppointmentBooked extends Notification implements ShouldQueue
         $start = $appointment->start_at->setTimezone($timezone);
         $end = $appointment->end_at->setTimezone($timezone);
 
-        $location = $appointment->location?->name ?? __('Online');
+        $location = $appointment->location;
 
         $isUpdate = $this->change === AppointmentChange::Updated;
 
+        $when = __(':date, :time', [
+            'date' => $start->translatedFormat('D, j M Y'),
+            'time' => $start->format('H:i'),
+        ]);
+
         $subject = $isUpdate
-            ? __('Your appointment with :team has been updated', ['team' => $team->name])
-            : __('Your appointment with :team is confirmed', ['team' => $team->name]);
+            ? __('Appointment updated at :team — :when', ['team' => $team->name, 'when' => $when])
+            : __('Appointment confirmed at :team — :when', ['team' => $team->name, 'when' => $when]);
 
         $intro = $isUpdate
-            ? __('Your appointment with :team has been updated. Here are the new details:', ['team' => $team->name])
-            : __('Your appointment with :team is booked. Here are the details:', ['team' => $team->name]);
+            ? __('The details of your appointment with :team have changed. Please review the updated information below.', ['team' => $team->name])
+            : __('Thank you for booking with :team. Your appointment has been confirmed — you will find the details below.', ['team' => $team->name]);
 
         return (new MailMessage)
+            ->from(self::FROM_ADDRESS, __(':team via Uponco', ['team' => $team->name]))
             ->subject($subject)
-            ->greeting(__('Hi :name,', ['name' => $appointment->customer->name]))
-            ->line($intro)
-            ->line(__('**Service:** :service', ['service' => $appointment->service->title]))
-            ->line(__('**Specialist:** :specialist', ['specialist' => $appointment->specialist->name]))
-            ->line(__('**Location:** :location', ['location' => $location]))
-            ->line(__('**Date:** :date', ['date' => $start->translatedFormat('l, j F Y')]))
-            ->line(__('**Time:** :start–:end', [
-                'start' => $start->format('H:i'),
-                'end' => $end->format('H:i'),
-            ]))
-            ->when($appointment->notes, fn (MailMessage $message) => $message->line(
-                __('**Notes:** :notes', ['notes' => $appointment->notes]),
-            ))
-            ->line(__('If you need to make any changes, just reply to this email and we will help you out.'))
-            ->salutation(__('See you soon, :team', ['team' => $team->name]))
+            ->view('mail.appointments.booked', [
+                'title' => $isUpdate
+                    ? __('Your appointment has been updated')
+                    : __('Your appointment is confirmed'),
+                'intro' => $intro,
+                'customerName' => $appointment->customer->name,
+                'teamName' => $team->name,
+                'teamLogoUrl' => $team->logoUrl(),
+                'serviceTitle' => $appointment->service->title,
+                'specialistName' => $appointment->specialist->name,
+                'locationName' => $location?->name ?? __('Online'),
+                'locationAddress' => $location?->fullAddress(),
+                'locationPhone' => $location?->phone,
+                'dateLine' => $start->translatedFormat('l, j F Y'),
+                'timeLine' => __(':start–:end (:timezone)', [
+                    'start' => $start->format('H:i'),
+                    'end' => $end->format('H:i'),
+                    'timezone' => $timezone,
+                ]),
+                'notes' => $appointment->notes,
+            ])
             ->attachData(
                 AppointmentCalendar::ics($appointment),
                 'appointment.ics',

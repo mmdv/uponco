@@ -258,12 +258,16 @@ test('the booking confirmation email contains the appointment details', function
     $mail = (new AppointmentBooked($appointment))->toMail($customer);
 
     expect($mail->subject)->toContain($setup['team']->name);
+    expect($mail->from)->toBe(['appointment@uponco.com', $setup['team']->name.' via Uponco']);
 
-    $body = collect($mail->introLines)->implode("\n");
-    expect($body)
-        ->toContain($setup['service']->title)
-        ->toContain($setup['user']->name)
-        ->toContain($setup['location']->name)
+    $html = (string) $mail->render();
+    expect($html)
+        ->toContain('Jane Doe')
+        ->toContain(e($setup['service']->title))
+        ->toContain(e($setup['user']->name))
+        ->toContain(e($setup['location']->name))
+        ->toContain(e($setup['location']->street_address))
+        ->toContain(e($setup['location']->city))
         ->toContain('Please use the side entrance');
 });
 
@@ -576,7 +580,7 @@ test('the update email clearly states the appointment was changed', function () 
     $mail = (new AppointmentBooked($appointment, AppointmentChange::Updated))->toMail($customer);
 
     expect($mail->subject)->toContain('updated');
-    expect(collect($mail->introLines)->implode("\n"))->toContain('updated');
+    expect((string) $mail->render())->toContain('Your appointment has been updated');
 });
 
 test('an appointment can be rescheduled to an available slot', function () {

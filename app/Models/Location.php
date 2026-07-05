@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\LocationOptions;
 use Database\Factories\LocationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,6 +55,23 @@ class Location extends Model
     public function specialists(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    /**
+     * The full postal address as a single line, e.g.
+     * "12 Main Street, Suite 4, 1010, Vienna, Austria".
+     */
+    public function fullAddress(): ?string
+    {
+        $parts = array_filter([
+            $this->street_address,
+            $this->unit,
+            $this->postal_code,
+            $this->city,
+            $this->country ? LocationOptions::countryName($this->country) : null,
+        ], fn (?string $part): bool => filled($part));
+
+        return $parts === [] ? null : implode(', ', $parts);
     }
 
     /**

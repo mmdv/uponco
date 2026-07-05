@@ -19,7 +19,9 @@ class AppointmentCalendar
     {
         $team = $appointment->team;
 
-        $location = $appointment->location?->name ?? __('Online');
+        $location = $appointment->location
+            ? (new Collection([$appointment->location->name, $appointment->location->fullAddress()]))->filter()->implode(', ')
+            : __('Online');
 
         $description = (new Collection([
             __('Service: :service', ['service' => $appointment->service->title]),

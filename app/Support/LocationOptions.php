@@ -44,12 +44,20 @@ class LocationOptions
     {
         $countries = array_map(fn (string $code): array => [
             'value' => $code,
-            'label' => Locale::getDisplayRegion('-'.$code, 'en') ?: $code,
+            'label' => self::countryName($code),
         ], self::COUNTRY_CODES);
 
         usort($countries, fn (array $a, array $b): int => strcmp($a['label'], $b['label']));
 
         return $countries;
+    }
+
+    /**
+     * Get the English display name for an ISO 3166-1 alpha-2 country code.
+     */
+    public static function countryName(string $code): string
+    {
+        return Locale::getDisplayRegion('-'.$code, 'en') ?: $code;
     }
 
     /**
