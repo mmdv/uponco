@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\AccountController;
+use App\Http\Controllers\Settings\GoogleIntegrationController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Teams\TeamController;
 use App\Http\Middleware\EnsureTeamMembership;
@@ -29,6 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
+
+    Route::get('settings/integrations', [GoogleIntegrationController::class, 'edit'])->name('integrations.edit');
+    Route::get('settings/integrations/google/connect', [GoogleIntegrationController::class, 'redirect'])->name('integrations.google.connect');
+    Route::get('settings/integrations/google/callback', [GoogleIntegrationController::class, 'callback'])->name('integrations.google.callback');
+    Route::delete('settings/integrations/google', [GoogleIntegrationController::class, 'disconnect'])->name('integrations.google.disconnect');
 
     Route::post('teams', [TeamController::class, 'store'])->name('teams.store');
 

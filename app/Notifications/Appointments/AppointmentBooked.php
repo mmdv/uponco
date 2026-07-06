@@ -94,6 +94,7 @@ class AppointmentBooked extends Notification implements ShouldQueue
                     'timezone' => $timezone,
                 ]),
                 'notes' => $appointment->notes,
+                'meetingUrl' => $appointment->meeting_url,
             ])
             ->attachData(
                 AppointmentCalendar::ics($appointment),

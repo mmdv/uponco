@@ -19,8 +19,8 @@ use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password', 'current_team_id', 'avatar_path'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'avatar_path'])]
+#[Fillable(['name', 'email', 'password', 'current_team_id', 'avatar_path', 'google_account_email', 'google_access_token', 'google_refresh_token', 'google_token_expires_at'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'avatar_path', 'google_access_token', 'google_refresh_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -60,7 +60,31 @@ class User extends Authenticatable implements PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'google_access_token' => 'encrypted',
+            'google_refresh_token' => 'encrypted',
+            'google_token_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Determine whether the user has connected a Google account.
+     */
+    public function hasGoogleConnected(): bool
+    {
+        return filled($this->google_refresh_token);
+    }
+
+    /**
+     * Determine whether the stored Google access token has expired (or is about
+     * to). A small skew is applied so tokens are refreshed before they lapse.
+     */
+    public function googleTokenIsExpired(): bool
+    {
+        if (blank($this->google_access_token) || $this->google_token_expires_at === null) {
+            return true;
+        }
+
+        return $this->google_token_expires_at->subSeconds(30)->isPast();
     }
 
     /**

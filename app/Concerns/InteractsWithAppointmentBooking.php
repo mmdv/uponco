@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Enums\AppointmentChange;
+use App\Enums\DeliveryType;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Customer;
@@ -11,6 +12,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Support\Appointments\SlotGenerator;
+use App\Support\Google\GoogleCalendarService;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,9 +45,52 @@ trait InteractsWithAppointmentBooking
             return $appointment;
         });
 
+        $this->maybeGenerateMeetingLink($appointment);
         $this->notifyCustomer($appointment, AppointmentChange::Created);
 
         return $appointment;
+    }
+
+    /**
+     * Create a Google Meet link for an online appointment when the assigned
+     * specialist has connected their Google account.
+     *
+     * This makes a live Google Calendar API call, so it runs outside the booking
+     * transaction and never blocks the booking: any failure is reported and the
+     * appointment simply keeps a null meeting URL.
+     */
+    protected function maybeGenerateMeetingLink(Appointment $appointment): void
+    {
+        if ($appointment->delivery_type !== DeliveryType::Online) {
+            return;
+        }
+
+        if ($appointment->online_meeting_provider !== 'google_meet') {
+            return;
+        }
+
+        if (filled($appointment->meeting_url)) {
+            return;
+        }
+
+        $specialist = $appointment->specialist;
+
+        if (! $specialist instanceof User || ! $specialist->hasGoogleConnected()) {
+            return;
+        }
+
+        try {
+            $meeting = (new GoogleCalendarService)->createMeetEvent($specialist, $appointment);
+
+            if ($meeting !== null) {
+                $appointment->update([
+                    'meeting_url' => $meeting['meet_url'],
+                    'google_calendar_event_id' => $meeting['event_id'],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     /**
@@ -96,6 +141,7 @@ trait InteractsWithAppointmentBooking
         ]);
 
         $appointment->setRelation('customer', $customer);
+        $this->maybeGenerateMeetingLink($appointment);
         $this->notifyCustomer($appointment, AppointmentChange::Updated);
 
         return $appointment;

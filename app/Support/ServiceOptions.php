@@ -14,10 +14,7 @@ class ServiceOptions
      * @var array<string, string>
      */
     protected const MEETING_PROVIDERS = [
-        'zoom' => 'Zoom',
         'google_meet' => 'Google Meet',
-        'microsoft_teams' => 'Microsoft Teams',
-        'webex' => 'Webex',
     ];
 
     /**

@@ -19,11 +19,16 @@ class AppointmentCalendar
     {
         $team = $appointment->team;
 
-        $location = $appointment->location
-            ? (new Collection([$appointment->location->name, $appointment->location->fullAddress()]))->filter()->implode(', ')
-            : __('Online');
+        $meetingUrl = $appointment->meeting_url;
+
+        // For an online appointment the join link is the most useful "location".
+        $location = $meetingUrl
+            ?: ($appointment->location
+                ? (new Collection([$appointment->location->name, $appointment->location->fullAddress()]))->filter()->implode(', ')
+                : __('Online'));
 
         $description = (new Collection([
+            $meetingUrl ? __('Join: :url', ['url' => $meetingUrl]) : null,
             __('Service: :service', ['service' => $appointment->service->title]),
             __('Specialist: :specialist', ['specialist' => $appointment->specialist->name]),
             $appointment->notes,
@@ -43,10 +48,17 @@ class AppointmentCalendar
             'SUMMARY:'.self::escape($appointment->service->title.' · '.$team->name),
             'DESCRIPTION:'.self::escape($description),
             'LOCATION:'.self::escape($location),
+        ];
+
+        if ($meetingUrl) {
+            $lines[] = 'URL:'.self::escape($meetingUrl);
+        }
+
+        $lines = array_merge($lines, [
             'STATUS:CONFIRMED',
             'END:VEVENT',
             'END:VCALENDAR',
-        ];
+        ]);
 
         return implode("\r\n", $lines)."\r\n";
     }

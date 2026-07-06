@@ -169,7 +169,7 @@ test('a group online service stores capacity and provider', function () {
                 'service_type' => 'group',
                 'capacity' => 12,
                 'delivery_type' => 'online',
-                'online_meeting_provider' => 'zoom',
+                'online_meeting_provider' => 'google_meet',
             ]),
         )
         ->assertRedirect();
@@ -178,7 +178,7 @@ test('a group online service stores capacity and provider', function () {
         'service_type' => 'group',
         'capacity' => 12,
         'delivery_type' => 'online',
-        'online_meeting_provider' => 'zoom',
+        'online_meeting_provider' => 'google_meet',
     ]);
 });
 

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'delivery_type',
     'online_meeting_provider',
     'meeting_url',
+    'google_calendar_event_id',
     'client_comment',
     'notes',
 ])]

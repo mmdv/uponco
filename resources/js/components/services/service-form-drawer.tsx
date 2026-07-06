@@ -440,6 +440,13 @@ function ServiceFormFields({
                                     // Online services are not tied to a branch.
                                     if (next === 'online') {
                                         setLocationIds([]);
+
+                                        // Default to the only available provider.
+                                        if (!meetingProvider) {
+                                            setMeetingProvider(
+                                                meetingProviders[0]?.value ?? '',
+                                            );
+                                        }
                                     }
                                 }}
                                 invalid={Boolean(errors.delivery_type)}

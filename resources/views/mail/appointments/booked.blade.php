@@ -104,6 +104,21 @@
                                 </tr>
                             </table>
 
+                            @if ($meetingUrl)
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+                                    <tr>
+                                        <td align="center" style="border-radius:10px;background-color:#0063ff;">
+                                            <a href="{{ $meetingUrl }}" target="_blank" style="display:block;padding:14px 24px;font-family:{{ $font }};font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
+                                                {{ __('Join online meeting') }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p style="margin:10px 0 0;font-family:{{ $font }};font-size:13px;line-height:1.5;color:#71717a;word-break:break-all;">
+                                    {{ $meetingUrl }}
+                                </p>
+                            @endif
+
                             <p style="margin:24px 0 0;font-family:{{ $font }};font-size:14px;line-height:1.6;color:#3f3f46;">
                                 {{ __('A calendar invitation is attached to this email so you can add the appointment to your calendar.') }}
                             </p>
