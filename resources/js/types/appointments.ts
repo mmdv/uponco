@@ -1,4 +1,4 @@
-import type { DeliveryType, PriceType } from './services';
+import type { DeliveryType, PriceType, ServiceTypeValue } from './services';
 
 export type AppointmentServiceOption = {
     id: number;
@@ -10,6 +10,8 @@ export type AppointmentServiceOption = {
     price_min: string | null;
     price_max: string | null;
     delivery_type: DeliveryType;
+    service_type: ServiceTypeValue;
+    capacity: number | null;
     category_id: number;
     category_name: string;
     location_ids: number[];
@@ -51,6 +53,8 @@ export type AppointmentSlot = {
     /** Wall-clock start time (HH:MM) in the team timezone. */
     label: string;
     available: boolean;
+    /** Seats left for a group service, or null for individual services. */
+    remaining: number | null;
 };
 
 export type Appointment = {

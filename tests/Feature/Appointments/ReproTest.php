@@ -16,6 +16,7 @@ test('REPRO double POST same slot', function () {
     $category = ServiceCategory::factory()->for($team)->create();
     $service = Service::factory()->for($category, 'category')->create([
         'duration' => 60, 'technical_break' => 0, 'delivery_type' => 'onsite',
+        'service_type' => 'individual', 'capacity' => null,
         'online_meeting_provider' => null, 'is_active' => true,
     ]);
     $location = Location::factory()->for($team)->create();

@@ -26,9 +26,15 @@ class SlotGenerator
      * - start: ISO-8601 UTC instant of the slot start
      * - end: ISO-8601 UTC instant of the slot end (start + service duration)
      * - label: wall-clock start time (HH:MM) in the team timezone
-     * - available: whether the slot can be booked (not in the past, not taken)
+     * - available: whether the slot can be booked (not in the past, not taken/full)
+     * - remaining: seats left for a group service, or null for individual services
      *
-     * @return array<int, array{start: string, end: string, label: string, available: bool}>
+     * For a group service, multiple customers share the same session (a unique
+     * specialist/service/start_at). Same-session bookings count toward capacity
+     * without blocking each other; any other overlapping appointment still blocks
+     * the slot because the specialist is busy.
+     *
+     * @return array<int, array{start: string, end: string, label: string, available: bool, remaining: ?int}>
      */
     public static function generate(
         Service $service,
@@ -70,15 +76,26 @@ class SlotGenerator
 
             while ($slotStart->addMinutes($duration)->lessThanOrEqualTo($intervalEnd)) {
                 $slotEnd = $slotStart->addMinutes($duration);
+                $slotStartIso = $slotStart->utc()->toIso8601String();
 
                 $isPast = $slotStart->lessThan($now);
-                $isBooked = static::overlapsAny($slotStart, $slotEnd, $booked);
+                $isBlocked = static::overlapsOther($slotStart, $slotEnd, $slotStartIso, $service, $booked);
+
+                if ($service->isGroup()) {
+                    $taken = static::sessionBookings($slotStartIso, $service, $booked);
+                    $remaining = max(0, $service->capacity - $taken);
+                    $available = ! $isPast && ! $isBlocked && $remaining > 0;
+                } else {
+                    $remaining = null;
+                    $available = ! $isPast && ! $isBlocked;
+                }
 
                 $slots[] = [
-                    'start' => $slotStart->utc()->toIso8601String(),
+                    'start' => $slotStartIso,
                     'end' => $slotEnd->utc()->toIso8601String(),
                     'label' => $slotStart->format('H:i'),
-                    'available' => ! $isPast && ! $isBooked,
+                    'available' => $available,
+                    'remaining' => $remaining,
                 ];
 
                 $slotStart = $slotStart->addMinutes($step);
@@ -127,7 +144,11 @@ class SlotGenerator
     /**
      * Fetch the specialist's existing appointment intervals overlapping the day.
      *
-     * @return Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>
+     * Each interval also carries the booked service and start instant so group
+     * sessions (same specialist/service/start_at) can be told apart from other
+     * appointments that simply occupy the specialist's time.
+     *
+     * @return Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}>
      */
     protected static function bookedIntervals(User $specialist, CarbonImmutable $day, ?int $ignoreAppointmentId): Collection
     {
@@ -136,23 +157,63 @@ class SlotGenerator
             ->where('start_at', '<', $day->endOfDay()->utc())
             ->where('end_at', '>', $day->utc())
             ->when($ignoreAppointmentId, fn ($query) => $query->whereKeyNot($ignoreAppointmentId))
-            ->get(['start_at', 'end_at'])
-            ->map(fn (Appointment $appointment): array => [$appointment->start_at, $appointment->end_at]);
+            ->get(['start_at', 'end_at', 'service_id'])
+            ->map(fn (Appointment $appointment): array => [
+                'start' => $appointment->start_at,
+                'end' => $appointment->end_at,
+                'service_id' => $appointment->service_id,
+                'start_iso' => $appointment->start_at->copy()->utc()->toIso8601String(),
+            ]);
     }
 
     /**
-     * Determine whether a slot overlaps any of the booked intervals.
+     * Determine whether a slot overlaps any booked interval that is not part of
+     * the same group session, i.e. an appointment that blocks the specialist.
      *
-     * @param  Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>  $booked
+     * @param  Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}>  $booked
      */
-    protected static function overlapsAny(CarbonImmutable $slotStart, CarbonImmutable $slotEnd, Collection $booked): bool
-    {
-        foreach ($booked as [$bookedStart, $bookedEnd]) {
-            if ($slotStart->lessThan($bookedEnd) && $slotEnd->greaterThan($bookedStart)) {
+    protected static function overlapsOther(
+        CarbonImmutable $slotStart,
+        CarbonImmutable $slotEnd,
+        string $slotStartIso,
+        Service $service,
+        Collection $booked,
+    ): bool {
+        foreach ($booked as $interval) {
+            if (static::isSameSession($slotStartIso, $service, $interval)) {
+                continue;
+            }
+
+            if ($slotStart->lessThan($interval['end']) && $slotEnd->greaterThan($interval['start'])) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Count how many bookings already belong to this group session.
+     *
+     * @param  Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}>  $booked
+     */
+    protected static function sessionBookings(string $slotStartIso, Service $service, Collection $booked): int
+    {
+        return $booked
+            ->filter(fn (array $interval): bool => static::isSameSession($slotStartIso, $service, $interval))
+            ->count();
+    }
+
+    /**
+     * Determine whether a booked interval belongs to the same group session as
+     * the candidate slot (same group service starting at the same instant).
+     *
+     * @param  array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}  $interval
+     */
+    protected static function isSameSession(string $slotStartIso, Service $service, array $interval): bool
+    {
+        return $service->isGroup()
+            && $interval['service_id'] === $service->id
+            && $interval['start_iso'] === $slotStartIso;
     }
 }

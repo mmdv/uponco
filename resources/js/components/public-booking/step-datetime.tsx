@@ -37,7 +37,12 @@ export default function StepDateTime({
         minute: '2-digit',
     });
 
-    const availableSlots = slots.filter((slot) => slot.available);
+    // Bookable slots plus full group sessions, which are shown disabled so the
+    // visitor can see the session existed. Past / specialist-blocked slots stay
+    // hidden as before (they are unavailable with seats still nominally left).
+    const visibleSlots = slots.filter(
+        (slot) => slot.available || slot.remaining === 0,
+    );
 
     return (
         <div className="space-y-6">
@@ -105,28 +110,53 @@ export default function StepDateTime({
                             <Skeleton key={index} className="h-10 w-full" />
                         ))}
                     </div>
-                ) : availableSlots.length === 0 ? (
+                ) : visibleSlots.length === 0 ? (
                     <p className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
                         No times available on this day. Try another.
                     </p>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
-                        {availableSlots.map((slot) => {
+                        {visibleSlots.map((slot) => {
                             const isSelected = slot.start === selectedStart;
+                            const isFull = slot.remaining === 0;
 
                             return (
                                 <button
                                     key={slot.start}
                                     type="button"
+                                    disabled={isFull}
                                     onClick={() => onSelectSlot(slot.start)}
                                     className={cn(
-                                        'rounded-lg border py-2.5 text-sm font-medium transition-all duration-200',
+                                        'flex flex-col items-center rounded-lg border py-2 text-sm font-medium transition-all duration-200',
                                         isSelected
                                             ? 'border-primary bg-primary text-primary-foreground'
                                             : 'border-border bg-card hover:border-primary/40',
+                                        isFull &&
+                                            'cursor-not-allowed opacity-40 hover:border-border',
                                     )}
                                 >
-                                    {timeFormatter.format(new Date(slot.start))}
+                                    <span
+                                        className={cn(isFull && 'line-through')}
+                                    >
+                                        {timeFormatter.format(
+                                            new Date(slot.start),
+                                        )}
+                                    </span>
+
+                                    {slot.remaining !== null && (
+                                        <span
+                                            className={cn(
+                                                'text-[11px] font-normal',
+                                                isSelected
+                                                    ? 'text-primary-foreground/80'
+                                                    : 'text-muted-foreground',
+                                            )}
+                                        >
+                                            {isFull
+                                                ? 'Fully booked'
+                                                : `${slot.remaining} left`}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}

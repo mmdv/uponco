@@ -37,6 +37,15 @@ export default function StepDetails({ values, onChange, errors }: Props) {
             >
                 <h2 className="text-sm font-medium">Your details</h2>
 
+                {errors.booking_conflict && (
+                    <p
+                        role="alert"
+                        className="rounded-lg border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                    >
+                        {errors.booking_conflict}
+                    </p>
+                )}
+
                 <div className="grid gap-2">
                     <Label htmlFor="customer_name">Name surname</Label>
                     <Input

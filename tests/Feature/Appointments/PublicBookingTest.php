@@ -171,6 +171,61 @@ test('a guest booking reuses an existing customer with the same email', function
     expect(Appointment::first()->customer_id)->toBe($customer->id);
 });
 
+test('the booking page exposes the service type and capacity', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 5]);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('services.0', fn (Assert $service) => $service
+                ->where('service_type', 'group')
+                ->where('capacity', 5)
+                ->etc(),
+            ),
+        );
+});
+
+test('multiple guests can book the same group session until it is full', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 2]);
+
+    $book = fn (string $email) => $this->post(
+        route('public.appointments.store', ['company' => $setup['team']->slug]),
+        appointmentPayload($setup, ['customer_email' => $email, 'customer_phone' => null]),
+    );
+
+    $book('a@example.com')->assertSessionHasNoErrors()->assertRedirect();
+    $book('b@example.com')->assertSessionHasNoErrors()->assertRedirect();
+
+    $sessionBookings = fn () => Appointment::query()
+        ->where('service_id', $setup['service']->id)
+        ->where('start_at', $setup['startAt'])
+        ->count();
+
+    expect($sessionBookings())->toBe(2);
+
+    // The session is now full: a third guest is rejected and no row is created.
+    $book('c@example.com')->assertSessionHasErrors('start_at');
+
+    expect($sessionBookings())->toBe(2);
+});
+
+test('the same customer cannot book the same group session twice', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 4]);
+
+    $book = fn () => $this->post(
+        route('public.appointments.store', ['company' => $setup['team']->slug]),
+        appointmentPayload($setup, ['customer_email' => 'repeat@example.com', 'customer_phone' => null]),
+    );
+
+    $book()->assertSessionHasNoErrors()->assertRedirect();
+    $book()->assertSessionHasErrors('booking_conflict');
+
+    expect(Appointment::query()
+        ->where('service_id', $setup['service']->id)
+        ->where('start_at', $setup['startAt'])
+        ->count())->toBe(1);
+});
+
 test('a guest booking validates availability', function () {
     $setup = bookableSetup();
 

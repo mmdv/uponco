@@ -65,6 +65,14 @@ class Service extends Model
     }
 
     /**
+     * Determine whether this is a group service with a shared capacity.
+     */
+    public function isGroup(): bool
+    {
+        return $this->service_type === ServiceType::Group;
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

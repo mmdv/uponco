@@ -11,8 +11,11 @@ use App\Models\Team;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Support\Appointments\SlotGenerator;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Shared booking helpers used by both the dashboard and public booking flows.
@@ -24,17 +27,60 @@ trait InteractsWithAppointmentBooking
      */
     protected function createAppointment(Team $team, SaveAppointmentRequest $request): Appointment
     {
-        $customer = $this->resolveCustomer($team, $request->customerData());
+        $appointment = DB::transaction(function () use ($team, $request): Appointment {
+            $customer = $this->resolveCustomer($team, $request->customerData());
+            $data = $request->appointmentData();
 
-        $appointment = $team->appointments()->create([
-            ...$request->appointmentData(),
-            'customer_id' => $customer->id,
-        ]);
+            $this->guardGroupCapacity($request->service(), $data['start_at'], $data['specialist_id'], $customer->id);
 
-        $appointment->setRelation('customer', $customer);
+            $appointment = $team->appointments()->create([
+                ...$data,
+                'customer_id' => $customer->id,
+            ]);
+
+            $appointment->setRelation('customer', $customer);
+
+            return $appointment;
+        });
+
         $this->notifyCustomer($appointment, AppointmentChange::Created);
 
         return $appointment;
+    }
+
+    /**
+     * Guard a group session before the row is created: the customer may not
+     * already be booked into it, and it must still have a free seat.
+     *
+     * The request validation already rejects a full session, but two concurrent
+     * bookings could each see the last seat as free. Re-check under a row lock
+     * inside the surrounding transaction so capacity can never be exceeded and a
+     * customer can never end up booked into the same session twice.
+     */
+    protected function guardGroupCapacity(Service $service, CarbonInterface $startAt, int $specialistId, int $customerId): void
+    {
+        if (! $service->isGroup()) {
+            return;
+        }
+
+        $session = Appointment::query()
+            ->where('service_id', $service->id)
+            ->where('specialist_id', $specialistId)
+            ->where('start_at', $startAt)
+            ->lockForUpdate()
+            ->get(['customer_id']);
+
+        if ($session->contains('customer_id', $customerId)) {
+            throw ValidationException::withMessages([
+                'booking_conflict' => __('You have already booked this session. Use a different email or phone number, or choose another time.'),
+            ]);
+        }
+
+        if ($session->count() >= $service->capacity) {
+            throw ValidationException::withMessages([
+                'start_at' => __('This session is now fully booked.'),
+            ]);
+        }
     }
 
     /**
@@ -138,7 +184,7 @@ trait InteractsWithAppointmentBooking
     /**
      * Resolve the available slots for the current picker selection.
      *
-     * @return array<int, array{start: string, end: string, label: string, available: bool}>
+     * @return array<int, array{start: string, end: string, label: string, available: bool, remaining: ?int}>
      */
     protected function availableSlots(Request $request, Team $team): array
     {

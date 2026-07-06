@@ -77,6 +77,12 @@ export function useAppointmentBooking({
     const [selectedStart, setSelectedStart] = useState('');
     const [selectedEnd, setSelectedEnd] = useState('');
     const [slotsLoading, setSlotsLoading] = useState(false);
+    // Slots live in local state rather than being read straight from the prop:
+    // submitting a booking redirects back to a page render where the optional
+    // `availableSlots` prop is omitted (reset to []), which would otherwise wipe
+    // the picker. Keeping our own copy means the last fetched day survives a
+    // failed submit until the visitor changes the day.
+    const [slots, setSlots] = useState<AppointmentSlot[]>(availableSlots);
 
     const [details, setDetails] = useState<CustomerDetails>(EMPTY_DETAILS);
     const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
@@ -150,6 +156,8 @@ export function useAppointmentBooking({
             next.specialistId === null ||
             next.date === ''
         ) {
+            setSlots([]);
+
             return;
         }
 
@@ -162,6 +170,13 @@ export function useAppointmentBooking({
                 appointment_id: '',
             },
             onStart: () => setSlotsLoading(true),
+            onSuccess: (page) => {
+                setSlots(
+                    (page.props.availableSlots as
+                        | AppointmentSlot[]
+                        | undefined) ?? [],
+                );
+            },
             onFinish: () => setSlotsLoading(false),
         });
     };
@@ -290,7 +305,7 @@ export function useAppointmentBooking({
     };
 
     const handleSelectSlot = (start: string) => {
-        const slot = availableSlots.find((item) => item.start === start);
+        const slot = slots.find((item) => item.start === start);
         setSelectedStart(start);
         setSelectedEnd(slot?.end ?? '');
     };
@@ -303,6 +318,12 @@ export function useAppointmentBooking({
         setErrors((current) => {
             const next = { ...current };
             delete next[field];
+
+            // Editing either contact field clears the "already booked this
+            // session" conflict so the banner disappears as the user corrects it.
+            if (field === 'customer_email' || field === 'customer_phone') {
+                delete next.booking_conflict;
+            }
 
             return next;
         });
@@ -481,7 +502,7 @@ export function useAppointmentBooking({
         upcomingDays,
         date,
         handleDateChange,
-        availableSlots,
+        availableSlots: slots,
         slotsLoading,
         selectedStart,
         handleSelectSlot,

@@ -28,6 +28,8 @@ function bookableSetup(array $serviceOverrides = []): array
     $service = Service::factory()->for($category, 'category')->create(array_merge([
         'duration' => 60,
         'technical_break' => 0,
+        'service_type' => 'individual',
+        'capacity' => null,
         'delivery_type' => 'onsite',
         'online_meeting_provider' => null,
         'is_active' => true,
@@ -389,6 +391,150 @@ test('a booked slot cannot be double booked for the specialist', function () {
         ->actingAs($setup['user'])
         ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
         ->assertSessionHasErrors('start_at');
+});
+
+test('a group service slot exposes its full capacity when nothing is booked', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 3]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    $slot = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
+
+    expect($slot['remaining'])->toBe(3);
+    expect($slot['available'])->toBeTrue();
+});
+
+test('each booking in a group session decrements the remaining seats', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 3]);
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    $slot = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
+
+    expect($slot['remaining'])->toBe(2);
+    expect($slot['available'])->toBeTrue();
+});
+
+test('a group session becomes unavailable once capacity is reached', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 2]);
+
+    Appointment::factory()->count(2)->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    $slot = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
+
+    expect($slot['remaining'])->toBe(0);
+    expect($slot['available'])->toBeFalse();
+});
+
+test('a full group session does not block a different session on the same day', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 2]);
+
+    Appointment::factory()->count(2)->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    $laterSession = $setup['startAt']->addHour();
+    $slot = collect($slots)->firstWhere('start', $laterSession->toIso8601String());
+
+    expect($slot['remaining'])->toBe(2);
+    expect($slot['available'])->toBeTrue();
+});
+
+test('an appointment for another service blocks an overlapping group slot', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 3]);
+
+    $otherService = Service::factory()
+        ->for($setup['service']->category, 'category')
+        ->create(['duration' => 60]);
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $otherService->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    $slot = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
+
+    // The seats are untouched, but the specialist is busy with the other service.
+    expect($slot['remaining'])->toBe(3);
+    expect($slot['available'])->toBeFalse();
+});
+
+test('individual service slots report a null remaining capacity', function () {
+    $setup = bookableSetup(['service_type' => 'individual', 'capacity' => null]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    $slot = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
+
+    expect($slot['remaining'])->toBeNull();
+    expect($slot['available'])->toBeTrue();
 });
 
 test('an appointment requires a service, specialist and start time', function () {
