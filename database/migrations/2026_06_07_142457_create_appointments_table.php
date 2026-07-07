@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('team_id')->constrained()->cascadeOnDelete();
             $table->foreignId('service_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('location_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('specialist_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->dateTime('start_at');
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('delivery_type');
             $table->string('online_meeting_provider')->nullable();
             $table->string('meeting_url')->nullable();
+            $table->string('google_calendar_event_id')->nullable();
             $table->text('client_comment')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

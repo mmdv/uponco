@@ -13,11 +13,22 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->nullable()->unique();
             $table->string('slug')->unique();
+            $table->string('logo_path')->nullable();
             $table->boolean('is_personal')->default(false);
+            $table->string('timezone')->nullable();
+            $table->string('business_category')->nullable();
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('current_team_id')
+                ->nullable()
+                ->after('password')
+                ->constrained('teams')
+                ->nullOnDelete();
         });
 
         Schema::create('team_members', function (Blueprint $table) {
@@ -48,6 +59,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('current_team_id');
+        });
+
         Schema::dropIfExists('team_invitations');
         Schema::dropIfExists('team_members');
         Schema::dropIfExists('teams');

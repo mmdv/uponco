@@ -4,6 +4,7 @@ import {
     Building2,
     FolderGit2,
     LayoutGrid,
+    ShieldCheck,
     UserCog,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/sidebar';
 import { isTeamManager } from '@/lib/teams';
 import { dashboard } from '@/routes';
+import { index as backoffice } from '@/routes/backoffice';
 import { index as company } from '@/routes/company';
 import { edit as workProfile } from '@/routes/company/work-profile';
 import type { NavItem } from '@/types';
@@ -51,6 +53,15 @@ export function AppSidebar() {
                             href: workProfile(page.props.currentTeam.slug),
                             icon: UserCog,
                         },
+              ]
+            : []),
+        ...(page.props.currentTeam?.name === 'Uponco'
+            ? [
+                  {
+                      title: 'Backoffice',
+                      href: backoffice(page.props.currentTeam.slug),
+                      icon: ShieldCheck,
+                  },
               ]
             : []),
     ];

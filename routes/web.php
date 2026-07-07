@@ -2,6 +2,7 @@
 
 use App\Enums\TeamRole;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BackofficeController;
 use App\Http\Controllers\Company\BrandController;
 use App\Http\Controllers\Company\BusinessController;
 use App\Http\Controllers\Company\BusinessInvitationController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\PublicAppointmentController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Http\Middleware\EnsureTeamOnboarded;
+use App\Http\Middleware\EnsureUponcoTeam;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -39,6 +41,15 @@ Route::prefix('{current_team}')
     ->group(function () {
         Route::get('onboard', [OnboardController::class, 'show'])->name('onboard.show');
         Route::patch('onboard', [OnboardController::class, 'update'])->name('onboard.update');
+    });
+
+// Operator backoffice, restricted to members of the "Uponco" team.
+Route::prefix('{current_team}')
+    ->middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureUponcoTeam::class])
+    ->group(function () {
+        Route::get('backoffice', [BackofficeController::class, 'index'])->name('backoffice.index');
+        Route::delete('backoffice/teams/{team}', [BackofficeController::class, 'destroyTeam'])->name('backoffice.teams.destroy');
+        Route::delete('backoffice/users/{user}', [BackofficeController::class, 'destroyUser'])->name('backoffice.users.destroy');
     });
 
 Route::prefix('{current_team}')

@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('street_address');
             $table->string('unit')->nullable();
             $table->string('postal_code');
-            $table->string('timezone');
             $table->string('phone')->nullable();
             $table->timestamps();
             $table->softDeletes();

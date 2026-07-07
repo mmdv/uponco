@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,7 +17,6 @@ return new class extends Migration
      * @var list<string>
      */
     private array $stepColumns = [
-        'general_status',
         'locations_status',
         'services_status',
         'profile_status',
@@ -37,7 +37,7 @@ return new class extends Migration
                 $table->string($column)->default(OnboardingStepStatus::Pending->value);
             }
 
-            $table->string('current_step')->default('general');
+            $table->string('current_step')->default(OnboardingStep::Locations->value);
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 
