@@ -41,7 +41,13 @@ function readStoredTheme(): PublicTheme {
         return 'light';
     }
 
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === 'dark'
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+
+    if (stored === 'dark' || stored === 'light') {
+        return stored;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
 }

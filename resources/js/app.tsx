@@ -18,6 +18,8 @@ createInertiaApp({
                 return null;
             case name.startsWith('public/'):
                 return null;
+            case name.startsWith('legal/'):
+                return null;
             case name === 'onboard':
                 return AuthLayout;
             case name.startsWith('auth/'):

@@ -24,8 +24,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
-Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'])->name('public.appointments.show');
-Route::post('appointments/{company}', [PublicAppointmentController::class, 'store'])->name('public.appointments.store');
+Route::inertia('/privacy', 'legal/privacy')->name('privacy');
+Route::inertia('/terms', 'legal/terms')->name('terms');
+
+Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'])
+    ->middleware('throttle:60,1')
+    ->name('public.appointments.show');
+Route::post('appointments/{company}', [PublicAppointmentController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('public.appointments.store');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])

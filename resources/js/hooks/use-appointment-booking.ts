@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import type { CustomerDetails } from '@/components/public-booking/step-details';
 import {
@@ -41,6 +41,28 @@ const EMPTY_DETAILS: CustomerDetails = {
     customer_phone: '',
     notes: '',
 };
+
+const SELECTION_KINDS = ['service', 'location', 'specialist'] as const;
+
+type SelectionKind = (typeof SELECTION_KINDS)[number];
+
+type SelectionIds = Record<SelectionKind, number | null>;
+
+/**
+ * The compatibility id-lists every option carries about the other two kinds:
+ * a service lists its `location_ids`/`specialist_ids`, a location its
+ * `service_ids`/`specialist_ids`, and so on.
+ */
+type CompatibilityLists = Partial<Record<`${SelectionKind}_ids`, number[]>>;
+
+/** Identifies a slot query so responses can be matched to the selection they were made for. */
+function slotsKeyFor(
+    serviceId: number,
+    specialistId: number,
+    date: string,
+): string {
+    return `${serviceId}:${specialistId}:${date}`;
+}
 
 type Params = {
     company: { name: string; slug: string };
@@ -143,6 +165,13 @@ export function useAppointmentBooking({
         specialistId !== null &&
         (!requiresLocation || locationId !== null);
 
+    // The slot query the visitor most recently asked for, and the one whose
+    // slots are currently on screen. Comparing against them lets a late
+    // response for a superseded selection be ignored, and an identical
+    // refetch be skipped when the selection hasn't changed.
+    const requestedSlotsKey = useRef<string | null>(null);
+    const loadedSlotsKey = useRef<string | null>(null);
+
     const requestSlots = (next: {
         serviceId: number | null;
         specialistId: number | null;
@@ -156,10 +185,15 @@ export function useAppointmentBooking({
             next.specialistId === null ||
             next.date === ''
         ) {
+            requestedSlotsKey.current = null;
+            loadedSlotsKey.current = null;
             setSlots([]);
 
             return;
         }
+
+        const key = slotsKeyFor(next.serviceId, next.specialistId, next.date);
+        requestedSlotsKey.current = key;
 
         router.reload({
             only: ['availableSlots'],
@@ -171,13 +205,22 @@ export function useAppointmentBooking({
             },
             onStart: () => setSlotsLoading(true),
             onSuccess: (page) => {
+                if (requestedSlotsKey.current !== key) {
+                    return;
+                }
+
+                loadedSlotsKey.current = key;
                 setSlots(
                     (page.props.availableSlots as
                         | AppointmentSlot[]
                         | undefined) ?? [],
                 );
             },
-            onFinish: () => setSlotsLoading(false),
+            onFinish: () => {
+                if (requestedSlotsKey.current === key) {
+                    setSlotsLoading(false);
+                }
+            },
         });
     };
 
@@ -206,98 +249,57 @@ export function useAppointmentBooking({
         return setOpenCard(null);
     };
 
-    const handleServiceChange = (value: number) => {
-        const service = services.find((item) => item.id === value);
-        let nextLocationId = locationId;
-        let nextSpecialistId = specialistId;
+    // Selecting one entity keeps each of the other two only while it stays
+    // compatible with the new choice, per the id-lists the backend ships on
+    // every option.
+    const changeSelection = (kind: SelectionKind, value: number) => {
+        const pools = {
+            service: services,
+            location: locations,
+            specialist: specialists,
+        };
+        const selected: (CompatibilityLists & { id: number }) | undefined =
+            pools[kind].find((item) => item.id === value);
 
-        if (service) {
-            if (
-                nextLocationId !== null &&
-                !service.location_ids.includes(nextLocationId)
-            ) {
-                nextLocationId = null;
-            }
+        const next: SelectionIds = {
+            service: serviceId,
+            location: locationId,
+            specialist: specialistId,
+        };
+        next[kind] = value;
 
-            if (
-                nextSpecialistId !== null &&
-                !service.specialist_ids.includes(nextSpecialistId)
-            ) {
-                nextSpecialistId = null;
-            }
-        }
+        if (selected) {
+            for (const other of SELECTION_KINDS) {
+                const currentId = next[other];
 
-        setServiceId(value);
-        setLocationId(nextLocationId);
-        setSpecialistId(nextSpecialistId);
-        focusNext({
-            serviceId: value,
-            locationId: nextLocationId,
-            specialistId: nextSpecialistId,
-        });
-    };
-
-    const handleLocationChange = (value: number) => {
-        const location = locations.find((item) => item.id === value);
-        let nextServiceId = serviceId;
-        let nextSpecialistId = specialistId;
-
-        if (location) {
-            if (
-                nextServiceId !== null &&
-                !location.service_ids.includes(nextServiceId)
-            ) {
-                nextServiceId = null;
-            }
-
-            if (
-                nextSpecialistId !== null &&
-                !location.specialist_ids.includes(nextSpecialistId)
-            ) {
-                nextSpecialistId = null;
+                if (
+                    other !== kind &&
+                    currentId !== null &&
+                    !selected[`${other}_ids`]?.includes(currentId)
+                ) {
+                    next[other] = null;
+                }
             }
         }
 
-        setLocationId(value);
-        setServiceId(nextServiceId);
-        setSpecialistId(nextSpecialistId);
+        setServiceId(next.service);
+        setLocationId(next.location);
+        setSpecialistId(next.specialist);
         focusNext({
-            serviceId: nextServiceId,
-            locationId: value,
-            specialistId: nextSpecialistId,
+            serviceId: next.service,
+            locationId: next.location,
+            specialistId: next.specialist,
         });
     };
 
-    const handleSpecialistChange = (value: number) => {
-        const specialist = specialists.find((item) => item.id === value);
-        let nextServiceId = serviceId;
-        let nextLocationId = locationId;
+    const handleServiceChange = (value: number) =>
+        changeSelection('service', value);
 
-        if (specialist) {
-            if (
-                nextServiceId !== null &&
-                !specialist.service_ids.includes(nextServiceId)
-            ) {
-                nextServiceId = null;
-            }
+    const handleLocationChange = (value: number) =>
+        changeSelection('location', value);
 
-            if (
-                nextLocationId !== null &&
-                !specialist.location_ids.includes(nextLocationId)
-            ) {
-                nextLocationId = null;
-            }
-        }
-
-        setSpecialistId(value);
-        setServiceId(nextServiceId);
-        setLocationId(nextLocationId);
-        focusNext({
-            serviceId: nextServiceId,
-            locationId: nextLocationId,
-            specialistId: value,
-        });
-    };
+    const handleSpecialistChange = (value: number) =>
+        changeSelection('specialist', value);
 
     const handleDateChange = (value: string) => {
         setDate(value);
@@ -393,9 +395,10 @@ export function useAppointmentBooking({
     const handleContinue = () => {
         if (step === 0) {
             // Keep the chosen day only when the selected specialist can take it,
-            // otherwise fall back to their closest bookable day. Always refetch
-            // slots here so changing the specialist (or service) never leaves the
-            // previous specialist's slots on screen.
+            // otherwise fall back to their closest bookable day. Refetch slots
+            // unless the on-screen ones already belong to this exact selection,
+            // so changing the specialist (or service) never leaves the previous
+            // specialist's slots on screen.
             const bookableDays = selectedSpecialist?.available_days ?? [];
             const nextDate =
                 date !== '' && bookableDays.includes(date)
@@ -403,7 +406,17 @@ export function useAppointmentBooking({
                     : (bookableDays[0] ?? '');
 
             setDate(nextDate);
-            requestSlots({ serviceId, specialistId, date: nextDate });
+
+            const alreadyLoaded =
+                serviceId !== null &&
+                specialistId !== null &&
+                nextDate !== '' &&
+                loadedSlotsKey.current ===
+                    slotsKeyFor(serviceId, specialistId, nextDate);
+
+            if (!alreadyLoaded) {
+                requestSlots({ serviceId, specialistId, date: nextDate });
+            }
 
             goToStep(1);
 
@@ -437,6 +450,11 @@ export function useAppointmentBooking({
                     ) {
                         goToStep(0);
                     } else if (formErrors.start_at) {
+                        // The slot list on screen is now known to be stale
+                        // (e.g. the slot was just taken), so forget it was
+                        // loaded and refetch when the visitor returns here.
+                        loadedSlotsKey.current = null;
+                        requestSlots({ serviceId, specialistId, date });
                         goToStep(1);
                     }
                 },
@@ -460,6 +478,10 @@ export function useAppointmentBooking({
         setDate('');
         setSelectedStart('');
         setSelectedEnd('');
+        // The booking just made means any cached slot list is stale.
+        requestedSlotsKey.current = null;
+        loadedSlotsKey.current = null;
+        setSlots([]);
         setDetails(EMPTY_DETAILS);
         setErrors({});
         setOpenCard(null);

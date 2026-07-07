@@ -1,12 +1,17 @@
 <?php
 
+use App\Concerns\InteractsWithAppointmentBooking;
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Models\Service;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Notifications\Dispatcher;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('the public booking page can be rendered', function () {
@@ -224,6 +229,68 @@ test('the same customer cannot book the same group session twice', function () {
         ->where('service_id', $setup['service']->id)
         ->where('start_at', $setup['startAt'])
         ->count())->toBe(1);
+});
+
+test('public booking submissions are rate limited', function () {
+    $setup = bookableSetup();
+    $url = route('public.appointments.store', ['company' => $setup['team']->slug]);
+
+    foreach (range(1, 10) as $attempt) {
+        $this->post($url)->assertRedirect();
+    }
+
+    $this->post($url)->assertTooManyRequests();
+});
+
+test('the public booking page is rate limited', function () {
+    $route = Route::getRoutes()->getByName('public.appointments.show');
+
+    expect($route->gatherMiddleware())->toContain('throttle:60,1');
+});
+
+test('the in-transaction guard rejects an individual slot that was just taken', function () {
+    $setup = bookableSetup();
+    $endAt = $setup['startAt']->addMinutes(60);
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $endAt,
+    ]);
+
+    $booker = new class
+    {
+        use InteractsWithAppointmentBooking;
+
+        public function guard(Service $service, CarbonInterface $startAt, CarbonInterface $endAt, int $specialistId, int $customerId): void
+        {
+            $this->guardSlotAvailability($service, $startAt, $endAt, $specialistId, $customerId);
+        }
+    };
+
+    // A booking that partially overlaps the taken slot is rejected even without
+    // going through request validation — this is the race-condition safety net.
+    expect(fn () => $booker->guard(
+        $setup['service'],
+        $setup['startAt']->addMinutes(30),
+        $endAt->addMinutes(30),
+        $setup['user']->id,
+        Customer::factory()->for($setup['team'])->create()->id,
+    ))->toThrow(ValidationException::class, 'The selected time slot is no longer available.');
+
+    // A slot that merely touches the taken one (back-to-back) stays bookable.
+    $booker->guard(
+        $setup['service'],
+        $endAt,
+        $endAt->addMinutes(60),
+        $setup['user']->id,
+        Customer::factory()->for($setup['team'])->create()->id,
+    );
+
+    expect(true)->toBeTrue();
 });
 
 test('a guest booking validates availability', function () {

@@ -68,7 +68,15 @@ const mediaQuery = (): MediaQueryList | null => {
     return window.matchMedia('(prefers-color-scheme: dark)');
 };
 
-const handleSystemThemeChange = (): void => applyTheme(currentAppearance);
+const handleSystemThemeChange = (): void => {
+    applyTheme(currentAppearance);
+    // Re-render subscribers so anything derived from the resolved appearance
+    // (e.g. the theme toggle icon) follows an OS theme change live.
+    notify();
+};
+
+const resolveAppearance = (): ResolvedAppearance =>
+    isDarkMode(currentAppearance) ? 'dark' : 'light';
 
 export function initializeTheme(): void {
     if (typeof window === 'undefined') {
@@ -94,9 +102,14 @@ export function useAppearance(): UseAppearanceReturn {
         () => 'system',
     );
 
-    const resolvedAppearance: ResolvedAppearance = isDarkMode(appearance)
-        ? 'dark'
-        : 'light';
+    // Resolved through the store as well (instead of reading matchMedia during
+    // render) so the hydration render matches the server-rendered HTML and
+    // immediately re-renders with the real value once the client takes over.
+    const resolvedAppearance: ResolvedAppearance = useSyncExternalStore(
+        subscribe,
+        resolveAppearance,
+        () => 'light',
+    );
 
     const updateAppearance = (mode: Appearance): void => {
         currentAppearance = mode;

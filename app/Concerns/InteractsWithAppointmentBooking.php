@@ -33,7 +33,7 @@ trait InteractsWithAppointmentBooking
             $customer = $this->resolveCustomer($team, $request->customerData());
             $data = $request->appointmentData();
 
-            $this->guardGroupCapacity($request->service(), $data['start_at'], $data['specialist_id'], $customer->id);
+            $this->guardSlotAvailability($request->service(), $data['start_at'], $data['end_at'], $data['specialist_id'], $customer->id);
 
             $appointment = $team->appointments()->create([
                 ...$data,
@@ -94,17 +94,32 @@ trait InteractsWithAppointmentBooking
     }
 
     /**
-     * Guard a group session before the row is created: the customer may not
-     * already be booked into it, and it must still have a free seat.
+     * Guard the slot before the row is created: an individual slot must still be
+     * free, a group session must still have a free seat and may not already
+     * contain the customer.
      *
-     * The request validation already rejects a full session, but two concurrent
-     * bookings could each see the last seat as free. Re-check under a row lock
-     * inside the surrounding transaction so capacity can never be exceeded and a
-     * customer can never end up booked into the same session twice.
+     * The request validation already rejects an unavailable slot, but two
+     * concurrent bookings could each see it as free. Re-check under a row lock
+     * inside the surrounding transaction so an individual slot can never be
+     * double-booked, capacity can never be exceeded, and a customer can never
+     * end up booked into the same session twice.
      */
-    protected function guardGroupCapacity(Service $service, CarbonInterface $startAt, int $specialistId, int $customerId): void
+    protected function guardSlotAvailability(Service $service, CarbonInterface $startAt, CarbonInterface $endAt, int $specialistId, int $customerId): void
     {
         if (! $service->isGroup()) {
+            $taken = Appointment::query()
+                ->where('specialist_id', $specialistId)
+                ->where('start_at', '<', $endAt)
+                ->where('end_at', '>', $startAt)
+                ->lockForUpdate()
+                ->exists();
+
+            if ($taken) {
+                throw ValidationException::withMessages([
+                    'start_at' => __('The selected time slot is no longer available.'),
+                ]);
+            }
+
             return;
         }
 

@@ -15,7 +15,7 @@ import {
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login, privacy, register, terms } from '@/routes';
 
 const currentYear = new Date().getFullYear();
 
@@ -586,10 +586,26 @@ export default function Welcome() {
                             </span>
                             Uponco
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            © {currentYear} Uponco. Your digital bridge to your
-                            customers.
-                        </p>
+                        <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-5">
+                            <div className="flex items-center gap-5 text-sm text-muted-foreground">
+                                <Link
+                                    href={privacy()}
+                                    className="transition-colors hover:text-foreground"
+                                >
+                                    Privacy
+                                </Link>
+                                <Link
+                                    href={terms()}
+                                    className="transition-colors hover:text-foreground"
+                                >
+                                    Terms
+                                </Link>
+                            </div>
+                            <p className="text-center text-sm text-muted-foreground">
+                                © {currentYear} Uponco. Your digital bridge to
+                                your customers.
+                            </p>
+                        </div>
                     </div>
                 </footer>
             </div>
