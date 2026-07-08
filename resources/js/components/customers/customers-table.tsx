@@ -19,6 +19,7 @@ import type { Customer } from '@/types';
 
 type Props = {
     customers: Customer[];
+    isFiltered?: boolean;
     onView: (customer: Customer) => void;
     onEdit: (customer: Customer) => void;
     onDelete: (customer: Customer) => void;
@@ -26,6 +27,7 @@ type Props = {
 
 export default function CustomersTable({
     customers,
+    isFiltered = false,
     onView,
     onEdit,
     onDelete,
@@ -34,7 +36,9 @@ export default function CustomersTable({
         return (
             <div className="rounded-lg border border-dashed p-10 text-center">
                 <p className="text-sm text-muted-foreground">
-                    No customers yet. Add your first customer to get started.
+                    {isFiltered
+                        ? 'No customers match your search.'
+                        : 'No customers yet. Add your first customer to get started.'}
                 </p>
             </div>
         );

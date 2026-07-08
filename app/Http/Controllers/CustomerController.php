@@ -18,12 +18,24 @@ class CustomerController extends Controller
     public function index(Request $request): Response
     {
         $team = $request->user()->currentTeam;
+        $search = trim((string) $request->string('search'));
+
+        $customers = $team->customers()
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->paginate(50)
+            ->withQueryString()
+            ->through(fn (Customer $customer): array => $this->toCustomerArray($customer));
 
         return Inertia::render('customers/index', [
-            'customers' => $team->customers()
-                ->orderBy('name')
-                ->get()
-                ->map(fn (Customer $customer): array => $this->toCustomerArray($customer)),
+            'customers' => $customers,
+            'filters' => ['search' => $search],
         ]);
     }
 

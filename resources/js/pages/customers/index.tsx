@@ -1,6 +1,6 @@
-import { Head, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import CustomerFormDialog from '@/components/customers/customer-form-dialog';
 import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
@@ -8,16 +8,47 @@ import CustomersTable from '@/components/customers/customers-table';
 import DeleteCustomerModal from '@/components/customers/delete-customer-modal';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { index as customersIndex } from '@/routes/customers';
-import type { Customer } from '@/types';
+import type { Customer, Paginated } from '@/types';
 
 type Props = {
-    customers: Customer[];
+    customers: Paginated<Customer>;
+    filters: { search: string };
 };
 
-export default function CustomersIndex({ customers }: Props) {
+const SEARCH_DEBOUNCE_MS = 300;
+
+export default function CustomersIndex({ customers, filters }: Props) {
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
+
+    const [search, setSearch] = useState(filters.search);
+
+    const reloadCustomers = (nextSearch: string, page: number) => {
+        router.reload({
+            only: ['customers', 'filters'],
+            data: { search: nextSearch, page },
+            replace: true,
+        });
+    };
+
+    const goToPage = (page: number) => reloadCustomers(search, page);
+
+    // Debounce free-text search, resetting to the first page on each change.
+    // Compare against the server's current filter so no request fires on mount
+    // or once results for the typed term have already loaded.
+    useEffect(() => {
+        if (search === filters.search) {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            reloadCustomers(search, 1);
+        }, SEARCH_DEBOUNCE_MS);
+
+        return () => window.clearTimeout(timeout);
+    }, [search, filters.search]);
 
     const [formOpen, setFormOpen] = useState(false);
     const [editing, setEditing] = useState<Customer | null>(null);
@@ -68,12 +99,60 @@ export default function CustomersIndex({ customers }: Props) {
                     </Button>
                 </div>
 
+                <div className="relative w-full sm:max-w-xs">
+                    <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder="Search by name, email or phone"
+                        className="pl-9"
+                        data-test="customer-search-input"
+                    />
+                </div>
+
                 <CustomersTable
-                    customers={customers}
+                    customers={customers.data}
+                    isFiltered={filters.search !== ''}
                     onView={openPreview}
                     onEdit={openEdit}
                     onDelete={confirmDelete}
                 />
+
+                {customers.total > 0 && (
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm text-muted-foreground">
+                            Showing {customers.from ?? 0}–{customers.to ?? 0} of{' '}
+                            {customers.total}
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={customers.current_page <= 1}
+                                onClick={() =>
+                                    goToPage(customers.current_page - 1)
+                                }
+                                data-test="customers-prev-page"
+                            >
+                                <ChevronLeft className="size-4" /> Previous
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={
+                                    customers.current_page >= customers.last_page
+                                }
+                                onClick={() =>
+                                    goToPage(customers.current_page + 1)
+                                }
+                                data-test="customers-next-page"
+                            >
+                                Next <ChevronRight className="size-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <CustomerFormDialog
