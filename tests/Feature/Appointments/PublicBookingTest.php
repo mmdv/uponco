@@ -22,6 +22,15 @@ test('the public booking page can be rendered', function () {
         ->assertOk();
 });
 
+test('the platform team is not publicly bookable and redirects home', function () {
+    $setup = bookableSetup();
+    $setup['team']->update(['slug' => 'uponco']);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => 'uponco']))
+        ->assertRedirect(route('home'));
+});
+
 test('the booking page exposes service pricing and specialist availability', function () {
     $setup = bookableSetup();
 

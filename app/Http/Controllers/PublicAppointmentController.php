@@ -18,8 +18,13 @@ class PublicAppointmentController extends Controller
     /**
      * Show the public booking page for a company.
      */
-    public function show(Request $request, Team $company): Response
+    public function show(Request $request, Team $company): Response|RedirectResponse
     {
+        // The platform's own team is not publicly bookable.
+        if ($company->slug === 'uponco') {
+            return redirect()->route('home');
+        }
+
         $timezone = $company->timezone ?: config('app.timezone');
 
         return Inertia::render('public/appointments/book', [
