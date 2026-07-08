@@ -45,6 +45,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->configureRouteThrottling();
     }
 
     /**
@@ -107,6 +108,27 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by(
                 ($credentialId ?: $request->session()->getId()).'|'.$request->ip(),
             );
+        });
+    }
+
+    /**
+     * Throttle Fortify routes that Fortify itself leaves unthrottled.
+     *
+     * Registration and password-reset-link requests are both unauthenticated
+     * write endpoints (account creation and outbound email) that Fortify does
+     * not rate limit by default, leaving them open to automated abuse and
+     * email enumeration. We append a throttle to the named routes once Fortify
+     * has registered them.
+     */
+    private function configureRouteThrottling(): void
+    {
+        $this->app->booted(function (): void {
+            $routes = $this->app->make('router')->getRoutes();
+            $routes->refreshNameLookups();
+
+            foreach (['register.store', 'password.email'] as $name) {
+                $routes->getByName($name)?->middleware('throttle:6,1');
+            }
         });
     }
 }

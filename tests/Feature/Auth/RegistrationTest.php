@@ -35,6 +35,16 @@ test('unverified users are redirected to the verification notice', function () {
         ->assertRedirect(route('verification.notice'));
 });
 
+test('registration is rate limited', function () {
+    foreach (range(1, 6) as $attempt) {
+        $this->post(route('register.store'), [])
+            ->assertStatus(302);
+    }
+
+    $this->post(route('register.store'), [])
+        ->assertStatus(429);
+});
+
 test('new users can register without company details', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',

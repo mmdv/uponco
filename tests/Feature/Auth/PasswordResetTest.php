@@ -41,6 +41,16 @@ test('reset password screen can be rendered', function () {
     });
 });
 
+test('requesting a reset link is rate limited', function () {
+    foreach (range(1, 6) as $attempt) {
+        $this->post(route('password.email'), ['email' => 'nobody@example.com'])
+            ->assertStatus(302);
+    }
+
+    $this->post(route('password.email'), ['email' => 'nobody@example.com'])
+        ->assertStatus(429);
+});
+
 test('password can be reset with valid token', function () {
     Notification::fake();
 
