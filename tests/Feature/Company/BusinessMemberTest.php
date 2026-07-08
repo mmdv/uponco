@@ -31,6 +31,9 @@ test('owners can add a team member directly', function () {
     expect($member->belongsToTeam($team))->toBeTrue();
     expect($team->members()->where('user_id', $member->id)->first()->pivot->role->value)
         ->toEqual(TeamRole::Member->value);
+
+    expect($member->personalTeam())->toBeNull();
+    expect($member->teams()->count())->toBe(1);
 });
 
 test('admins can add a team member directly', function () {
@@ -205,4 +208,32 @@ test('removed member current team is set to personal team', function () {
         ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $member]));
 
     expect($member->fresh()->current_team_id)->toEqual($personalTeam->id);
+});
+
+test('a member added directly can be removed without a personal team', function () {
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $this
+        ->actingAs($owner)
+        ->post(route('company.business.members.store', ['current_team' => $team->slug]), [
+            'name' => 'Jane',
+            'email' => 'jane@example.com',
+            'password' => 'password123',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $member = User::where('email', 'jane@example.com')->first();
+
+    expect($member->personalTeam())->toBeNull();
+    expect($member->fresh()->current_team_id)->toEqual($team->id);
+
+    $this
+        ->actingAs($owner)
+        ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $member]))
+        ->assertRedirect();
+
+    expect($member->fresh()->belongsToTeam($team))->toBeFalse();
 });

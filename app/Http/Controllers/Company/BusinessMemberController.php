@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Company;
 
-use App\Actions\Teams\CreateTeam;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateBusinessMemberRequest;
@@ -20,7 +19,7 @@ class BusinessMemberController extends Controller
     /**
      * Add a new member directly to the current team.
      */
-    public function store(CreateBusinessMemberRequest $request, CreateTeam $createTeam): RedirectResponse
+    public function store(CreateBusinessMemberRequest $request): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
@@ -30,7 +29,7 @@ class BusinessMemberController extends Controller
 
         $name = Str::squish($validated['name'].' '.($validated['surname'] ?? ''));
 
-        DB::transaction(function () use ($team, $createTeam, $validated, $name): void {
+        DB::transaction(function () use ($team, $validated, $name): void {
             $member = User::create([
                 'name' => $name,
                 'email' => $validated['email'],
@@ -38,8 +37,6 @@ class BusinessMemberController extends Controller
             ]);
 
             $member->forceFill(['email_verified_at' => now()])->save();
-
-            $createTeam->handle($member, isPersonal: true);
 
             $team->memberships()->create([
                 'user_id' => $member->id,
@@ -97,7 +94,11 @@ class BusinessMemberController extends Controller
             ->delete();
 
         if ($user->isCurrentTeam($team)) {
-            $user->switchTeam($user->personalTeam());
+            $fallback = $user->fallbackTeam($team);
+
+            if ($fallback) {
+                $user->switchTeam($fallback);
+            }
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member removed.')]);

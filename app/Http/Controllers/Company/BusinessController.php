@@ -124,7 +124,13 @@ class BusinessController extends Controller
         DB::transaction(function () use ($user, $team): void {
             User::where('current_team_id', $team->id)
                 ->where('id', '!=', $user->id)
-                ->each(fn (User $affectedUser) => $affectedUser->switchTeam($affectedUser->personalTeam()));
+                ->each(function (User $affectedUser) use ($team): void {
+                    $fallback = $affectedUser->fallbackTeam($team);
+
+                    if ($fallback) {
+                        $affectedUser->switchTeam($fallback);
+                    }
+                });
 
             $team->invitations()->delete();
             $team->memberships()->delete();
