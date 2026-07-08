@@ -122,6 +122,7 @@ export default function PublicAppointmentBooking({
                                     serviceId={booking.serviceId}
                                     locationId={booking.locationId}
                                     specialistId={booking.specialistId}
+                                    requiresLocation={booking.requiresLocation}
                                     selectedService={booking.selectedService}
                                     selectedLocation={booking.selectedLocation}
                                     selectedSpecialist={

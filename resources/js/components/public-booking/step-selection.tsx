@@ -21,6 +21,7 @@ type Props = {
     serviceId: number | null;
     locationId: number | null;
     specialistId: number | null;
+    requiresLocation: boolean;
     selectedService: AppointmentServiceOption | null;
     selectedLocation: AppointmentLocationOption | null;
     selectedSpecialist: AppointmentSpecialistOption | null;
@@ -41,6 +42,7 @@ export default function StepSelection({
     serviceId,
     locationId,
     specialistId,
+    requiresLocation,
     selectedService,
     selectedLocation,
     selectedSpecialist,
@@ -81,20 +83,22 @@ export default function StepSelection({
                 />
             </ExpandableCard>
 
-            <ExpandableCard
-                icon={MapPin}
-                title="Location"
-                hint="Pick where to visit"
-                selectedLabel={selectedLocation?.name}
-                open={openCard === 'location'}
-                onToggle={() => onToggle('location')}
-            >
-                <LocationPicker
-                    locations={locations}
-                    selectedId={locationId}
-                    onSelect={onLocationChange}
-                />
-            </ExpandableCard>
+            {requiresLocation && (
+                <ExpandableCard
+                    icon={MapPin}
+                    title="Location"
+                    hint="Pick where to visit"
+                    selectedLabel={selectedLocation?.name}
+                    open={openCard === 'location'}
+                    onToggle={() => onToggle('location')}
+                >
+                    <LocationPicker
+                        locations={locations}
+                        selectedId={locationId}
+                        onSelect={onLocationChange}
+                    />
+                </ExpandableCard>
+            )}
         </div>
     );
 }
