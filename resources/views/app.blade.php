@@ -6,8 +6,9 @@
 
         {{-- SEO: server-rendered so crawlers and social scrapers (which don't run JS) can read them --}}
         @php
-            $seoTitle = config('app.name').' — Your digital bridge to your customers';
-            $seoDescription = 'Uponco is easy appointment booking software for your business. Manage every location and service, online or onsite, with automatic reminders. Set up in five minutes and let customers book in seconds — your first 100 appointments are free.';
+            $seoTitle = config('app.name').' — Appointment Booking Software for Your Business';
+            $seoDescription = config('app.name').' is easy appointment booking software for your business. Manage every location and service, online or onsite, with automatic reminders.';
+            $ogDescription = 'Easy appointment booking for your business — online or onsite, with reminders. Your first 100 appointments are free.';
             $seoImage = rtrim(config('app.url'), '/').'/og-image.png';
             $canonical = url()->current();
             $structuredData = [
@@ -57,7 +58,7 @@
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="{{ config('app.name') }}">
         <meta property="og:title" content="{{ $seoTitle }}">
-        <meta property="og:description" content="{{ $seoDescription }}">
+        <meta property="og:description" content="{{ $ogDescription }}">
         <meta property="og:url" content="{{ $canonical }}">
         <meta property="og:image" content="{{ $seoImage }}">
         <meta property="og:image:width" content="1200">
@@ -68,7 +69,7 @@
         {{-- Twitter --}}
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ $seoTitle }}">
-        <meta name="twitter:description" content="{{ $seoDescription }}">
+        <meta name="twitter:description" content="{{ $ogDescription }}">
         <meta name="twitter:image" content="{{ $seoImage }}">
         <meta name="twitter:image:alt" content="{{ config('app.name') }} — appointment booking for your business">
 
@@ -114,7 +115,7 @@
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $seoTitle }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
