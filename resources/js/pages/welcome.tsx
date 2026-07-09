@@ -400,13 +400,172 @@ function FeatureSpotlight() {
     );
 }
 
+const seoTitle = 'Uponco — Your digital bridge to your customers';
+const seoDescription =
+    'Uponco is easy appointment booking software for your business. Manage every location and service, online or onsite, with automatic reminders. Set up in five minutes and let customers book in seconds — your first 100 appointments are free.';
+const seoKeywords =
+    'appointment booking, online scheduling, booking software, appointment scheduler, salon booking, multi-location scheduling, group bookings, appointment reminders, Uponco';
+
 export default function Welcome() {
-    const { auth, currentTeam } = usePage().props;
+    const { auth, currentTeam, appUrl } = usePage().props;
     const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
+
+    const canonicalUrl = appUrl || '';
+    const ogImage = `${appUrl}/icons/icon-1024.png`;
+
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'Organization',
+                '@id': `${appUrl}/#organization`,
+                name: 'Uponco',
+                url: canonicalUrl,
+                logo: ogImage,
+            },
+            {
+                '@type': 'WebSite',
+                '@id': `${appUrl}/#website`,
+                name: 'Uponco',
+                url: canonicalUrl,
+                publisher: { '@id': `${appUrl}/#organization` },
+            },
+            {
+                '@type': 'SoftwareApplication',
+                name: 'Uponco',
+                applicationCategory: 'BusinessApplication',
+                operatingSystem: 'Web',
+                url: canonicalUrl,
+                description: seoDescription,
+                offers: {
+                    '@type': 'Offer',
+                    price: '0',
+                    priceCurrency: 'USD',
+                    description:
+                        'First 100 appointments free — no card required.',
+                },
+            },
+        ],
+    };
 
     return (
         <>
-            <Head title="Your digital bridge to your customers" />
+            <Head title="Your digital bridge to your customers">
+                <meta
+                    head-key="description"
+                    name="description"
+                    content={seoDescription}
+                />
+                <meta
+                    head-key="keywords"
+                    name="keywords"
+                    content={seoKeywords}
+                />
+                <meta
+                    head-key="robots"
+                    name="robots"
+                    content="index, follow, max-image-preview:large"
+                />
+                <meta
+                    head-key="application-name"
+                    name="application-name"
+                    content="Uponco"
+                />
+                <meta
+                    head-key="theme-color"
+                    name="theme-color"
+                    content="#ffffff"
+                />
+                <link
+                    head-key="canonical"
+                    rel="canonical"
+                    href={canonicalUrl}
+                />
+
+                {/* Open Graph */}
+                <meta head-key="og:type" property="og:type" content="website" />
+                <meta
+                    head-key="og:site_name"
+                    property="og:site_name"
+                    content="Uponco"
+                />
+                <meta
+                    head-key="og:title"
+                    property="og:title"
+                    content={seoTitle}
+                />
+                <meta
+                    head-key="og:description"
+                    property="og:description"
+                    content={seoDescription}
+                />
+                <meta
+                    head-key="og:url"
+                    property="og:url"
+                    content={canonicalUrl}
+                />
+                <meta
+                    head-key="og:image"
+                    property="og:image"
+                    content={ogImage}
+                />
+                <meta
+                    head-key="og:image:width"
+                    property="og:image:width"
+                    content="1024"
+                />
+                <meta
+                    head-key="og:image:height"
+                    property="og:image:height"
+                    content="1024"
+                />
+                <meta
+                    head-key="og:image:alt"
+                    property="og:image:alt"
+                    content="Uponco — appointment booking for your business"
+                />
+                <meta
+                    head-key="og:locale"
+                    property="og:locale"
+                    content="en_US"
+                />
+
+                {/* Twitter */}
+                <meta
+                    head-key="twitter:card"
+                    name="twitter:card"
+                    content="summary_large_image"
+                />
+                <meta
+                    head-key="twitter:title"
+                    name="twitter:title"
+                    content={seoTitle}
+                />
+                <meta
+                    head-key="twitter:description"
+                    name="twitter:description"
+                    content={seoDescription}
+                />
+                <meta
+                    head-key="twitter:image"
+                    name="twitter:image"
+                    content={ogImage}
+                />
+                <meta
+                    head-key="twitter:image:alt"
+                    name="twitter:image:alt"
+                    content="Uponco — appointment booking for your business"
+                />
+
+                <script
+                    head-key="ld-json"
+                    type="application/ld+json"
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(structuredData),
+                    }}
+                />
+            </Head>
 
             <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
                 {/* Header */}

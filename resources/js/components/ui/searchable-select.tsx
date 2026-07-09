@@ -1,5 +1,5 @@
 import { Check, ChevronDown, Search } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import {
@@ -43,7 +43,52 @@ export function SearchableSelect({
 }: SearchableSelectProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
+    const [maxHeight, setMaxHeight] = useState<number>();
     const triggerRef = useRef<HTMLButtonElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    // On iOS the on-screen keyboard shrinks the visual viewport without
+    // resizing the layout viewport, so Radix's collision handling can't see it
+    // and the results list ends up hidden behind the keyboard. Measure the
+    // visual viewport ourselves and cap the popover height so the list always
+    // stays above the keyboard (scrolling within that bound).
+    useEffect(() => {
+        if (!open) {
+            setMaxHeight(undefined);
+
+            return;
+        }
+
+        const viewport = window.visualViewport;
+
+        const updateMaxHeight = () => {
+            const content = contentRef.current;
+
+            if (!content) {
+                return;
+            }
+
+            const contentTop = content.getBoundingClientRect().top;
+            const viewportBottom = viewport
+                ? viewport.height + viewport.offsetTop
+                : window.innerHeight;
+
+            setMaxHeight(
+                Math.min(Math.max(viewportBottom - contentTop - 8, 168), 384),
+            );
+        };
+
+        const raf = requestAnimationFrame(updateMaxHeight);
+
+        viewport?.addEventListener('resize', updateMaxHeight);
+        viewport?.addEventListener('scroll', updateMaxHeight);
+
+        return () => {
+            cancelAnimationFrame(raf);
+            viewport?.removeEventListener('resize', updateMaxHeight);
+            viewport?.removeEventListener('scroll', updateMaxHeight);
+        };
+    }, [open]);
 
     // When this select is used inside a Sheet/Dialog, portaling the popover to
     // document.body puts the search input outside the dialog's focus trap, which
@@ -103,11 +148,13 @@ export function SearchableSelect({
                 </button>
             </PopoverTrigger>
             <PopoverContent
+                ref={contentRef}
                 align="start"
                 container={getContainer()}
-                className="w-[var(--radix-popover-trigger-width)] p-0"
+                style={maxHeight ? { maxHeight } : undefined}
+                className="flex w-[var(--radix-popover-trigger-width)] flex-col overflow-hidden p-0"
             >
-                <div className="flex items-center border-b px-2">
+                <div className="flex shrink-0 items-center border-b px-2">
                     <Search className="size-4 shrink-0 opacity-50" />
                     <Input
                         autoFocus
@@ -117,7 +164,7 @@ export function SearchableSelect({
                         className="h-9 border-0 shadow-none focus-visible:ring-0 dark:bg-transparent"
                     />
                 </div>
-                <div className="max-h-60 overflow-y-auto p-1">
+                <div className="min-h-0 flex-1 overflow-y-auto p-1">
                     {filtered.length === 0 ? (
                         <p className="px-2 py-3 text-center text-sm text-muted-foreground">
                             {emptyMessage}
