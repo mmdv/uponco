@@ -411,7 +411,7 @@ export default function Welcome() {
     const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
 
     const canonicalUrl = appUrl || '';
-    const ogImage = `${appUrl}/icons/icon-1024.png`;
+    const ogImage = `${appUrl}/og-image.png`;
 
     const structuredData = {
         '@context': 'https://schema.org',
@@ -440,7 +440,7 @@ export default function Welcome() {
                 offers: {
                     '@type': 'Offer',
                     price: '0',
-                    priceCurrency: 'USD',
+                    priceCurrency: 'EUR',
                     description:
                         'First 100 appointments free — no card required.',
                 },
