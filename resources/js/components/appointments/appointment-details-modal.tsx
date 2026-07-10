@@ -12,6 +12,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { useTranslation } from '@/hooks/use-translation';
 import {
     formatAppointmentDay,
     formatAppointmentTimeRange,
@@ -34,6 +35,7 @@ export default function AppointmentDetailsModal({
     canEdit = false,
     onEdit,
 }: Props) {
+    const { t } = useTranslation('appointments');
     const isOnline = appointment ? appointment.location === null : false;
 
     return (
@@ -46,13 +48,17 @@ export default function AppointmentDetailsModal({
                                 variant={isOnline ? 'default' : 'secondary'}
                                 className="mb-1 capitalize"
                             >
-                                {isOnline ? 'Online' : 'In person'}
+                                {isOnline
+                                    ? t('details.online')
+                                    : t('details.inPerson')}
                             </Badge>
                             <DialogTitle className="text-xl leading-tight">
                                 {appointment.service.title}
                             </DialogTitle>
                             <p className="text-sm text-muted-foreground">
-                                with {appointment.specialist.name}
+                                {t('details.with', {
+                                    name: appointment.specialist.name,
+                                })}
                             </p>
                         </DialogHeader>
 
@@ -60,7 +66,7 @@ export default function AppointmentDetailsModal({
                             <section className="grid grid-cols-2 gap-4">
                                 <InfoTile
                                     icon={<Calendar className="size-4" />}
-                                    label="Date"
+                                    label={t('details.date')}
                                     value={formatAppointmentDay(
                                         appointment.start_at,
                                         appointment.timezone,
@@ -68,7 +74,7 @@ export default function AppointmentDetailsModal({
                                 />
                                 <InfoTile
                                     icon={<Clock className="size-4" />}
-                                    label="Time"
+                                    label={t('details.time')}
                                     value={formatAppointmentTimeRange(
                                         appointment.start_at,
                                         appointment.end_at,
@@ -77,9 +83,10 @@ export default function AppointmentDetailsModal({
                                 />
                                 <InfoTile
                                     icon={<MapPin className="size-4" />}
-                                    label="Location"
+                                    label={t('details.location')}
                                     value={
-                                        appointment.location?.name ?? 'Online'
+                                        appointment.location?.name ??
+                                        t('details.online')
                                     }
                                     className="col-span-2"
                                 />
@@ -89,7 +96,7 @@ export default function AppointmentDetailsModal({
 
                             <section className="space-y-3">
                                 <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                    Customer
+                                    {t('details.customer')}
                                 </h3>
                                 <div className="flex items-center gap-3">
                                     <Avatar className="size-10">
@@ -132,7 +139,7 @@ export default function AppointmentDetailsModal({
                                                 !appointment.customer.phone && (
                                                     <span className="flex items-center gap-1.5">
                                                         <User className="size-3.5" />
-                                                        No contact details
+                                                        {t('details.noContact')}
                                                     </span>
                                                 )}
                                         </div>
@@ -145,7 +152,7 @@ export default function AppointmentDetailsModal({
                                     <Separator />
                                     <section className="space-y-2">
                                         <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                            Notes
+                                            {t('details.notes')}
                                         </h3>
                                         <p className="rounded-lg bg-muted/50 p-3 text-sm whitespace-pre-wrap">
                                             {appointment.notes}
@@ -157,14 +164,16 @@ export default function AppointmentDetailsModal({
 
                         <DialogFooter className="border-t p-4">
                             <DialogClose asChild>
-                                <Button variant="secondary">Close</Button>
+                                <Button variant="secondary">
+                                    {t('details.close')}
+                                </Button>
                             </DialogClose>
                             {canEdit && onEdit && (
                                 <Button
                                     data-test="appointment-details-edit-button"
                                     onClick={() => onEdit(appointment)}
                                 >
-                                    <Pencil /> Edit
+                                    <Pencil /> {t('details.edit')}
                                 </Button>
                             )}
                         </DialogFooter>

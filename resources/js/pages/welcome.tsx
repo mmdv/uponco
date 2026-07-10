@@ -15,6 +15,8 @@ import {
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { useTranslation } from '@/hooks/use-translation';
 import { dashboard, login, privacy, register, terms } from '@/routes';
 
 const currentYear = new Date().getFullYear();
@@ -27,6 +29,7 @@ const demoSlots = ['09:00', '09:45', '10:30', '11:15', '13:00', '13:45'];
  * booking confirms, then a reminder toast pops in — and it starts over.
  */
 function BookingDemo() {
+    const { t } = useTranslation('welcome');
     const [step, setStep] = useState(0);
 
     useEffect(() => {
@@ -99,8 +102,8 @@ function BookingDemo() {
                     ) : (
                         <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
                             {slotPicked
-                                ? 'Confirming…'
-                                : 'Pick a time that works'}
+                                ? t('demo.confirming')
+                                : t('demo.pickTime')}
                         </div>
                     )}
                 </div>
@@ -109,7 +112,7 @@ function BookingDemo() {
             {reminderSent && (
                 <div className="absolute -top-4 -right-3 flex animate-in items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium shadow-soft duration-300 fade-in slide-in-from-top-2 motion-reduce:animate-none">
                     <BellRing className="size-3.5 text-primary" />
-                    Reminder sent
+                    {t('demo.reminderSent')}
                 </div>
             )}
         </div>
@@ -118,15 +121,12 @@ function BookingDemo() {
 
 const spotlightFeatures: {
     icon: ReactNode;
-    title: string;
-    description: string;
+    i18nKey: string;
     visual: ReactNode;
 }[] = [
     {
         icon: <MapPin className="size-4" />,
-        title: 'Multi-location',
-        description:
-            'Manage bookings across every branch from a single, unified calendar.',
+        i18nKey: 'multiLocation',
         visual: (
             <div className="w-full max-w-xs space-y-2.5">
                 {[
@@ -160,9 +160,7 @@ const spotlightFeatures: {
     },
     {
         icon: <Layers className="size-4" />,
-        title: 'Multi-service',
-        description:
-            'Offer any number of services, each with its own duration and team.',
+        i18nKey: 'multiService',
         visual: (
             <div className="flex max-w-xs flex-wrap justify-center gap-2">
                 {[
@@ -190,9 +188,7 @@ const spotlightFeatures: {
     },
     {
         icon: <Users className="size-4" />,
-        title: 'Individual & group',
-        description:
-            'Take one-on-one appointments or fill group sessions with ease.',
+        i18nKey: 'individualGroup',
         visual: (
             <div className="w-full max-w-xs rounded-lg border border-border bg-background p-4">
                 <div className="flex items-center justify-between">
@@ -222,9 +218,7 @@ const spotlightFeatures: {
     },
     {
         icon: <Globe className="size-4" />,
-        title: 'Online or onsite',
-        description:
-            'Host virtual meetings or in-person visits — your customers choose.',
+        i18nKey: 'onlineOnsite',
         visual: (
             <div className="grid w-full max-w-xs grid-cols-2 gap-2.5">
                 <div className="rounded-lg border border-primary/40 bg-background p-4 shadow-soft">
@@ -246,9 +240,7 @@ const spotlightFeatures: {
     },
     {
         icon: <BellRing className="size-4" />,
-        title: 'Automatic reminders',
-        description:
-            'Cut no-shows with timely reminders sent to every customer.',
+        i18nKey: 'reminders',
         visual: (
             <div className="w-full max-w-xs space-y-2.5">
                 <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-3.5 py-3 shadow-soft">
@@ -282,9 +274,7 @@ const spotlightFeatures: {
     },
     {
         icon: <Rocket className="size-4" />,
-        title: '5-minute onboarding',
-        description:
-            'Set up your locations, services and team and start taking bookings today.',
+        i18nKey: 'onboarding',
         visual: (
             <div className="w-full max-w-xs space-y-2">
                 {[
@@ -317,6 +307,7 @@ const spotlightFeatures: {
  * pauses the rotation.
  */
 function FeatureSpotlight() {
+    const { t } = useTranslation('welcome');
     const [active, setActive] = useState(0);
     const [paused, setPaused] = useState(false);
 
@@ -344,7 +335,7 @@ function FeatureSpotlight() {
             <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
                 {spotlightFeatures.map((item, i) => (
                     <button
-                        key={item.title}
+                        key={item.i18nKey}
                         type="button"
                         onClick={() => setActive(i)}
                         className={`relative shrink-0 overflow-hidden rounded-lg border text-left transition-colors ${
@@ -364,7 +355,7 @@ function FeatureSpotlight() {
                                 {item.icon}
                             </span>
                             <span className="text-sm font-medium whitespace-nowrap">
-                                {item.title}
+                                {t(`features.items.${item.i18nKey}.title`)}
                             </span>
                         </span>
                         {i === active && (
@@ -392,7 +383,7 @@ function FeatureSpotlight() {
                         {feature.visual}
                     </div>
                     <p className="mt-4 text-center text-sm text-balance text-muted-foreground">
-                        {feature.description}
+                        {t(`features.items.${feature.i18nKey}.description`)}
                     </p>
                 </div>
             </div>
@@ -401,6 +392,7 @@ function FeatureSpotlight() {
 }
 
 export default function Welcome() {
+    const { t } = useTranslation('welcome');
     const { auth, currentTeam } = usePage().props;
     const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
 
@@ -423,12 +415,13 @@ export default function Welcome() {
                         </Link>
 
                         <div className="flex items-center gap-2">
+                            <LanguageSwitcher />
                             {auth.user ? (
                                 <Link
                                     href={dashboardUrl}
                                     className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
                                 >
-                                    Dashboard
+                                    {t('nav.dashboard')}
                                     <ArrowRight className="size-4" />
                                 </Link>
                             ) : (
@@ -437,13 +430,13 @@ export default function Welcome() {
                                         href={login()}
                                         className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                                     >
-                                        Sign in
+                                        {t('nav.signIn')}
                                     </Link>
                                     <Link
                                         href={register()}
                                         className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
                                     >
-                                        Get started
+                                        {t('nav.getStarted')}
                                     </Link>
                                 </>
                             )}
@@ -459,18 +452,18 @@ export default function Welcome() {
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
                                 <span className="relative inline-flex size-2 rounded-full bg-primary" />
                             </span>
-                            First 100 appointments free — no card required
+                            {t('hero.badge')}
                         </span>
 
                         <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
-                            Your digital bridge to your{' '}
-                            <span className="text-primary">customers</span>
+                            {t('hero.titleLead')}{' '}
+                            <span className="text-primary">
+                                {t('hero.titleHighlight')}
+                            </span>
                         </h1>
 
                         <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-muted-foreground lg:mx-0">
-                            Easy appointment booking for your business — every
-                            location, every service, online or onsite. Set up in
-                            five minutes and let customers book in seconds.
+                            {t('hero.subtitle')}
                         </p>
 
                         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
@@ -479,7 +472,7 @@ export default function Welcome() {
                                     href={dashboardUrl}
                                     className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
                                 >
-                                    Go to dashboard
+                                    {t('hero.ctaGoDashboard')}
                                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                                 </Link>
                             ) : (
@@ -488,14 +481,14 @@ export default function Welcome() {
                                         href={register()}
                                         className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
                                     >
-                                        Start free
+                                        {t('hero.ctaStartFree')}
                                         <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                                     </Link>
                                     <a
                                         href="#features"
                                         className="inline-flex w-full items-center justify-center rounded-md border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary sm:w-auto"
                                     >
-                                        See how it works
+                                        {t('hero.ctaSeeHow')}
                                     </a>
                                 </>
                             )}
@@ -503,9 +496,9 @@ export default function Welcome() {
 
                         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground lg:justify-start">
                             {[
-                                'No credit card',
-                                '5-minute setup',
-                                'Cancel anytime',
+                                t('hero.trust.noCreditCard'),
+                                t('hero.trust.fiveMinuteSetup'),
+                                t('hero.trust.cancelAnytime'),
                             ].map((item) => (
                                 <span
                                     key={item}
@@ -528,11 +521,10 @@ export default function Welcome() {
                 >
                     <div className="mx-auto max-w-2xl text-center">
                         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                            Everything you need to take bookings
+                            {t('features.heading')}
                         </h2>
                         <p className="mt-3 text-muted-foreground">
-                            One simple tool to connect your business with the
-                            people who matter most.
+                            {t('features.subheading')}
                         </p>
                     </div>
 
@@ -547,13 +539,13 @@ export default function Welcome() {
                                 100
                             </p>
                             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-                                Your first 100 appointments are free
+                                {t('free100.heading')}
                             </h2>
                             <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/90 lg:justify-start">
                                 {[
-                                    'No payment, no commitment',
-                                    'All features included',
-                                    'Pay only as you grow',
+                                    t('free100.items.noPayment'),
+                                    t('free100.items.allFeatures'),
+                                    t('free100.items.payAsYouGrow'),
                                 ].map((item) => (
                                     <span
                                         key={item}
@@ -570,8 +562,8 @@ export default function Welcome() {
                             className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
                         >
                             {auth.user
-                                ? 'Go to dashboard'
-                                : 'Claim your free 100'}
+                                ? t('free100.ctaGoDashboard')
+                                : t('free100.ctaClaim')}
                             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                         </Link>
                     </div>
@@ -592,18 +584,17 @@ export default function Welcome() {
                                     href={privacy()}
                                     className="transition-colors hover:text-foreground"
                                 >
-                                    Privacy
+                                    {t('footer.privacy')}
                                 </Link>
                                 <Link
                                     href={terms()}
                                     className="transition-colors hover:text-foreground"
                                 >
-                                    Terms
+                                    {t('footer.terms')}
                                 </Link>
                             </div>
                             <p className="text-center text-sm text-muted-foreground">
-                                © {currentYear} Uponco. Your digital bridge to
-                                your customers.
+                                © {currentYear} {t('footer.copyright')}
                             </p>
                         </div>
                     </div>

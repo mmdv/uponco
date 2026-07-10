@@ -16,6 +16,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { useTranslation } from '@/hooks/use-translation';
 import {
     getAvailableOptions,
     groupServicesByCategory,
@@ -64,6 +65,7 @@ export default function AppointmentFormDrawer({
     slotsLoading,
     onRequestSlots,
 }: Props) {
+    const { t } = useTranslation('appointments');
     const isEditing = appointment !== null;
 
     return (
@@ -74,12 +76,14 @@ export default function AppointmentFormDrawer({
             >
                 <SheetHeader className="shrink-0 border-b">
                     <SheetTitle>
-                        {isEditing ? 'Edit appointment' : 'New appointment'}
+                        {isEditing
+                            ? t('form.editTitle')
+                            : t('form.newTitle')}
                     </SheetTitle>
                     <SheetDescription>
                         {isEditing
-                            ? 'Update the details for this appointment.'
-                            : 'Book a new appointment for a customer.'}
+                            ? t('form.editDescription')
+                            : t('form.newDescription')}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -129,6 +133,7 @@ function AppointmentFormFields({
     onSuccess,
     onCancel,
 }: FieldsProps) {
+    const { t } = useTranslation('appointments');
     const isEditing = appointment !== null;
     const appointmentId = appointment?.id ?? null;
 
@@ -369,7 +374,9 @@ function AppointmentFormFields({
 
                     <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="service_id">Service</Label>
+                            <Label htmlFor="service_id">
+                                {t('form.service')}
+                            </Label>
                             <AppointmentServiceSelect
                                 id="service_id"
                                 groups={serviceGroups}
@@ -383,15 +390,17 @@ function AppointmentFormFields({
 
                         {showLocation && (
                             <div className="grid gap-2">
-                                <Label htmlFor="location_id">Location</Label>
+                                <Label htmlFor="location_id">
+                                    {t('form.location')}
+                                </Label>
                                 <SearchableSelect
                                     id="location_id"
                                     options={locationOptions}
                                     value={locationId?.toString() ?? ''}
                                     onChange={handleLocationChange}
-                                    placeholder="Select a location"
-                                    searchPlaceholder="Search locations…"
-                                    emptyMessage="No locations available."
+                                    placeholder={t('form.selectLocation')}
+                                    searchPlaceholder={t('form.searchLocations')}
+                                    emptyMessage={t('form.noLocations')}
                                     invalid={Boolean(errors.location_id)}
                                     data-test="appointment-location-select"
                                 />
@@ -400,15 +409,17 @@ function AppointmentFormFields({
                         )}
 
                         <div className="grid gap-2">
-                            <Label htmlFor="specialist_id">Specialist</Label>
+                            <Label htmlFor="specialist_id">
+                                {t('form.specialist')}
+                            </Label>
                             <SearchableSelect
                                 id="specialist_id"
                                 options={specialistOptions}
                                 value={specialistId?.toString() ?? ''}
                                 onChange={handleSpecialistChange}
-                                placeholder="Select a specialist"
-                                searchPlaceholder="Search specialists…"
-                                emptyMessage="No specialists available."
+                                placeholder={t('form.selectSpecialist')}
+                                searchPlaceholder={t('form.searchSpecialists')}
+                                emptyMessage={t('form.noSpecialists')}
                                 invalid={Boolean(errors.specialist_id)}
                                 data-test="appointment-specialist-select"
                             />
@@ -438,14 +449,16 @@ function AppointmentFormFields({
                             variant="secondary"
                             onClick={onCancel}
                         >
-                            Cancel
+                            {t('form.cancel')}
                         </Button>
                         <Button
                             type="submit"
                             data-test="appointment-save-button"
                             disabled={processing || selectedStart === ''}
                         >
-                            {isEditing ? 'Save changes' : 'Book appointment'}
+                            {isEditing
+                                ? t('form.saveChanges')
+                                : t('form.bookAppointment')}
                         </Button>
                     </SheetFooter>
                 </>

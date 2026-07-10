@@ -46,6 +46,26 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'locale' => app()->getLocale(),
+            'availableLocales' => $this->availableLocales(),
         ];
+    }
+
+    /**
+     * The locales that are enabled for selection in the UI.
+     *
+     * @return list<array{code: string, name: string, native: string}>
+     */
+    protected function availableLocales(): array
+    {
+        return collect(config('localization.available'))
+            ->filter(fn (array $locale): bool => $locale['enabled'] ?? false)
+            ->map(fn (array $locale, string $code): array => [
+                'code' => $code,
+                'name' => $locale['name'],
+                'native' => $locale['native'],
+            ])
+            ->values()
+            ->all();
     }
 }

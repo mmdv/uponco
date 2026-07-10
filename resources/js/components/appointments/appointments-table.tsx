@@ -16,6 +16,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTranslation } from '@/hooks/use-translation';
 import {
     formatAppointmentTimeRange,
     groupAppointmentsByDay,
@@ -38,12 +39,16 @@ export default function AppointmentsTable({
     onEdit,
     onDelete,
     canModify = () => true,
-    emptyMessage = 'No appointments yet. Book your first appointment to get started.',
+    emptyMessage,
 }: Props) {
+    const { t } = useTranslation('appointments');
+
     if (appointments.length === 0) {
         return (
             <div className="rounded-lg border border-dashed p-10 text-center">
-                <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+                <p className="text-sm text-muted-foreground">
+                    {emptyMessage ?? t('table.empty')}
+                </p>
             </div>
         );
     }
@@ -55,11 +60,13 @@ export default function AppointmentsTable({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Time</TableHead>
-                        <TableHead>Service</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Specialist</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t('table.time')}</TableHead>
+                        <TableHead>{t('table.service')}</TableHead>
+                        <TableHead>{t('table.location')}</TableHead>
+                        <TableHead>{t('table.specialist')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('table.actions')}
+                        </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -90,7 +97,8 @@ export default function AppointmentsTable({
                                         {appointment.service.title}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">
-                                        {appointment.location?.name ?? 'Online'}
+                                        {appointment.location?.name ??
+                                            t('table.online')}
                                     </TableCell>
                                     <TableCell>
                                         {appointment.specialist.name}
@@ -114,7 +122,11 @@ export default function AppointmentsTable({
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
-                                                        <p>View details</p>
+                                                        <p>
+                                                            {t(
+                                                                'table.viewDetails',
+                                                            )}
+                                                        </p>
                                                     </TooltipContent>
                                                 </Tooltip>
                                                 {canModify(appointment) && (
@@ -138,8 +150,9 @@ export default function AppointmentsTable({
                                                             </TooltipTrigger>
                                                             <TooltipContent>
                                                                 <p>
-                                                                    Edit
-                                                                    appointment
+                                                                    {t(
+                                                                        'table.editAppointment',
+                                                                    )}
                                                                 </p>
                                                             </TooltipContent>
                                                         </Tooltip>
@@ -162,8 +175,9 @@ export default function AppointmentsTable({
                                                             </TooltipTrigger>
                                                             <TooltipContent>
                                                                 <p>
-                                                                    Delete
-                                                                    appointment
+                                                                    {t(
+                                                                        'table.deleteAppointment',
+                                                                    )}
                                                                 </p>
                                                             </TooltipContent>
                                                         </Tooltip>

@@ -20,10 +20,10 @@ class PublicAppointmentController extends Controller
      */
     public function show(Request $request, Team $company): Response|RedirectResponse
     {
-        // The platform's own team is not publicly bookable.
-        if ($company->slug === 'uponco') {
-            return redirect()->route('home');
-        }
+        // // The platform's own team is not publicly bookable.
+        // if ($company->slug === 'uponco') {
+        //     return redirect()->route('home');
+        // }
 
         $timezone = $company->timezone ?: config('app.timezone');
 

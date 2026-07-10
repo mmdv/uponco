@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { MultiSelect } from '@/components/ui/multi-select';
 import type { MultiSelectOption } from '@/components/ui/multi-select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type {
     AppointmentLocationOption,
@@ -28,12 +29,7 @@ export const EMPTY_FILTERS: AppointmentFilters = {
 export type AppointmentTab = 'upcoming' | 'past';
 export type AppointmentView = 'minimal' | 'day' | 'week' | 'month';
 
-const VIEW_OPTIONS: { value: AppointmentView; label: string }[] = [
-    { value: 'minimal', label: 'Minimal' },
-    { value: 'day', label: 'Day' },
-    { value: 'week', label: 'Week' },
-    { value: 'month', label: 'Month' },
-];
+const VIEW_OPTIONS: AppointmentView[] = ['minimal', 'day', 'week', 'month'];
 
 type Props = {
     filters: AppointmentFilters;
@@ -62,6 +58,7 @@ export default function AppointmentsToolbar({
     view,
     onViewChange,
 }: Props) {
+    const { t } = useTranslation('appointments');
     // Collapsed by default; the trigger only shows on mobile, and on desktop the
     // filters stay expanded regardless of this state (see `sm:block` below).
     const [expanded, setExpanded] = useState(false);
@@ -113,7 +110,7 @@ export default function AppointmentsToolbar({
                     >
                         <SlidersHorizontal className="size-4 text-muted-foreground sm:hidden" />
                         <span className="text-sm font-medium text-foreground">
-                            Filters
+                            {t('toolbar.filters')}
                         </span>
                         {activeFilterCount > 0 ? (
                             <Badge
@@ -139,7 +136,7 @@ export default function AppointmentsToolbar({
                             data-test="appointments-clear-filters"
                             className="h-8 px-2 text-muted-foreground"
                         >
-                            <X className="size-4" /> Clear all
+                            <X className="size-4" /> {t('toolbar.clearAll')}
                         </Button>
                     ) : null}
                 </div>
@@ -151,7 +148,9 @@ export default function AppointmentsToolbar({
                     )}
                 >
                     <FilterField
-                        label="Location"
+                        name="location"
+                        label={t('toolbar.location')}
+                        clearLabel={t('toolbar.clear')}
                         count={filters.locationIds.length}
                         onClear={() => clearFilter('locationIds')}
                     >
@@ -161,7 +160,7 @@ export default function AppointmentsToolbar({
                             onChange={(value) =>
                                 updateFilter('locationIds', value)
                             }
-                            placeholder="All locations"
+                            placeholder={t('toolbar.allLocations')}
                             className={cn(
                                 filters.locationIds.length > 0 &&
                                     'border-primary ring-1 ring-primary/30',
@@ -171,7 +170,9 @@ export default function AppointmentsToolbar({
                     </FilterField>
 
                     <FilterField
-                        label="Service"
+                        name="service"
+                        label={t('toolbar.service')}
+                        clearLabel={t('toolbar.clear')}
                         count={filters.serviceIds.length}
                         onClear={() => clearFilter('serviceIds')}
                     >
@@ -181,7 +182,7 @@ export default function AppointmentsToolbar({
                             onChange={(value) =>
                                 updateFilter('serviceIds', value)
                             }
-                            placeholder="All services"
+                            placeholder={t('toolbar.allServices')}
                             className={cn(
                                 filters.serviceIds.length > 0 &&
                                     'border-primary ring-1 ring-primary/30',
@@ -191,7 +192,9 @@ export default function AppointmentsToolbar({
                     </FilterField>
 
                     <FilterField
-                        label="Specialist"
+                        name="specialist"
+                        label={t('toolbar.specialist')}
+                        clearLabel={t('toolbar.clear')}
                         count={filters.specialistIds.length}
                         onClear={() => clearFilter('specialistIds')}
                     >
@@ -201,7 +204,7 @@ export default function AppointmentsToolbar({
                             onChange={(value) =>
                                 updateFilter('specialistIds', value)
                             }
-                            placeholder="All specialists"
+                            placeholder={t('toolbar.allSpecialists')}
                             className={cn(
                                 filters.specialistIds.length > 0 &&
                                     'border-primary ring-1 ring-primary/30',
@@ -232,7 +235,7 @@ export default function AppointmentsToolbar({
                         className="flex-1 gap-2 sm:flex-none"
                         data-test="appointments-tab-upcoming"
                     >
-                        Upcoming
+                        {t('toolbar.upcoming')}
                         <CountBadge active={tab === 'upcoming'}>
                             {upcomingCount}
                         </CountBadge>
@@ -242,7 +245,7 @@ export default function AppointmentsToolbar({
                         className="flex-1 gap-2 sm:flex-none"
                         data-test="appointments-tab-past"
                     >
-                        Past
+                        {t('toolbar.past')}
                         <CountBadge active={tab === 'past'}>
                             {pastCount}
                         </CountBadge>
@@ -263,12 +266,12 @@ export default function AppointmentsToolbar({
                 >
                     {VIEW_OPTIONS.map((option) => (
                         <ToggleGroupItem
-                            key={option.value}
-                            value={option.value}
+                            key={option}
+                            value={option}
                             className="flex-1 sm:flex-none"
-                            data-test={`appointment-view-${option.value}`}
+                            data-test={`appointment-view-${option}`}
                         >
-                            {option.label}
+                            {t(`toolbar.views.${option}`)}
                         </ToggleGroupItem>
                     ))}
                 </ToggleGroup>
@@ -278,13 +281,23 @@ export default function AppointmentsToolbar({
 }
 
 type FilterFieldProps = {
+    /** Stable identifier used for test hooks (not translated). */
+    name: string;
     label: string;
+    clearLabel: string;
     count: number;
     onClear: () => void;
     children: React.ReactNode;
 };
 
-function FilterField({ label, count, onClear, children }: FilterFieldProps) {
+function FilterField({
+    name,
+    label,
+    clearLabel,
+    count,
+    onClear,
+    children,
+}: FilterFieldProps) {
     const active = count > 0;
 
     return (
@@ -308,9 +321,9 @@ function FilterField({ label, count, onClear, children }: FilterFieldProps) {
                         type="button"
                         onClick={onClear}
                         className="flex items-center gap-0.5 text-[11px] text-muted-foreground hover:text-foreground"
-                        data-test={`appointments-clear-${label.toLowerCase()}`}
+                        data-test={`appointments-clear-${name}`}
                     >
-                        <X className="size-3" /> Clear
+                        <X className="size-3" /> {clearLabel}
                     </button>
                 ) : null}
             </div>

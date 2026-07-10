@@ -1,0 +1,97 @@
+{
+    "title": "Görüşlər",
+    "newAppointment": "Yeni görüş",
+    "empty": {
+        "upcoming": "Qarşıdan gələn görüş yoxdur.",
+        "past": "Keçmiş görüş yoxdur."
+    },
+    "toolbar": {
+        "filters": "Filtrlər",
+        "clearAll": "Hamısını təmizlə",
+        "clear": "Təmizlə",
+        "location": "Filial",
+        "service": "Xidmət",
+        "specialist": "Mütəxəssis",
+        "allLocations": "Bütün filiallar",
+        "allServices": "Bütün xidmətlər",
+        "allSpecialists": "Bütün mütəxəssislər",
+        "upcoming": "Qarşıdan gələn",
+        "past": "Keçmiş",
+        "views": {
+            "minimal": "Minimal",
+            "day": "Gün",
+            "week": "Həftə",
+            "month": "Ay"
+        }
+    },
+    "table": {
+        "empty": "Hələ görüş yoxdur. Başlamaq üçün ilk görüşünüzü təyin edin.",
+        "time": "Vaxt",
+        "service": "Xidmət",
+        "location": "Filial",
+        "specialist": "Mütəxəssis",
+        "actions": "Əməliyyatlar",
+        "online": "Onlayn",
+        "viewDetails": "Təfərrüatlara bax",
+        "editAppointment": "Görüşü redaktə et",
+        "deleteAppointment": "Görüşü sil"
+    },
+    "form": {
+        "editTitle": "Görüşü redaktə et",
+        "newTitle": "Yeni görüş",
+        "editDescription": "Bu görüşün təfərrüatlarını yeniləyin.",
+        "newDescription": "Müştəri üçün yeni görüş təyin edin.",
+        "service": "Xidmət",
+        "location": "Filial",
+        "specialist": "Mütəxəssis",
+        "selectService": "Xidmət seçin",
+        "selectLocation": "Filial seçin",
+        "selectSpecialist": "Mütəxəssis seçin",
+        "searchLocations": "Filialları axtar…",
+        "searchSpecialists": "Mütəxəssisləri axtar…",
+        "noLocations": "Mövcud filial yoxdur.",
+        "noSpecialists": "Mövcud mütəxəssis yoxdur.",
+        "cancel": "Ləğv et",
+        "saveChanges": "Dəyişiklikləri yadda saxla",
+        "bookAppointment": "Görüşü təyin et"
+    },
+    "customer": {
+        "heading": "Müştəri",
+        "autoCreateNote": "Bu məlumatlar mövcud müştəriyə uyğun gəlmirsə, yeni müştəri yaradacağıq.",
+        "nameLabel": "Ad soyad",
+        "namePlaceholder": "Aygün Əliyeva",
+        "emailLabel": "E-poçt",
+        "emailPlaceholder": "aygun@example.com",
+        "phoneLabel": "Telefon",
+        "phonePlaceholder": "+994 55 123 45 67",
+        "notesLabel": "Qeydlər",
+        "notesPlaceholder": "Bu görüş üçün qeyd etmək istədiyiniz hər şey…"
+    },
+    "slots": {
+        "dateLabel": "Tarix",
+        "pickDate": "Tarix seçin",
+        "selectServiceSpecialist": "Mövcud vaxtları görmək üçün xidmət və mütəxəssis seçin.",
+        "pickDateHint": "Mövcud vaxtları görmək üçün tarix seçin.",
+        "noTimes": "Bu gün üçün mövcud vaxt yoxdur."
+    },
+    "delete": {
+        "title": "Görüşü sil",
+        "confirm": "\"{name}\" üçün görüşü silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+        "confirmWithDate": "\"{name}\" üçün {date} tarixindəki görüşü silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+        "cancel": "Ləğv et",
+        "confirmButton": "Görüşü sil"
+    },
+    "details": {
+        "online": "Onlayn",
+        "inPerson": "Şəxsən",
+        "with": "{name} ilə",
+        "date": "Tarix",
+        "time": "Vaxt",
+        "location": "Filial",
+        "customer": "Müştəri",
+        "noContact": "Əlaqə məlumatı yoxdur",
+        "notes": "Qeydlər",
+        "close": "Bağla",
+        "edit": "Redaktə et"
+    }
+}

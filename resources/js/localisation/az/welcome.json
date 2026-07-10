@@ -1,0 +1,71 @@
+{
+    "nav": {
+        "signIn": "Daxil ol",
+        "getStarted": "Başla",
+        "dashboard": "İdarə paneli"
+    },
+    "hero": {
+        "badge": "İlk 100 görüş pulsuz — kart tələb olunmur",
+        "titleLead": "Müştərilərinizə rəqəmsal",
+        "titleHighlight": "körpünüz",
+        "subtitle": "Biznesiniz üçün asan görüş rezervasiyası — hər filial, hər xidmət, onlayn və ya yerində. Beş dəqiqəyə qur və müştərilərin saniyələr içində rezervasiya etməsinə imkan yarat.",
+        "ctaStartFree": "Pulsuz başla",
+        "ctaSeeHow": "Necə işlədiyinə bax",
+        "ctaGoDashboard": "İdarə panelinə keç",
+        "trust": {
+            "noCreditCard": "Kredit kartı yoxdur",
+            "fiveMinuteSetup": "5 dəqiqəlik quraşdırma",
+            "cancelAnytime": "İstənilən vaxt ləğv et"
+        }
+    },
+    "demo": {
+        "pickTime": "Uyğun vaxtı seç",
+        "confirming": "Təsdiqlənir…",
+        "reminderSent": "Xatırlatma göndərildi"
+    },
+    "features": {
+        "heading": "Rezervasiya qəbulu üçün lazım olan hər şey",
+        "subheading": "Biznesinizi sizin üçün ən vacib insanlarla birləşdirən sadə bir alət.",
+        "items": {
+            "multiLocation": {
+                "title": "Çoxfiliallı",
+                "description": "Bütün filialların rezervasiyalarını vahid təqvimdən idarə edin."
+            },
+            "multiService": {
+                "title": "Çoxxidmətli",
+                "description": "İstənilən sayda xidmət təklif edin, hər biri öz müddəti və komandası ilə."
+            },
+            "individualGroup": {
+                "title": "Fərdi və qrup",
+                "description": "Təkbətək görüşlər qəbul edin və ya qrup sessiyalarını asanlıqla doldurun."
+            },
+            "onlineOnsite": {
+                "title": "Onlayn və ya yerində",
+                "description": "Virtual görüşlər və ya üzbəüz ziyarətlər keçirin — seçim müştərinizindir."
+            },
+            "reminders": {
+                "title": "Avtomatik xatırlatmalar",
+                "description": "Hər müştəriyə vaxtında göndərilən xatırlatmalarla gəlməmələri azaldın."
+            },
+            "onboarding": {
+                "title": "5 dəqiqəlik başlanğıc",
+                "description": "Filiallarınızı, xidmətlərinizi və komandanızı qurun və bu gün rezervasiya qəbuluna başlayın."
+            }
+        }
+    },
+    "free100": {
+        "heading": "İlk 100 görüşünüz pulsuzdur",
+        "items": {
+            "noPayment": "Ödəniş yoxdur, öhdəlik yoxdur",
+            "allFeatures": "Bütün funksiyalar daxildir",
+            "payAsYouGrow": "Yalnız böyüdükcə ödə"
+        },
+        "ctaClaim": "Pulsuz 100-ü əldə et",
+        "ctaGoDashboard": "İdarə panelinə keç"
+    },
+    "footer": {
+        "privacy": "Məxfilik",
+        "terms": "Şərtlər",
+        "copyright": "Uponco. Müştərilərinizə rəqəmsal körpünüz."
+    }
+}

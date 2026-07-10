@@ -1,0 +1,97 @@
+{
+    "title": "Appointments",
+    "newAppointment": "New appointment",
+    "empty": {
+        "upcoming": "No upcoming appointments.",
+        "past": "No past appointments."
+    },
+    "toolbar": {
+        "filters": "Filters",
+        "clearAll": "Clear all",
+        "clear": "Clear",
+        "location": "Location",
+        "service": "Service",
+        "specialist": "Specialist",
+        "allLocations": "All locations",
+        "allServices": "All services",
+        "allSpecialists": "All specialists",
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "views": {
+            "minimal": "Minimal",
+            "day": "Day",
+            "week": "Week",
+            "month": "Month"
+        }
+    },
+    "table": {
+        "empty": "No appointments yet. Book your first appointment to get started.",
+        "time": "Time",
+        "service": "Service",
+        "location": "Location",
+        "specialist": "Specialist",
+        "actions": "Actions",
+        "online": "Online",
+        "viewDetails": "View details",
+        "editAppointment": "Edit appointment",
+        "deleteAppointment": "Delete appointment"
+    },
+    "form": {
+        "editTitle": "Edit appointment",
+        "newTitle": "New appointment",
+        "editDescription": "Update the details for this appointment.",
+        "newDescription": "Book a new appointment for a customer.",
+        "service": "Service",
+        "location": "Location",
+        "specialist": "Specialist",
+        "selectService": "Select a service",
+        "selectLocation": "Select a location",
+        "selectSpecialist": "Select a specialist",
+        "searchLocations": "Search locations…",
+        "searchSpecialists": "Search specialists…",
+        "noLocations": "No locations available.",
+        "noSpecialists": "No specialists available.",
+        "cancel": "Cancel",
+        "saveChanges": "Save changes",
+        "bookAppointment": "Book appointment"
+    },
+    "customer": {
+        "heading": "Customer",
+        "autoCreateNote": "We'll create a new customer if these details don't match an existing one.",
+        "nameLabel": "Name surname",
+        "namePlaceholder": "Jane Doe",
+        "emailLabel": "Email",
+        "emailPlaceholder": "jane@example.com",
+        "phoneLabel": "Phone",
+        "phonePlaceholder": "+1 555 123 4567",
+        "notesLabel": "Notes",
+        "notesPlaceholder": "Anything to note for this appointment…"
+    },
+    "slots": {
+        "dateLabel": "Date",
+        "pickDate": "Pick a date",
+        "selectServiceSpecialist": "Select a service and specialist to see available times.",
+        "pickDateHint": "Pick a date to see available times.",
+        "noTimes": "No available times on this day."
+    },
+    "delete": {
+        "title": "Delete appointment",
+        "confirm": "Are you sure you want to delete the appointment for \"{name}\"? This action cannot be undone.",
+        "confirmWithDate": "Are you sure you want to delete the appointment for \"{name}\" on {date}? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirmButton": "Delete appointment"
+    },
+    "details": {
+        "online": "Online",
+        "inPerson": "In person",
+        "with": "with {name}",
+        "date": "Date",
+        "time": "Time",
+        "location": "Location",
+        "customer": "Customer",
+        "noContact": "No contact details",
+        "notes": "Notes",
+        "close": "Close",
+        "edit": "Edit"
+    }
+}

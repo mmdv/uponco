@@ -1,0 +1,71 @@
+{
+    "nav": {
+        "signIn": "Sign in",
+        "getStarted": "Get started",
+        "dashboard": "Dashboard"
+    },
+    "hero": {
+        "badge": "First 100 appointments free — no card required",
+        "titleLead": "Your digital bridge to your",
+        "titleHighlight": "customers",
+        "subtitle": "Easy appointment booking for your business — every location, every service, online or onsite. Set up in five minutes and let customers book in seconds.",
+        "ctaStartFree": "Start free",
+        "ctaSeeHow": "See how it works",
+        "ctaGoDashboard": "Go to dashboard",
+        "trust": {
+            "noCreditCard": "No credit card",
+            "fiveMinuteSetup": "5-minute setup",
+            "cancelAnytime": "Cancel anytime"
+        }
+    },
+    "demo": {
+        "pickTime": "Pick a time that works",
+        "confirming": "Confirming…",
+        "reminderSent": "Reminder sent"
+    },
+    "features": {
+        "heading": "Everything you need to take bookings",
+        "subheading": "One simple tool to connect your business with the people who matter most.",
+        "items": {
+            "multiLocation": {
+                "title": "Multi-location",
+                "description": "Manage bookings across every branch from a single, unified calendar."
+            },
+            "multiService": {
+                "title": "Multi-service",
+                "description": "Offer any number of services, each with its own duration and team."
+            },
+            "individualGroup": {
+                "title": "Individual & group",
+                "description": "Take one-on-one appointments or fill group sessions with ease."
+            },
+            "onlineOnsite": {
+                "title": "Online or onsite",
+                "description": "Host virtual meetings or in-person visits — your customers choose."
+            },
+            "reminders": {
+                "title": "Automatic reminders",
+                "description": "Cut no-shows with timely reminders sent to every customer."
+            },
+            "onboarding": {
+                "title": "5-minute onboarding",
+                "description": "Set up your locations, services and team and start taking bookings today."
+            }
+        }
+    },
+    "free100": {
+        "heading": "Your first 100 appointments are free",
+        "items": {
+            "noPayment": "No payment, no commitment",
+            "allFeatures": "All features included",
+            "payAsYouGrow": "Pay only as you grow"
+        },
+        "ctaClaim": "Claim your free 100",
+        "ctaGoDashboard": "Go to dashboard"
+    },
+    "footer": {
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "copyright": "Uponco. Your digital bridge to your customers."
+    }
+}

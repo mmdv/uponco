@@ -19,6 +19,7 @@ import DeleteAppointmentModal from '@/components/appointments/delete-appointment
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useTranslation } from '@/hooks/use-translation';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
 import {
     index as appointmentsIndex,
@@ -49,6 +50,7 @@ export default function AppointmentsIndex({
     specialists,
     availableSlots = [],
 }: Props) {
+    const { t } = useTranslation('appointments');
     const { auth, currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
@@ -212,11 +214,11 @@ export default function AppointmentsIndex({
 
     return (
         <>
-            <Head title="Appointments" />
+            <Head title={t('title')} />
 
             <div className="flex flex-col space-y-6 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <Heading variant="small" title="Appointments" />
+                    <Heading variant="small" title={t('title')} />
 
                     <Button
                         className="w-full sm:w-auto"
@@ -224,7 +226,7 @@ export default function AppointmentsIndex({
                         disabled={!hasBookableResources}
                         onClick={openCreate}
                     >
-                        <Plus /> New appointment
+                        <Plus /> {t('newAppointment')}
                     </Button>
                 </div>
 
@@ -253,8 +255,8 @@ export default function AppointmentsIndex({
                         }
                         emptyMessage={
                             tab === 'upcoming'
-                                ? 'No upcoming appointments.'
-                                : 'No past appointments.'
+                                ? t('empty.upcoming')
+                                : t('empty.past')
                         }
                     />
                 ) : (

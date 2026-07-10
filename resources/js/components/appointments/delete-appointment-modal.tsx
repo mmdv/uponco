@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { formatAppointmentDay } from '@/lib/appointments';
 import { destroy } from '@/routes/appointments';
 import type { Appointment } from '@/types';
@@ -28,6 +29,7 @@ export default function DeleteAppointmentModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('appointments');
     const [processing, setProcessing] = useState(false);
 
     const deleteAppointment = () => {
@@ -47,20 +49,23 @@ export default function DeleteAppointmentModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete appointment</DialogTitle>
+                    <DialogTitle>{t('delete.title')}</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete the appointment for{' '}
-                        <strong>"{appointment?.customer.name}"</strong>
                         {appointment
-                            ? ` on ${formatAppointmentDay(appointment.start_at, appointment.timezone)}`
-                            : ''}
-                        ? This action cannot be undone.
+                            ? t('delete.confirmWithDate', {
+                                  name: appointment.customer.name,
+                                  date: formatAppointmentDay(
+                                      appointment.start_at,
+                                      appointment.timezone,
+                                  ),
+                              })
+                            : t('delete.confirm', { name: '' })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">{t('delete.cancel')}</Button>
                     </DialogClose>
 
                     <Button
@@ -69,7 +74,7 @@ export default function DeleteAppointmentModal({
                         disabled={processing}
                         onClick={deleteAppointment}
                     >
-                        Delete appointment
+                        {t('delete.confirmButton')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

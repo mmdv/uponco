@@ -7,6 +7,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useTranslation } from '@/hooks/use-translation';
 import type { ServiceCategoryGroup } from '@/lib/appointments';
 
 type Props = {
@@ -29,6 +30,8 @@ export default function AppointmentServiceSelect({
     invalid,
     ...props
 }: Props) {
+    const { t } = useTranslation('appointments');
+
     return (
         <Select value={value} onValueChange={onChange}>
             <SelectTrigger
@@ -37,7 +40,7 @@ export default function AppointmentServiceSelect({
                 className="w-full"
                 {...props}
             >
-                <SelectValue placeholder="Select a service" />
+                <SelectValue placeholder={t('form.selectService')} />
             </SelectTrigger>
             <SelectContent>
                 {groups.map((group) => (

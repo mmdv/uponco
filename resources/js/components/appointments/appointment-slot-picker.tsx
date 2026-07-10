@@ -12,6 +12,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { AppointmentSlot } from '@/types';
 
@@ -55,12 +56,13 @@ export default function AppointmentSlotPicker({
     selectionIncomplete,
     error,
 }: Props) {
+    const { t } = useTranslation('appointments');
     const [open, setOpen] = useState(false);
     const selectedDate = parseDateInputValue(date);
 
     return (
         <div className="grid gap-2">
-            <Label htmlFor="appointment-date">Date</Label>
+            <Label htmlFor="appointment-date">{t('slots.dateLabel')}</Label>
             <Popover open={open} onOpenChange={setOpen} modal>
                 <PopoverTrigger asChild>
                     <Button
@@ -78,7 +80,7 @@ export default function AppointmentSlotPicker({
                         <CalendarIcon className="size-4 opacity-50" />
                         {selectedDate
                             ? format(selectedDate, 'EEE, d MMM yyyy')
-                            : 'Pick a date'}
+                            : t('slots.pickDate')}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -102,11 +104,11 @@ export default function AppointmentSlotPicker({
             <div className="mt-1">
                 {selectionIncomplete ? (
                     <p className="text-sm text-muted-foreground">
-                        Select a service and specialist to see available times.
+                        {t('slots.selectServiceSpecialist')}
                     </p>
                 ) : !date ? (
                     <p className="text-sm text-muted-foreground">
-                        Pick a date to see available times.
+                        {t('slots.pickDateHint')}
                     </p>
                 ) : loading ? (
                     <div className="grid grid-cols-3 gap-2">
@@ -116,7 +118,7 @@ export default function AppointmentSlotPicker({
                     </div>
                 ) : slots.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                        No available times on this day.
+                        {t('slots.noTimes')}
                     </p>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">

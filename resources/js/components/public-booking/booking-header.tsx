@@ -1,4 +1,12 @@
-import { Check, Copy, EllipsisVertical, Moon, Share2, Sun } from 'lucide-react';
+import {
+    Check,
+    Copy,
+    EllipsisVertical,
+    Languages,
+    Moon,
+    Share2,
+    Sun,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,6 +17,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import { useLocale } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
 export type PublicTheme = 'light' | 'dark';
@@ -56,6 +65,7 @@ export default function BookingHeader({
     theme,
     onThemeChange,
 }: Props) {
+    const { locale, availableLocales, setLocale } = useLocale();
     const [shareUrl] = useState(currentUrl);
     const [canNativeShare] = useState(supportsNativeShare);
     const [copied, setCopied] = useState(false);
@@ -148,6 +158,32 @@ export default function BookingHeader({
                             </Button>
                         </div>
                     </div>
+
+                    {availableLocales.length > 1 ? (
+                        <div className="space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">
+                                Language
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {availableLocales.map((language) => (
+                                    <Button
+                                        key={language.code}
+                                        type="button"
+                                        variant={
+                                            locale === language.code
+                                                ? 'default'
+                                                : 'outline'
+                                        }
+                                        onClick={() => setLocale(language.code)}
+                                        data-test={`booking-language-${language.code}`}
+                                    >
+                                        <Languages className="size-4" />
+                                        {language.native}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                    ) : null}
 
                     <div className="space-y-2">
                         <p className="text-xs font-medium text-muted-foreground">
