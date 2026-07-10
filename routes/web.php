@@ -18,6 +18,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicAppointmentController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Http\Middleware\EnsureTeamOnboarded;
@@ -64,6 +65,8 @@ Route::prefix('{current_team}')
         Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
         Route::patch('appointments/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
+
+        Route::get('schedule', [ScheduleController::class, 'index'])->name('schedule.index');
 
         Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');

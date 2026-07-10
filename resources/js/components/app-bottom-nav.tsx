@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Building2,
+    CalendarClock,
     CalendarDays,
     LayoutGrid,
     UserCog,
@@ -14,6 +15,7 @@ import { index as appointments } from '@/routes/appointments';
 import { index as company } from '@/routes/company';
 import { edit as workProfile } from '@/routes/company/work-profile';
 import { index as customers } from '@/routes/customers';
+import { index as schedule } from '@/routes/schedule';
 import type { NavItem } from '@/types';
 
 export function AppBottomNav() {
@@ -36,6 +38,11 @@ export function AppBottomNav() {
             title: 'Appointments',
             href: appointments(currentTeam.slug),
             icon: CalendarDays,
+        },
+        {
+            title: 'Schedule',
+            href: schedule(currentTeam.slug),
+            icon: CalendarClock,
         },
         {
             title: 'Customers',

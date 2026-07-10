@@ -6,6 +6,7 @@ export type * from './locations';
 export type * from './navigation';
 export type * from './onboarding';
 export type * from './pagination';
+export type * from './schedule';
 export type * from './services';
 export type * from './teams';
 export type * from './ui';
