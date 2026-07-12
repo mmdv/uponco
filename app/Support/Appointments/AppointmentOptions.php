@@ -4,10 +4,10 @@ namespace App\Support\Appointments;
 
 use App\Models\Appointment;
 use App\Models\Location;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\WorkHour;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -82,11 +82,18 @@ class AppointmentOptions
     {
         $timezone = $team->timezone ?: config('app.timezone');
 
+        // The availability preview scans a fixed 14-day window; bound the eager
+        // load to it so a growing date-based schedule never over-fetches.
+        $windowStart = CarbonImmutable::now($timezone)->startOfDay();
+        $windowEnd = $windowStart->addDays(13);
+
         return $team->members()
             ->with([
                 'services:id',
                 'locations:id',
-                'workHours' => fn ($query) => $query->where('team_id', $team->id),
+                'scheduleSlots' => fn ($query) => $query
+                    ->where('team_id', $team->id)
+                    ->whereBetween('date', [$windowStart->format('Y-m-d'), $windowEnd->format('Y-m-d')]),
             ])
             ->orderBy('name')
             ->get()
@@ -120,7 +127,7 @@ class AppointmentOptions
      */
     protected static function availability(User $specialist, string $timezone): array
     {
-        if ($specialist->workHours->isEmpty()) {
+        if ($specialist->scheduleSlots->isEmpty()) {
             return ['days' => [], 'preview' => null];
         }
 
@@ -134,10 +141,9 @@ class AppointmentOptions
 
         for ($offset = 0; $offset < 14; $offset++) {
             $day = $windowStart->addDays($offset);
-            $dayOfWeek = $day->dayOfWeekIso - 1; // 0 = Monday ... 6 = Sunday
 
-            $hours = $specialist->workHours
-                ->where('day_of_week', $dayOfWeek)
+            $hours = $specialist->scheduleSlots
+                ->filter(fn (ScheduleSlot $slot): bool => $slot->date->format('Y-m-d') === $day->format('Y-m-d'))
                 ->sortBy('start_time');
 
             if ($hours->isEmpty()) {
@@ -168,7 +174,7 @@ class AppointmentOptions
      * Generate free half-hour preview time labels across a specialist's work
      * windows, skipping past times and slots overlapping existing appointments.
      *
-     * @param  Collection<int, WorkHour>  $hours
+     * @param  Collection<int, ScheduleSlot>  $hours
      * @param  Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>  $booked
      * @return array<int, string>
      */

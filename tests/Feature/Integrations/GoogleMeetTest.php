@@ -2,10 +2,10 @@
 
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Models\WorkHour;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Support\Appointments\AppointmentCalendar;
 use App\Support\ServiceOptions;
@@ -49,16 +49,14 @@ function onlineBookableSetup(bool $googleConnected = true): array
 
     $service->specialists()->attach($user);
 
-    foreach (range(0, 6) as $dayOfWeek) {
-        WorkHour::factory()->for($user)->create([
-            'team_id' => $team->id,
-            'day_of_week' => $dayOfWeek,
-            'start_time' => '09:00',
-            'end_time' => '17:00',
-        ]);
-    }
-
     $startAt = CarbonImmutable::now('UTC')->addWeek()->startOfWeek()->setTime(9, 0);
+
+    ScheduleSlot::factory()->for($user)->create([
+        'team_id' => $team->id,
+        'date' => $startAt->format('Y-m-d'),
+        'start_time' => '09:00',
+        'end_time' => '17:00',
+    ]);
 
     return compact('user', 'team', 'service', 'startAt');
 }

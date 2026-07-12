@@ -7,7 +7,6 @@ enum OnboardingStep: string
     case Locations = 'locations';
     case Services = 'services';
     case Profile = 'profile';
-    case WorkHours = 'work_hours';
 
     /**
      * Get the database column used to persist this step's status.
@@ -26,7 +25,6 @@ enum OnboardingStep: string
             self::Locations => 'Locations',
             self::Services => 'Services',
             self::Profile => 'Work profile',
-            self::WorkHours => 'Work hours',
         };
     }
 
@@ -36,7 +34,7 @@ enum OnboardingStep: string
     public function isMandatory(): bool
     {
         return match ($this) {
-            self::Profile, self::WorkHours => true,
+            self::Profile => true,
             default => false,
         };
     }

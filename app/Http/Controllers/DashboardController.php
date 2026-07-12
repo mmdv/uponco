@@ -12,7 +12,6 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\WorkHour;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\LocationOptions;
 use App\Support\ServiceOptions;
@@ -243,9 +242,6 @@ class DashboardController extends Controller
                 'job_title' => $user->profile?->job_title,
                 'description' => $user->profile?->description,
             ],
-            'workHours' => [
-                'schedule' => $this->toWeeklySchedule($user->workHoursFor($team)->orderBy('start_time')->get()),
-            ],
         ];
     }
 
@@ -311,34 +307,5 @@ class DashboardController extends Controller
             'location_ids' => $service->locations->pluck('id')->all(),
             'user_ids' => $service->specialists->pluck('id')->all(),
         ];
-    }
-
-    /**
-     * Transform flat work hour rows into the nested weekly schedule shape.
-     *
-     * @param  Collection<int, WorkHour>  $workHours
-     * @return array<string, array{enabled: bool, slots: array<int, array{start: string, end: string}>}>
-     */
-    protected function toWeeklySchedule($workHours): array
-    {
-        $schedule = [];
-
-        foreach (WorkHour::DAYS as $dayOfWeek => $day) {
-            $slots = $workHours
-                ->where('day_of_week', $dayOfWeek)
-                ->map(fn (WorkHour $workHour): array => [
-                    'start' => substr((string) $workHour->start_time, 0, 5),
-                    'end' => substr((string) $workHour->end_time, 0, 5),
-                ])
-                ->values()
-                ->all();
-
-            $schedule[$day] = [
-                'enabled' => $slots !== [],
-                'slots' => $slots,
-            ];
-        }
-
-        return $schedule;
     }
 }

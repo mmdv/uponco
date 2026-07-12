@@ -28,7 +28,6 @@ class OnboardingProgressFactory extends Factory
             'locations_status' => OnboardingStepStatus::Pending,
             'services_status' => OnboardingStepStatus::Pending,
             'profile_status' => OnboardingStepStatus::Pending,
-            'work_hours_status' => OnboardingStepStatus::Pending,
             'current_step' => OnboardingStep::General,
             'completed_at' => null,
         ];
@@ -44,8 +43,7 @@ class OnboardingProgressFactory extends Factory
             'locations_status' => OnboardingStepStatus::Completed,
             'services_status' => OnboardingStepStatus::Completed,
             'profile_status' => OnboardingStepStatus::Completed,
-            'work_hours_status' => OnboardingStepStatus::Completed,
-            'current_step' => OnboardingStep::WorkHours,
+            'current_step' => OnboardingStep::Profile,
             'completed_at' => now(),
         ]);
     }

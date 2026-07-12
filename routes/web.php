@@ -11,7 +11,6 @@ use App\Http\Controllers\Company\CompanyController;
 use App\Http\Controllers\Company\LocationController;
 use App\Http\Controllers\Company\ServiceCategoryController;
 use App\Http\Controllers\Company\ServiceController;
-use App\Http\Controllers\Company\WorkHoursController;
 use App\Http\Controllers\Company\WorkProfileController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
@@ -77,9 +76,6 @@ Route::prefix('{current_team}')
         // Every team member manages their own work profile and availability.
         Route::get('company/work-profile', [WorkProfileController::class, 'edit'])->name('company.work-profile.edit');
         Route::patch('company/work-profile', [WorkProfileController::class, 'update'])->name('company.work-profile.update');
-
-        Route::get('company/work-hours', [WorkHoursController::class, 'edit'])->name('company.work-hours.edit');
-        Route::put('company/work-hours', [WorkHoursController::class, 'update'])->name('company.work-hours.update');
 
         // Company management (business, team, services, locations, brand) is
         // restricted to admins and owners. Members are gated out entirely.

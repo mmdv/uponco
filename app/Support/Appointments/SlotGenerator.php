@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 /**
  * Generates bookable time slots for a service/location/specialist on a given day.
  *
- * The work hours stored against a specialist are wall-clock times that are
+ * The schedule slots stored against a specialist are wall-clock times that are
  * interpreted in the team's timezone. Slots are produced in that timezone and
  * exposed as UTC instants so they can be stored and compared consistently.
  * This class is shared between the dashboard and the future public booking page.
@@ -50,14 +50,12 @@ class SlotGenerator
         $day = CarbonImmutable::createFromFormat('Y-m-d', $date, $timezone)->startOfDay();
         $now ??= CarbonImmutable::now($timezone);
 
-        $dayOfWeek = $day->dayOfWeekIso - 1; // 0 = Monday ... 6 = Sunday
-
-        $workHours = $specialist->workHoursFor($teamId)
-            ->where('day_of_week', $dayOfWeek)
+        $windows = $specialist->scheduleSlotsFor($teamId)
+            ->where('date', $day->format('Y-m-d'))
             ->orderBy('start_time')
             ->get();
 
-        if ($workHours->isEmpty()) {
+        if ($windows->isEmpty()) {
             return [];
         }
 
@@ -68,9 +66,9 @@ class SlotGenerator
 
         $slots = [];
 
-        foreach ($workHours as $workHour) {
-            $intervalStart = static::dateTimeOn($day, (string) $workHour->start_time);
-            $intervalEnd = static::dateTimeOn($day, (string) $workHour->end_time);
+        foreach ($windows as $window) {
+            $intervalStart = static::dateTimeOn($day, (string) $window->start_time);
+            $intervalEnd = static::dateTimeOn($day, (string) $window->end_time);
 
             $slotStart = $intervalStart;
 

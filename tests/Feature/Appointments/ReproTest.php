@@ -2,10 +2,10 @@
 
 use App\Models\Appointment;
 use App\Models\Location;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Models\WorkHour;
 use App\Support\Appointments\SlotGenerator;
 use Carbon\CarbonImmutable;
 
@@ -23,10 +23,8 @@ test('REPRO double POST same slot', function () {
     $service->locations()->attach($location);
     $service->specialists()->attach($user);
     $location->specialists()->attach($user);
-    foreach (range(0, 6) as $d) {
-        WorkHour::factory()->for($user)->create(['team_id' => $team->id, 'day_of_week' => $d, 'start_time' => '09:00', 'end_time' => '17:00']);
-    }
     $date = CarbonImmutable::now('America/New_York')->addWeek()->startOfWeek()->format('Y-m-d');
+    ScheduleSlot::factory()->for($user)->create(['team_id' => $team->id, 'date' => $date, 'start_time' => '09:00', 'end_time' => '17:00']);
     $slot = collect(SlotGenerator::generate($service, $user, $team->id, $team->timezone, $date))->firstWhere('label', '09:00');
 
     $payload = [

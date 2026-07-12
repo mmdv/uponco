@@ -1,12 +1,7 @@
 import type { Location, SelectOption } from './locations';
 import type { Service, ServiceCategory } from './services';
-import type { WeeklySchedule } from './work-hours';
 
-export type OnboardingStepKey =
-    | 'locations'
-    | 'services'
-    | 'profile'
-    | 'work_hours';
+export type OnboardingStepKey = 'locations' | 'services' | 'profile';
 
 export type OnboardingStepStatus = 'pending' | 'completed' | 'skipped';
 
@@ -45,7 +40,4 @@ export type Onboarding = {
         meetingProviders: SelectOption[];
     };
     profile: OnboardingProfile;
-    workHours: {
-        schedule: WeeklySchedule;
-    };
 };

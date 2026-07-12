@@ -98,30 +98,6 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
-     * Get the user's weekly work hours.
-     *
-     * @return HasMany<WorkHour, $this>
-     */
-    public function workHours(): HasMany
-    {
-        return $this->hasMany(WorkHour::class);
-    }
-
-    /**
-     * Get the user's weekly work hours scoped to a single team.
-     *
-     * Work hours are per team, so callers must always narrow by team when
-     * reading or writing a schedule.
-     *
-     * @return HasMany<WorkHour, $this>
-     */
-    public function workHoursFor(Team|int $team): HasMany
-    {
-        return $this->workHours()
-            ->where('team_id', $team instanceof Team ? $team->id : $team);
-    }
-
-    /**
      * Get the user's date-based schedule slots.
      *
      * @return HasMany<ScheduleSlot, $this>

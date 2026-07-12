@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\WorkHour;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -75,41 +75,51 @@ class CompanyController extends Controller
     }
 
     /**
-     * Build the weekly availability summary for the current user.
+     * Build the current week's availability summary for the given user.
+     *
+     * Availability is now date-based, so the summary reflects the actual slots
+     * scheduled across the current week (Monday–Sunday in the team timezone)
+     * rather than a recurring weekly template.
      *
      * @return array{days: array<int, array{key: string, label: string, minutes: int, isToday: bool}>, weeklyMinutes: int, openNow: bool}
      */
     protected function workProfileSummary(User $user, Team $team): array
     {
-        $workHours = $user->workHoursFor($team)->get();
-
         $timezone = $team->timezone ?: config('app.timezone');
         $now = CarbonImmutable::now($timezone);
-        $todayIndex = $now->dayOfWeekIso - 1;
+        $weekStart = $now->startOfWeek(CarbonImmutable::MONDAY);
+        $today = $now->format('Y-m-d');
         $nowTime = $now->format('H:i:s');
+
+        $slots = $user->scheduleSlotsFor($team)
+            ->whereBetween('date', [$weekStart->format('Y-m-d'), $weekStart->addDays(6)->format('Y-m-d')])
+            ->get()
+            ->groupBy(fn (ScheduleSlot $slot): string => $slot->date->format('Y-m-d'));
 
         $weeklyMinutes = 0;
         $openNow = false;
         $days = [];
 
-        foreach (WorkHour::DAYS as $index => $day) {
-            $slots = $workHours->where('day_of_week', $index);
+        for ($offset = 0; $offset < 7; $offset++) {
+            $day = $weekStart->addDays($offset);
+            $dateKey = $day->format('Y-m-d');
+            $daySlots = $slots->get($dateKey, collect());
 
-            $minutes = (int) $slots->sum(fn (WorkHour $slot): int => (int) CarbonImmutable::parse($slot->start_time)
+            $minutes = (int) $daySlots->sum(fn (ScheduleSlot $slot): int => (int) CarbonImmutable::parse($slot->start_time)
                 ->diffInMinutes(CarbonImmutable::parse($slot->end_time)));
 
             $weeklyMinutes += $minutes;
 
-            if ($index === $todayIndex) {
-                $openNow = $slots->contains(fn (WorkHour $slot): bool => $nowTime >= substr((string) $slot->start_time, 0, 8)
+            if ($dateKey === $today) {
+                $openNow = $daySlots->contains(fn (ScheduleSlot $slot): bool => $nowTime >= substr((string) $slot->start_time, 0, 8)
                     && $nowTime <= substr((string) $slot->end_time, 0, 8));
             }
 
             $days[] = [
-                'key' => $day,
-                'label' => strtoupper(substr($day, 0, 1)),
+                'key' => strtolower($day->format('l')),
+                'label' => strtoupper(substr($day->format('l'), 0, 1)),
                 'minutes' => $minutes,
-                'isToday' => $index === $todayIndex,
+                'isToday' => $dateKey === $today,
             ];
         }
 

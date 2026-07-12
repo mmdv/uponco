@@ -5,10 +5,10 @@ use App\Enums\TeamRole;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Location;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Models\WorkHour;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Support\Appointments\SlotGenerator;
 use Carbon\CarbonImmutable;
@@ -41,16 +41,18 @@ function bookableSetup(array $serviceOverrides = []): array
     $service->specialists()->attach($user);
     $location->specialists()->attach($user);
 
-    foreach (range(0, 6) as $dayOfWeek) {
-        WorkHour::factory()->for($user)->create([
+    $startAt = CarbonImmutable::now('UTC')->addWeek()->startOfWeek()->setTime(9, 0);
+
+    // Schedule is now date-based, so seed a concrete slot for every day of the
+    // booking week (tests book on $startAt and $startAt->addDay()).
+    foreach (range(0, 6) as $offset) {
+        ScheduleSlot::factory()->for($user)->create([
             'team_id' => $team->id,
-            'day_of_week' => $dayOfWeek,
+            'date' => $startAt->addDays($offset)->format('Y-m-d'),
             'start_time' => '09:00',
             'end_time' => '17:00',
         ]);
     }
-
-    $startAt = CarbonImmutable::now('UTC')->addWeek()->startOfWeek()->setTime(9, 0);
 
     return compact('user', 'team', 'service', 'location', 'startAt');
 }
@@ -349,6 +351,40 @@ test('the slot generator produces available times within work hours', function (
 
     $first = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
     expect($first['available'])->toBeTrue();
+});
+
+test('a date with no schedule slots produces no bookable times', function () {
+    $setup = bookableSetup();
+
+    // A day within the booking week has slots; a day far outside it has none.
+    $unscheduled = $setup['startAt']->addWeeks(4)->format('Y-m-d');
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $unscheduled,
+    );
+
+    expect($slots)->toBe([]);
+});
+
+test('booking is rejected on a date the specialist has not scheduled', function () {
+    $setup = bookableSetup();
+
+    // Same weekday as the scheduled start, but four weeks out where no slot exists.
+    $start = $setup['startAt']->addWeeks(4);
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(
+            route('appointments.store', ['current_team' => $setup['team']->slug]),
+            appointmentPayload($setup, ['start_at' => $start->toIso8601String()]),
+        )
+        ->assertSessionHasErrors('start_at');
+
+    expect(Appointment::count())->toBe(0);
 });
 
 test('the slot generator disables already booked times for the specialist', function () {

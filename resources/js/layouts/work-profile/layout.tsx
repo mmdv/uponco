@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
-import { edit as editWorkHours } from '@/routes/company/work-hours';
 import { edit as editWorkProfile } from '@/routes/company/work-profile';
 import type { NavItem } from '@/types';
 
@@ -18,11 +17,6 @@ export default function WorkProfileLayout({ children }: PropsWithChildren) {
         {
             title: 'Profile',
             href: editWorkProfile(teamSlug),
-            icon: null,
-        },
-        {
-            title: 'Work hours',
-            href: editWorkHours(teamSlug),
             icon: null,
         },
     ];

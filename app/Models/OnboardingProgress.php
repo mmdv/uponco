@@ -28,7 +28,6 @@ class OnboardingProgress extends Model
         'locations_status' => OnboardingStepStatus::Pending->value,
         'services_status' => OnboardingStepStatus::Pending->value,
         'profile_status' => OnboardingStepStatus::Pending->value,
-        'work_hours_status' => OnboardingStepStatus::Pending->value,
         'current_step' => OnboardingStep::Locations->value,
     ];
 
@@ -43,7 +42,6 @@ class OnboardingProgress extends Model
         'locations_status',
         'services_status',
         'profile_status',
-        'work_hours_status',
         'current_step',
         'completed_at',
     ];
@@ -142,7 +140,7 @@ class OnboardingProgress extends Model
             }
         }
 
-        return OnboardingStep::WorkHours;
+        return OnboardingStep::Profile;
     }
 
     /**
@@ -154,7 +152,6 @@ class OnboardingProgress extends Model
             OnboardingStep::Locations => $team->locations()->exists(),
             OnboardingStep::Services => $team->services()->exists(),
             OnboardingStep::Profile => filled($user->profile?->job_title),
-            OnboardingStep::WorkHours => $user->workHoursFor($team)->exists(),
         };
     }
 
@@ -171,7 +168,6 @@ class OnboardingProgress extends Model
             'locations_status' => OnboardingStepStatus::class,
             'services_status' => OnboardingStepStatus::class,
             'profile_status' => OnboardingStepStatus::class,
-            'work_hours_status' => OnboardingStepStatus::class,
         ];
     }
 }

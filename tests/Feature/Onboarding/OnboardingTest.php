@@ -6,7 +6,6 @@ use App\Enums\TeamRole;
 use App\Models\OnboardingProgress;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\WorkHour;
 
 /**
  * Create a user that owns a fully set-up team (so it clears the onboarding
@@ -36,7 +35,7 @@ function onboardingStepRoute(Team $team, OnboardingStep $step): string
     ]);
 }
 
-test('owners see the onboarding wizard with all four steps', function () {
+test('owners see the onboarding wizard with all three steps', function () {
     [$user, $team] = onboardingOwner();
 
     $this
@@ -46,7 +45,7 @@ test('owners see the onboarding wizard with all four steps', function () {
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
             ->has('onboarding')
-            ->has('onboarding.steps', 4)
+            ->has('onboarding.steps', 3)
             ->where('onboarding.currentStep', 'locations')
         );
 });
@@ -69,13 +68,6 @@ test('regular members do not see the onboarding wizard', function () {
 test('mandatory steps auto-complete when their data already exists', function () {
     [$user, $team] = onboardingOwner();
     $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
-    WorkHour::create([
-        'user_id' => $user->id,
-        'team_id' => $team->id,
-        'day_of_week' => 0,
-        'start_time' => '09:00',
-        'end_time' => '17:00',
-    ]);
 
     $this
         ->actingAs($user)
@@ -84,7 +76,6 @@ test('mandatory steps auto-complete when their data already exists', function ()
             ->where('onboarding.steps.0.status', 'pending')    // locations
             ->where('onboarding.steps.1.status', 'pending')    // services
             ->where('onboarding.steps.2.status', 'completed')  // profile
-            ->where('onboarding.steps.3.status', 'completed')  // work hours
         );
 
     $progress = OnboardingProgress::firstWhere('user_id', $user->id);
@@ -157,13 +148,6 @@ test('regular members cannot update onboarding steps', function () {
 test('the wizard disappears once every step is resolved', function () {
     [$user, $team] = onboardingOwner();
     $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
-    WorkHour::create([
-        'user_id' => $user->id,
-        'team_id' => $team->id,
-        'day_of_week' => 0,
-        'start_time' => '09:00',
-        'end_time' => '17:00',
-    ]);
 
     OnboardingProgress::create([
         'team_id' => $team->id,
