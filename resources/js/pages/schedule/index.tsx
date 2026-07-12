@@ -9,36 +9,18 @@ import { ScheduleProvider } from '@/components/schedule/schedule-context';
 import ScheduleGrid from '@/components/schedule/schedule-grid';
 import SelectedDaysCount from '@/components/schedule/selected-days-count';
 import { buildMonthTabs } from '@/lib/schedule';
-import { mockScheduleMembers } from '@/lib/schedule-mock';
 import { isTeamManager } from '@/lib/teams';
 import { index as scheduleIndex } from '@/routes/schedule';
-import type { ScheduleMember } from '@/types/schedule';
+import type { ScheduleMember, ScheduleSlotMap } from '@/types/schedule';
 
-export default function SchedulePage() {
-    const { auth, currentTeam } = usePage().props;
+type Props = {
+    members: ScheduleMember[];
+    slots: ScheduleSlotMap;
+};
+
+export default function SchedulePage({ members, slots }: Props) {
+    const { currentTeam } = usePage().props;
     const isAdmin = isTeamManager(currentTeam?.role);
-
-    // Admins/owners schedule the whole team; members schedule only themselves.
-    const members = useMemo<ScheduleMember[]>(() => {
-        if (isAdmin) {
-            return mockScheduleMembers();
-        }
-
-        return [
-            {
-                id: auth.user.id,
-                name: auth.user.name,
-                avatar: auth.user.avatar,
-                role: currentTeam?.role ?? 'member',
-            },
-        ];
-    }, [
-        isAdmin,
-        auth.user.id,
-        auth.user.name,
-        auth.user.avatar,
-        currentTeam?.role,
-    ]);
 
     const monthTabs = useMemo(() => buildMonthTabs(), []);
     const currentMonth = monthTabs.find((tab) => tab.isCurrent) ?? monthTabs[0];
@@ -54,6 +36,7 @@ export default function SchedulePage() {
                 showMemberColumn={isAdmin}
                 monthTabs={monthTabs}
                 defaultMonthKey={currentMonth.key}
+                slots={slots}
             >
                 <div className="flex flex-col gap-6 p-4 max-lg:min-h-full">
                     <div className="flex items-center justify-between gap-4">

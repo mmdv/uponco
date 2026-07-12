@@ -1,7 +1,16 @@
+import { router, usePage } from '@inertiajs/react';
 import * as React from 'react';
+import { toast } from 'sonner';
 
-import { cellDayKey } from '@/lib/schedule';
-import type { CellId, MonthTab, ScheduleMember } from '@/types/schedule';
+import { cellDayKey, cellMemberId } from '@/lib/schedule';
+import { store as scheduleStore } from '@/routes/schedule';
+import type {
+    CellId,
+    MonthTab,
+    ScheduleMember,
+    ScheduleSlot,
+    ScheduleSlotMap,
+} from '@/types/schedule';
 
 type ScheduleContextValue = {
     /** Members rendered as grid rows (all members for admins, self for members). */
@@ -17,6 +26,11 @@ type ScheduleContextValue = {
     clearSelection: () => void;
     /** Number of distinct days selected across all members. */
     selectedDayCount: number;
+    /** Persisted slots for a given cell, or an empty array when none. */
+    cellSlots: (id: CellId) => ScheduleSlot[];
+    /** Persist `slots` for every currently selected cell. */
+    saveSchedule: (slots: ScheduleSlot[]) => void;
+    isSaving: boolean;
     isDrawerOpen: boolean;
     openDrawer: () => void;
     closeDrawer: () => void;
@@ -39,6 +53,8 @@ type ScheduleProviderProps = {
     showMemberColumn: boolean;
     monthTabs: MonthTab[];
     defaultMonthKey: string;
+    /** Persisted slots keyed by cell id, from the server. */
+    slots: ScheduleSlotMap;
     children: React.ReactNode;
 };
 
@@ -47,13 +63,18 @@ export function ScheduleProvider({
     showMemberColumn,
     monthTabs,
     defaultMonthKey,
+    slots,
     children,
 }: ScheduleProviderProps) {
+    const { currentTeam } = usePage().props;
+    const teamSlug = currentTeam?.slug ?? '';
+
     const [activeMonthKey, setActiveMonthKey] = React.useState(defaultMonthKey);
     const [selectedCells, setSelectedCells] = React.useState<Set<CellId>>(
         () => new Set(),
     );
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+    const [isSaving, setIsSaving] = React.useState(false);
 
     // Selecting days is scoped to a single month; switching months starts fresh.
     const setActiveMonth = React.useCallback((key: string) => {
@@ -87,6 +108,42 @@ export function ScheduleProvider({
     const openDrawer = React.useCallback(() => setIsDrawerOpen(true), []);
     const closeDrawer = React.useCallback(() => setIsDrawerOpen(false), []);
 
+    const cellSlots = React.useCallback(
+        (id: CellId): ScheduleSlot[] => slots[id] ?? [],
+        [slots],
+    );
+
+    const saveSchedule = React.useCallback(
+        (nextSlots: ScheduleSlot[]) => {
+            const assignments = Array.from(selectedCells, (id) => ({
+                user_id: cellMemberId(id),
+                date: cellDayKey(id),
+            }));
+
+            if (assignments.length === 0) {
+                return;
+            }
+
+            router.post(
+                scheduleStore(teamSlug).url,
+                { assignments, slots: nextSlots },
+                {
+                    preserveScroll: true,
+                    onStart: () => setIsSaving(true),
+                    onFinish: () => setIsSaving(false),
+                    onSuccess: () => {
+                        setIsDrawerOpen(false);
+                        setSelectedCells(new Set());
+                        toast.success('Schedule saved.');
+                    },
+                    onError: () =>
+                        toast.error('Please fix the errors and try again.'),
+                },
+            );
+        },
+        [selectedCells, teamSlug],
+    );
+
     const selectedDayCount = React.useMemo(() => {
         const days = new Set<string>();
 
@@ -109,6 +166,9 @@ export function ScheduleProvider({
             toggleCell,
             clearSelection,
             selectedDayCount,
+            cellSlots,
+            saveSchedule,
+            isSaving,
             isDrawerOpen,
             openDrawer,
             closeDrawer,
@@ -124,6 +184,9 @@ export function ScheduleProvider({
             toggleCell,
             clearSelection,
             selectedDayCount,
+            cellSlots,
+            saveSchedule,
+            isSaving,
             isDrawerOpen,
             openDrawer,
             closeDrawer,

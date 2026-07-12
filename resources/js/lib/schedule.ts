@@ -93,3 +93,10 @@ export function cellId(memberId: number, dayKey: string): CellId {
 export function cellDayKey(id: CellId): string {
     return id.slice(id.indexOf(':') + 1);
 }
+
+/**
+ * The numeric member id part of a cell id.
+ */
+export function cellMemberId(id: CellId): number {
+    return Number(id.slice(0, id.indexOf(':')));
+}

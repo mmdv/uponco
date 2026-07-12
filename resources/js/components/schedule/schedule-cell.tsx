@@ -11,32 +11,62 @@ type ScheduleCellProps = {
     column: DayColumn;
 };
 
+/** Slot chips shown before collapsing the rest into a "+N more" line. */
+const MAX_VISIBLE_SLOTS = 3;
+
 /**
  * A single member/day cell. Tapping toggles its selection; selected cells get a
- * light-blue fill so multi-selection reads at a glance.
+ * light-blue fill. Scheduled days show their time blocks as start–end chips.
  */
 export default function ScheduleCell({ memberId, column }: ScheduleCellProps) {
-    const { isSelected, toggleCell } = useSchedule();
+    const { isSelected, toggleCell, cellSlots } = useSchedule();
     const id = cellId(memberId, column.key);
     const selected = isSelected(id);
+    const slots = cellSlots(id);
+    const hasSlots = slots.length > 0;
+    const visibleSlots = slots.slice(0, MAX_VISIBLE_SLOTS);
+    const hiddenCount = slots.length - visibleSlots.length;
 
     return (
         <button
             type="button"
             aria-pressed={selected}
-            aria-label={`${column.dayNumber} ${column.weekday}`}
+            aria-label={`${column.dayNumber} ${column.weekday}${
+                hasSlots
+                    ? `, ${slots.length} time ${slots.length === 1 ? 'block' : 'blocks'}`
+                    : ''
+            }`}
             onClick={() => toggleCell(id)}
             className={cn(
                 DAY_CELL_CLASS,
                 ROW_HEIGHT_CLASS,
-                'flex items-center justify-center border-r border-b border-border/60 transition-colors',
+                'flex flex-col items-center justify-center gap-0.5 overflow-hidden border-r border-b border-border/60 px-1 transition-colors',
                 selected
                     ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/25 dark:text-sky-200'
                     : 'hover:bg-muted/60',
-                column.isToday && !selected && 'bg-primary/5',
+                !selected && hasSlots && 'bg-emerald-50 dark:bg-emerald-500/10',
+                column.isToday && !selected && !hasSlots && 'bg-primary/5',
             )}
         >
-            {selected && <Check className="h-4 w-4" />}
+            {selected ? (
+                <Check className="h-4 w-4" />
+            ) : hasSlots ? (
+                <>
+                    {visibleSlots.map((slot, index) => (
+                        <span
+                            key={index}
+                            className="w-full truncate rounded bg-emerald-100 px-1 text-center text-[10px] leading-tight font-medium text-emerald-700 tabular-nums dark:bg-emerald-500/25 dark:text-emerald-200"
+                        >
+                            {slot.start}–{slot.end}
+                        </span>
+                    ))}
+                    {hiddenCount > 0 && (
+                        <span className="text-[9px] font-medium text-emerald-700/80 dark:text-emerald-300/80">
+                            +{hiddenCount} more
+                        </span>
+                    )}
+                </>
+            ) : null}
         </button>
     );
 }

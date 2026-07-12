@@ -3,10 +3,10 @@
  * value (kept in sync with {@link DAY_CELL_CLASS}) so the horizontal scroll can
  * be anchored to a given column with simple arithmetic.
  */
-export const DAY_CELL_WIDTH = 64;
+export const DAY_CELL_WIDTH = 96;
 
 /** Tailwind width for a single day column (matches {@link DAY_CELL_WIDTH}). */
-export const DAY_CELL_CLASS = 'w-16 shrink-0';
+export const DAY_CELL_CLASS = 'w-24 shrink-0';
 
 /** Tailwind width for the fixed member column (narrow + stacked on mobile). */
 export const MEMBER_COL_CLASS = 'w-16 shrink-0 sm:w-44';

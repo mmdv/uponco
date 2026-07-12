@@ -67,6 +67,7 @@ Route::prefix('{current_team}')
         Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
         Route::get('schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+        Route::post('schedule', [ScheduleController::class, 'store'])->name('schedule.store');
 
         Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');

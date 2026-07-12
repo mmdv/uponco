@@ -122,6 +122,30 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * Get the user's date-based schedule slots.
+     *
+     * @return HasMany<ScheduleSlot, $this>
+     */
+    public function scheduleSlots(): HasMany
+    {
+        return $this->hasMany(ScheduleSlot::class);
+    }
+
+    /**
+     * Get the user's date-based schedule slots scoped to a single team.
+     *
+     * Slots are per team, so callers must always narrow by team when reading
+     * or writing a schedule.
+     *
+     * @return HasMany<ScheduleSlot, $this>
+     */
+    public function scheduleSlotsFor(Team|int $team): HasMany
+    {
+        return $this->scheduleSlots()
+            ->where('team_id', $team instanceof Team ? $team->id : $team);
+    }
+
+    /**
      * Get the services this user provides as a specialist.
      *
      * @return BelongsToMany<Service, $this>

@@ -44,3 +44,13 @@ export type DayColumn = {
  * Identifier for a selected grid cell: `${memberId}:${dateKey}`.
  */
 export type CellId = string;
+
+/**
+ * A single working time block for a member on a given day.
+ */
+export type ScheduleSlot = { start: string; end: string };
+
+/**
+ * Persisted slots keyed by {@link CellId} (`${memberId}:${dateKey}`).
+ */
+export type ScheduleSlotMap = Record<CellId, ScheduleSlot[]>;
