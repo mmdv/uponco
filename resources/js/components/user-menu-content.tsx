@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, Users } from 'lucide-react';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -14,9 +14,10 @@ import type { User } from '@/types';
 
 type Props = {
     user: User;
+    onOpenTeams: () => void;
 };
 
-export function UserMenuContent({ user }: Props) {
+export function UserMenuContent({ user, onOpenTeams }: Props) {
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {
@@ -43,6 +44,14 @@ export function UserMenuContent({ user }: Props) {
                         <Settings className="mr-2" />
                         Settings
                     </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    className="cursor-pointer"
+                    data-test="team-switcher-trigger"
+                    onSelect={onOpenTeams}
+                >
+                    <Users className="mr-2" />
+                    Teams
                 </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

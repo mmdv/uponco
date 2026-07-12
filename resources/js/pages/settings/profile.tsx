@@ -1,5 +1,5 @@
-import { Form, Head, usePage } from '@inertiajs/react';
-import WorkProfileController from '@/actions/App/Http/Controllers/Company/WorkProfileController';
+import { Form, Head } from '@inertiajs/react';
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
-import { index as companyIndex } from '@/routes/company';
-import { edit as editWorkProfile } from '@/routes/company/work-profile';
+import { edit as editProfile } from '@/routes/profile';
 
 type ProfileData = {
     name: string;
@@ -19,9 +18,6 @@ type ProfileData = {
 };
 
 export default function Profile({ profile }: { profile: ProfileData }) {
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
-
     return (
         <>
             <Head title="Profile" />
@@ -36,7 +32,7 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                 />
 
                 <Form
-                    {...WorkProfileController.update.form(teamSlug)}
+                    {...ProfileController.update.form()}
                     options={{
                         preserveScroll: true,
                     }}
@@ -151,19 +147,11 @@ export default function Profile({ profile }: { profile: ProfileData }) {
     );
 }
 
-Profile.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+Profile.layout = {
     breadcrumbs: [
         {
-            title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
-        },
-        {
-            title: 'Work Profile',
-            href: props.currentTeam
-                ? editWorkProfile(props.currentTeam.slug)
-                : '/',
+            title: 'Profile',
+            href: editProfile(),
         },
     ],
-});
+};

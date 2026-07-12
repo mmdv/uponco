@@ -3,37 +3,34 @@
 use App\Models\Profile;
 use App\Models\User;
 
-test('work profile page is displayed', function () {
+test('profile page is displayed', function () {
     $user = User::factory()->create();
-    $team = $user->currentTeam;
 
     $this
         ->actingAs($user)
-        ->get(route('company.work-profile.edit', ['current_team' => $team->slug]))
+        ->get(route('profile.edit'))
         ->assertOk();
 });
 
-test('work profile page prefills the name from the account when no profile exists', function () {
+test('profile page prefills the name from the account when no profile exists', function () {
     $user = User::factory()->create(['name' => 'Jane Doe']);
-    $team = $user->currentTeam;
 
     $this
         ->actingAs($user)
-        ->get(route('company.work-profile.edit', ['current_team' => $team->slug]))
+        ->get(route('profile.edit'))
         ->assertInertia(fn ($page) => $page
-            ->component('company/work-profile/profile')
+            ->component('settings/profile')
             ->where('profile.name', 'Jane Doe')
             ->where('profile.email', null)
         );
 });
 
-test('work profile information can be created', function () {
+test('profile information can be created', function () {
     $user = User::factory()->create();
-    $team = $user->currentTeam;
 
     $this
         ->actingAs($user)
-        ->patch(route('company.work-profile.update', ['current_team' => $team->slug]), [
+        ->patch(route('profile.update'), [
             'name' => 'Public Name',
             'email' => 'public@example.com',
             'phone' => '+1 555 000 1111',
@@ -51,14 +48,13 @@ test('work profile information can be created', function () {
     expect($profile->job_title)->toBe('Senior Stylist');
 });
 
-test('work profile information can be updated', function () {
+test('profile information can be updated', function () {
     $user = User::factory()->create();
-    $team = $user->currentTeam;
     Profile::factory()->for($user)->create(['name' => 'Old Name']);
 
     $this
         ->actingAs($user)
-        ->patch(route('company.work-profile.update', ['current_team' => $team->slug]), [
+        ->patch(route('profile.update'), [
             'name' => 'New Name',
         ])
         ->assertSessionHasNoErrors();
@@ -69,11 +65,10 @@ test('work profile information can be updated', function () {
 
 test('public email is not required', function () {
     $user = User::factory()->create();
-    $team = $user->currentTeam;
 
     $this
         ->actingAs($user)
-        ->patch(route('company.work-profile.update', ['current_team' => $team->slug]), [
+        ->patch(route('profile.update'), [
             'name' => 'Public Name',
         ])
         ->assertSessionHasNoErrors();
@@ -83,11 +78,10 @@ test('public email is not required', function () {
 
 test('name is required', function () {
     $user = User::factory()->create();
-    $team = $user->currentTeam;
 
     $this
         ->actingAs($user)
-        ->patch(route('company.work-profile.update', ['current_team' => $team->slug]), [
+        ->patch(route('profile.update'), [
             'name' => '',
         ])
         ->assertSessionHasErrors('name');

@@ -7,10 +7,16 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAccount } from '@/routes/account';
 import { edit as editIntegrations } from '@/routes/integrations';
+import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
+    {
+        title: 'Profile',
+        href: editProfile(),
+        icon: null,
+    },
     {
         title: 'Account',
         href: editAccount(),

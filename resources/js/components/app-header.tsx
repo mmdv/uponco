@@ -1,16 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Building2,
-    CalendarClock,
     CalendarDays,
     LayoutGrid,
     UserCog,
     Users,
 } from 'lucide-react';
+import { useState } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { TeamSwitcher } from '@/components/team-switcher';
+import TeamSwitcherModal from '@/components/team-switcher-modal';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -39,9 +39,8 @@ import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appointments } from '@/routes/appointments';
 import { index as company } from '@/routes/company';
-import { edit as workProfile } from '@/routes/company/work-profile';
 import { index as customers } from '@/routes/customers';
-import { index as schedule } from '@/routes/schedule';
+import { edit as profile } from '@/routes/profile';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -70,6 +69,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const getInitials = useInitials();
     const { whenCurrentUrl } = useCurrentUrl();
     const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
+    const [teamSwitcherOpen, setTeamSwitcherOpen] = useState(false);
 
     const mainNavItems: NavItem[] = [
         {
@@ -85,11 +85,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                       icon: CalendarDays,
                   },
                   {
-                      title: 'Schedule',
-                      href: schedule(currentTeam.slug),
-                      icon: CalendarClock,
-                  },
-                  {
                       title: 'Customers',
                       href: customers(currentTeam.slug),
                       icon: Users,
@@ -102,7 +97,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         }
                       : {
                             title: 'Profile',
-                            href: workProfile(currentTeam.slug),
+                            href: profile(),
                             icon: UserCog,
                         },
               ]
@@ -186,7 +181,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 ))}
                             </div>
                         </div>
-                        <TeamSwitcher inHeader />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
@@ -205,12 +199,22 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56" align="end">
-                                <UserMenuContent user={auth.user} />
+                                <UserMenuContent
+                                    user={auth.user}
+                                    onOpenTeams={() =>
+                                        setTeamSwitcherOpen(true)
+                                    }
+                                />
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </div>
             </div>
+
+            <TeamSwitcherModal
+                open={teamSwitcherOpen}
+                onOpenChange={setTeamSwitcherOpen}
+            />
             {breadcrumbs.length > 1 && (
                 <div className="flex w-full pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
                     <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">

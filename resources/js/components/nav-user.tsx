@@ -1,5 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import TeamSwitcherModal from '@/components/team-switcher-modal';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,6 +21,7 @@ export function NavUser() {
     const { auth, currentTeam } = usePage().props;
     const { state } = useSidebar();
     const isMobile = useIsMobile();
+    const [teamSwitcherOpen, setTeamSwitcherOpen] = useState(false);
 
     return (
         <SidebarMenu>
@@ -45,10 +48,18 @@ export function NavUser() {
                                   : 'bottom'
                         }
                     >
-                        <UserMenuContent user={auth.user} />
+                        <UserMenuContent
+                            user={auth.user}
+                            onOpenTeams={() => setTeamSwitcherOpen(true)}
+                        />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
+
+            <TeamSwitcherModal
+                open={teamSwitcherOpen}
+                onOpenChange={setTeamSwitcherOpen}
+            />
         </SidebarMenu>
     );
 }

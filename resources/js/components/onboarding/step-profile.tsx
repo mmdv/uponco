@@ -1,6 +1,6 @@
-import { Form, usePage } from '@inertiajs/react';
+import { Form } from '@inertiajs/react';
 import { useState } from 'react';
-import WorkProfileController from '@/actions/App/Http/Controllers/Company/WorkProfileController';
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,14 +16,11 @@ type Props = {
 };
 
 export default function StepProfile({ data, controls }: Props) {
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
-
     const [jobTitle, setJobTitle] = useState(data.job_title ?? '');
 
     return (
         <Form
-            {...WorkProfileController.update.form(teamSlug)}
+            {...ProfileController.update.form()}
             options={{ preserveScroll: true }}
             onSuccess={controls.onComplete}
             className="space-y-6"

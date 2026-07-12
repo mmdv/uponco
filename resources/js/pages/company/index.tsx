@@ -1,11 +1,11 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     Building2,
+    CalendarClock,
     ChevronRight,
     MapPin,
     Palette,
     Sparkles,
-    UserCog,
     Wrench,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ import { index as brandIndex } from '@/routes/company/brand';
 import { edit as editBusiness } from '@/routes/company/business';
 import { index as locationsIndex } from '@/routes/company/locations';
 import { index as servicesIndex } from '@/routes/company/services';
-import { edit as editWorkProfile } from '@/routes/company/work-profile';
+import { index as scheduleIndex } from '@/routes/schedule';
 
 type Props = {
     team: { name: string };
@@ -27,9 +27,9 @@ type Props = {
         roles: { role: string; label: string; count: number }[];
         people: { name: string; role: string }[];
     };
-    workProfile: {
+    schedule: {
         days: { key: string; label: string; minutes: number; isToday: boolean }[];
-        weeklyMinutes: number;
+        totalMinutes: number;
         openNow: boolean;
     };
     locations: {
@@ -70,7 +70,7 @@ function formatPrice(price: string | null): string | null {
 export default function CompanyIndex({
     team,
     business,
-    workProfile,
+    schedule,
     locations,
     services,
 }: Props) {
@@ -85,10 +85,7 @@ export default function CompanyIndex({
         return () => cancelAnimationFrame(frame);
     }, []);
 
-    const maxMinutes = Math.max(
-        ...workProfile.days.map((day) => day.minutes),
-        1,
-    );
+    const maxMinutes = Math.max(...schedule.days.map((day) => day.minutes), 1);
 
     return (
         <>
@@ -239,18 +236,18 @@ export default function CompanyIndex({
                         </div>
                     </BentoCard>
 
-                    {/* Work Profile — weekly availability */}
+                    {/* Schedule — availability for the next 7 days */}
                     <BentoCard
-                        href={editWorkProfile(teamSlug)}
+                        href={scheduleIndex(teamSlug)}
                         mounted={mounted}
                         delay={120}
                         className="sm:col-span-2 lg:col-span-2"
-                        icon={UserCog}
-                        title="Work Profile"
-                        description="Manage your public profile and weekly availability."
+                        icon={CalendarClock}
+                        title="Schedule"
+                        description="Set your availability for the next 7 days."
                     >
                         <div className="mt-6 flex items-end gap-2 sm:gap-3">
-                            {workProfile.days.map((day, index) => {
+                            {schedule.days.map((day, index) => {
                                 const ratio =
                                     day.minutes > 0
                                         ? Math.max(day.minutes / maxMinutes, 0.12)
@@ -298,18 +295,18 @@ export default function CompanyIndex({
                             <span
                                 className={cn(
                                     'relative flex size-2 rounded-full',
-                                    workProfile.openNow
+                                    schedule.openNow
                                         ? 'bg-emerald-500'
                                         : 'bg-muted-foreground/40',
                                 )}
                             >
-                                {workProfile.openNow && (
+                                {schedule.openNow && (
                                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                                 )}
                             </span>
                             <span className="text-muted-foreground">
-                                {workProfile.openNow ? 'Open now' : 'Closed now'} ·{' '}
-                                {formatHours(workProfile.weeklyMinutes)} hrs scheduled this week
+                                {schedule.openNow ? 'Open now' : 'Closed now'} ·{' '}
+                                {formatHours(schedule.totalMinutes)} hrs over the next 7 days
                             </span>
                         </div>
                     </BentoCard>

@@ -411,7 +411,7 @@ export default function Welcome() {
                             <span className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary">
                                 <AppLogoIcon className="size-5 fill-current text-white" />
                             </span>
-                            <span>Uponco</span>
+                            <span className="hidden sm:inline">Uponco</span>
                         </Link>
 
                         <div className="flex items-center gap-2">
@@ -426,15 +426,23 @@ export default function Welcome() {
                                 </Link>
                             ) : (
                                 <>
+                                    {/* Mobile: single primary sign-in button */}
                                     <Link
                                         href={login()}
-                                        className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                        className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:hidden"
+                                    >
+                                        {t('nav.signIn')}
+                                    </Link>
+                                    {/* Desktop: sign-in + get started */}
+                                    <Link
+                                        href={login()}
+                                        className="hidden items-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
                                     >
                                         {t('nav.signIn')}
                                     </Link>
                                     <Link
                                         href={register()}
-                                        className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                                        className="hidden items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex"
                                     >
                                         {t('nav.getStarted')}
                                     </Link>

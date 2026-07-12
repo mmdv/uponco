@@ -49,16 +49,6 @@ test('admins can view company management pages', function (string $routeName) {
         ->assertOk();
 })->with('admin only company pages');
 
-test('members can access their own work profile', function () {
-    $team = Team::factory()->create();
-    $member = teamMemberWithRole($team, TeamRole::Member);
-
-    $this
-        ->actingAs($member)
-        ->get(route('company.work-profile.edit', ['current_team' => $team->slug]))
-        ->assertOk();
-});
-
 test('members cannot create services or locations', function () {
     $team = Team::factory()->create();
     $member = teamMemberWithRole($team, TeamRole::Member);

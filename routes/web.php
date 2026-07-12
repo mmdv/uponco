@@ -11,7 +11,6 @@ use App\Http\Controllers\Company\CompanyController;
 use App\Http\Controllers\Company\LocationController;
 use App\Http\Controllers\Company\ServiceCategoryController;
 use App\Http\Controllers\Company\ServiceController;
-use App\Http\Controllers\Company\WorkProfileController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardController;
@@ -72,10 +71,6 @@ Route::prefix('{current_team}')
         Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
         Route::patch('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
         Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
-
-        // Every team member manages their own work profile and availability.
-        Route::get('company/work-profile', [WorkProfileController::class, 'edit'])->name('company.work-profile.edit');
-        Route::patch('company/work-profile', [WorkProfileController::class, 'update'])->name('company.work-profile.update');
 
         // Company management (business, team, services, locations, brand) is
         // restricted to admins and owners. Members are gated out entirely.

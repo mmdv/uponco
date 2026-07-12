@@ -25,7 +25,7 @@ import { isTeamManager } from '@/lib/teams';
 import { dashboard } from '@/routes';
 import { index as backoffice } from '@/routes/backoffice';
 import { index as company } from '@/routes/company';
-import { edit as workProfile } from '@/routes/company/work-profile';
+import { edit as profile } from '@/routes/profile';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -50,7 +50,7 @@ export function AppSidebar() {
                         }
                       : {
                             title: 'Profile',
-                            href: workProfile(page.props.currentTeam.slug),
+                            href: profile(),
                             icon: UserCog,
                         },
               ]

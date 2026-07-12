@@ -30,7 +30,7 @@ class CompanyController extends Controller
                 'name' => $team->name,
             ],
             'business' => $this->businessSummary($members),
-            'workProfile' => $this->workProfileSummary($user, $team),
+            'schedule' => $this->scheduleSummary($user, $team),
             'locations' => [
                 'count' => $team->locations()->count(),
                 'cities' => $team->locations()
@@ -75,40 +75,40 @@ class CompanyController extends Controller
     }
 
     /**
-     * Build the current week's availability summary for the given user.
+     * Build the availability summary for the next 7 days for the given user.
      *
-     * Availability is now date-based, so the summary reflects the actual slots
-     * scheduled across the current week (Monday–Sunday in the team timezone)
-     * rather than a recurring weekly template.
+     * Availability is date-based, so the summary reflects the actual slots
+     * scheduled across the upcoming week — today through six days ahead in the
+     * team timezone — rather than the calendar week or a recurring template.
      *
-     * @return array{days: array<int, array{key: string, label: string, minutes: int, isToday: bool}>, weeklyMinutes: int, openNow: bool}
+     * @return array{days: array<int, array{key: string, label: string, minutes: int, isToday: bool}>, totalMinutes: int, openNow: bool}
      */
-    protected function workProfileSummary(User $user, Team $team): array
+    protected function scheduleSummary(User $user, Team $team): array
     {
         $timezone = $team->timezone ?: config('app.timezone');
         $now = CarbonImmutable::now($timezone);
-        $weekStart = $now->startOfWeek(CarbonImmutable::MONDAY);
+        $rangeStart = $now->startOfDay();
         $today = $now->format('Y-m-d');
         $nowTime = $now->format('H:i:s');
 
         $slots = $user->scheduleSlotsFor($team)
-            ->whereBetween('date', [$weekStart->format('Y-m-d'), $weekStart->addDays(6)->format('Y-m-d')])
+            ->whereBetween('date', [$rangeStart->format('Y-m-d'), $rangeStart->addDays(6)->format('Y-m-d')])
             ->get()
             ->groupBy(fn (ScheduleSlot $slot): string => $slot->date->format('Y-m-d'));
 
-        $weeklyMinutes = 0;
+        $totalMinutes = 0;
         $openNow = false;
         $days = [];
 
         for ($offset = 0; $offset < 7; $offset++) {
-            $day = $weekStart->addDays($offset);
+            $day = $rangeStart->addDays($offset);
             $dateKey = $day->format('Y-m-d');
             $daySlots = $slots->get($dateKey, collect());
 
             $minutes = (int) $daySlots->sum(fn (ScheduleSlot $slot): int => (int) CarbonImmutable::parse($slot->start_time)
                 ->diffInMinutes(CarbonImmutable::parse($slot->end_time)));
 
-            $weeklyMinutes += $minutes;
+            $totalMinutes += $minutes;
 
             if ($dateKey === $today) {
                 $openNow = $daySlots->contains(fn (ScheduleSlot $slot): bool => $nowTime >= substr((string) $slot->start_time, 0, 8)
@@ -116,7 +116,7 @@ class CompanyController extends Controller
             }
 
             $days[] = [
-                'key' => strtolower($day->format('l')),
+                'key' => $dateKey,
                 'label' => strtoupper(substr($day->format('l'), 0, 1)),
                 'minutes' => $minutes,
                 'isToday' => $dateKey === $today,
@@ -125,7 +125,7 @@ class CompanyController extends Controller
 
         return [
             'days' => $days,
-            'weeklyMinutes' => $weeklyMinutes,
+            'totalMinutes' => $totalMinutes,
             'openNow' => $openNow,
         ];
     }

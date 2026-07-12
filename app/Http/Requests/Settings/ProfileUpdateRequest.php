@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Company;
+namespace App\Http\Requests\Settings;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class WorkProfileUpdateRequest extends FormRequest
+class ProfileUpdateRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.

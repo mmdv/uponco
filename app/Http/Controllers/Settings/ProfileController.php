@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Company;
+namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Company\WorkProfileUpdateRequest;
+use App\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class WorkProfileController extends Controller
+class ProfileController extends Controller
 {
     /**
-     * Show the user's public work profile page.
+     * Show the user's public profile page.
      */
     public function edit(Request $request): Response
     {
         $profile = $request->user()->profile;
 
-        return Inertia::render('company/work-profile/profile', [
+        return Inertia::render('settings/profile', [
             'profile' => [
                 'name' => $profile?->name ?? $request->user()->name,
                 'email' => $profile?->email,
@@ -30,9 +30,9 @@ class WorkProfileController extends Controller
     }
 
     /**
-     * Update the user's public work profile information.
+     * Update the user's public profile information.
      */
-    public function update(WorkProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->profile()->updateOrCreate(
             [],
