@@ -1,5 +1,6 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import AvatarUploader from '@/components/avatar-uploader';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { edit as editProfile } from '@/routes/profile';
+import type { Auth } from '@/types';
 
 type ProfileData = {
     name: string;
@@ -18,6 +20,8 @@ type ProfileData = {
 };
 
 export default function Profile({ profile }: { profile: ProfileData }) {
+    const { auth } = usePage<{ auth: Auth }>().props;
+
     return (
         <>
             <Head title="Profile" />
@@ -25,6 +29,14 @@ export default function Profile({ profile }: { profile: ProfileData }) {
             <h1 className="sr-only">Profile</h1>
 
             <div className="space-y-6">
+                <Heading
+                    variant="small"
+                    title="Profile picture"
+                    description="Public photo shown to customers when they book with you"
+                />
+
+                <AvatarUploader user={auth.user} />
+
                 <Heading
                     variant="small"
                     title="Profile"

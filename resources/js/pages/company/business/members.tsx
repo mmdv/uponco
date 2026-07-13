@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { ChevronDown, Mail, UserPlus, UserRoundPlus, X } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { Mail, UserPlus, UserRoundPlus, X } from 'lucide-react';
 import { useState } from 'react';
 import AddMemberModal from '@/components/add-member-modal';
 import CancelInvitationModal from '@/components/cancel-invitation-modal';
@@ -10,12 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
@@ -25,8 +19,8 @@ import { useInitials } from '@/hooks/use-initials';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
 import {
+    edit as editMember,
     index as businessMembers,
-    update as updateMember,
 } from '@/routes/company/business/members';
 import type {
     RoleOption,
@@ -64,13 +58,6 @@ export default function BusinessMembers({
     const [invitationToCancel, setInvitationToCancel] =
         useState<TeamInvitation | null>(null);
 
-    const updateMemberRole = (member: TeamMember, newRole: string) => {
-        router.visit(updateMember([team.slug, member.id]), {
-            data: { role: newRole },
-            preserveScroll: true,
-        });
-    };
-
     const confirmRemoveMember = (member: TeamMember) => {
         setMemberToRemove(member);
         setRemoveMemberDialogOpen(true);
@@ -89,7 +76,7 @@ export default function BusinessMembers({
 
             <div className="flex flex-col space-y-10">
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <Heading
                             variant="small"
                             title="Team members"
@@ -101,7 +88,7 @@ export default function BusinessMembers({
                             }
                         />
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             {permissions.canAddMember ? (
                                 <Button
                                     variant="outline"
@@ -128,9 +115,16 @@ export default function BusinessMembers({
                             <div
                                 key={member.id}
                                 data-test="member-row"
-                                className="flex items-center justify-between rounded-lg border p-4"
+                                className="relative flex items-center justify-between gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
                             >
-                                <div className="flex items-center gap-4">
+                                <Link
+                                    href={editMember([team.slug, member.id])}
+                                    className="absolute inset-0 rounded-lg"
+                                    aria-label={`Edit ${member.name}`}
+                                    data-test="member-edit-link"
+                                />
+
+                                <div className="flex min-w-0 items-center gap-4">
                                     <Avatar className="h-10 w-10">
                                         {member.avatar ? (
                                             <AvatarImage
@@ -142,52 +136,20 @@ export default function BusinessMembers({
                                             {getInitials(member.name)}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div>
-                                        <div className="font-medium">
+                                    <div className="min-w-0">
+                                        <div className="truncate font-medium">
                                             {member.name}
                                         </div>
-                                        <div className="text-sm text-muted-foreground">
+                                        <div className="truncate text-sm text-muted-foreground">
                                             {member.email}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    {member.role !== 'owner' &&
-                                    permissions.canUpdateMember ? (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    data-test="member-role-trigger"
-                                                >
-                                                    {member.role_label}
-                                                    <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                {availableRoles.map((role) => (
-                                                    <DropdownMenuItem
-                                                        key={role.value}
-                                                        data-test="member-role-option"
-                                                        onSelect={() =>
-                                                            updateMemberRole(
-                                                                member,
-                                                                role.value,
-                                                            )
-                                                        }
-                                                    >
-                                                        {role.label}
-                                                    </DropdownMenuItem>
-                                                ))}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    ) : (
-                                        <Badge variant="secondary">
-                                            {member.role_label}
-                                        </Badge>
-                                    )}
+                                <div className="relative flex shrink-0 items-center gap-2">
+                                    <Badge variant="secondary">
+                                        {member.role_label}
+                                    </Badge>
 
                                     {member.role !== 'owner' &&
                                     permissions.canRemoveMember ? (

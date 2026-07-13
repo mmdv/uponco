@@ -5,11 +5,20 @@ import InputError from '@/components/input-error';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useInitials } from '@/hooks/use-initials';
-import type { User } from '@/types';
 
 const ACCEPTED_TYPES = 'image/svg+xml,image/png,image/jpeg';
 
-export default function AvatarUploader({ user }: { user: User }) {
+type AvatarUploaderProps = {
+    user: { name: string; avatar?: string | null };
+    uploadUrl?: string;
+    removeUrl?: string;
+};
+
+export default function AvatarUploader({
+    user,
+    uploadUrl = AccountController.updateAvatar.url(),
+    removeUrl = AccountController.destroyAvatar.url(),
+}: AvatarUploaderProps) {
     const getInitials = useInitials();
     const fileInput = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -37,7 +46,7 @@ export default function AvatarUploader({ user }: { user: User }) {
     };
 
     const handleUpload = () => {
-        post(AccountController.updateAvatar.url(), {
+        post(uploadUrl, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: resetInput,
@@ -45,7 +54,7 @@ export default function AvatarUploader({ user }: { user: User }) {
     };
 
     const handleRemove = () => {
-        router.delete(AccountController.destroyAvatar.url(), {
+        router.delete(removeUrl, {
             preserveScroll: true,
             onSuccess: resetInput,
         });
