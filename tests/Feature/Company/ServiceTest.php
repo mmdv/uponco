@@ -196,6 +196,29 @@ test('capacity is required for group services', function () {
         ->assertSessionHasErrors(['capacity']);
 });
 
+test('an online service accepts the custom meeting provider', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            servicePayload($category->id, [
+                'delivery_type' => 'online',
+                'online_meeting_provider' => 'custom',
+            ]),
+        )
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('services', [
+        'delivery_type' => 'online',
+        'online_meeting_provider' => 'custom',
+    ]);
+});
+
 test('online meeting provider is required for online services', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;

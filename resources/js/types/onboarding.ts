@@ -1,7 +1,12 @@
 import type { Location, SelectOption } from './locations';
+import type { ScheduleMember, ScheduleSlotMap } from './schedule';
 import type { Service, ServiceCategory } from './services';
 
-export type OnboardingStepKey = 'locations' | 'services' | 'profile';
+export type OnboardingStepKey =
+    | 'locations'
+    | 'services'
+    | 'profile'
+    | 'schedule';
 
 export type OnboardingStepStatus = 'pending' | 'completed' | 'skipped';
 
@@ -18,6 +23,11 @@ export type OnboardingProfile = {
     phone: string | null;
     job_title: string | null;
     description: string | null;
+};
+
+export type GoogleIntegrationStatus = {
+    connected: boolean;
+    email: string | null;
 };
 
 export type Onboarding = {
@@ -38,6 +48,11 @@ export type Onboarding = {
         serviceTypes: SelectOption[];
         deliveryTypes: SelectOption[];
         meetingProviders: SelectOption[];
+        google: GoogleIntegrationStatus;
     };
     profile: OnboardingProfile;
+    schedule: {
+        members: ScheduleMember[];
+        slots: ScheduleSlotMap;
+    };
 };

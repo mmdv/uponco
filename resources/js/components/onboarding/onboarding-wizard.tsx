@@ -9,6 +9,7 @@ import type { Onboarding, OnboardingStepKey } from '@/types';
 import type { StepControls } from './controls';
 import StepLocations from './step-locations';
 import StepProfile from './step-profile';
+import StepSchedule from './step-schedule';
 import StepServices from './step-services';
 
 type Props = {
@@ -162,6 +163,12 @@ export default function OnboardingWizard({ onboarding }: Props) {
                         {activeStep === 'profile' ? (
                             <StepProfile
                                 data={onboarding.profile}
+                                controls={controls}
+                            />
+                        ) : null}
+                        {activeStep === 'schedule' ? (
+                            <StepSchedule
+                                data={onboarding.schedule}
                                 controls={controls}
                             />
                         ) : null}

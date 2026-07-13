@@ -1,16 +1,15 @@
-import { Form, Head } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
+import GoogleMeetCard from '@/components/integrations/google-meet-card';
 import { edit } from '@/routes/integrations';
-import { connect, disconnect } from '@/routes/integrations/google';
+import type { GoogleIntegrationStatus } from '@/types';
 
-type GoogleStatus = {
-    connected: boolean;
-    email: string | null;
-};
-
-export default function Integrations({ google }: { google: GoogleStatus }) {
+export default function Integrations({
+    google,
+}: {
+    google: GoogleIntegrationStatus;
+}) {
     return (
         <>
             <Head title="Integrations" />
@@ -24,44 +23,7 @@ export default function Integrations({ google }: { google: GoogleStatus }) {
                     description="Connect your Google account so online appointments get a Google Meet link automatically."
                 />
 
-                <div className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                        <p className="text-sm font-medium">
-                            {google.connected
-                                ? 'Connected'
-                                : 'Not connected'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            {google.connected && google.email
-                                ? google.email
-                                : 'Online bookings assigned to you will include a Meet link once connected.'}
-                        </p>
-                    </div>
-
-                    {google.connected ? (
-                        <Form
-                            {...disconnect.form()}
-                            options={{ preserveScroll: true }}
-                        >
-                            {({ processing }) => (
-                                <Button
-                                    type="submit"
-                                    variant="outline"
-                                    disabled={processing}
-                                    data-test="google-disconnect-button"
-                                >
-                                    Disconnect
-                                </Button>
-                            )}
-                        </Form>
-                    ) : (
-                        <Button asChild data-test="google-connect-button">
-                            {/* External OAuth redirect — must be a full-page
-                                navigation, not an Inertia visit. */}
-                            <a href={connect.url()}>Connect Google</a>
-                        </Button>
-                    )}
-                </div>
+                <GoogleMeetCard google={google} />
             </div>
         </>
     );

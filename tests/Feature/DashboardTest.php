@@ -41,6 +41,7 @@ function dashboardOwner(): array
         'locations_status' => OnboardingStepStatus::Skipped,
         'services_status' => OnboardingStepStatus::Skipped,
         'profile_status' => OnboardingStepStatus::Completed,
+        'schedule_status' => OnboardingStepStatus::Completed,
         'completed_at' => now(),
     ]);
 

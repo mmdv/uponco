@@ -15,6 +15,7 @@ class ServiceOptions
      */
     protected const MEETING_PROVIDERS = [
         'google_meet' => 'Google Meet',
+        'custom' => 'Custom',
     ];
 
     /**

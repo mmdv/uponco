@@ -9,6 +9,12 @@ import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+// The whole app scrolls inside #app (body is `overflow: hidden`), so tell
+// Inertia to treat it as a scroll region. Otherwise Inertia only resets the
+// window scroll — which never moves here — and every client-side visit keeps
+// the previous page's scroll position.
+document.getElementById('app')?.setAttribute('scroll-region', '');
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {

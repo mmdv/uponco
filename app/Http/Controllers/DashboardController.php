@@ -8,6 +8,7 @@ use App\Enums\TeamRole;
 use App\Models\Appointment;
 use App\Models\Location;
 use App\Models\OnboardingProgress;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
@@ -234,6 +235,10 @@ class DashboardController extends Controller
                 'serviceTypes' => ServiceOptions::serviceTypes(),
                 'deliveryTypes' => ServiceOptions::deliveryTypes(),
                 'meetingProviders' => ServiceOptions::meetingProviders(),
+                'google' => [
+                    'connected' => $user->hasGoogleConnected(),
+                    'email' => $user->google_account_email,
+                ],
             ],
             'profile' => [
                 'name' => $user->profile?->name ?? $user->name,
@@ -242,6 +247,44 @@ class DashboardController extends Controller
                 'job_title' => $user->profile?->job_title,
                 'description' => $user->profile?->description,
             ],
+            'schedule' => $this->scheduleData($team),
+        ];
+    }
+
+    /**
+     * Build the scheduling grid payload (members and existing slots) for the
+     * onboarding work-hours step. Managers schedule the whole team, so every
+     * member is returned as a grid row.
+     *
+     * @return array{members: array<int, array<string, mixed>>, slots: array<string, array<int, array{start: string, end: string}>>}
+     */
+    protected function scheduleData(Team $team): array
+    {
+        $members = $team->members()->get();
+
+        $slots = ScheduleSlot::query()
+            ->where('team_id', $team->id)
+            ->whereIn('user_id', $members->pluck('id'))
+            ->orderBy('start_time')
+            ->get();
+
+        return [
+            'members' => $members->map(fn (User $member): array => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'avatar' => $member->avatar ?? null,
+                'role' => $member->pivot->role->value,
+            ])->values()->all(),
+            'slots' => $slots
+                ->groupBy(fn (ScheduleSlot $slot): string => $slot->user_id.':'.$slot->date->format('Y-m-d'))
+                ->map(fn (Collection $daySlots): array => $daySlots
+                    ->map(fn (ScheduleSlot $slot): array => [
+                        'start' => substr((string) $slot->start_time, 0, 5),
+                        'end' => substr((string) $slot->end_time, 0, 5),
+                    ])
+                    ->values()
+                    ->all())
+                ->all(),
         ];
     }
 

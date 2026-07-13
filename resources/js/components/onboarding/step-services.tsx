@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
-import { Plus, Tag } from 'lucide-react';
+import { Plus, Tag, Video } from 'lucide-react';
 import { useState } from 'react';
+import GoogleMeetCard from '@/components/integrations/google-meet-card';
 import CategoryFormDialog from '@/components/services/category-form-dialog';
 import ServiceFormDrawer from '@/components/services/service-form-drawer';
 import { Badge } from '@/components/ui/badge';
@@ -91,6 +92,26 @@ export default function StepServices({ data, controls }: Props) {
                 category={null}
                 teamSlug={teamSlug}
             />
+
+            <div className="space-y-3 rounded-lg border p-4">
+                <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
+                        <Video className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-sm font-medium">
+                            Online services? Add automatic meeting links
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            Connect your Google account and every online booking
+                            gets a Google Meet link created for you. We support
+                            Google Meet for now — more providers are on the way.
+                        </p>
+                    </div>
+                </div>
+
+                <GoogleMeetCard google={data.google} />
+            </div>
 
             {hasCategories ? (
                 <ServiceFormDrawer

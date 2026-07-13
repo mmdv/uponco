@@ -95,10 +95,11 @@ function onlineBookingPayload(array $setup): array
     ];
 }
 
-test('google meet is the only available online meeting provider', function () {
-    expect(ServiceOptions::meetingProviderKeys())->toBe(['google_meet']);
+test('google meet and custom are the available online meeting providers', function () {
+    expect(ServiceOptions::meetingProviderKeys())->toBe(['google_meet', 'custom']);
     expect(ServiceOptions::meetingProviders())->toBe([
         ['value' => 'google_meet', 'label' => 'Google Meet'],
+        ['value' => 'custom', 'label' => 'Custom'],
     ]);
 });
 

@@ -4,6 +4,7 @@ use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Models\OnboardingProgress;
+use App\Models\ScheduleSlot;
 use App\Models\Team;
 use App\Models\User;
 
@@ -35,7 +36,7 @@ function onboardingStepRoute(Team $team, OnboardingStep $step): string
     ]);
 }
 
-test('owners see the onboarding wizard with all three steps', function () {
+test('owners see the onboarding wizard with all four steps', function () {
     [$user, $team] = onboardingOwner();
 
     $this
@@ -45,7 +46,7 @@ test('owners see the onboarding wizard with all three steps', function () {
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
             ->has('onboarding')
-            ->has('onboarding.steps', 3)
+            ->has('onboarding.steps', 4)
             ->where('onboarding.currentStep', 'locations')
         );
 });
@@ -110,6 +111,55 @@ test('a mandatory step cannot be skipped', function () {
         ->assertSessionHasErrors('status');
 });
 
+test('the schedule step is mandatory and cannot be skipped', function () {
+    [$user, $team] = onboardingOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(onboardingStepRoute($team, OnboardingStep::Schedule), [
+            'status' => OnboardingStepStatus::Skipped->value,
+        ])
+        ->assertSessionHasErrors('status');
+});
+
+test('completing the schedule step requires saved work hours', function () {
+    [$user, $team] = onboardingOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(onboardingStepRoute($team, OnboardingStep::Schedule), [
+            'status' => OnboardingStepStatus::Completed->value,
+        ])
+        ->assertSessionHasErrors('status');
+
+    ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
+
+    $this
+        ->actingAs($user)
+        ->patch(onboardingStepRoute($team, OnboardingStep::Schedule), [
+            'status' => OnboardingStepStatus::Completed->value,
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(OnboardingProgress::firstWhere('user_id', $user->id)->statusFor(OnboardingStep::Schedule))
+        ->toBe(OnboardingStepStatus::Completed);
+});
+
+test('the onboarding payload includes schedule members and google status', function () {
+    [$user, $team] = onboardingOwner();
+
+    $this
+        ->actingAs($user)
+        ->get(dashboardRoute($team))
+        ->assertInertia(fn ($page) => $page
+            ->where('onboarding.steps.3.key', 'schedule')
+            ->where('onboarding.steps.3.mandatory', true)
+            ->has('onboarding.schedule.members', 1)
+            ->has('onboarding.schedule.slots')
+            ->where('onboarding.services.google.connected', false)
+        );
+});
+
 test('an invalid status is rejected', function () {
     [$user, $team] = onboardingOwner();
 
@@ -148,6 +198,7 @@ test('regular members cannot update onboarding steps', function () {
 test('the wizard disappears once every step is resolved', function () {
     [$user, $team] = onboardingOwner();
     $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
+    ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
 
     OnboardingProgress::create([
         'team_id' => $team->id,
