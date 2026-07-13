@@ -72,9 +72,7 @@ class BusinessMemberController extends Controller
      */
     public function update(UpdateTeamMemberRequest $request, string $current_team, User $user): RedirectResponse
     {
-        $team = $request->user()->currentTeam;
-
-        Gate::authorize('updateMember', $team);
+        $team = $this->authorizeMember($request, $user);
 
         $newRole = TeamRole::from($request->validated('role'));
 
@@ -277,11 +275,19 @@ class BusinessMemberController extends Controller
      */
     protected function authorizeMember(Request $request, User $user): Team
     {
-        $team = $request->user()->currentTeam;
+        $actor = $request->user();
+        $team = $actor->currentTeam;
 
         Gate::authorize('updateMember', $team);
 
         abort_unless($user->belongsToTeam($team), 404);
+
+        // Admins may manage members, but only the owner may manage the owner.
+        abort_if(
+            $team->owner()?->is($user) && ! $team->owner()?->is($actor),
+            403,
+            __('Only the owner can manage the team owner.'),
+        );
 
         return $team;
     }

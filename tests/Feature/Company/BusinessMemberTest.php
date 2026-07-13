@@ -113,7 +113,7 @@ test('team member roles can be updated by owners', function () {
     expect($team->members()->where('user_id', $member->id)->first()->pivot->role->value)->toEqual(TeamRole::Admin->value);
 });
 
-test('team member roles cannot be updated by non owners', function () {
+test('team member roles can be updated by admins', function () {
     $owner = User::factory()->create();
     $admin = User::factory()->create();
     $member = User::factory()->create();
@@ -128,7 +128,28 @@ test('team member roles cannot be updated by non owners', function () {
         ->patch(route('company.business.members.update', ['current_team' => $team->slug, 'user' => $member]), [
             'role' => TeamRole::Admin->value,
         ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($team->members()->where('user_id', $member->id)->first()->pivot->role->value)->toEqual(TeamRole::Admin->value);
+});
+
+test('admins cannot change the team owner role', function () {
+    $owner = User::factory()->create();
+    $admin = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+
+    $this
+        ->actingAs($admin)
+        ->patch(route('company.business.members.update', ['current_team' => $team->slug, 'user' => $owner]), [
+            'role' => TeamRole::Member->value,
+        ])
         ->assertForbidden();
+
+    expect($team->members()->where('user_id', $owner->id)->first()->pivot->role->value)->toEqual(TeamRole::Owner->value);
 });
 
 test('team members can be removed by owners', function () {
@@ -266,7 +287,7 @@ test('owners can update a member account and an email change resets verification
     expect($member->email_verified_at)->toBeNull();
 });
 
-test('admins cannot update a member account', function () {
+test('admins can update a member account', function () {
     $admin = User::factory()->create();
     $member = User::factory()->create();
     $team = Team::factory()->create();
@@ -280,7 +301,29 @@ test('admins cannot update a member account', function () {
             'name' => 'Updated Name',
             'email' => 'new@example.com',
         ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($member->fresh()->name)->toEqual('Updated Name');
+});
+
+test('admins cannot edit the team owner account', function () {
+    $owner = User::factory()->create(['name' => 'Original Owner']);
+    $admin = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+
+    $this
+        ->actingAs($admin)
+        ->patch(route('company.business.members.account.update', ['current_team' => $team->slug, 'user' => $owner]), [
+            'name' => 'Hijacked',
+            'email' => 'hijack@example.com',
+        ])
         ->assertForbidden();
+
+    expect($owner->fresh()->name)->toEqual('Original Owner');
 });
 
 test('owners can update a member public profile', function () {
