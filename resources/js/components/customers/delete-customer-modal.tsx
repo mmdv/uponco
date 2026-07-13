@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy } from '@/routes/customers';
 import type { Customer } from '@/types';
 
@@ -27,6 +28,7 @@ export default function DeleteCustomerModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('customers');
     const [processing, setProcessing] = useState(false);
 
     const deleteCustomer = () => {
@@ -46,17 +48,19 @@ export default function DeleteCustomerModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete customer</DialogTitle>
+                    <DialogTitle>{t('delete.title')}</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete{' '}
-                        <strong>"{customer?.name}"</strong>? This action cannot
-                        be undone.
+                        {t('delete.confirm', {
+                            name: customer?.name ?? '',
+                        })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">
+                            {t('delete.cancel')}
+                        </Button>
                     </DialogClose>
 
                     <Button
@@ -65,7 +69,7 @@ export default function DeleteCustomerModal({
                         disabled={processing}
                         onClick={deleteCustomer}
                     >
-                        Delete customer
+                        {t('delete.confirmButton')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

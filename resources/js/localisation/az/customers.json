@@ -1,0 +1,49 @@
+{
+    "title": "Müştərilər",
+    "description": "Şirkətinizin işlədiyi müştəriləri idarə edin",
+    "addCustomer": "Müştəri əlavə et",
+    "searchPlaceholder": "Ad, e-poçt və ya telefon üzrə axtar",
+    "pagination": {
+        "showing": "{total} nəticədən {from}–{to} göstərilir",
+        "previous": "Əvvəlki",
+        "next": "Növbəti"
+    },
+    "table": {
+        "name": "Ad",
+        "email": "E-poçt",
+        "phone": "Telefon",
+        "actions": "Əməliyyatlar",
+        "empty": "Hələ müştəri yoxdur. Başlamaq üçün ilk müştərinizi əlavə edin.",
+        "emptyFiltered": "Axtarışınıza uyğun müştəri yoxdur.",
+        "view": "Müştəriyə bax",
+        "edit": "Müştərini redaktə et",
+        "delete": "Müştərini sil"
+    },
+    "form": {
+        "editTitle": "Müştərini redaktə et",
+        "newTitle": "Müştəri əlavə et",
+        "editDescription": "Bu müştərinin təfərrüatlarını yeniləyin.",
+        "newDescription": "Görüşlər barədə əlaqə saxlaya bilmək üçün müştəri əlavə edin.",
+        "name": "Ad",
+        "email": "E-poçt",
+        "phone": "Telefon",
+        "contactHint": "Müştəri ilə əlaqə saxlaya bilmək üçün ən azı e-poçt və ya telefon nömrəsi daxil edin.",
+        "cancel": "Ləğv et",
+        "saveChanges": "Dəyişiklikləri yadda saxla",
+        "addCustomer": "Müştəri əlavə et"
+    },
+    "preview": {
+        "customer": "Müştəri",
+        "contact": "Əlaqə",
+        "email": "E-poçt",
+        "phone": "Telefon",
+        "noContact": "Əlaqə məlumatı yoxdur.",
+        "close": "Bağla"
+    },
+    "delete": {
+        "title": "Müştərini sil",
+        "confirm": "\"{name}\" müştərisini silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+        "cancel": "Ləğv et",
+        "confirmButton": "Müştərini sil"
+    }
+}

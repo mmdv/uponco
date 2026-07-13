@@ -1,0 +1,38 @@
+{
+    "title": "İdarə paneli",
+    "header": {
+        "welcomeBack": "Xoş gəldiniz,",
+        "subtitle": "Bu gün rezervasiyalarınızda baş verənlər.",
+        "bookingPage": "Rezervasiya səhifəsi",
+        "addAppointment": "Görüş əlavə et"
+    },
+    "stats": {
+        "customers": "Müştərilər",
+        "customersHint": "Hələ müştəri yoxdur",
+        "totalBookings": "Ümumi rezervasiyalar",
+        "totalBookingsHint": "Hələ rezervasiya yoxdur",
+        "upcoming": "Qarşıdan gələn",
+        "upcomingHint": "Qarşıdan gələn heç nə yoxdur"
+    },
+    "quickActions": {
+        "label": "Sürətli əməliyyatlar",
+        "openAria": "Sürətli əməliyyatları aç",
+        "closeAria": "Sürətli əməliyyatları bağla",
+        "newAppointment": "Yeni görüş",
+        "addCustomer": "Müştəri əlavə et",
+        "addService": "Xidmət əlavə et",
+        "addLocation": "Filial əlavə et"
+    },
+    "upcoming": {
+        "title": "Qarşıdan gələn görüşlər",
+        "viewAll": "Hamısına bax",
+        "empty": "Hələ qarşıdan gələn görüş yoxdur.",
+        "bookAppointment": "Görüş təyin et"
+    },
+    "chart": {
+        "title": "Qarşıdakı həftə",
+        "subtitle": "Növbəti 7 gün üçün planlaşdırılan rezervasiyalar.",
+        "booked": "{count} rezervasiya",
+        "today": "Bu gün"
+    }
+}

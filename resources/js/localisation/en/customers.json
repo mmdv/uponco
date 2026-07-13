@@ -1,0 +1,49 @@
+{
+    "title": "Customers",
+    "description": "Manage the customers your company works with",
+    "addCustomer": "Add customer",
+    "searchPlaceholder": "Search by name, email or phone",
+    "pagination": {
+        "showing": "Showing {from}–{to} of {total}",
+        "previous": "Previous",
+        "next": "Next"
+    },
+    "table": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "actions": "Actions",
+        "empty": "No customers yet. Add your first customer to get started.",
+        "emptyFiltered": "No customers match your search.",
+        "view": "View customer",
+        "edit": "Edit customer",
+        "delete": "Delete customer"
+    },
+    "form": {
+        "editTitle": "Edit customer",
+        "newTitle": "Add customer",
+        "editDescription": "Update the details for this customer.",
+        "newDescription": "Add a customer so you can reach them about appointments.",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "contactHint": "Enter at least an email or a phone number so you can contact the customer.",
+        "cancel": "Cancel",
+        "saveChanges": "Save changes",
+        "addCustomer": "Add customer"
+    },
+    "preview": {
+        "customer": "Customer",
+        "contact": "Contact",
+        "email": "Email",
+        "phone": "Phone",
+        "noContact": "No contact details on file.",
+        "close": "Close"
+    },
+    "delete": {
+        "title": "Delete customer",
+        "confirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirmButton": "Delete customer"
+    }
+}

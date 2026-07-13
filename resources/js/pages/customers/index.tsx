@@ -9,6 +9,7 @@ import DeleteCustomerModal from '@/components/customers/delete-customer-modal';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/hooks/use-translation';
 import { index as customersIndex } from '@/routes/customers';
 import type { Customer, Paginated } from '@/types';
 
@@ -20,6 +21,7 @@ type Props = {
 const SEARCH_DEBOUNCE_MS = 300;
 
 export default function CustomersIndex({ customers, filters }: Props) {
+    const { t } = useTranslation('customers');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
@@ -81,21 +83,21 @@ export default function CustomersIndex({ customers, filters }: Props) {
 
     return (
         <>
-            <Head title="Customers" />
+            <Head title={t('title')} />
 
             <div className="flex flex-col space-y-6 p-4">
                 <div className="flex items-center justify-between">
                     <Heading
                         variant="small"
-                        title="Customers"
-                        description="Manage the customers your company works with"
+                        title={t('title')}
+                        description={t('description')}
                     />
 
                     <Button
                         data-test="add-customer-button"
                         onClick={openCreate}
                     >
-                        <Plus /> Add customer
+                        <Plus /> {t('addCustomer')}
                     </Button>
                 </div>
 
@@ -105,7 +107,7 @@ export default function CustomersIndex({ customers, filters }: Props) {
                         type="search"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search by name, email or phone"
+                        placeholder={t('searchPlaceholder')}
                         className="pl-9"
                         data-test="customer-search-input"
                     />
@@ -122,8 +124,11 @@ export default function CustomersIndex({ customers, filters }: Props) {
                 {customers.total > 0 && (
                     <div className="flex items-center justify-between gap-4">
                         <p className="text-sm text-muted-foreground">
-                            Showing {customers.from ?? 0}–{customers.to ?? 0} of{' '}
-                            {customers.total}
+                            {t('pagination.showing', {
+                                from: customers.from ?? 0,
+                                to: customers.to ?? 0,
+                                total: customers.total,
+                            })}
                         </p>
                         <div className="flex items-center gap-2">
                             <Button
@@ -135,20 +140,23 @@ export default function CustomersIndex({ customers, filters }: Props) {
                                 }
                                 data-test="customers-prev-page"
                             >
-                                <ChevronLeft className="size-4" /> Previous
+                                <ChevronLeft className="size-4" />{' '}
+                                {t('pagination.previous')}
                             </Button>
                             <Button
                                 variant="outline"
                                 size="sm"
                                 disabled={
-                                    customers.current_page >= customers.last_page
+                                    customers.current_page >=
+                                    customers.last_page
                                 }
                                 onClick={() =>
                                     goToPage(customers.current_page + 1)
                                 }
                                 data-test="customers-next-page"
                             >
-                                Next <ChevronRight className="size-4" />
+                                {t('pagination.next')}{' '}
+                                <ChevronRight className="size-4" />
                             </Button>
                         </div>
                     </div>

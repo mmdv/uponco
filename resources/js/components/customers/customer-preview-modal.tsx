@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import type { Customer } from '@/types';
 
 type Props = {
@@ -23,6 +24,8 @@ export default function CustomerPreviewModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('customers');
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
@@ -39,19 +42,19 @@ export default function CustomerPreviewModal({
                                     {customer.name}
                                 </DialogTitle>
                                 <p className="text-sm text-muted-foreground">
-                                    Customer
+                                    {t('preview.customer')}
                                 </p>
                             </div>
                         </DialogHeader>
 
                         <div className="space-y-3 p-6">
                             <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                Contact
+                                {t('preview.contact')}
                             </h3>
 
                             <ContactRow
                                 icon={<Mail className="size-4" />}
-                                label="Email"
+                                label={t('preview.email')}
                                 value={customer.email}
                                 href={
                                     customer.email
@@ -61,7 +64,7 @@ export default function CustomerPreviewModal({
                             />
                             <ContactRow
                                 icon={<Phone className="size-4" />}
-                                label="Phone"
+                                label={t('preview.phone')}
                                 value={customer.phone}
                                 href={
                                     customer.phone
@@ -73,14 +76,16 @@ export default function CustomerPreviewModal({
                             {!customer.email && !customer.phone && (
                                 <p className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <User className="size-4" />
-                                    No contact details on file.
+                                    {t('preview.noContact')}
                                 </p>
                             )}
                         </div>
 
                         <DialogFooter className="border-t p-4">
                             <DialogClose asChild>
-                                <Button variant="secondary">Close</Button>
+                                <Button variant="secondary">
+                                    {t('preview.close')}
+                                </Button>
                             </DialogClose>
                         </DialogFooter>
                     </>

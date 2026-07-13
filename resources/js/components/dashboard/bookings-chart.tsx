@@ -1,6 +1,7 @@
 import { TrendingUp } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { DashboardTrendDay } from '@/types';
 
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function BookingsChart({ trend, mounted }: Props) {
+    const { t } = useTranslation('dashboard');
     const total = trend.reduce((sum, day) => sum + day.count, 0);
     const max = Math.max(...trend.map((day) => day.count), 1);
 
@@ -18,14 +20,16 @@ export default function BookingsChart({ trend, mounted }: Props) {
             <CardContent className="space-y-5">
                 <div className="flex items-start justify-between">
                     <div className="space-y-0.5">
-                        <h3 className="text-base font-medium">The week ahead</h3>
+                        <h3 className="text-base font-medium">
+                            {t('chart.title')}
+                        </h3>
                         <p className="text-sm text-muted-foreground">
-                            Bookings scheduled over the next 7 days.
+                            {t('chart.subtitle')}
                         </p>
                     </div>
                     <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">
                         <TrendingUp className="size-4" />
-                        {total} booked
+                        {t('chart.booked', { count: total })}
                     </div>
                 </div>
 
@@ -74,7 +78,7 @@ export default function BookingsChart({ trend, mounted }: Props) {
                                             : 'text-muted-foreground',
                                     )}
                                 >
-                                    {day.isToday ? 'Today' : day.label}
+                                    {day.isToday ? t('chart.today') : day.label}
                                 </span>
                             </div>
                         );

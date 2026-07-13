@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy } from '@/routes/company/locations';
 import type { Location } from '@/types';
 
@@ -27,6 +28,7 @@ export default function DeleteLocationModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('locations');
     const [processing, setProcessing] = useState(false);
 
     const deleteLocation = () => {
@@ -46,17 +48,19 @@ export default function DeleteLocationModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete location</DialogTitle>
+                    <DialogTitle>{t('delete.title')}</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete{' '}
-                        <strong>"{location?.name}"</strong>? This action cannot
-                        be undone.
+                        {t('delete.confirm', {
+                            name: location?.name ?? '',
+                        })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">
+                            {t('delete.cancel')}
+                        </Button>
                     </DialogClose>
 
                     <Button
@@ -65,7 +69,7 @@ export default function DeleteLocationModal({
                         disabled={processing}
                         onClick={deleteLocation}
                     >
-                        Delete location
+                        {t('delete.confirmButton')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

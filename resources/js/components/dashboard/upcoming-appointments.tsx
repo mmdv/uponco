@@ -3,6 +3,7 @@ import { CalendarClock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useTranslation } from '@/hooks/use-translation';
 import { dayLabel, formatAppointmentTimeRange } from '@/lib/appointments';
 import { index as appointmentsIndex } from '@/routes/appointments';
 import type { UpcomingAppointment } from '@/types';
@@ -20,19 +21,21 @@ export default function UpcomingAppointments({
     onAddAppointment,
     onView,
 }: Props) {
+    const { t } = useTranslation('dashboard');
+
     return (
         <Card className="h-full max-w-full">
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="text-base font-medium">
-                        Upcoming appointments
+                        {t('upcoming.title')}
                     </h3>
                     {appointments.length > 0 && (
                         <Link
                             href={appointmentsIndex.url(teamSlug)}
                             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                         >
-                            View all
+                            {t('upcoming.viewAll')}
                         </Link>
                     )}
                 </div>
@@ -43,7 +46,7 @@ export default function UpcomingAppointments({
                             <CalendarClock className="size-5" />
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            No upcoming appointments yet.
+                            {t('upcoming.empty')}
                         </p>
                         <Button
                             variant="outline"
@@ -51,7 +54,7 @@ export default function UpcomingAppointments({
                             className="mt-3"
                             onClick={onAddAppointment}
                         >
-                            Book an appointment
+                            {t('upcoming.bookAppointment')}
                         </Button>
                     </div>
                 ) : (
@@ -63,7 +66,10 @@ export default function UpcomingAppointments({
                                 tabIndex={0}
                                 onClick={() => onView(appointment)}
                                 onKeyDown={(event) => {
-                                    if (event.key === 'Enter' || event.key === ' ') {
+                                    if (
+                                        event.key === 'Enter' ||
+                                        event.key === ' '
+                                    ) {
                                         event.preventDefault();
                                         onView(appointment);
                                     }

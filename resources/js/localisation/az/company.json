@@ -1,0 +1,37 @@
+{
+    "title": "Şirkət",
+    "description": "Şirkət tənzimləmələrinizi, komandanızı və vizual şəxsiyyətinizi idarə edin.",
+    "business": {
+        "title": "Biznes",
+        "description": "Komanda təfərrüatlarınızı və üzvlərini idarə edin.",
+        "memberSingular": "üzv",
+        "memberPlural": "üzv",
+        "roleSingular": "rol",
+        "rolePlural": "rol",
+        "stats": "komanda {member}, {roles} {roleWord} üzrə"
+    },
+    "services": {
+        "title": "Xidmətlər",
+        "description": "Şirkətinizin təklif etdiyi xidmətləri və kateqoriyaları idarə edin.",
+        "categorySingular": "kateqoriya",
+        "categoryPlural": "kateqoriya",
+        "serviceSingular": "xidmət",
+        "servicePlural": "xidmət",
+        "empty": "Hələ xidmət yoxdur — ilk xidmətinizi əlavə edin."
+    },
+    "schedule": {
+        "title": "Cədvəl",
+        "description": "Növbəti 7 gün üçün əlçatanlığınızı təyin edin.",
+        "openNow": "Hazırda açıqdır",
+        "closedNow": "Hazırda bağlıdır",
+        "hoursOverWeek": "Növbəti 7 gün ərzində {hours} saat"
+    },
+    "locations": {
+        "title": "Filiallar",
+        "locationSingular": "fəal filial",
+        "locationPlural": "fəal filial"
+    },
+    "brand": {
+        "title": "Brend"
+    }
+}

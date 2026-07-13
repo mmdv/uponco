@@ -1,0 +1,38 @@
+{
+    "title": "Dashboard",
+    "header": {
+        "welcomeBack": "Welcome back,",
+        "subtitle": "Here's what's happening with your bookings today.",
+        "bookingPage": "Booking page",
+        "addAppointment": "Add appointment"
+    },
+    "stats": {
+        "customers": "Customers",
+        "customersHint": "No customers yet",
+        "totalBookings": "Total bookings",
+        "totalBookingsHint": "No bookings yet",
+        "upcoming": "Upcoming",
+        "upcomingHint": "Nothing upcoming"
+    },
+    "quickActions": {
+        "label": "Quick actions",
+        "openAria": "Open quick actions",
+        "closeAria": "Close quick actions",
+        "newAppointment": "New appointment",
+        "addCustomer": "Add customer",
+        "addService": "Add service",
+        "addLocation": "Add location"
+    },
+    "upcoming": {
+        "title": "Upcoming appointments",
+        "viewAll": "View all",
+        "empty": "No upcoming appointments yet.",
+        "bookAppointment": "Book an appointment"
+    },
+    "chart": {
+        "title": "The week ahead",
+        "subtitle": "Bookings scheduled over the next 7 days.",
+        "booked": "{count} booked",
+        "today": "Today"
+    }
+}

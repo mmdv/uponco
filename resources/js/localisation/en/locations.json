@@ -1,0 +1,53 @@
+{
+    "title": "Locations",
+    "description": "Manage the physical locations for your company",
+    "addLocation": "Add location",
+    "grid": {
+        "empty": "No locations yet. Add your first location to get started.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "actionsLabel": "Location actions",
+        "edit": "Edit",
+        "delete": "Delete",
+        "servicesTitle": "{count} services",
+        "specialistsTitle": "{count} specialists",
+        "openLabel": "Open {name}"
+    },
+    "form": {
+        "editTitle": "Edit location",
+        "newTitle": "Add location",
+        "editDescription": "Update the details for this location.",
+        "newDescription": "Add a new location for your company.",
+        "active": "Active",
+        "activeHint": "Inactive locations are hidden from use.",
+        "name": "Name",
+        "country": "Country / region",
+        "selectCountry": "Select a country",
+        "searchCountries": "Search countries…",
+        "noCountries": "No countries found.",
+        "city": "City",
+        "streetAddress": "Street address",
+        "unit": "Suite / apartment / unit",
+        "postalCode": "Postal code",
+        "phone": "Phone",
+        "services": "Services",
+        "selectServices": "Select services",
+        "searchServices": "Search services…",
+        "noServices": "No services found.",
+        "servicesHint": "Services offered at this location.",
+        "specialists": "Specialists",
+        "selectSpecialists": "Select specialists",
+        "searchSpecialists": "Search specialists…",
+        "noSpecialists": "No specialists found.",
+        "specialistsHint": "Team members who work at this location.",
+        "cancel": "Cancel",
+        "saveChanges": "Save changes",
+        "addLocation": "Add location"
+    },
+    "delete": {
+        "title": "Delete location",
+        "confirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirmButton": "Delete location"
+    }
+}

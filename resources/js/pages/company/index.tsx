@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 
 import Heading from '@/components/heading';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
 import { index as brandIndex } from '@/routes/company/brand';
@@ -28,7 +29,12 @@ type Props = {
         people: { name: string; role: string }[];
     };
     schedule: {
-        days: { key: string; label: string; minutes: number; isToday: boolean }[];
+        days: {
+            key: string;
+            label: string;
+            minutes: number;
+            isToday: boolean;
+        }[];
         totalMinutes: number;
         openNow: boolean;
     };
@@ -64,7 +70,9 @@ function formatPrice(price: string | null): string | null {
 
     const value = Number(price);
 
-    return Number.isNaN(value) ? price : `$${value % 1 === 0 ? value : value.toFixed(2)}`;
+    return Number.isNaN(value)
+        ? price
+        : `$${value % 1 === 0 ? value : value.toFixed(2)}`;
 }
 
 export default function CompanyIndex({
@@ -74,6 +82,7 @@ export default function CompanyIndex({
     locations,
     services,
 }: Props) {
+    const { t } = useTranslation('company');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
     const getInitials = useInitials();
@@ -89,13 +98,13 @@ export default function CompanyIndex({
 
     return (
         <>
-            <Head title="Company" />
+            <Head title={t('title')} />
 
             <div className="flex flex-col gap-6 p-4">
                 <Heading
                     variant="small"
-                    title="Company"
-                    description="Manage your company settings, team, and visual identity."
+                    title={t('title')}
+                    description={t('description')}
                 />
 
                 <div className="grid auto-rows-auto grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -107,8 +116,8 @@ export default function CompanyIndex({
                         className="lg:col-span-1 lg:row-span-2"
                         icon={Building2}
                         iconClassName="bg-primary-gradient text-white"
-                        title="Business"
-                        description="Manage your team details and team members."
+                        title={t('business.title')}
+                        description={t('business.description')}
                     >
                         <div className="mt-auto flex flex-col gap-5 pt-8">
                             <div className="flex items-center -space-x-2">
@@ -131,7 +140,9 @@ export default function CompanyIndex({
                                 ))}
                                 {business.total > business.people.length && (
                                     <div className="flex size-11 items-center justify-center rounded-xl border border-dashed bg-muted/40 text-xs font-medium text-muted-foreground ring-2 ring-card">
-                                        +{business.total - business.people.length}
+                                        +
+                                        {business.total -
+                                            business.people.length}
                                     </div>
                                 )}
                             </div>
@@ -142,9 +153,21 @@ export default function CompanyIndex({
                                         {business.total}
                                     </span>
                                     <span className="text-sm text-muted-foreground">
-                                        team {business.total === 1 ? 'member' : 'members'} across{' '}
-                                        {business.roles.length}{' '}
-                                        {business.roles.length === 1 ? 'role' : 'roles'}
+                                        {t('business.stats', {
+                                            member:
+                                                business.total === 1
+                                                    ? t(
+                                                          'business.memberSingular',
+                                                      )
+                                                    : t(
+                                                          'business.memberPlural',
+                                                      ),
+                                            roles: business.roles.length,
+                                            roleWord:
+                                                business.roles.length === 1
+                                                    ? t('business.roleSingular')
+                                                    : t('business.rolePlural'),
+                                        })}
                                     </span>
                                 </div>
 
@@ -179,8 +202,8 @@ export default function CompanyIndex({
                         delay={60}
                         className="lg:col-span-1 lg:row-span-2"
                         icon={Wrench}
-                        title="Services"
-                        description="Manage the services and categories your company offers."
+                        title={t('services.title')}
+                        description={t('services.description')}
                     >
                         <div className="mt-auto flex flex-col gap-4 pt-6">
                             <div>
@@ -190,13 +213,15 @@ export default function CompanyIndex({
                                     </span>
                                     <span className="text-sm text-muted-foreground">
                                         {services.categories === 1
-                                            ? 'category'
-                                            : 'categories'}
+                                            ? t('services.categorySingular')
+                                            : t('services.categoryPlural')}
                                     </span>
                                 </div>
                                 <p className="text-xs text-muted-foreground">
                                     {services.count}{' '}
-                                    {services.count === 1 ? 'service' : 'services'}
+                                    {services.count === 1
+                                        ? t('services.serviceSingular')
+                                        : t('services.servicePlural')}
                                 </p>
                             </div>
 
@@ -229,7 +254,7 @@ export default function CompanyIndex({
                                 ))}
                                 {services.count === 0 && (
                                     <span className="text-sm text-muted-foreground">
-                                        No services yet — add your first one.
+                                        {t('services.empty')}
                                     </span>
                                 )}
                             </div>
@@ -243,14 +268,17 @@ export default function CompanyIndex({
                         delay={120}
                         className="sm:col-span-2 lg:col-span-2"
                         icon={CalendarClock}
-                        title="Schedule"
-                        description="Set your availability for the next 7 days."
+                        title={t('schedule.title')}
+                        description={t('schedule.description')}
                     >
                         <div className="mt-6 flex items-end gap-2 sm:gap-3">
                             {schedule.days.map((day, index) => {
                                 const ratio =
                                     day.minutes > 0
-                                        ? Math.max(day.minutes / maxMinutes, 0.12)
+                                        ? Math.max(
+                                              day.minutes / maxMinutes,
+                                              0.12,
+                                          )
                                         : 0;
 
                                 return (
@@ -305,8 +333,13 @@ export default function CompanyIndex({
                                 )}
                             </span>
                             <span className="text-muted-foreground">
-                                {schedule.openNow ? 'Open now' : 'Closed now'} ·{' '}
-                                {formatHours(schedule.totalMinutes)} hrs over the next 7 days
+                                {schedule.openNow
+                                    ? t('schedule.openNow')
+                                    : t('schedule.closedNow')}{' '}
+                                ·{' '}
+                                {t('schedule.hoursOverWeek', {
+                                    hours: formatHours(schedule.totalMinutes),
+                                })}
                             </span>
                         </div>
                     </BentoCard>
@@ -318,7 +351,7 @@ export default function CompanyIndex({
                         delay={180}
                         className="lg:col-span-1"
                         icon={MapPin}
-                        title="Locations"
+                        title={t('locations.title')}
                         compact
                     >
                         <div className="mt-auto pt-6">
@@ -327,8 +360,9 @@ export default function CompanyIndex({
                                     {locations.count}
                                 </span>
                                 <span className="text-sm text-muted-foreground">
-                                    active{' '}
-                                    {locations.count === 1 ? 'location' : 'locations'}
+                                    {locations.count === 1
+                                        ? t('locations.locationSingular')
+                                        : t('locations.locationPlural')}
                                 </span>
                             </div>
                             {locations.cities.length > 0 && (
@@ -346,7 +380,7 @@ export default function CompanyIndex({
                         delay={240}
                         className="lg:col-span-1"
                         icon={Palette}
-                        title="Brand"
+                        title={t('brand.title')}
                         compact
                     >
                         <div className="mt-auto flex items-center gap-2 pt-6">
@@ -363,7 +397,6 @@ export default function CompanyIndex({
                             <div className="size-10 rounded-xl border border-dashed bg-muted/40" />
                         </div>
                     </BentoCard>
-
                 </div>
             </div>
         </>
@@ -409,7 +442,7 @@ function BentoCard({
             style={{ transitionDelay: `${delay}ms` }}
         >
             {/* subtle hover glow */}
-            <div className="pointer-events-none absolute -right-16 -top-16 size-40 rounded-full bg-primary/5 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-primary/5 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
 
             <div className="flex items-start gap-3">
                 <div
@@ -423,7 +456,7 @@ function BentoCard({
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-semibold leading-tight">{title}</h3>
+                        <h3 className="leading-tight font-semibold">{title}</h3>
                         <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                     </div>
                     {description && (

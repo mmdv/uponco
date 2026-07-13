@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { ACCENTS } from '@/components/dashboard/accents';
 import type { Accent } from '@/components/dashboard/accents';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -26,6 +27,7 @@ export default function QuickActions({
     onAddService,
     onAddLocation,
 }: Props) {
+    const { t } = useTranslation('dashboard');
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -66,25 +68,25 @@ export default function QuickActions({
     }[] = [
         {
             icon: CalendarPlus,
-            label: 'New appointment',
+            label: t('quickActions.newAppointment'),
             accent: 'indigo',
             onClick: onAddAppointment,
         },
         {
             icon: UserPlus,
-            label: 'Add customer',
+            label: t('quickActions.addCustomer'),
             accent: 'emerald',
             onClick: onAddCustomer,
         },
         {
             icon: Briefcase,
-            label: 'Add service',
+            label: t('quickActions.addService'),
             accent: 'sky',
             onClick: onAddService,
         },
         {
             icon: MapPin,
-            label: 'Add location',
+            label: t('quickActions.addLocation'),
             accent: 'rose',
             onClick: onAddLocation,
         },
@@ -101,9 +103,9 @@ export default function QuickActions({
             className="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-end gap-3 lg:bottom-[1.5rem]"
         >
             {open && (
-                <div className="flex w-60 origin-bottom-right animate-in flex-col gap-1 rounded-2xl border bg-popover p-2 text-popover-foreground shadow-xl duration-200 fade-in zoom-in-95 slide-in-from-bottom-2">
+                <div className="flex w-60 origin-bottom-right animate-in flex-col gap-1 rounded-2xl border bg-popover p-2 text-popover-foreground shadow-xl duration-200 zoom-in-95 fade-in slide-in-from-bottom-2">
                     <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                        Quick actions
+                        {t('quickActions.label')}
                     </p>
                     {actions.map((action) => (
                         <QuickAction
@@ -121,7 +123,11 @@ export default function QuickActions({
                 type="button"
                 onClick={() => setOpen((value) => !value)}
                 aria-expanded={open}
-                aria-label={open ? 'Close quick actions' : 'Open quick actions'}
+                aria-label={
+                    open
+                        ? t('quickActions.closeAria')
+                        : t('quickActions.openAria')
+                }
                 data-test="quick-actions-fab"
                 className="flex size-14 items-center justify-center rounded-full bg-primary-gradient text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95"
             >

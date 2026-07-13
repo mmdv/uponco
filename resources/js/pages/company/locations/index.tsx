@@ -7,6 +7,7 @@ import DeleteLocationModal from '@/components/locations/delete-location-modal';
 import LocationFormDrawer from '@/components/locations/location-form-drawer';
 import LocationsGrid from '@/components/locations/locations-grid';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { index as companyIndex } from '@/routes/company';
 import { index as locationsIndex } from '@/routes/company/locations';
 import type { Location, SelectOption } from '@/types';
@@ -24,6 +25,7 @@ export default function LocationsIndex({
     specialists,
     countries,
 }: Props) {
+    const { t } = useTranslation('locations');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
@@ -50,21 +52,21 @@ export default function LocationsIndex({
 
     return (
         <>
-            <Head title="Locations" />
+            <Head title={t('title')} />
 
             <div className="flex flex-col space-y-6 p-4">
                 <div className="flex items-center justify-between">
                     <Heading
                         variant="small"
-                        title="Locations"
-                        description="Manage the physical locations for your company"
+                        title={t('title')}
+                        description={t('description')}
                     />
 
                     <Button
                         data-test="add-location-button"
                         onClick={openCreate}
                     >
-                        <Plus /> Add location
+                        <Plus /> {t('addLocation')}
                     </Button>
                 </div>
 

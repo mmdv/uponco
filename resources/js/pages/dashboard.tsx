@@ -12,6 +12,7 @@ import QuickCreateForms from '@/components/dashboard/quick-create-forms';
 import type { QuickCreateForm } from '@/components/dashboard/quick-create-forms';
 import UpcomingAppointments from '@/components/dashboard/upcoming-appointments';
 import OnboardingWizard from '@/components/onboarding/onboarding-wizard';
+import { useTranslation } from '@/hooks/use-translation';
 import { toDateInputValue } from '@/lib/appointments';
 import { dashboard } from '@/routes';
 import type {
@@ -50,6 +51,7 @@ export default function Dashboard({
     formOptions,
     availableSlots = [],
 }: Props) {
+    const { t } = useTranslation('dashboard');
     const { auth, currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
     const firstName = auth.user.name.split(' ')[0];
@@ -107,7 +109,7 @@ export default function Dashboard({
     if (onboarding) {
         return (
             <>
-                <Head title="Dashboard" />
+                <Head title={t('title')} />
                 <OnboardingWizard onboarding={onboarding} />
             </>
         );
@@ -119,7 +121,7 @@ export default function Dashboard({
 
     return (
         <>
-            <Head title="Dashboard" />
+            <Head title={t('title')} />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <DashboardHeader

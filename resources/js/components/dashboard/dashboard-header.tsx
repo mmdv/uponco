@@ -1,6 +1,7 @@
 import { CalendarPlus, ExternalLink } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { show as bookingPage } from '@/routes/public/appointments';
 
 type Props = {
@@ -14,17 +15,19 @@ export default function DashboardHeader({
     teamSlug,
     onAddAppointment,
 }: Props) {
+    const { t } = useTranslation('dashboard');
+
     return (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-0.5">
                 <h2 className="text-xl font-semibold tracking-tight">
-                    Welcome back,{' '}
+                    {t('header.welcomeBack')}{' '}
                     <span className="bg-gradient-to-r from-[#0063ff] to-[#3884fe] bg-clip-text text-transparent">
                         {firstName}
                     </span>
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                    Here's what's happening with your bookings today.
+                    {t('header.subtitle')}
                 </p>
             </div>
 
@@ -39,14 +42,14 @@ export default function DashboardHeader({
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <ExternalLink /> Booking page
+                        <ExternalLink /> {t('header.bookingPage')}
                     </a>
                 </Button>
                 <Button
                     onClick={onAddAppointment}
                     data-test="dashboard-add-appointment"
                 >
-                    <CalendarPlus /> Add appointment
+                    <CalendarPlus /> {t('header.addAppointment')}
                 </Button>
             </div>
         </div>

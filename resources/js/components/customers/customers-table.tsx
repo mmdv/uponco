@@ -15,6 +15,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTranslation } from '@/hooks/use-translation';
 import type { Customer } from '@/types';
 
 type Props = {
@@ -32,13 +33,13 @@ export default function CustomersTable({
     onEdit,
     onDelete,
 }: Props) {
+    const { t } = useTranslation('customers');
+
     if (customers.length === 0) {
         return (
             <div className="rounded-lg border border-dashed p-10 text-center">
                 <p className="text-sm text-muted-foreground">
-                    {isFiltered
-                        ? 'No customers match your search.'
-                        : 'No customers yet. Add your first customer to get started.'}
+                    {isFiltered ? t('table.emptyFiltered') : t('table.empty')}
                 </p>
             </div>
         );
@@ -49,10 +50,12 @@ export default function CustomersTable({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t('table.name')}</TableHead>
+                        <TableHead>{t('table.email')}</TableHead>
+                        <TableHead>{t('table.phone')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('table.actions')}
+                        </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -84,7 +87,7 @@ export default function CustomersTable({
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>View customer</p>
+                                                <p>{t('table.view')}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                         <Tooltip>
@@ -101,7 +104,7 @@ export default function CustomersTable({
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Edit customer</p>
+                                                <p>{t('table.edit')}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                         <Tooltip>
@@ -118,7 +121,7 @@ export default function CustomersTable({
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Delete customer</p>
+                                                <p>{t('table.delete')}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     </div>

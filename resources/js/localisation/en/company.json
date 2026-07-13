@@ -1,0 +1,37 @@
+{
+    "title": "Company",
+    "description": "Manage your company settings, team, and visual identity.",
+    "business": {
+        "title": "Business",
+        "description": "Manage your team details and team members.",
+        "memberSingular": "member",
+        "memberPlural": "members",
+        "roleSingular": "role",
+        "rolePlural": "roles",
+        "stats": "team {member} across {roles} {roleWord}"
+    },
+    "services": {
+        "title": "Services",
+        "description": "Manage the services and categories your company offers.",
+        "categorySingular": "category",
+        "categoryPlural": "categories",
+        "serviceSingular": "service",
+        "servicePlural": "services",
+        "empty": "No services yet — add your first one."
+    },
+    "schedule": {
+        "title": "Schedule",
+        "description": "Set your availability for the next 7 days.",
+        "openNow": "Open now",
+        "closedNow": "Closed now",
+        "hoursOverWeek": "{hours} hrs over the next 7 days"
+    },
+    "locations": {
+        "title": "Locations",
+        "locationSingular": "active location",
+        "locationPlural": "active locations"
+    },
+    "brand": {
+        "title": "Brand"
+    }
+}

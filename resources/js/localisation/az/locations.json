@@ -1,0 +1,53 @@
+{
+    "title": "Filiallar",
+    "description": "Şirkətinizin fiziki filiallarını idarə edin",
+    "addLocation": "Filial əlavə et",
+    "grid": {
+        "empty": "Hələ filial yoxdur. Başlamaq üçün ilk filialınızı əlavə edin.",
+        "active": "Aktiv",
+        "inactive": "Qeyri-aktiv",
+        "actionsLabel": "Filial əməliyyatları",
+        "edit": "Redaktə et",
+        "delete": "Sil",
+        "servicesTitle": "{count} xidmət",
+        "specialistsTitle": "{count} mütəxəssis",
+        "openLabel": "{name} filialını aç"
+    },
+    "form": {
+        "editTitle": "Filialı redaktə et",
+        "newTitle": "Filial əlavə et",
+        "editDescription": "Bu filialın təfərrüatlarını yeniləyin.",
+        "newDescription": "Şirkətiniz üçün yeni filial əlavə edin.",
+        "active": "Aktiv",
+        "activeHint": "Qeyri-aktiv filiallar istifadədən gizlədilir.",
+        "name": "Ad",
+        "country": "Ölkə / region",
+        "selectCountry": "Ölkə seçin",
+        "searchCountries": "Ölkələri axtar…",
+        "noCountries": "Ölkə tapılmadı.",
+        "city": "Şəhər",
+        "streetAddress": "Küçə ünvanı",
+        "unit": "Mənzil / ofis nömrəsi",
+        "postalCode": "Poçt kodu",
+        "phone": "Telefon",
+        "services": "Xidmətlər",
+        "selectServices": "Xidmətləri seçin",
+        "searchServices": "Xidmətləri axtar…",
+        "noServices": "Xidmət tapılmadı.",
+        "servicesHint": "Bu filialda təklif olunan xidmətlər.",
+        "specialists": "Mütəxəssislər",
+        "selectSpecialists": "Mütəxəssisləri seçin",
+        "searchSpecialists": "Mütəxəssisləri axtar…",
+        "noSpecialists": "Mütəxəssis tapılmadı.",
+        "specialistsHint": "Bu filialda çalışan komanda üzvləri.",
+        "cancel": "Ləğv et",
+        "saveChanges": "Dəyişiklikləri yadda saxla",
+        "addLocation": "Filial əlavə et"
+    },
+    "delete": {
+        "title": "Filialı sil",
+        "confirm": "\"{name}\" filialını silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+        "cancel": "Ləğv et",
+        "confirmButton": "Filialı sil"
+    }
+}

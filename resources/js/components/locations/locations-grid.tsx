@@ -15,6 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { Location, SelectOption } from '@/types';
 
@@ -31,6 +32,8 @@ export default function LocationsGrid({
     onEdit,
     onDelete,
 }: Props) {
+    const { t } = useTranslation('locations');
+
     const countryLabels = new Map(
         countries.map((country) => [country.value, country.label]),
     );
@@ -39,7 +42,7 @@ export default function LocationsGrid({
         return (
             <div className="rounded-2xl border border-dashed p-10 text-center">
                 <p className="text-sm text-muted-foreground">
-                    No locations yet. Add your first location to get started.
+                    {t('grid.empty')}
                 </p>
             </div>
         );
@@ -70,6 +73,8 @@ type CardProps = {
 };
 
 function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
+    const { t } = useTranslation('locations');
+
     const address = [
         location.street_address,
         location.postal_code,
@@ -99,30 +104,34 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
                                     : 'bg-muted-foreground/40',
                             )}
                         />
-                        {location.is_active ? 'Active' : 'Inactive'}
+                        {location.is_active
+                            ? t('grid.active')
+                            : t('grid.inactive')}
                     </span>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             data-test="location-actions-button"
-                            className="flex size-7 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-all hover:bg-accent hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                            className="flex size-7 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-accent hover:text-foreground focus-visible:opacity-100"
                         >
                             <MoreVertical className="size-4" />
-                            <span className="sr-only">Location actions</span>
+                            <span className="sr-only">
+                                {t('grid.actionsLabel')}
+                            </span>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
                                 data-test="location-edit-button"
                                 onSelect={onEdit}
                             >
-                                <Pencil className="size-4" /> Edit
+                                <Pencil className="size-4" /> {t('grid.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 data-test="location-delete-button"
                                 variant="destructive"
                                 onSelect={onDelete}
                             >
-                                <Trash2 className="size-4" /> Delete
+                                <Trash2 className="size-4" /> {t('grid.delete')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -146,14 +155,18 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span
                         className="flex items-center gap-1.5"
-                        title={`${location.service_ids.length} services`}
+                        title={t('grid.servicesTitle', {
+                            count: location.service_ids.length,
+                        })}
                     >
                         <Gem className="size-4" />
                         {location.service_ids.length}
                     </span>
                     <span
                         className="flex items-center gap-1.5"
-                        title={`${location.user_ids.length} specialists`}
+                        title={t('grid.specialistsTitle', {
+                            count: location.user_ids.length,
+                        })}
                     >
                         <IdCard className="size-4" />
                         {location.user_ids.length}
@@ -167,7 +180,9 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
                     className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
                 >
                     <ArrowRight className="size-4" />
-                    <span className="sr-only">Open {location.name}</span>
+                    <span className="sr-only">
+                        {t('grid.openLabel', { name: location.name })}
+                    </span>
                 </button>
             </div>
         </div>

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/hooks/use-translation';
 import { store, update } from '@/routes/customers';
 import type { Customer } from '@/types';
 
@@ -28,6 +29,7 @@ export default function CustomerFormDialog({
     customer,
     teamSlug,
 }: Props) {
+    const { t } = useTranslation('customers');
     const isEditing = customer !== null;
 
     return (
@@ -35,12 +37,12 @@ export default function CustomerFormDialog({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {isEditing ? 'Edit customer' : 'Add customer'}
+                        {isEditing ? t('form.editTitle') : t('form.newTitle')}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
-                            ? 'Update the details for this customer.'
-                            : 'Add a customer so you can reach them about appointments.'}
+                            ? t('form.editDescription')
+                            : t('form.newDescription')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -56,7 +58,9 @@ export default function CustomerFormDialog({
                         <>
                             <div className="grid gap-4 py-2">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">
+                                        {t('form.name')}
+                                    </Label>
                                     <Input
                                         id="name"
                                         name="name"
@@ -69,7 +73,9 @@ export default function CustomerFormDialog({
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="email">
+                                        {t('form.email')}
+                                    </Label>
                                     <Input
                                         id="email"
                                         name="email"
@@ -82,7 +88,9 @@ export default function CustomerFormDialog({
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="phone">Phone</Label>
+                                    <Label htmlFor="phone">
+                                        {t('form.phone')}
+                                    </Label>
                                     <Input
                                         id="phone"
                                         name="phone"
@@ -94,8 +102,7 @@ export default function CustomerFormDialog({
                                 </div>
 
                                 <p className="text-sm text-muted-foreground">
-                                    Enter at least an email or a phone number so
-                                    you can contact the customer.
+                                    {t('form.contactHint')}
                                 </p>
                             </div>
 
@@ -105,7 +112,7 @@ export default function CustomerFormDialog({
                                     variant="secondary"
                                     onClick={() => onOpenChange(false)}
                                 >
-                                    Cancel
+                                    {t('form.cancel')}
                                 </Button>
                                 <Button
                                     type="submit"
@@ -113,8 +120,8 @@ export default function CustomerFormDialog({
                                     disabled={processing}
                                 >
                                     {isEditing
-                                        ? 'Save changes'
-                                        : 'Add customer'}
+                                        ? t('form.saveChanges')
+                                        : t('form.addCustomer')}
                                 </Button>
                             </DialogFooter>
                         </>

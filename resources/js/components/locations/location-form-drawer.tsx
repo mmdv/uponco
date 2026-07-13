@@ -17,6 +17,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
+import { useTranslation } from '@/hooks/use-translation';
 import { store, update } from '@/routes/company/locations';
 import type { Location, SelectOption } from '@/types';
 
@@ -39,6 +40,7 @@ export default function LocationFormDrawer({
     specialists,
     countries,
 }: Props) {
+    const { t } = useTranslation('locations');
     const isEditing = location !== null;
 
     return (
@@ -49,12 +51,12 @@ export default function LocationFormDrawer({
             >
                 <SheetHeader className="shrink-0 border-b">
                     <SheetTitle>
-                        {isEditing ? 'Edit location' : 'Add location'}
+                        {isEditing ? t('form.editTitle') : t('form.newTitle')}
                     </SheetTitle>
                     <SheetDescription>
                         {isEditing
-                            ? 'Update the details for this location.'
-                            : 'Add a new location for your company.'}
+                            ? t('form.editDescription')
+                            : t('form.newDescription')}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -92,6 +94,7 @@ function LocationFormFields({
     onSuccess,
     onCancel,
 }: FieldsProps) {
+    const { t } = useTranslation('locations');
     const isEditing = location !== null;
 
     const [isActive, setIsActive] = useState(location?.is_active ?? true);
@@ -141,9 +144,11 @@ function LocationFormFields({
                     <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
                         <div className="flex items-center justify-between rounded-lg border p-3">
                             <div className="space-y-0.5">
-                                <Label htmlFor="is_active">Active</Label>
+                                <Label htmlFor="is_active">
+                                    {t('form.active')}
+                                </Label>
                                 <p className="text-sm text-muted-foreground">
-                                    Inactive locations are hidden from use.
+                                    {t('form.activeHint')}
                                 </p>
                             </div>
                             <Switch
@@ -155,7 +160,7 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                            <Label htmlFor="name">{t('form.name')}</Label>
                             <Input
                                 id="name"
                                 name="name"
@@ -167,15 +172,15 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="country">Country / region</Label>
+                            <Label htmlFor="country">{t('form.country')}</Label>
                             <SearchableSelect
                                 id="country"
                                 options={countries}
                                 value={country}
                                 onChange={setCountry}
-                                placeholder="Select a country"
-                                searchPlaceholder="Search countries…"
-                                emptyMessage="No countries found."
+                                placeholder={t('form.selectCountry')}
+                                searchPlaceholder={t('form.searchCountries')}
+                                emptyMessage={t('form.noCountries')}
                                 invalid={Boolean(errors.country)}
                                 data-test="location-country-select"
                             />
@@ -183,7 +188,7 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="city">City</Label>
+                            <Label htmlFor="city">{t('form.city')}</Label>
                             <Input
                                 id="city"
                                 name="city"
@@ -195,7 +200,7 @@ function LocationFormFields({
 
                         <div className="grid gap-2">
                             <Label htmlFor="street_address">
-                                Street address
+                                {t('form.streetAddress')}
                             </Label>
                             <Input
                                 id="street_address"
@@ -207,9 +212,7 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="unit">
-                                Suite / apartment / unit
-                            </Label>
+                            <Label htmlFor="unit">{t('form.unit')}</Label>
                             <Input
                                 id="unit"
                                 name="unit"
@@ -220,7 +223,9 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="postal_code">Postal code</Label>
+                            <Label htmlFor="postal_code">
+                                {t('form.postalCode')}
+                            </Label>
                             <Input
                                 id="postal_code"
                                 name="postal_code"
@@ -231,7 +236,7 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="phone">Phone</Label>
+                            <Label htmlFor="phone">{t('form.phone')}</Label>
                             <PhoneInput
                                 id="phone"
                                 name="phone"
@@ -242,39 +247,43 @@ function LocationFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="service_ids">Services</Label>
+                            <Label htmlFor="service_ids">
+                                {t('form.services')}
+                            </Label>
                             <MultiSelect
                                 id="service_ids"
                                 options={services}
                                 value={serviceIds}
                                 onChange={setServiceIds}
-                                placeholder="Select services"
-                                searchPlaceholder="Search services…"
-                                emptyMessage="No services found."
+                                placeholder={t('form.selectServices')}
+                                searchPlaceholder={t('form.searchServices')}
+                                emptyMessage={t('form.noServices')}
                                 invalid={Boolean(errors.service_ids)}
                                 data-test="location-services-select"
                             />
                             <p className="text-sm text-muted-foreground">
-                                Services offered at this location.
+                                {t('form.servicesHint')}
                             </p>
                             <InputError message={errors.service_ids} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="user_ids">Specialists</Label>
+                            <Label htmlFor="user_ids">
+                                {t('form.specialists')}
+                            </Label>
                             <MultiSelect
                                 id="user_ids"
                                 options={specialists}
                                 value={specialistIds}
                                 onChange={setSpecialistIds}
-                                placeholder="Select specialists"
-                                searchPlaceholder="Search specialists…"
-                                emptyMessage="No specialists found."
+                                placeholder={t('form.selectSpecialists')}
+                                searchPlaceholder={t('form.searchSpecialists')}
+                                emptyMessage={t('form.noSpecialists')}
                                 invalid={Boolean(errors.user_ids)}
                                 data-test="location-specialists-select"
                             />
                             <p className="text-sm text-muted-foreground">
-                                Team members who work at this location.
+                                {t('form.specialistsHint')}
                             </p>
                             <InputError message={errors.user_ids} />
                         </div>
@@ -286,14 +295,16 @@ function LocationFormFields({
                             variant="secondary"
                             onClick={onCancel}
                         >
-                            Cancel
+                            {t('form.cancel')}
                         </Button>
                         <Button
                             type="submit"
                             data-test="location-save-button"
                             disabled={processing}
                         >
-                            {isEditing ? 'Save changes' : 'Add location'}
+                            {isEditing
+                                ? t('form.saveChanges')
+                                : t('form.addLocation')}
                         </Button>
                     </SheetFooter>
                 </>
