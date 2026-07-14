@@ -23,6 +23,7 @@ export default function ScheduleGridHeader({
                         HEADER_HEIGHT_CLASS,
                         'flex flex-col items-center justify-center gap-0.5 border-r border-b border-border/60',
                         column.isToday && 'bg-primary/5',
+                        column.isPast && 'bg-muted/40 opacity-50',
                     )}
                 >
                     <span

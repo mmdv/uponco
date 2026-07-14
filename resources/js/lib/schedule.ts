@@ -66,6 +66,7 @@ export function monthDayColumns(
             dayNumber: String(index + 1),
             weekday: weekdayFormatter.format(date),
             isToday: key === todayKey,
+            isPast: key < todayKey,
         };
     });
 }

@@ -21,7 +21,8 @@ const MAX_VISIBLE_SLOTS = 3;
 export default function ScheduleCell({ memberId, column }: ScheduleCellProps) {
     const { isSelected, toggleCell, cellSlots } = useSchedule();
     const id = cellId(memberId, column.key);
-    const selected = isSelected(id);
+    const isPast = column.isPast;
+    const selected = !isPast && isSelected(id);
     const slots = cellSlots(id);
     const hasSlots = slots.length > 0;
     const visibleSlots = slots.slice(0, MAX_VISIBLE_SLOTS);
@@ -30,21 +31,33 @@ export default function ScheduleCell({ memberId, column }: ScheduleCellProps) {
     return (
         <button
             type="button"
+            disabled={isPast}
             aria-pressed={selected}
             aria-label={`${column.dayNumber} ${column.weekday}${
+                isPast ? ', past day' : ''
+            }${
                 hasSlots
                     ? `, ${slots.length} time ${slots.length === 1 ? 'block' : 'blocks'}`
                     : ''
             }`}
-            onClick={() => toggleCell(id)}
+            onClick={() => {
+                if (!isPast) {
+                    toggleCell(id);
+                }
+            }}
             className={cn(
                 DAY_CELL_CLASS,
                 ROW_HEIGHT_CLASS,
                 'flex flex-col items-center justify-center gap-0.5 overflow-hidden border-r border-b border-border/60 px-1 transition-colors',
-                selected
-                    ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/25 dark:text-sky-200'
-                    : 'hover:bg-muted/60',
-                !selected && hasSlots && 'bg-emerald-50 dark:bg-emerald-500/10',
+                isPast
+                    ? 'cursor-not-allowed bg-muted/40 opacity-50'
+                    : selected
+                      ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/25 dark:text-sky-200'
+                      : 'hover:bg-muted/60',
+                !isPast &&
+                    !selected &&
+                    hasSlots &&
+                    'bg-emerald-50 dark:bg-emerald-500/10',
                 column.isToday && !selected && !hasSlots && 'bg-primary/5',
             )}
         >

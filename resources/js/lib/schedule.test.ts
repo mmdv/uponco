@@ -56,6 +56,20 @@ describe('monthDayColumns', () => {
         expect(otherMonth.some((column) => column.isToday)).toBe(false);
     });
 
+    it('flags days before today as past, but not today or future days', () => {
+        const columns = monthDayColumns(2026, 6, new Date(2026, 6, 10)); // Jul 10
+
+        expect(columns[8].isPast).toBe(true); // Jul 9
+        expect(columns[9].isPast).toBe(false); // Jul 10 (today)
+        expect(columns[10].isPast).toBe(false); // Jul 11
+
+        const futureMonth = monthDayColumns(2026, 7, new Date(2026, 6, 10));
+        expect(futureMonth.some((column) => column.isPast)).toBe(false);
+
+        const pastMonth = monthDayColumns(2026, 5, new Date(2026, 6, 10));
+        expect(pastMonth.every((column) => column.isPast)).toBe(true);
+    });
+
     it('handles February in a leap year', () => {
         expect(monthDayColumns(2028, 1, new Date(2028, 0, 1))).toHaveLength(29);
     });

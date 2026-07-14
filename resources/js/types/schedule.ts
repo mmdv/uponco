@@ -38,6 +38,8 @@ export type DayColumn = {
     /** Short weekday, e.g. `Fri`. */
     weekday: string;
     isToday: boolean;
+    /** Whether this day is before today — read-only in the grid. */
+    isPast: boolean;
 };
 
 /**
