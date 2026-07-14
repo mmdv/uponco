@@ -2,13 +2,15 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
     BellRing,
-    CalendarCheck,
+    CalendarClock,
     Check,
     Clock,
     Globe,
     Layers,
     MapPin,
     Rocket,
+    Scissors,
+    User,
     Users,
     Video,
 } from 'lucide-react';
@@ -21,12 +23,22 @@ import { dashboard, login, privacy, register, terms } from '@/routes';
 
 const currentYear = new Date().getFullYear();
 
-const demoDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const demoDays = [
+    { label: 'Today', day: '14', month: 'Jul' },
+    { label: 'Tmrw', day: '15', month: 'Jul' },
+    { label: 'Wed', day: '16', month: 'Jul' },
+    { label: 'Thu', day: '17', month: 'Jul' },
+    { label: 'Fri', day: '18', month: 'Jul' },
+];
 const demoSlots = ['09:00', '09:45', '10:30', '11:15', '13:00', '13:45'];
 
+const demoChipClass =
+    'inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium shadow-xs';
+
 /**
- * Looping mini booking flow shown in the hero: a slot gets picked, the
- * booking confirms, then a reminder toast pops in — and it starts over.
+ * Looping mini booking flow shown in the hero, styled after the real public
+ * booking page: a slot gets picked, the booking confirms, then a reminder
+ * toast pops in — and it starts over.
  */
 function BookingDemo() {
     const { t } = useTranslation('welcome');
@@ -50,62 +62,138 @@ function BookingDemo() {
             />
 
             <div className="rounded-2xl border border-border bg-background p-5 shadow-soft">
+                {/* Mirrors BookingHeader: logo tile, company name, tagline */}
                 <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full bg-primary-gradient text-sm font-semibold text-white">
-                        GS
-                    </div>
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary">
+                        <AppLogoIcon className="size-6 fill-current text-white" />
+                    </span>
                     <div>
-                        <p className="text-sm font-semibold">Glow Studio</p>
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="size-3" />
-                            Haircut · 45 min · Downtown
+                        <p className="text-sm leading-tight font-semibold">
+                            Uponco
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            {t('demo.bookAppointment')}
                         </p>
                     </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-5 gap-1.5">
-                    {demoDays.map((day, i) => (
-                        <div
-                            key={day}
-                            className={`rounded-md py-1.5 text-center text-xs font-medium transition-colors ${
-                                i === 2
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-secondary text-muted-foreground'
-                            }`}
+                {/* Mirrors SummaryBar: choices pop in as chips */}
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                    <span className={demoChipClass}>
+                        <Scissors className="size-3.5 shrink-0 text-primary" />
+                        Haircut · 45 min
+                    </span>
+                    <span className={demoChipClass}>
+                        <User className="size-3.5 shrink-0 text-primary" />
+                        Emma
+                    </span>
+                    {slotPicked && (
+                        <span
+                            className={`${demoChipClass} animate-in duration-300 zoom-in-95 fade-in motion-reduce:animate-none`}
                         >
-                            {day}
-                        </div>
-                    ))}
+                            <CalendarClock className="size-3.5 shrink-0 text-primary" />
+                            Wed, 10:30
+                        </span>
+                    )}
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-1.5">
-                    {demoSlots.map((slot, i) => (
-                        <div
-                            key={slot}
-                            className={`rounded-md border py-2 text-center text-xs font-medium transition-all duration-300 ${
-                                slotPicked && i === 2
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-border text-muted-foreground'
-                            }`}
-                        >
-                            {slot}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mt-4 h-11">
-                    {confirmed ? (
-                        <div className="flex h-full animate-in items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground duration-300 zoom-in-95 motion-reduce:animate-none">
-                            <CalendarCheck className="size-4" />
-                            Booked — Wed, 10:30
-                        </div>
-                    ) : (
-                        <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-                            {slotPicked
-                                ? t('demo.confirming')
-                                : t('demo.pickTime')}
+                {/* The step content stays mounted (hidden) while confirmed so
+                    the card keeps its height and the page never shifts. */}
+                <div className="relative mt-4">
+                    {confirmed && (
+                        /* Mirrors SuccessScreen. The animation is delayed
+                           (with backwards fill) until the step content has
+                           fully faded out, so the two never overlap. */
+                        <div className="absolute inset-0 flex animate-in items-center justify-center delay-250 duration-500 fill-mode-backwards zoom-in-95 fade-in motion-reduce:animate-none">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
+                                    <span className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                        <Check className="size-5" />
+                                    </span>
+                                </div>
+                                <p className="mt-4 text-sm font-semibold">
+                                    {t('demo.bookedIn')}
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                    Haircut · Wed, Jul 16 · 10:30
+                                </p>
+                            </div>
                         </div>
                     )}
+
+                    <div
+                        className={`flex flex-col transition-opacity duration-200 ${
+                            confirmed ? 'opacity-0' : 'opacity-100'
+                        }`}
+                    >
+                        {/* Mirrors StepDateTime: day strip + slot grid */}
+                        <p className="text-sm font-medium">
+                            {t('demo.chooseDay')}
+                        </p>
+                        <div className="mt-2 flex gap-2">
+                            {demoDays.map((day, i) => (
+                                <div
+                                    key={day.day}
+                                    className={`flex w-14 flex-col items-center rounded-xl border py-2.5 transition-colors ${
+                                        i === 2
+                                            ? 'border-primary bg-primary text-primary-foreground'
+                                            : 'border-border bg-card'
+                                    }`}
+                                >
+                                    <span
+                                        className={`text-[11px] ${
+                                            i === 2
+                                                ? 'text-primary-foreground/80'
+                                                : 'text-muted-foreground'
+                                        }`}
+                                    >
+                                        {day.label}
+                                    </span>
+                                    <span className="text-lg font-semibold">
+                                        {day.day}
+                                    </span>
+                                    <span
+                                        className={`text-[11px] ${
+                                            i === 2
+                                                ? 'text-primary-foreground/80'
+                                                : 'text-muted-foreground'
+                                        }`}
+                                    >
+                                        {day.month}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <p className="mt-4 text-sm font-medium">
+                            {t('demo.chooseTime')}
+                        </p>
+                        <div className="mt-2 mb-4 grid grid-cols-3 gap-2">
+                            {demoSlots.map((slot, i) => (
+                                <div
+                                    key={slot}
+                                    className={`rounded-lg border py-2 text-center text-sm font-medium transition-all duration-200 ${
+                                        slotPicked && i === 2
+                                            ? 'border-primary bg-primary text-primary-foreground'
+                                            : 'border-border bg-card'
+                                    }`}
+                                >
+                                    {slot}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Mirrors BookingFooter's primary action */}
+                        <div
+                            className={`mt-auto flex h-11 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground transition-opacity duration-300 ${
+                                slotPicked ? '' : 'opacity-50'
+                            }`}
+                        >
+                            {slotPicked
+                                ? t('demo.confirmBooking')
+                                : t('demo.continue')}
+                        </div>
+                    </div>
                 </div>
             </div>
 

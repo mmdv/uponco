@@ -19,8 +19,12 @@
         }
     },
     "demo": {
-        "pickTime": "Pick a time that works",
-        "confirming": "Confirming…",
+        "bookAppointment": "Book an appointment",
+        "chooseDay": "Choose a day",
+        "chooseTime": "Choose a time",
+        "continue": "Continue",
+        "confirmBooking": "Confirm booking",
+        "bookedIn": "You're booked in",
         "reminderSent": "Reminder sent"
     },
     "features": {

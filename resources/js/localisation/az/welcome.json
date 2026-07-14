@@ -19,8 +19,12 @@
         }
     },
     "demo": {
-        "pickTime": "Uyğun vaxtı seç",
-        "confirming": "Təsdiqlənir…",
+        "bookAppointment": "Görüş rezervasiya edin",
+        "chooseDay": "Gün seçin",
+        "chooseTime": "Vaxt seçin",
+        "continue": "Davam et",
+        "confirmBooking": "Rezervasiyanı təsdiqlə",
+        "bookedIn": "Rezervasiyanız təsdiqləndi",
         "reminderSent": "Xatırlatma göndərildi"
     },
     "features": {
