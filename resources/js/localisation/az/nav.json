@@ -1,0 +1,29 @@
+{
+    "main": {
+        "dashboard": "İdarə paneli",
+        "appointments": "Görüşlər",
+        "customers": "Müştərilər",
+        "company": "Şirkət",
+        "profile": "Profil"
+    },
+    "toggleTheme": "Görünüşü dəyiş",
+    "changeLanguage": "Dili dəyiş",
+    "userMenu": {
+        "settings": "Tənzimləmələr",
+        "teams": "Komandalar",
+        "logout": "Çıxış"
+    },
+    "teamSwitcher": {
+        "title": "Komandanı dəyiş",
+        "description": "Çalışmaq üçün komanda seçin və ya yenisini yaradın.",
+        "newTeam": "Yeni komanda"
+    },
+    "createTeamModal": {
+        "title": "Yeni komanda yarat",
+        "description": "Digərləri ilə əməkdaşlıq etmək üçün yeni komanda yaradın.",
+        "teamName": "Komanda adı",
+        "teamNamePlaceholder": "Mənim komandam",
+        "cancel": "Ləğv et",
+        "submit": "Komanda yarat"
+    }
+}

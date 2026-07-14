@@ -1,0 +1,29 @@
+{
+    "main": {
+        "dashboard": "Dashboard",
+        "appointments": "Appointments",
+        "customers": "Customers",
+        "company": "Company",
+        "profile": "Profile"
+    },
+    "toggleTheme": "Toggle theme",
+    "changeLanguage": "Change language",
+    "userMenu": {
+        "settings": "Settings",
+        "teams": "Teams",
+        "logout": "Log out"
+    },
+    "teamSwitcher": {
+        "title": "Switch team",
+        "description": "Choose a team to work in or create a new one.",
+        "newTeam": "New team"
+    },
+    "createTeamModal": {
+        "title": "Create a new team",
+        "description": "Create a new team to collaborate with others.",
+        "teamName": "Team name",
+        "teamNamePlaceholder": "My team",
+        "cancel": "Cancel",
+        "submit": "Create team"
+    }
+}

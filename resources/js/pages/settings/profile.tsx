@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import { edit as editProfile } from '@/routes/profile';
 import type { Auth } from '@/types';
 
@@ -20,27 +21,28 @@ type ProfileData = {
 };
 
 export default function Profile({ profile }: { profile: ProfileData }) {
+    const { t } = useTranslation('settings');
     const { auth } = usePage<{ auth: Auth }>().props;
 
     return (
         <>
-            <Head title="Profile" />
+            <Head title={t('profile.title')} />
 
-            <h1 className="sr-only">Profile</h1>
+            <h1 className="sr-only">{t('profile.title')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Profile picture"
-                    description="Public photo shown to customers when they book with you"
+                    title={t('profile.pictureTitle')}
+                    description={t('profile.pictureDescription')}
                 />
 
                 <AvatarUploader user={auth.user} />
 
                 <Heading
                     variant="small"
-                    title="Profile"
-                    description="Public information shown to customers when they book with you"
+                    title={t('profile.title')}
+                    description={t('profile.description')}
                 />
 
                 <Form
@@ -53,7 +55,9 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">
+                                    {t('profile.name')}
+                                </Label>
 
                                 <Input
                                     id="name"
@@ -62,7 +66,7 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Public display name"
+                                    placeholder={t('profile.namePlaceholder')}
                                 />
 
                                 <InputError
@@ -72,7 +76,9 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Public email</Label>
+                                <Label htmlFor="email">
+                                    {t('profile.publicEmail')}
+                                </Label>
 
                                 <Input
                                     id="email"
@@ -80,12 +86,13 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                                     className="mt-1 block w-full"
                                     defaultValue={profile.email ?? ''}
                                     name="email"
-                                    placeholder="Contact email shown to customers"
+                                    placeholder={t(
+                                        'profile.publicEmailPlaceholder',
+                                    )}
                                 />
 
                                 <p className="text-sm text-muted-foreground">
-                                    This can differ from the email you use to
-                                    sign in.
+                                    {t('profile.publicEmailHint')}
                                 </p>
 
                                 <InputError
@@ -95,13 +102,15 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="phone">Phone</Label>
+                                <Label htmlFor="phone">
+                                    {t('profile.phone')}
+                                </Label>
 
                                 <PhoneInput
                                     id="phone"
                                     name="phone"
                                     defaultValue={profile.phone ?? ''}
-                                    placeholder="Contact phone number"
+                                    placeholder={t('profile.phonePlaceholder')}
                                 />
 
                                 <InputError
@@ -111,14 +120,18 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="job_title">Job title</Label>
+                                <Label htmlFor="job_title">
+                                    {t('profile.jobTitle')}
+                                </Label>
 
                                 <Input
                                     id="job_title"
                                     className="mt-1 block w-full"
                                     defaultValue={profile.job_title ?? ''}
                                     name="job_title"
-                                    placeholder="e.g. Senior Stylist"
+                                    placeholder={t(
+                                        'profile.jobTitlePlaceholder',
+                                    )}
                                 />
 
                                 <InputError
@@ -128,13 +141,17 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">
+                                    {t('profile.descriptionLabel')}
+                                </Label>
 
                                 <Textarea
                                     id="description"
                                     name="description"
                                     defaultValue={profile.description ?? ''}
-                                    placeholder="Tell customers about yourself and your work"
+                                    placeholder={t(
+                                        'profile.descriptionPlaceholder',
+                                    )}
                                 />
 
                                 <InputError
@@ -148,7 +165,7 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                                     disabled={processing}
                                     data-test="update-profile-button"
                                 >
-                                    Save
+                                    {t('profile.save')}
                                 </Button>
                             </div>
                         </>

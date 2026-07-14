@@ -54,6 +54,11 @@ export function setLocale(locale: string): void {
     notify();
 }
 
+/** The locale override picked this session, bypassing React (for use outside components). */
+export function getOverrideLocale(): string | null {
+    return overrideLocale;
+}
+
 function resolveKey(
     locale: string,
     namespace: string,
@@ -86,7 +91,8 @@ export type UseLocaleReturn = {
 export function useLocale(): UseLocaleReturn {
     const props = usePage().props;
     const serverLocale = (props.locale as string) ?? FALLBACK_LOCALE;
-    const availableLocales = (props.availableLocales as AvailableLocale[]) ?? [];
+    const availableLocales =
+        (props.availableLocales as AvailableLocale[]) ?? [];
 
     const override = useSyncExternalStore(
         subscribe,
@@ -102,6 +108,33 @@ export function useLocale(): UseLocaleReturn {
 }
 
 export type TranslateFn = (key: string, replacements?: Replacements) => string;
+
+/**
+ * Non-hook translator for use outside components (e.g. static `Page.layout`
+ * objects, which can't call `useTranslation`). Resolves the same way `t()`
+ * does: current locale, then English, then the key itself.
+ */
+export function translate(
+    namespace: string,
+    key: string,
+    serverLocale: string = FALLBACK_LOCALE,
+    replacements?: Replacements,
+): string {
+    const locale = getOverrideLocale() ?? serverLocale;
+
+    const value =
+        resolveKey(locale, namespace, key) ??
+        resolveKey(FALLBACK_LOCALE, namespace, key) ??
+        key;
+
+    if (!replacements) {
+        return value;
+    }
+
+    return value.replace(/\{(\w+)\}/g, (match, token: string) =>
+        token in replacements ? String(replacements[token]) : match,
+    );
+}
 
 export type UseTranslationReturn = {
     readonly t: TranslateFn;

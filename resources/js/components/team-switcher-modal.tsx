@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { switchMethod } from '@/routes/teams';
 import type { Team } from '@/types';
 
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function TeamSwitcherModal({ open, onOpenChange }: Props) {
+    const { t } = useTranslation('nav');
     const page = usePage();
     const currentTeam = page.props.currentTeam;
     const teams = page.props.teams ?? [];
@@ -61,9 +63,9 @@ export default function TeamSwitcherModal({ open, onOpenChange }: Props) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Switch team</DialogTitle>
+                    <DialogTitle>{t('teamSwitcher.title')}</DialogTitle>
                     <DialogDescription>
-                        Choose a team to work in or create a new one.
+                        {t('teamSwitcher.description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -91,7 +93,7 @@ export default function TeamSwitcherModal({ open, onOpenChange }: Props) {
                         data-test="team-switcher-new-team"
                     >
                         <Plus className="size-4" />
-                        New team
+                        {t('teamSwitcher.newTeam')}
                     </Button>
                 </CreateTeamModal>
             </DialogContent>

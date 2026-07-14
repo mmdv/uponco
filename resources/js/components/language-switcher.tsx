@@ -8,9 +8,10 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLocale } from '@/hooks/use-translation';
+import { useLocale, useTranslation } from '@/hooks/use-translation';
 
 export function LanguageSwitcher() {
+    const { t } = useTranslation('nav');
     const { locale, availableLocales, setLocale } = useLocale();
 
     // Nothing to switch between until at least two locales are enabled.
@@ -32,11 +33,14 @@ export function LanguageSwitcher() {
                 >
                     <span className="uppercase">{current.code}</span>
                     <ChevronDown className="size-4 opacity-60 transition-transform group-hover:opacity-100 group-data-[state=open]:rotate-180" />
-                    <span className="sr-only">Change language</span>
+                    <span className="sr-only">{t('changeLanguage')}</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuRadioGroup value={locale} onValueChange={setLocale}>
+                <DropdownMenuRadioGroup
+                    value={locale}
+                    onValueChange={setLocale}
+                >
                     {availableLocales.map((language) => (
                         <DropdownMenuRadioItem
                             key={language.code}

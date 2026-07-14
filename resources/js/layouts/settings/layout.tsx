@@ -4,6 +4,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAccount } from '@/routes/account';
 import { edit as editIntegrations } from '@/routes/integrations';
@@ -11,44 +12,42 @@ import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import type { NavItem } from '@/types';
 
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: editProfile(),
-        icon: null,
-    },
-    {
-        title: 'Account',
-        href: editAccount(),
-        icon: null,
-    },
-    {
-        title: 'Security',
-        href: editSecurity(),
-        icon: null,
-    },
-    {
-        title: 'Integrations',
-        href: editIntegrations(),
-        icon: null,
-    },
-];
-
 export default function SettingsLayout({ children }: PropsWithChildren) {
+    const { t } = useTranslation('settings');
     const { isCurrentOrParentUrl } = useCurrentUrl();
+
+    const sidebarNavItems: NavItem[] = [
+        {
+            title: t('nav.profile'),
+            href: editProfile(),
+            icon: null,
+        },
+        {
+            title: t('nav.account'),
+            href: editAccount(),
+            icon: null,
+        },
+        {
+            title: t('nav.security'),
+            href: editSecurity(),
+            icon: null,
+        },
+        {
+            title: t('nav.integrations'),
+            href: editIntegrations(),
+            icon: null,
+        },
+    ];
 
     return (
         <div className="px-4 py-6">
-            <Heading
-                title="Settings"
-                description="Manage your profile and account settings"
-            />
+            <Heading title={t('title')} description={t('description')} />
 
             <div className="flex flex-col lg:flex-row lg:space-x-12">
                 <aside className="w-full lg:w-48">
                     <nav
                         className="-mx-1 flex flex-row gap-1 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:space-y-1 lg:overflow-visible lg:px-0 lg:pb-0"
-                        aria-label="Settings"
+                        aria-label={t('title')}
                     >
                         {sidebarNavItems.map((item, index) => (
                             <Button

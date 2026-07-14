@@ -34,6 +34,7 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/hooks/use-translation';
 import { isTeamManager } from '@/lib/teams';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
@@ -64,6 +65,7 @@ const activeItemStyles =
     'bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary dark:bg-primary/15 dark:text-primary';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
+    const { t } = useTranslation('nav');
     const page = usePage();
     const { auth, currentTeam } = page.props;
     const getInitials = useInitials();
@@ -73,30 +75,30 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
 
     const mainNavItems: NavItem[] = [
         {
-            title: 'Dashboard',
+            title: t('main.dashboard'),
             href: dashboardUrl,
             icon: LayoutGrid,
         },
         ...(currentTeam
             ? [
                   {
-                      title: 'Appointments',
+                      title: t('main.appointments'),
                       href: appointments(currentTeam.slug),
                       icon: CalendarDays,
                   },
                   {
-                      title: 'Customers',
+                      title: t('main.customers'),
                       href: customers(currentTeam.slug),
                       icon: Users,
                   },
                   isTeamManager(currentTeam.role)
                       ? {
-                            title: 'Company',
+                            title: t('main.company'),
                             href: company(currentTeam.slug),
                             icon: Building2,
                         }
                       : {
-                            title: 'Profile',
+                            title: t('main.profile'),
                             href: profile(),
                             icon: UserCog,
                         },

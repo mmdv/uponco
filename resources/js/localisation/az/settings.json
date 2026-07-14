@@ -1,0 +1,140 @@
+{
+    "title": "Tənzimləmələr",
+    "description": "Profil və hesab tənzimləmələrinizi idarə edin",
+    "nav": {
+        "profile": "Profil",
+        "account": "Hesab",
+        "security": "Təhlükəsizlik",
+        "integrations": "İnteqrasiyalar"
+    },
+    "profile": {
+        "pictureTitle": "Profil şəkli",
+        "pictureDescription": "Müştərilər rezervasiya edərkən görəcəyi ictimai şəkil",
+        "title": "Profil",
+        "description": "Müştərilər rezervasiya edərkən görəcəyi ictimai məlumat",
+        "name": "Ad",
+        "namePlaceholder": "İctimai görünən ad",
+        "publicEmail": "İctimai e-poçt",
+        "publicEmailPlaceholder": "Müştərilərə göstərilən əlaqə e-poçtu",
+        "publicEmailHint": "Bu, giriş e-poçtundan fərqli ola bilər.",
+        "phone": "Telefon",
+        "phonePlaceholder": "Əlaqə telefon nömrəsi",
+        "jobTitle": "Vəzifə",
+        "jobTitlePlaceholder": "məs. Baş usta",
+        "descriptionLabel": "Təsvir",
+        "descriptionPlaceholder": "Müştərilərə özünüz və işiniz haqqında məlumat verin",
+        "save": "Yadda saxla"
+    },
+    "account": {
+        "title": "Hesab",
+        "description": "Adınızı və giriş e-poçt ünvanınızı yeniləyin",
+        "name": "Ad",
+        "namePlaceholder": "Tam ad",
+        "email": "E-poçt ünvanı",
+        "emailPlaceholder": "E-poçt ünvanı",
+        "unverified": "E-poçt ünvanınız təsdiqlənməyib.",
+        "resend": "Təsdiq e-poçtunu yenidən göndərmək üçün buraya klikləyin.",
+        "verificationSent": "E-poçt ünvanınıza yeni təsdiq linki göndərildi.",
+        "save": "Yadda saxla"
+    },
+    "appearance": {
+        "title": "Görünüş tənzimləmələri",
+        "description": "Hesabınız üçün görünüş tənzimləmələrini yeniləyin",
+        "light": "Açıq",
+        "dark": "Tünd",
+        "system": "Sistem"
+    },
+    "integrations": {
+        "title": "İnteqrasiyalar",
+        "googleMeetTitle": "Google Meet",
+        "googleMeetDescription": "Onlayn görüşlərin avtomatik olaraq Google Meet linki alması üçün Google hesabınızı qoşun.",
+        "connected": "Qoşulub",
+        "notConnected": "Qoşulmayıb",
+        "connectedHint": "Sizə təyin edilmiş onlayn rezervasiyalara qoşulduqdan sonra Meet linki əlavə olunacaq.",
+        "connect": "Google-a qoşul",
+        "disconnect": "Ayır"
+    },
+    "security": {
+        "title": "Şifrəni yenilə",
+        "description": "Təhlükəsizlik üçün hesabınızda uzun, təsadüfi şifrə istifadə etdiyinizə əmin olun",
+        "currentPassword": "Cari şifrə",
+        "currentPasswordPlaceholder": "Cari şifrə",
+        "newPassword": "Yeni şifrə",
+        "newPasswordPlaceholder": "Yeni şifrə",
+        "confirmPassword": "Şifrəni təsdiqlə",
+        "confirmPasswordPlaceholder": "Şifrəni təsdiqlə",
+        "save": "Yadda saxla"
+    },
+    "twoFactor": {
+        "title": "İki mərhələli doğrulama",
+        "description": "İki mərhələli doğrulama tənzimləmələrinizi idarə edin",
+        "enabledHint": "Giriş zamanı telefonunuzdakı TOTP dəstəkli tətbiqdən əldə edə biləcəyiniz təhlükəsiz, təsadüfi PIN kodu tələb olunacaq.",
+        "disable": "2FA-nı deaktiv et",
+        "disabledHint": "İki mərhələli doğrulamanı aktivləşdirdikdə, giriş zamanı təhlükəsiz PIN kodu tələb olunacaq. Bu PIN kodu telefonunuzdakı TOTP dəstəkli tətbiqdən əldə edilə bilər.",
+        "continueSetup": "Quraşdırmanı davam etdir",
+        "enable": "2FA-nı aktiv et",
+        "recoveryCodes": {
+            "title": "2FA bərpa kodları",
+            "description": "Bərpa kodları 2FA cihazınızı itirdiyiniz halda hesabınıza yenidən giriş etməyə imkan verir. Onları etibarlı bir şifrə meneceri sistemində saxlayın.",
+            "view": "Bərpa kodlarını göstər",
+            "hide": "Bərpa kodlarını gizlət",
+            "regenerate": "Kodları yenilə",
+            "loading": "Bərpa kodları yüklənir",
+            "hint": "Hər bərpa kodu hesabınıza giriş üçün yalnız bir dəfə istifadə edilə bilər və istifadədən sonra silinəcək. Daha çoxu lazımdırsa, yuxarıdakı {button} düyməsinə klikləyin.",
+            "somethingWrong": "Nəsə səhv getdi."
+        },
+        "setupModal": {
+            "enabledTitle": "İki mərhələli doğrulama aktivləşdirildi",
+            "enabledDescription": "İki mərhələli doğrulama artıq aktivdir. QR kodu skan edin və ya quraşdırma açarını autentifikator tətbiqinizə daxil edin.",
+            "close": "Bağla",
+            "verifyTitle": "Doğrulama kodunu təsdiqləyin",
+            "verifyDescription": "Autentifikator tətbiqinizdən 6 rəqəmli kodu daxil edin",
+            "continue": "Davam et",
+            "setupTitle": "İki mərhələli doğrulamanı aktiv et",
+            "setupDescription": "İki mərhələli doğrulamanı aktivləşdirmək üçün QR kodu skan edin və ya quraşdırma açarını autentifikator tətbiqinizə daxil edin",
+            "orEnterManually": "və ya kodu əl ilə daxil edin",
+            "back": "Geri",
+            "confirm": "Təsdiqlə",
+            "somethingWrong": "Nəsə səhv getdi."
+        }
+    },
+    "passkeys": {
+        "title": "Giriş açarları",
+        "description": "Şifrəsiz giriş üçün giriş açarlarınızı idarə edin",
+        "empty": "Hələ giriş açarı yoxdur",
+        "emptyHint": "Şifrəsiz giriş etmək üçün giriş açarı əlavə edin",
+        "added": "Əlavə edilib: {date}",
+        "lastUsed": "Son istifadə: {date}",
+        "remove": "Sil",
+        "removeTitle": "Giriş açarını sil",
+        "removeDescription": "\"{name}\" giriş açarını silmək istədiyinizə əminsiniz? Artıq onu giriş üçün istifadə edə bilməyəcəksiniz.",
+        "removing": "Silinir...",
+        "cancel": "Ləğv et",
+        "registerName": "Giriş açarının adı",
+        "registerPlaceholder": "məs., MacBook Pro, iPhone",
+        "registerHint": "Ad, bu giriş açarını sonradan tanımağa kömək edir.",
+        "addPasskey": "Giriş açarı əlavə et",
+        "register": "Giriş açarını qeydiyyatdan keçir",
+        "registering": "Qeydiyyatdan keçirilir...",
+        "notSupported": "Giriş açarları bu brauzerdə dəstəklənmir."
+    },
+    "deleteAccount": {
+        "title": "Hesabı sil",
+        "description": "Hesabınızı və bütün resurslarını silin",
+        "warningTitle": "Xəbərdarlıq",
+        "warningDescription": "Zəhmət olmasa diqqətli olun, bu geri qaytarıla bilməz.",
+        "button": "Hesabı sil",
+        "modalTitle": "Hesabınızı silmək istədiyinizə əminsiniz?",
+        "modalDescription": "Hesabınız silindikdən sonra bütün resurslarınız və məlumatlarınız da həmişəlik silinəcək. Hesabınızı həmişəlik silmək istədiyinizi təsdiqləmək üçün şifrənizi daxil edin.",
+        "passwordLabel": "Şifrə",
+        "passwordPlaceholder": "Şifrə",
+        "cancel": "Ləğv et",
+        "confirm": "Hesabı sil"
+    },
+    "avatarUploader": {
+        "chooseFile": "Fayl seçin",
+        "savePicture": "Şəkli yadda saxla",
+        "remove": "Sil",
+        "hint": "SVG, PNG və ya JPG. 2MB-a qədər."
+    }
+}

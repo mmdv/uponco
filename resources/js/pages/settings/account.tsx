@@ -7,6 +7,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/hooks/use-translation';
 import { edit } from '@/routes/account';
 import { send } from '@/routes/verification';
 import type { Auth } from '@/types';
@@ -22,19 +23,20 @@ export default function Account({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
+    const { t } = useTranslation('settings');
     const { auth } = usePage<PageProps>().props;
 
     return (
         <>
-            <Head title="Account settings" />
+            <Head title={t('account.title')} />
 
-            <h1 className="sr-only">Account settings</h1>
+            <h1 className="sr-only">{t('account.title')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Account"
-                    description="Update your name and login email address"
+                    title={t('account.title')}
+                    description={t('account.description')}
                 />
 
                 <Form
@@ -47,7 +49,9 @@ export default function Account({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">
+                                    {t('account.name')}
+                                </Label>
 
                                 <Input
                                     id="name"
@@ -56,7 +60,7 @@ export default function Account({
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder={t('account.namePlaceholder')}
                                 />
 
                                 <InputError
@@ -66,7 +70,9 @@ export default function Account({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    {t('account.email')}
+                                </Label>
 
                                 <Input
                                     id="email"
@@ -76,7 +82,7 @@ export default function Account({
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder={t('account.emailPlaceholder')}
                                 />
 
                                 <InputError
@@ -89,22 +95,20 @@ export default function Account({
                                 auth.user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
+                                            {t('account.unverified')}{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >
-                                                Click here to re-send the
-                                                verification email.
+                                                {t('account.resend')}
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
+                                                {t('account.verificationSent')}
                                             </div>
                                         )}
                                     </div>
@@ -115,7 +119,7 @@ export default function Account({
                                     disabled={processing}
                                     data-test="update-account-button"
                                 >
-                                    Save
+                                    {t('account.save')}
                                 </Button>
                             </div>
                         </>

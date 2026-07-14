@@ -7,6 +7,7 @@ import {
     Users,
 } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useTranslation } from '@/hooks/use-translation';
 import { isTeamManager } from '@/lib/teams';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
@@ -17,6 +18,7 @@ import { edit as profile } from '@/routes/profile';
 import type { NavItem } from '@/types';
 
 export function AppBottomNav() {
+    const { t } = useTranslation('nav');
     const { currentTeam } = usePage().props;
     const { isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
 
@@ -26,30 +28,31 @@ export function AppBottomNav() {
 
     const dashboardUrl = dashboard(currentTeam.slug);
 
-    const items: NavItem[] = [
+    const items: (NavItem & { isDashboard?: boolean })[] = [
         {
-            title: 'Dashboard',
+            title: t('main.dashboard'),
             href: dashboardUrl,
             icon: LayoutGrid,
+            isDashboard: true,
         },
         {
-            title: 'Appointments',
+            title: t('main.appointments'),
             href: appointments(currentTeam.slug),
             icon: CalendarDays,
         },
         {
-            title: 'Customers',
+            title: t('main.customers'),
             href: customers(currentTeam.slug),
             icon: Users,
         },
         isTeamManager(currentTeam.role)
             ? {
-                  title: 'Company',
+                  title: t('main.company'),
                   href: company(currentTeam.slug),
                   icon: Building2,
               }
             : {
-                  title: 'Profile',
+                  title: t('main.profile'),
                   href: profile(),
                   icon: UserCog,
               },
@@ -59,10 +62,9 @@ export function AppBottomNav() {
         <nav className="safe-area-inset-bottom safe-area-inset-left safe-area-inset-right fixed inset-x-0 bottom-0 z-40 border-t border-sidebar-border/80 bg-background lg:hidden">
             <div className="flex h-16 items-stretch justify-around">
                 {items.map((item) => {
-                    const active =
-                        item.title === 'Dashboard'
-                            ? isCurrentUrl(item.href)
-                            : isCurrentOrParentUrl(item.href);
+                    const active = item.isDashboard
+                        ? isCurrentUrl(item.href)
+                        : isCurrentOrParentUrl(item.href);
 
                     return (
                         <Link

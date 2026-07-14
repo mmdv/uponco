@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
+import { useTranslation } from '@/hooks/use-translation';
 import { logout } from '@/routes';
 import { edit } from '@/routes/account';
 import type { User } from '@/types';
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export function UserMenuContent({ user, onOpenTeams }: Props) {
+    const { t } = useTranslation('nav');
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {
@@ -42,7 +44,7 @@ export function UserMenuContent({ user, onOpenTeams }: Props) {
                         onClick={cleanup}
                     >
                         <Settings className="mr-2" />
-                        Settings
+                        {t('userMenu.settings')}
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -51,7 +53,7 @@ export function UserMenuContent({ user, onOpenTeams }: Props) {
                     onSelect={onOpenTeams}
                 >
                     <Users className="mr-2" />
-                    Teams
+                    {t('userMenu.teams')}
                 </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -64,7 +66,7 @@ export function UserMenuContent({ user, onOpenTeams }: Props) {
                     data-test="logout-button"
                 >
                     <LogOut className="mr-2" />
-                    Log out
+                    {t('userMenu.logout')}
                 </Link>
             </DropdownMenuItem>
         </>

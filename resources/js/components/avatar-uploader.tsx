@@ -5,6 +5,7 @@ import InputError from '@/components/input-error';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/hooks/use-translation';
 
 const ACCEPTED_TYPES = 'image/svg+xml,image/png,image/jpeg';
 
@@ -19,6 +20,7 @@ export default function AvatarUploader({
     uploadUrl = AccountController.updateAvatar.url(),
     removeUrl = AccountController.destroyAvatar.url(),
 }: AvatarUploaderProps) {
+    const { t } = useTranslation('settings');
     const getInitials = useInitials();
     const fileInput = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export default function AvatarUploader({
                         variant="outline"
                         onClick={() => fileInput.current?.click()}
                     >
-                        Choose file
+                        {t('avatarUploader.chooseFile')}
                     </Button>
 
                     {data.avatar ? (
@@ -97,7 +99,7 @@ export default function AvatarUploader({
                             disabled={processing}
                             onClick={handleUpload}
                         >
-                            Save picture
+                            {t('avatarUploader.savePicture')}
                         </Button>
                     ) : null}
 
@@ -109,14 +111,14 @@ export default function AvatarUploader({
                             disabled={processing}
                             onClick={handleRemove}
                         >
-                            Remove
+                            {t('avatarUploader.remove')}
                         </Button>
                     ) : null}
                 </div>
             </div>
 
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                SVG, PNG or JPG. Up to 2MB.
+                {t('avatarUploader.hint')}
             </p>
 
             <InputError message={errors.avatar} />
