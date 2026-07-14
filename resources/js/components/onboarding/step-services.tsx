@@ -27,11 +27,6 @@ export default function StepServices({ data, controls }: Props) {
 
     return (
         <div className="space-y-6">
-            <p className="text-sm text-muted-foreground">
-                Services are what customers book. Create a category first, then
-                add your services.
-            </p>
-
             <div className="flex flex-wrap items-center gap-2">
                 {data.categories.map((category) => (
                     <Badge

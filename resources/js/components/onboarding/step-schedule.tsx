@@ -29,11 +29,6 @@ export default function StepSchedule({ data, controls }: Props) {
 
     return (
         <div className="space-y-6">
-            <p className="text-sm text-muted-foreground">
-                Set when you're available so customers can only book during your
-                working hours. Pick the days, then set the hours.
-            </p>
-
             <ScheduleProvider
                 members={data.members}
                 showMemberColumn={isAdmin}

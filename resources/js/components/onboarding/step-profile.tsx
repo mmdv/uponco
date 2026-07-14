@@ -27,11 +27,6 @@ export default function StepProfile({ data, controls }: Props) {
         >
             {({ errors, processing }) => (
                 <>
-                    <p className="text-sm text-muted-foreground">
-                        This is the public information customers see when they
-                        book with you.
-                    </p>
-
                     <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
                         <Input
@@ -51,7 +46,9 @@ export default function StepProfile({ data, controls }: Props) {
                             id="job_title"
                             name="job_title"
                             value={jobTitle}
-                            onChange={(event) => setJobTitle(event.target.value)}
+                            onChange={(event) =>
+                                setJobTitle(event.target.value)
+                            }
                             placeholder="e.g. Senior Stylist"
                             required
                         />

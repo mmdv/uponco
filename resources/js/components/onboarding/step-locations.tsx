@@ -22,11 +22,6 @@ export default function StepLocations({ data, controls }: Props) {
 
     return (
         <div className="space-y-6">
-            <p className="text-sm text-muted-foreground">
-                Add the place customers visit you. Only work online? Skip this
-                step.
-            </p>
-
             {hasLocations ? (
                 <div className="space-y-3">
                     {data.locations.map((location) => (
