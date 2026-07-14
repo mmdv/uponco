@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { useTranslation } from '@/hooks/use-translation';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
 import type { SelectOption, Team, TeamPermissions } from '@/types';
@@ -26,6 +27,7 @@ export default function BusinessGeneral({
     timezones,
     businessCategories,
 }: Props) {
+    const { t } = useTranslation('company');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
@@ -37,17 +39,17 @@ export default function BusinessGeneral({
 
     return (
         <>
-            <Head title="Business" />
+            <Head title={t('business.title')} />
 
-            <h1 className="sr-only">Business settings</h1>
+            <h1 className="sr-only">{t('business.title')}</h1>
 
             <div className="flex flex-col space-y-10">
                 {permissions.canUpdateTeam ? (
                     <div className="space-y-6">
                         <Heading
                             variant="small"
-                            title="Logo"
-                            description="Add or update your company logo"
+                            title={t('business.logo.title')}
+                            description={t('business.logo.description')}
                         />
 
                         <TeamLogoUploader team={team} teamSlug={teamSlug} />
@@ -59,8 +61,8 @@ export default function BusinessGeneral({
                         <>
                             <Heading
                                 variant="small"
-                                title="General"
-                                description="Update your team name and settings"
+                                title={t('business.general.title')}
+                                description={t('business.general.description')}
                             />
 
                             <Form
@@ -83,7 +85,7 @@ export default function BusinessGeneral({
 
                                         <div className="grid gap-2">
                                             <Label htmlFor="name">
-                                                Team name
+                                                {t('business.general.teamName')}
                                             </Label>
                                             <Input
                                                 id="name"
@@ -97,16 +99,24 @@ export default function BusinessGeneral({
 
                                         <div className="grid gap-2">
                                             <Label htmlFor="business_category">
-                                                Business category
+                                                {t(
+                                                    'business.general.businessCategory',
+                                                )}
                                             </Label>
                                             <SearchableSelect
                                                 id="business_category"
                                                 options={businessCategories}
                                                 value={businessCategory}
                                                 onChange={setBusinessCategory}
-                                                placeholder="Select a category"
-                                                searchPlaceholder="Search categories…"
-                                                emptyMessage="No categories found."
+                                                placeholder={t(
+                                                    'business.general.businessCategoryPlaceholder',
+                                                )}
+                                                searchPlaceholder={t(
+                                                    'business.general.businessCategorySearchPlaceholder',
+                                                )}
+                                                emptyMessage={t(
+                                                    'business.general.businessCategoryEmpty',
+                                                )}
                                                 invalid={Boolean(
                                                     errors.business_category,
                                                 )}
@@ -121,16 +131,22 @@ export default function BusinessGeneral({
 
                                         <div className="grid gap-2">
                                             <Label htmlFor="timezone">
-                                                Timezone
+                                                {t('business.general.timezone')}
                                             </Label>
                                             <SearchableSelect
                                                 id="timezone"
                                                 options={timezones}
                                                 value={timezone}
                                                 onChange={setTimezone}
-                                                placeholder="Select a timezone"
-                                                searchPlaceholder="Search timezones…"
-                                                emptyMessage="No timezones found."
+                                                placeholder={t(
+                                                    'business.general.timezonePlaceholder',
+                                                )}
+                                                searchPlaceholder={t(
+                                                    'business.general.timezoneSearchPlaceholder',
+                                                )}
+                                                emptyMessage={t(
+                                                    'business.general.timezoneEmpty',
+                                                )}
                                                 invalid={Boolean(
                                                     errors.timezone,
                                                 )}
@@ -147,7 +163,7 @@ export default function BusinessGeneral({
                                                 data-test="team-save-button"
                                                 disabled={processing}
                                             >
-                                                Save
+                                                {t('business.general.save')}
                                             </Button>
                                         </div>
                                     </>
@@ -163,15 +179,18 @@ export default function BusinessGeneral({
                     <div className="space-y-6">
                         <Heading
                             variant="small"
-                            title="Delete team"
-                            description="Permanently delete your team"
+                            title={t('business.deleteTeam.title')}
+                            description={t('business.deleteTeam.description')}
                         />
                         <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
                             <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                                <p className="font-medium">Warning</p>
+                                <p className="font-medium">
+                                    {t('business.deleteTeam.warningTitle')}
+                                </p>
                                 <p className="text-sm">
-                                    Please proceed with caution, this cannot be
-                                    undone.
+                                    {t(
+                                        'business.deleteTeam.warningDescription',
+                                    )}
                                 </p>
                             </div>
                             <Button
@@ -179,7 +198,7 @@ export default function BusinessGeneral({
                                 data-test="delete-team-button"
                                 onClick={() => setDeleteDialogOpen(true)}
                             >
-                                Delete team
+                                {t('business.deleteTeam.button')}
                             </Button>
                         </div>
                     </div>

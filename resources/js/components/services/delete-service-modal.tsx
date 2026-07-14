@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy } from '@/routes/company/services';
 import type { Service } from '@/types';
 
@@ -27,6 +28,7 @@ export default function DeleteServiceModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('company');
     const [processing, setProcessing] = useState(false);
 
     const deleteService = () => {
@@ -46,17 +48,21 @@ export default function DeleteServiceModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete service</DialogTitle>
+                    <DialogTitle>
+                        {t('services.deleteServiceModal.title')}
+                    </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete{' '}
-                        <strong>"{service?.title}"</strong>? This action cannot
-                        be undone.
+                        {t('services.deleteServiceModal.confirmDescription', {
+                            name: service?.title ?? '',
+                        })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">
+                            {t('services.deleteServiceModal.cancel')}
+                        </Button>
                     </DialogClose>
 
                     <Button
@@ -65,7 +71,7 @@ export default function DeleteServiceModal({
                         disabled={processing}
                         onClick={deleteService}
                     >
-                        Delete service
+                        {t('services.deleteServiceModal.confirm')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

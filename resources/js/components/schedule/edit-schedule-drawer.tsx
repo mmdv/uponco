@@ -10,6 +10,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { CellId, ScheduleSlot } from '@/types/schedule';
 import { useSchedule } from './schedule-context';
@@ -50,6 +51,7 @@ function initialSlotsFor(
  * every selected member/day on Save.
  */
 export default function EditScheduleDrawer() {
+    const { t } = useTranslation('schedule');
     const {
         isDrawerOpen,
         closeDrawer,
@@ -118,10 +120,16 @@ export default function EditScheduleDrawer() {
                 )}
             >
                 <SheetHeader className="shrink-0 border-b">
-                    <SheetTitle>Edit Schedule</SheetTitle>
+                    <SheetTitle>{t('drawer.title')}</SheetTitle>
                     <SheetDescription>
-                        Applying to {selectedDayCount}{' '}
-                        {selectedDayCount === 1 ? 'day' : 'days'}.
+                        {t('drawer.applyingTo', {
+                            count: selectedDayCount,
+                            dayWord: t(
+                                selectedDayCount === 1
+                                    ? 'daySingular'
+                                    : 'dayPlural',
+                            ),
+                        })}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -141,14 +149,14 @@ export default function EditScheduleDrawer() {
                         onClick={closeDrawer}
                         disabled={isSaving}
                     >
-                        Cancel
+                        {t('drawer.cancel')}
                     </Button>
                     <Button
                         type="button"
                         onClick={() => saveSchedule(slots)}
                         disabled={isSaving || slots.length === 0}
                     >
-                        {isSaving ? 'Saving…' : 'Save'}
+                        {isSaving ? t('drawer.saving') : t('drawer.save')}
                     </Button>
                 </SheetFooter>
             </SheetContent>

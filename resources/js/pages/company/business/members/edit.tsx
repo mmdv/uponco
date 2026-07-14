@@ -23,6 +23,7 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
@@ -61,14 +62,6 @@ type Props = {
 
 type SectionKey = 'account' | 'profile' | 'access' | 'locations' | 'services';
 
-const SECTIONS: { key: SectionKey; title: string }[] = [
-    { key: 'account', title: 'Account' },
-    { key: 'profile', title: 'Profile' },
-    { key: 'access', title: 'Access Control' },
-    { key: 'locations', title: 'Locations' },
-    { key: 'services', title: 'Services' },
-];
-
 export default function EditMember({
     member,
     profile,
@@ -78,26 +71,41 @@ export default function EditMember({
     services,
     assignedServiceIds,
 }: Props) {
+    const { t } = useTranslation('company');
     const [section, setSection] = useState<SectionKey>('account');
     const { currentTeam } = usePage().props;
     const memberArg: SectionArg = [currentTeam?.slug ?? '', member.id];
 
+    const sections: { key: SectionKey; title: string }[] = [
+        { key: 'account', title: t('business.memberEdit.sections.account') },
+        { key: 'profile', title: t('business.memberEdit.sections.profile') },
+        { key: 'access', title: t('business.memberEdit.sections.access') },
+        {
+            key: 'locations',
+            title: t('business.memberEdit.sections.locations'),
+        },
+        {
+            key: 'services',
+            title: t('business.memberEdit.sections.services'),
+        },
+    ];
+
     return (
         <div className="px-4 py-6">
-            <Head title={`Edit ${member.name}`} />
+            <Head title={member.name} />
 
             <Heading
                 title={member.name}
-                description="Manage this member's account, profile, access and assignments"
+                description={t('business.memberEdit.description')}
             />
 
             <div className="flex flex-col lg:flex-row lg:space-x-12">
                 <aside className="w-full lg:w-48">
                     <nav
                         className="-mx-1 flex flex-row gap-1 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:space-y-1 lg:overflow-visible lg:px-0 lg:pb-0"
-                        aria-label="Member sections"
+                        aria-label={t('business.memberEdit.sectionsNav')}
                     >
-                        {SECTIONS.map((item) => (
+                        {sections.map((item) => (
                             <Button
                                 key={item.key}
                                 size="sm"
@@ -168,12 +176,14 @@ function AccountSection({
     member: MemberAccount;
     arg: SectionArg;
 }) {
+    const { t } = useTranslation('company');
+
     return (
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Account"
-                description="Update this member's name and login email address"
+                title={t('business.memberEdit.account.title')}
+                description={t('business.memberEdit.account.description')}
             />
 
             <Form
@@ -184,7 +194,9 @@ function AccountSection({
                 {({ processing, errors }) => (
                     <>
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                            <Label htmlFor="name">
+                                {t('business.memberEdit.account.name')}
+                            </Label>
                             <Input
                                 id="name"
                                 className="mt-1 block w-full"
@@ -192,7 +204,9 @@ function AccountSection({
                                 name="name"
                                 required
                                 autoComplete="name"
-                                placeholder="Full name"
+                                placeholder={t(
+                                    'business.memberEdit.account.name',
+                                )}
                             />
                             <InputError
                                 className="mt-2"
@@ -201,7 +215,9 @@ function AccountSection({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
+                            <Label htmlFor="email">
+                                {t('business.memberEdit.account.email')}
+                            </Label>
                             <Input
                                 id="email"
                                 type="email"
@@ -210,7 +226,9 @@ function AccountSection({
                                 name="email"
                                 required
                                 autoComplete="username"
-                                placeholder="Email address"
+                                placeholder={t(
+                                    'business.memberEdit.account.email',
+                                )}
                             />
                             <InputError
                                 className="mt-2"
@@ -223,7 +241,7 @@ function AccountSection({
                                 disabled={processing}
                                 data-test="update-member-account-button"
                             >
-                                Save
+                                {t('business.memberEdit.account.save')}
                             </Button>
                         </div>
                     </>
@@ -242,12 +260,16 @@ function ProfileSection({
     profile: MemberProfile;
     arg: SectionArg;
 }) {
+    const { t } = useTranslation('company');
+
     return (
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Profile picture"
-                description="Public photo shown to customers when they book"
+                title={t('business.memberEdit.profile.pictureTitle')}
+                description={t(
+                    'business.memberEdit.profile.pictureDescription',
+                )}
             />
 
             <AvatarUploader
@@ -258,8 +280,8 @@ function ProfileSection({
 
             <Heading
                 variant="small"
-                title="Profile"
-                description="Public information shown to customers when they book"
+                title={t('business.memberEdit.profile.title')}
+                description={t('business.memberEdit.profile.description')}
             />
 
             <Form
@@ -270,7 +292,9 @@ function ProfileSection({
                 {({ processing, errors }) => (
                     <>
                         <div className="grid gap-2">
-                            <Label htmlFor="profile_name">Name</Label>
+                            <Label htmlFor="profile_name">
+                                {t('business.memberEdit.profile.name')}
+                            </Label>
                             <Input
                                 id="profile_name"
                                 className="mt-1 block w-full"
@@ -278,7 +302,9 @@ function ProfileSection({
                                 name="name"
                                 required
                                 autoComplete="name"
-                                placeholder="Public display name"
+                                placeholder={t(
+                                    'business.memberEdit.profile.namePlaceholder',
+                                )}
                             />
                             <InputError
                                 className="mt-2"
@@ -287,17 +313,23 @@ function ProfileSection({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="profile_email">Public email</Label>
+                            <Label htmlFor="profile_email">
+                                {t('business.memberEdit.profile.publicEmail')}
+                            </Label>
                             <Input
                                 id="profile_email"
                                 type="email"
                                 className="mt-1 block w-full"
                                 defaultValue={profile.email ?? ''}
                                 name="email"
-                                placeholder="Contact email shown to customers"
+                                placeholder={t(
+                                    'business.memberEdit.profile.publicEmailPlaceholder',
+                                )}
                             />
                             <p className="text-sm text-muted-foreground">
-                                This can differ from the login email.
+                                {t(
+                                    'business.memberEdit.profile.publicEmailHint',
+                                )}
                             </p>
                             <InputError
                                 className="mt-2"
@@ -306,12 +338,16 @@ function ProfileSection({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="phone">Phone</Label>
+                            <Label htmlFor="phone">
+                                {t('business.memberEdit.profile.phone')}
+                            </Label>
                             <PhoneInput
                                 id="phone"
                                 name="phone"
                                 defaultValue={profile.phone ?? ''}
-                                placeholder="Contact phone number"
+                                placeholder={t(
+                                    'business.memberEdit.profile.phonePlaceholder',
+                                )}
                             />
                             <InputError
                                 className="mt-2"
@@ -320,13 +356,17 @@ function ProfileSection({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="job_title">Job title</Label>
+                            <Label htmlFor="job_title">
+                                {t('business.memberEdit.profile.jobTitle')}
+                            </Label>
                             <Input
                                 id="job_title"
                                 className="mt-1 block w-full"
                                 defaultValue={profile.job_title ?? ''}
                                 name="job_title"
-                                placeholder="e.g. Senior Stylist"
+                                placeholder={t(
+                                    'business.memberEdit.profile.jobTitlePlaceholder',
+                                )}
                             />
                             <InputError
                                 className="mt-2"
@@ -335,12 +375,18 @@ function ProfileSection({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="description">Description</Label>
+                            <Label htmlFor="description">
+                                {t(
+                                    'business.memberEdit.profile.descriptionLabel',
+                                )}
+                            </Label>
                             <Textarea
                                 id="description"
                                 name="description"
                                 defaultValue={profile.description ?? ''}
-                                placeholder="Tell customers about this specialist"
+                                placeholder={t(
+                                    'business.memberEdit.profile.descriptionPlaceholder',
+                                )}
                             />
                             <InputError
                                 className="mt-2"
@@ -353,7 +399,7 @@ function ProfileSection({
                                 disabled={processing}
                                 data-test="update-member-profile-button"
                             >
-                                Save
+                                {t('business.memberEdit.profile.save')}
                             </Button>
                         </div>
                     </>
@@ -372,6 +418,7 @@ function AccessSection({
     availableRoles: RoleOption[];
     arg: SectionArg;
 }) {
+    const { t } = useTranslation('company');
     const [role, setRole] = useState(
         member.role ?? availableRoles[0]?.value ?? '',
     );
@@ -381,13 +428,13 @@ function AccessSection({
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Access Control"
-                    description="The role that determines what this member can do"
+                    title={t('business.memberEdit.access.title')}
+                    description={t('business.memberEdit.access.description')}
                 />
                 <p className="text-sm text-muted-foreground">
-                    This member is the team owner.{' '}
-                    <Badge variant="secondary">{member.role_label}</Badge> The
-                    owner's role cannot be changed here.
+                    {t('business.memberEdit.access.ownerNotice')}{' '}
+                    <Badge variant="secondary">{member.role_label}</Badge>{' '}
+                    {t('business.memberEdit.access.ownerCannotChange')}
                 </p>
             </div>
         );
@@ -397,8 +444,8 @@ function AccessSection({
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Access Control"
-                description="The role that determines what this member can do"
+                title={t('business.memberEdit.access.title')}
+                description={t('business.memberEdit.access.description')}
             />
 
             <Form
@@ -411,7 +458,9 @@ function AccessSection({
                         <input type="hidden" name="role" value={role} />
 
                         <div className="grid gap-2">
-                            <Label>Role</Label>
+                            <Label>
+                                {t('business.memberEdit.access.role')}
+                            </Label>
                             <ToggleGroup
                                 type="single"
                                 value={role}
@@ -441,7 +490,7 @@ function AccessSection({
                                 disabled={processing}
                                 data-test="update-member-role-button"
                             >
-                                Save
+                                {t('business.memberEdit.access.save')}
                             </Button>
                         </div>
                     </>
@@ -460,6 +509,7 @@ function LocationsSection({
     assignedLocationIds: number[];
     arg: SectionArg;
 }) {
+    const { t } = useTranslation('company');
     const [selected, setSelected] = useState<string[]>(
         assignedLocationIds.map((id) => id.toString()),
     );
@@ -474,8 +524,8 @@ function LocationsSection({
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Locations"
-                description="Branches where this specialist works"
+                title={t('business.memberEdit.locations.title')}
+                description={t('business.memberEdit.locations.description')}
             />
 
             <Form
@@ -498,7 +548,9 @@ function LocationsSection({
                             options={options}
                             value={selected}
                             onChange={setSelected}
-                            emptyMessage="No locations yet. Add one under Company → Locations."
+                            emptyMessage={t(
+                                'business.memberEdit.locations.empty',
+                            )}
                             data-test="member-locations"
                         />
 
@@ -507,7 +559,7 @@ function LocationsSection({
                                 disabled={processing}
                                 data-test="update-member-locations-button"
                             >
-                                Save
+                                {t('business.memberEdit.locations.save')}
                             </Button>
                         </div>
                     </>
@@ -526,6 +578,7 @@ function ServicesSection({
     assignedServiceIds: number[];
     arg: SectionArg;
 }) {
+    const { t } = useTranslation('company');
     const [selected, setSelected] = useState<string[]>(
         assignedServiceIds.map((id) => id.toString()),
     );
@@ -540,8 +593,8 @@ function ServicesSection({
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Services"
-                description="Services this specialist provides"
+                title={t('business.memberEdit.services.title')}
+                description={t('business.memberEdit.services.description')}
             />
 
             <Form
@@ -564,7 +617,9 @@ function ServicesSection({
                             options={options}
                             value={selected}
                             onChange={setSelected}
-                            emptyMessage="No services yet. Add one under Company → Services."
+                            emptyMessage={t(
+                                'business.memberEdit.services.empty',
+                            )}
                             data-test="member-services"
                         />
 
@@ -573,7 +628,7 @@ function ServicesSection({
                                 disabled={processing}
                                 data-test="update-member-services-button"
                             >
-                                Save
+                                {t('business.memberEdit.services.save')}
                             </Button>
                         </div>
                     </>

@@ -2,6 +2,7 @@ import { Trash2 } from 'lucide-react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/hooks/use-translation';
 import type { DayKey, TimeSlot } from '@/types/work-hours';
 
 type TimeSlotRowProps = {
@@ -28,12 +29,16 @@ export default function TimeSlotRow({
     onUpdate,
     onRemove,
 }: TimeSlotRowProps) {
+    const { t } = useTranslation('schedule');
+
     return (
         <div className="space-y-1">
             <div className="flex items-center gap-2">
                 <Input
                     type="time"
-                    aria-label={`${day} start time ${index + 1}`}
+                    aria-label={t('slotEditor.startTimeAriaLabel', {
+                        index: index + 1,
+                    })}
                     value={slot.start}
                     onChange={(event) =>
                         onUpdate(day, index, 'start', event.target.value)
@@ -41,11 +46,15 @@ export default function TimeSlotRow({
                     className="w-32"
                 />
 
-                <span className="text-sm text-muted-foreground">to</span>
+                <span className="text-sm text-muted-foreground">
+                    {t('slotEditor.to')}
+                </span>
 
                 <Input
                     type="time"
-                    aria-label={`${day} end time ${index + 1}`}
+                    aria-label={t('slotEditor.endTimeAriaLabel', {
+                        index: index + 1,
+                    })}
                     value={slot.end}
                     onChange={(event) =>
                         onUpdate(day, index, 'end', event.target.value)
@@ -57,7 +66,9 @@ export default function TimeSlotRow({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    aria-label={`Remove time block ${index + 1}`}
+                    aria-label={t('slotEditor.removeAriaLabel', {
+                        index: index + 1,
+                    })}
                     onClick={() => onRemove(day, index)}
                 >
                     <Trash2 className="h-4 w-4" />

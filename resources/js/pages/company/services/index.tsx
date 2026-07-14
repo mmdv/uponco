@@ -9,6 +9,7 @@ import DeleteServiceModal from '@/components/services/delete-service-modal';
 import ServiceFormDrawer from '@/components/services/service-form-drawer';
 import ServicesList from '@/components/services/services-list';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { index as companyIndex } from '@/routes/company';
 import { index as servicesIndex } from '@/routes/company/services';
 import type { SelectOption, Service, ServiceCategory } from '@/types';
@@ -34,6 +35,7 @@ export default function ServicesIndex({
     deliveryTypes,
     meetingProviders,
 }: Props) {
+    const { t } = useTranslation('company');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
@@ -98,14 +100,14 @@ export default function ServicesIndex({
 
     return (
         <>
-            <Head title="Services" />
+            <Head title={t('services.title')} />
 
             <div className="flex flex-col space-y-6 p-4">
                 <div className="flex items-center justify-between">
                     <Heading
                         variant="small"
-                        title="Services"
-                        description="Manage the services and categories your company offers"
+                        title={t('services.title')}
+                        description={t('services.description')}
                     />
 
                     <div className="flex items-center gap-2">
@@ -114,14 +116,14 @@ export default function ServicesIndex({
                             data-test="add-category-button"
                             onClick={openCreateCategory}
                         >
-                            <FolderPlus /> Add category
+                            <FolderPlus /> {t('services.addCategory')}
                         </Button>
                         <Button
                             data-test="add-service-button"
                             disabled={!hasCategories}
                             onClick={() => openCreateService()}
                         >
-                            <Plus /> Add service
+                            <Plus /> {t('services.addService')}
                         </Button>
                     </div>
                 </div>

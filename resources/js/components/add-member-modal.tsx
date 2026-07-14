@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/hooks/use-translation';
 import { store as storeMember } from '@/routes/company/business/members';
 import type { Team } from '@/types';
 
@@ -22,6 +23,8 @@ type Props = {
 };
 
 export default function AddMemberModal({ team, open, onOpenChange }: Props) {
+    const { t } = useTranslation('company');
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
@@ -34,22 +37,27 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
                     {({ errors, processing }) => (
                         <>
                             <DialogHeader>
-                                <DialogTitle>Add a team member</DialogTitle>
+                                <DialogTitle>
+                                    {t('business.addMemberModal.title')}
+                                </DialogTitle>
                                 <DialogDescription>
-                                    Create an account and add them to this team
-                                    right away.
+                                    {t('business.addMemberModal.description')}
                                 </DialogDescription>
                             </DialogHeader>
 
                             <div className="grid gap-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="name">Name</Label>
+                                        <Label htmlFor="name">
+                                            {t('business.addMemberModal.name')}
+                                        </Label>
                                         <Input
                                             id="name"
                                             name="name"
                                             data-test="member-name"
-                                            placeholder="Jane"
+                                            placeholder={t(
+                                                'business.addMemberModal.namePlaceholder',
+                                            )}
                                             autoComplete="off"
                                             required
                                         />
@@ -57,12 +65,18 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="surname">Surname</Label>
+                                        <Label htmlFor="surname">
+                                            {t(
+                                                'business.addMemberModal.surname',
+                                            )}
+                                        </Label>
                                         <Input
                                             id="surname"
                                             name="surname"
                                             data-test="member-surname"
-                                            placeholder="Doe"
+                                            placeholder={t(
+                                                'business.addMemberModal.surnamePlaceholder',
+                                            )}
                                             autoComplete="off"
                                         />
                                         <InputError message={errors.surname} />
@@ -70,25 +84,33 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="job_title">Title</Label>
+                                    <Label htmlFor="job_title">
+                                        {t('business.addMemberModal.jobTitle')}
+                                    </Label>
                                     <Input
                                         id="job_title"
                                         name="job_title"
                                         data-test="member-title"
-                                        placeholder="Stylist"
+                                        placeholder={t(
+                                            'business.addMemberModal.jobTitlePlaceholder',
+                                        )}
                                         autoComplete="off"
                                     />
                                     <InputError message={errors.job_title} />
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
+                                    <Label htmlFor="email">
+                                        {t('business.addMemberModal.email')}
+                                    </Label>
                                     <Input
                                         id="email"
                                         name="email"
                                         type="email"
                                         data-test="member-email"
-                                        placeholder="jane@example.com"
+                                        placeholder={t(
+                                            'business.addMemberModal.emailPlaceholder',
+                                        )}
                                         autoComplete="off"
                                         required
                                     />
@@ -96,13 +118,17 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="password">Password</Label>
+                                    <Label htmlFor="password">
+                                        {t('business.addMemberModal.password')}
+                                    </Label>
                                     <Input
                                         id="password"
                                         name="password"
                                         type="password"
                                         data-test="member-password"
-                                        placeholder="••••••••"
+                                        placeholder={t(
+                                            'business.addMemberModal.passwordPlaceholder',
+                                        )}
                                         autoComplete="new-password"
                                         required
                                     />
@@ -112,7 +138,9 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
 
                             <DialogFooter className="gap-2">
                                 <DialogClose asChild>
-                                    <Button variant="secondary">Cancel</Button>
+                                    <Button variant="secondary">
+                                        {t('business.addMemberModal.cancel')}
+                                    </Button>
                                 </DialogClose>
 
                                 <Button
@@ -120,7 +148,7 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
                                     data-test="member-submit"
                                     disabled={processing}
                                 >
-                                    Add member
+                                    {t('business.addMemberModal.submit')}
                                 </Button>
                             </DialogFooter>
                         </>

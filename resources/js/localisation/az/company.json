@@ -8,7 +8,154 @@
         "memberPlural": "üzv",
         "roleSingular": "rol",
         "rolePlural": "rol",
-        "stats": "komanda {member}, {roles} {roleWord} üzrə"
+        "stats": "komanda {member}, {roles} {roleWord} üzrə",
+        "nav": {
+            "general": "Ümumi",
+            "teamMembers": "Komanda üzvləri"
+        },
+        "logo": {
+            "title": "Loqo",
+            "description": "Şirkət loqonuzu əlavə edin və ya yeniləyin"
+        },
+        "logoUploader": {
+            "noLogo": "Loqo yoxdur",
+            "chooseFile": "Fayl seçin",
+            "save": "Loqonu yadda saxla",
+            "remove": "Sil",
+            "hint": "SVG, PNG və ya JPG. 2MB-a qədər."
+        },
+        "general": {
+            "title": "Ümumi",
+            "description": "Komanda adınızı və tənzimləmələrinizi yeniləyin",
+            "teamName": "Komanda adı",
+            "businessCategory": "Biznes kateqoriyası",
+            "businessCategoryPlaceholder": "Kateqoriya seçin",
+            "businessCategorySearchPlaceholder": "Kateqoriyaları axtar…",
+            "businessCategoryEmpty": "Kateqoriya tapılmadı.",
+            "timezone": "Saat qurşağı",
+            "timezonePlaceholder": "Saat qurşağı seçin",
+            "timezoneSearchPlaceholder": "Saat qurşaqlarını axtar…",
+            "timezoneEmpty": "Saat qurşağı tapılmadı.",
+            "save": "Yadda saxla"
+        },
+        "deleteTeam": {
+            "title": "Komandanı sil",
+            "description": "Komandanızı həmişəlik silin",
+            "warningTitle": "Xəbərdarlıq",
+            "warningDescription": "Zəhmət olmasa diqqətli olun, bu geri qaytarıla bilməz.",
+            "button": "Komandanı sil",
+            "modalTitle": "Əminsiniz?",
+            "modalDescription": "Bu əməliyyat geri qaytarıla bilməz. Bu, \"{name}\" komandasını həmişəlik siləcək.",
+            "confirmLabel": "Təsdiq etmək üçün \"{name}\" yazın",
+            "confirmPlaceholder": "Komanda adını daxil edin",
+            "cancel": "Ləğv et",
+            "confirm": "Komandanı sil"
+        },
+        "members": {
+            "title": "Komanda üzvləri",
+            "description": "Bu komandaya kimlərin daxil olduğunu idarə edin",
+            "addMember": "Əlavə et",
+            "inviteMember": "Dəvət et",
+            "removeMemberTooltip": "Üzvü sil",
+            "pendingInvitations": "Gözləyən dəvətlər",
+            "pendingInvitationsDescription": "Hələ qəbul edilməmiş dəvətlər",
+            "cancelInvitationTooltip": "Dəvəti ləğv et",
+            "editAriaLabel": "{name} redaktə et"
+        },
+        "addMemberModal": {
+            "title": "Komanda üzvü əlavə et",
+            "description": "Hesab yaradın və onları dərhal bu komandaya əlavə edin.",
+            "name": "Ad",
+            "namePlaceholder": "Aynur",
+            "surname": "Soyad",
+            "surnamePlaceholder": "Məmmədova",
+            "jobTitle": "Vəzifə",
+            "jobTitlePlaceholder": "Usta",
+            "email": "E-poçt ünvanı",
+            "emailPlaceholder": "aynur@example.com",
+            "password": "Şifrə",
+            "passwordPlaceholder": "••••••••",
+            "cancel": "Ləğv et",
+            "submit": "Üzv əlavə et"
+        },
+        "inviteMemberModal": {
+            "title": "Komanda üzvü dəvət et",
+            "description": "Bu komandaya qoşulmaq üçün dəvət göndərin.",
+            "email": "E-poçt ünvanı",
+            "emailPlaceholder": "hemkar@example.com",
+            "role": "Rol",
+            "rolePlaceholder": "Rol seçin",
+            "cancel": "Ləğv et",
+            "submit": "Dəvət göndər"
+        },
+        "removeMemberModal": {
+            "title": "Komanda üzvünü sil",
+            "description": "{name} adlı üzvü bu komandadan silmək istədiyinizə əminsiniz?",
+            "cancel": "Ləğv et",
+            "confirm": "Üzvü sil"
+        },
+        "cancelInvitationModal": {
+            "title": "Dəvəti ləğv et",
+            "description": "{email} üçün dəvəti ləğv etmək istədiyinizə əminsiniz?",
+            "keep": "Dəvəti saxla",
+            "confirm": "Dəvəti ləğv et"
+        },
+        "memberEdit": {
+            "description": "Bu üzvün hesabını, profilini, girişini və tapşırıqlarını idarə edin",
+            "sectionsNav": "Üzv bölmələri",
+            "sections": {
+                "account": "Hesab",
+                "profile": "Profil",
+                "access": "Giriş nəzarəti",
+                "locations": "Filiallar",
+                "services": "Xidmətlər"
+            },
+            "account": {
+                "title": "Hesab",
+                "description": "Bu üzvün adını və giriş e-poçtunu yeniləyin",
+                "name": "Ad",
+                "email": "E-poçt ünvanı",
+                "save": "Yadda saxla"
+            },
+            "profile": {
+                "pictureTitle": "Profil şəkli",
+                "pictureDescription": "Müştərilər rezervasiya edərkən görəcəyi ictimai şəkil",
+                "title": "Profil",
+                "description": "Müştərilər rezervasiya edərkən görəcəyi ictimai məlumat",
+                "name": "Ad",
+                "namePlaceholder": "İctimai görünən ad",
+                "publicEmail": "İctimai e-poçt",
+                "publicEmailPlaceholder": "Müştərilərə göstərilən əlaqə e-poçtu",
+                "publicEmailHint": "Bu, giriş e-poçtundan fərqli ola bilər.",
+                "phone": "Telefon",
+                "phonePlaceholder": "Əlaqə telefon nömrəsi",
+                "jobTitle": "Vəzifə",
+                "jobTitlePlaceholder": "məs. Baş usta",
+                "descriptionLabel": "Təsvir",
+                "descriptionPlaceholder": "Müştərilərə bu mütəxəssis haqqında məlumat verin",
+                "save": "Yadda saxla"
+            },
+            "access": {
+                "title": "Giriş nəzarəti",
+                "description": "Bu üzvün nə edə biləcəyini müəyyən edən rol",
+                "ownerNotice": "Bu üzv komandanın sahibidir.",
+                "ownerCannotChange": "Sahibin rolu burada dəyişdirilə bilməz.",
+                "role": "Rol",
+                "save": "Yadda saxla"
+            },
+            "locations": {
+                "title": "Filiallar",
+                "description": "Bu mütəxəssisin çalışdığı filiallar",
+                "empty": "Hələ filial yoxdur. Şirkət → Filiallar bölməsindən əlavə edin.",
+                "save": "Yadda saxla"
+            },
+            "services": {
+                "title": "Xidmətlər",
+                "description": "Bu mütəxəssisin göstərdiyi xidmətlər",
+                "empty": "Hələ xidmət yoxdur. Şirkət → Xidmətlər bölməsindən əlavə edin.",
+                "save": "Yadda saxla"
+            }
+        }
     },
     "services": {
         "title": "Xidmətlər",
@@ -17,7 +164,92 @@
         "categoryPlural": "kateqoriya",
         "serviceSingular": "xidmət",
         "servicePlural": "xidmət",
-        "empty": "Hələ xidmət yoxdur — ilk xidmətinizi əlavə edin."
+        "empty": "Hələ xidmət yoxdur — ilk xidmətinizi əlavə edin.",
+        "addCategory": "Kateqoriya əlavə et",
+        "addService": "Xidmət əlavə et",
+        "addServiceShort": "Xidmət",
+        "noCategories": "Hələ kateqoriya yoxdur. Xidmətləri qruplaşdırmaq üçün ilk kateqoriyanızı əlavə edin.",
+        "noServicesInCategory": "Bu kateqoriyada hələ xidmət yoxdur.",
+        "editCategoryTooltip": "Kateqoriyanı redaktə et",
+        "deleteCategoryTooltip": "Kateqoriyanı sil",
+        "editServiceTooltip": "Xidməti redaktə et",
+        "deleteServiceTooltip": "Xidməti sil",
+        "table": {
+            "status": "Status",
+            "title": "Başlıq",
+            "price": "Qiymət",
+            "duration": "Müddət",
+            "type": "Növ",
+            "delivery": "Çatdırılma",
+            "actions": "Əməliyyatlar",
+            "active": "Aktiv",
+            "inactive": "Qeyri-aktiv",
+            "free": "Pulsuz"
+        },
+        "categoryDialog": {
+            "addTitle": "Kateqoriya əlavə et",
+            "editTitle": "Kateqoriyanı redaktə et",
+            "addDescription": "Xidmətlərinizi yeni kateqoriya altında qruplaşdırın.",
+            "editDescription": "Bu kateqoriyanın adını yeniləyin.",
+            "name": "Ad",
+            "namePlaceholder": "Saç",
+            "cancel": "Ləğv et",
+            "save": "Dəyişiklikləri saxla",
+            "add": "Kateqoriya əlavə et"
+        },
+        "deleteCategoryModal": {
+            "title": "Kateqoriyanı sil",
+            "confirmWithServices": "\"{name}\" kateqoriyasını silmək istədiyinizə əminsiniz? Bu kateqoriyada artıq əlçatan olmayacaq {count} xidmət var.",
+            "confirmNoServices": "\"{name}\" kateqoriyasını silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+            "cancel": "Ləğv et",
+            "confirm": "Kateqoriyanı sil"
+        },
+        "deleteServiceModal": {
+            "title": "Xidməti sil",
+            "confirmDescription": "\"{name}\" xidmətini silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
+            "cancel": "Ləğv et",
+            "confirm": "Xidməti sil"
+        },
+        "form": {
+            "addTitle": "Xidmət əlavə et",
+            "editTitle": "Xidməti redaktə et",
+            "addDescription": "Şirkətiniz üçün yeni xidmət əlavə edin.",
+            "editDescription": "Bu xidmətin təfərrüatlarını yeniləyin.",
+            "active": "Aktiv",
+            "activeHint": "Qeyri-aktiv xidmətlər istifadədən gizlədilir.",
+            "titleLabel": "Başlıq",
+            "titlePlaceholder": "Saç kəsimi",
+            "category": "Kateqoriya",
+            "categoryPlaceholder": "Kateqoriya seçin",
+            "categorySearchPlaceholder": "Kateqoriyaları axtar…",
+            "categoryEmpty": "Kateqoriya tapılmadı.",
+            "priceType": "Qiymət növü",
+            "price": "Qiymət",
+            "minPrice": "Min qiymət",
+            "maxPrice": "Maks qiymət",
+            "duration": "Müddət (dəq)",
+            "break": "Fasilə (dəq)",
+            "serviceType": "Xidmət növü",
+            "capacity": "Tutum",
+            "deliveryType": "Çatdırılma növü",
+            "onlineMeetingProvider": "Onlayn görüş provayderi",
+            "onlineMeetingProviderPlaceholder": "Provayder seçin",
+            "description": "Təsvir",
+            "descriptionPlaceholder": "Bu xidməti təsvir edin…",
+            "locations": "Filiallar",
+            "locationsPlaceholder": "Filialları seçin",
+            "locationsSearchPlaceholder": "Filialları axtar…",
+            "locationsEmpty": "Filial tapılmadı.",
+            "locationsHint": "Bu xidmətin təklif olunduğu filiallar.",
+            "specialists": "Mütəxəssislər",
+            "specialistsPlaceholder": "Mütəxəssisləri seçin",
+            "specialistsSearchPlaceholder": "Mütəxəssisləri axtar…",
+            "specialistsEmpty": "Mütəxəssis tapılmadı.",
+            "specialistsHint": "Bu xidməti göstərən komanda üzvləri.",
+            "cancel": "Ləğv et",
+            "save": "Dəyişiklikləri saxla",
+            "add": "Xidmət əlavə et"
+        }
     },
     "schedule": {
         "title": "Cədvəl",

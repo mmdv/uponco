@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import BusinessController from '@/actions/App/Http/Controllers/Company/BusinessController';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import type { Team } from '@/types';
 
 const ACCEPTED_TYPES = 'image/svg+xml,image/png,image/jpeg';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export default function TeamLogoUploader({ team, teamSlug }: Props) {
+    const { t } = useTranslation('company');
     const fileInput = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | null>(null);
 
@@ -70,7 +72,7 @@ export default function TeamLogoUploader({ team, teamSlug }: Props) {
                         />
                     ) : (
                         <span className="text-xs text-neutral-400">
-                            No logo
+                            {t('business.logoUploader.noLogo')}
                         </span>
                     )}
                 </div>
@@ -90,7 +92,7 @@ export default function TeamLogoUploader({ team, teamSlug }: Props) {
                         variant="outline"
                         onClick={() => fileInput.current?.click()}
                     >
-                        Choose file
+                        {t('business.logoUploader.chooseFile')}
                     </Button>
 
                     {data.logo ? (
@@ -100,7 +102,7 @@ export default function TeamLogoUploader({ team, teamSlug }: Props) {
                             disabled={processing}
                             onClick={handleUpload}
                         >
-                            Save logo
+                            {t('business.logoUploader.save')}
                         </Button>
                     ) : null}
 
@@ -112,14 +114,14 @@ export default function TeamLogoUploader({ team, teamSlug }: Props) {
                             disabled={processing}
                             onClick={handleRemove}
                         >
-                            Remove
+                            {t('business.logoUploader.remove')}
                         </Button>
                     ) : null}
                 </div>
             </div>
 
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                SVG, PNG or JPG. Up to 2MB.
+                {t('business.logoUploader.hint')}
             </p>
 
             <InputError message={errors.logo} />

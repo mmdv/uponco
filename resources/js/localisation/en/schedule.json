@@ -1,0 +1,33 @@
+{
+    "title": "Schedule",
+    "description": "Set monthly availability",
+    "editSchedule": "Edit Schedule",
+    "daysSelected": "{count} {dayWord} selected",
+    "daySingular": "day",
+    "dayPlural": "days",
+    "drawer": {
+        "title": "Edit Schedule",
+        "applyingTo": "Applying to {count} {dayWord}.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving…"
+    },
+    "slotEditor": {
+        "to": "to",
+        "addTimeBlock": "Add Time Block",
+        "startTimeAriaLabel": "Start time {index}",
+        "endTimeAriaLabel": "End time {index}",
+        "removeAriaLabel": "Remove time block {index}"
+    },
+    "cell": {
+        "moreCount": "+{count} more",
+        "pastDaySuffix": ", past day",
+        "timeBlockSingular": "block",
+        "timeBlockPlural": "blocks",
+        "timeBlocksSuffix": ", {count} time {blockWord}"
+    },
+    "toast": {
+        "saved": "Schedule saved.",
+        "error": "Please fix the errors and try again."
+    }
+}

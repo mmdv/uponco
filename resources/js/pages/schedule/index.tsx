@@ -8,6 +8,7 @@ import MonthTabs from '@/components/schedule/month-tabs';
 import { ScheduleProvider } from '@/components/schedule/schedule-context';
 import ScheduleGrid from '@/components/schedule/schedule-grid';
 import SelectedDaysCount from '@/components/schedule/selected-days-count';
+import { useTranslation } from '@/hooks/use-translation';
 import { buildMonthTabs } from '@/lib/schedule';
 import { isTeamManager } from '@/lib/teams';
 import { index as scheduleIndex } from '@/routes/schedule';
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function SchedulePage({ members, slots }: Props) {
+    const { t } = useTranslation('schedule');
     const { currentTeam } = usePage().props;
     const isAdmin = isTeamManager(currentTeam?.role);
 
@@ -27,9 +29,9 @@ export default function SchedulePage({ members, slots }: Props) {
 
     return (
         <>
-            <Head title="Schedule" />
+            <Head title={t('title')} />
 
-            <h1 className="sr-only">Schedule</h1>
+            <h1 className="sr-only">{t('title')}</h1>
 
             <ScheduleProvider
                 members={members}
@@ -42,8 +44,8 @@ export default function SchedulePage({ members, slots }: Props) {
                     <div className="flex items-center justify-between gap-4">
                         <Heading
                             variant="small"
-                            title="Schedule"
-                            description="Set monthly availability"
+                            title={t('title')}
+                            description={t('description')}
                         />
 
                         <div className="flex shrink-0 items-center gap-3">

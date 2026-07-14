@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy as destroyInvitation } from '@/routes/company/business/invitations';
 import type { Team, TeamInvitation } from '@/types';
 
@@ -26,6 +27,7 @@ export default function CancelInvitationModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('company');
     const [processing, setProcessing] = useState(false);
 
     const cancelInvitation = () => {
@@ -44,16 +46,21 @@ export default function CancelInvitationModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Cancel invitation</DialogTitle>
+                    <DialogTitle>
+                        {t('business.cancelInvitationModal.title')}
+                    </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to cancel the invitation for{' '}
-                        <strong>{invitation?.email}</strong>?
+                        {t('business.cancelInvitationModal.description', {
+                            email: invitation?.email ?? '',
+                        })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Keep invitation</Button>
+                        <Button variant="secondary">
+                            {t('business.cancelInvitationModal.keep')}
+                        </Button>
                     </DialogClose>
 
                     <Button
@@ -62,7 +69,7 @@ export default function CancelInvitationModal({
                         disabled={processing}
                         onClick={cancelInvitation}
                     >
-                        Cancel invitation
+                        {t('business.cancelInvitationModal.confirm')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

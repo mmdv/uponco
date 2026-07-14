@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy } from '@/routes/company/service-categories';
 import type { ServiceCategory } from '@/types';
 
@@ -29,6 +30,7 @@ export default function DeleteCategoryModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('company');
     const [processing, setProcessing] = useState(false);
 
     const deleteCategory = () => {
@@ -48,19 +50,30 @@ export default function DeleteCategoryModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete category</DialogTitle>
+                    <DialogTitle>
+                        {t('services.deleteCategoryModal.title')}
+                    </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete{' '}
-                        <strong>"{category?.name}"</strong>?{' '}
                         {serviceCount > 0
-                            ? `This category has ${serviceCount} service(s) that will no longer be available.`
-                            : 'This action cannot be undone.'}
+                            ? t(
+                                  'services.deleteCategoryModal.confirmWithServices',
+                                  {
+                                      name: category?.name ?? '',
+                                      count: serviceCount,
+                                  },
+                              )
+                            : t(
+                                  'services.deleteCategoryModal.confirmNoServices',
+                                  { name: category?.name ?? '' },
+                              )}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">
+                            {t('services.deleteCategoryModal.cancel')}
+                        </Button>
                     </DialogClose>
 
                     <Button
@@ -69,7 +82,7 @@ export default function DeleteCategoryModal({
                         disabled={processing}
                         onClick={deleteCategory}
                     >
-                        Delete category
+                        {t('services.deleteCategoryModal.confirm')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

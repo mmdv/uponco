@@ -1,3 +1,4 @@
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { useSchedule } from './schedule-context';
 
@@ -11,6 +12,7 @@ type SelectedDaysCountProps = {
 export default function SelectedDaysCount({
     className,
 }: SelectedDaysCountProps) {
+    const { t } = useTranslation('schedule');
     const { selectedDayCount } = useSchedule();
 
     return (
@@ -18,8 +20,12 @@ export default function SelectedDaysCount({
             className={cn('text-sm text-muted-foreground', className)}
             aria-live="polite"
         >
-            {selectedDayCount} {selectedDayCount === 1 ? 'day' : 'days'}{' '}
-            selected
+            {t('daysSelected', {
+                count: selectedDayCount,
+                dayWord: t(
+                    selectedDayCount === 1 ? 'daySingular' : 'dayPlural',
+                ),
+            })}
         </span>
     );
 }

@@ -18,6 +18,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useTranslation } from '@/hooks/use-translation';
 import { store, update } from '@/routes/company/services';
 import type {
     DeliveryType,
@@ -103,6 +104,7 @@ export default function ServiceFormDrawer({
     deliveryTypes,
     meetingProviders,
 }: Props) {
+    const { t } = useTranslation('company');
     const isEditing = service !== null;
 
     return (
@@ -113,12 +115,14 @@ export default function ServiceFormDrawer({
             >
                 <SheetHeader className="shrink-0 border-b">
                     <SheetTitle>
-                        {isEditing ? 'Edit service' : 'Add service'}
+                        {isEditing
+                            ? t('services.form.editTitle')
+                            : t('services.form.addTitle')}
                     </SheetTitle>
                     <SheetDescription>
                         {isEditing
-                            ? 'Update the details for this service.'
-                            : 'Add a new service for your company.'}
+                            ? t('services.form.editDescription')
+                            : t('services.form.addDescription')}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -171,6 +175,7 @@ function ServiceFormFields({
     onSuccess,
     onCancel,
 }: FieldsProps) {
+    const { t } = useTranslation('company');
     const isEditing = service !== null;
 
     const [isActive, setIsActive] = useState(service?.is_active ?? true);
@@ -263,9 +268,11 @@ function ServiceFormFields({
                     <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
                         <div className="flex items-center justify-between rounded-lg border p-3">
                             <div className="space-y-0.5">
-                                <Label htmlFor="is_active">Active</Label>
+                                <Label htmlFor="is_active">
+                                    {t('services.form.active')}
+                                </Label>
                                 <p className="text-sm text-muted-foreground">
-                                    Inactive services are hidden from use.
+                                    {t('services.form.activeHint')}
                                 </p>
                             </div>
                             <Switch
@@ -277,29 +284,37 @@ function ServiceFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="title">Title</Label>
+                            <Label htmlFor="title">
+                                {t('services.form.titleLabel')}
+                            </Label>
                             <Input
                                 id="title"
                                 name="title"
                                 data-test="service-title-input"
                                 defaultValue={service?.title ?? ''}
-                                placeholder="Haircut"
+                                placeholder={t(
+                                    'services.form.titlePlaceholder',
+                                )}
                             />
                             <InputError message={errors.title} />
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="service_category_id">
-                                Category
+                                {t('services.form.category')}
                             </Label>
                             <SearchableSelect
                                 id="service_category_id"
                                 options={categoryOptions}
                                 value={categoryId}
                                 onChange={setCategoryId}
-                                placeholder="Select a category"
-                                searchPlaceholder="Search categories…"
-                                emptyMessage="No categories found."
+                                placeholder={t(
+                                    'services.form.categoryPlaceholder',
+                                )}
+                                searchPlaceholder={t(
+                                    'services.form.categorySearchPlaceholder',
+                                )}
+                                emptyMessage={t('services.form.categoryEmpty')}
                                 invalid={Boolean(errors.service_category_id)}
                                 data-test="service-category-select"
                             />
@@ -307,7 +322,9 @@ function ServiceFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="price_type">Price type</Label>
+                            <Label htmlFor="price_type">
+                                {t('services.form.priceType')}
+                            </Label>
                             <OptionToggleGroup
                                 id="price_type"
                                 options={priceTypes}
@@ -323,7 +340,9 @@ function ServiceFormFields({
 
                         {priceType === 'fixed' && (
                             <div className="grid gap-2">
-                                <Label htmlFor="price">Price</Label>
+                                <Label htmlFor="price">
+                                    {t('services.form.price')}
+                                </Label>
                                 <Input
                                     id="price"
                                     name="price"
@@ -340,7 +359,9 @@ function ServiceFormFields({
                         {priceType === 'range' && (
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="price_min">Min price</Label>
+                                    <Label htmlFor="price_min">
+                                        {t('services.form.minPrice')}
+                                    </Label>
                                     <Input
                                         id="price_min"
                                         name="price_min"
@@ -353,7 +374,9 @@ function ServiceFormFields({
                                     <InputError message={errors.price_min} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="price_max">Max price</Label>
+                                    <Label htmlFor="price_max">
+                                        {t('services.form.maxPrice')}
+                                    </Label>
                                     <Input
                                         id="price_max"
                                         name="price_max"
@@ -370,7 +393,9 @@ function ServiceFormFields({
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="grid gap-2">
-                                <Label htmlFor="duration">Duration (min)</Label>
+                                <Label htmlFor="duration">
+                                    {t('services.form.duration')}
+                                </Label>
                                 <Input
                                     id="duration"
                                     name="duration"
@@ -383,7 +408,7 @@ function ServiceFormFields({
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="technical_break">
-                                    Break (min)
+                                    {t('services.form.break')}
                                 </Label>
                                 <Input
                                     id="technical_break"
@@ -398,7 +423,9 @@ function ServiceFormFields({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="service_type">Service type</Label>
+                            <Label htmlFor="service_type">
+                                {t('services.form.serviceType')}
+                            </Label>
                             <OptionToggleGroup
                                 id="service_type"
                                 options={serviceTypes}
@@ -414,7 +441,9 @@ function ServiceFormFields({
 
                         {serviceType === 'group' && (
                             <div className="grid gap-2">
-                                <Label htmlFor="capacity">Capacity</Label>
+                                <Label htmlFor="capacity">
+                                    {t('services.form.capacity')}
+                                </Label>
                                 <Input
                                     id="capacity"
                                     name="capacity"
@@ -428,7 +457,9 @@ function ServiceFormFields({
                         )}
 
                         <div className="grid gap-2">
-                            <Label htmlFor="delivery_type">Delivery type</Label>
+                            <Label htmlFor="delivery_type">
+                                {t('services.form.deliveryType')}
+                            </Label>
                             <OptionToggleGroup
                                 id="delivery_type"
                                 options={deliveryTypes}
@@ -444,7 +475,8 @@ function ServiceFormFields({
                                         // Default to the only available provider.
                                         if (!meetingProvider) {
                                             setMeetingProvider(
-                                                meetingProviders[0]?.value ?? '',
+                                                meetingProviders[0]?.value ??
+                                                    '',
                                             );
                                         }
                                     }
@@ -458,14 +490,16 @@ function ServiceFormFields({
                         {deliveryType === 'online' && (
                             <div className="grid gap-2">
                                 <Label htmlFor="online_meeting_provider">
-                                    Online meeting provider
+                                    {t('services.form.onlineMeetingProvider')}
                                 </Label>
                                 <SearchableSelect
                                     id="online_meeting_provider"
                                     options={meetingProviders}
                                     value={meetingProvider}
                                     onChange={setMeetingProvider}
-                                    placeholder="Select a provider"
+                                    placeholder={t(
+                                        'services.form.onlineMeetingProviderPlaceholder',
+                                    )}
                                     invalid={Boolean(
                                         errors.online_meeting_provider,
                                     )}
@@ -478,12 +512,16 @@ function ServiceFormFields({
                         )}
 
                         <div className="grid gap-2">
-                            <Label htmlFor="description">Description</Label>
+                            <Label htmlFor="description">
+                                {t('services.form.description')}
+                            </Label>
                             <Textarea
                                 id="description"
                                 name="description"
                                 defaultValue={service?.description ?? ''}
-                                placeholder="Describe this service…"
+                                placeholder={t(
+                                    'services.form.descriptionPlaceholder',
+                                )}
                                 rows={4}
                             />
                             <InputError message={errors.description} />
@@ -491,40 +529,56 @@ function ServiceFormFields({
 
                         {deliveryType !== 'online' && (
                             <div className="grid gap-2">
-                                <Label htmlFor="location_ids">Locations</Label>
+                                <Label htmlFor="location_ids">
+                                    {t('services.form.locations')}
+                                </Label>
                                 <MultiSelect
                                     id="location_ids"
                                     options={locations}
                                     value={locationIds}
                                     onChange={setLocationIds}
-                                    placeholder="Select locations"
-                                    searchPlaceholder="Search locations…"
-                                    emptyMessage="No locations found."
+                                    placeholder={t(
+                                        'services.form.locationsPlaceholder',
+                                    )}
+                                    searchPlaceholder={t(
+                                        'services.form.locationsSearchPlaceholder',
+                                    )}
+                                    emptyMessage={t(
+                                        'services.form.locationsEmpty',
+                                    )}
                                     invalid={Boolean(errors.location_ids)}
                                     data-test="service-locations-select"
                                 />
                                 <p className="text-sm text-muted-foreground">
-                                    Branches where this service is offered.
+                                    {t('services.form.locationsHint')}
                                 </p>
                                 <InputError message={errors.location_ids} />
                             </div>
                         )}
 
                         <div className="grid gap-2">
-                            <Label htmlFor="user_ids">Specialists</Label>
+                            <Label htmlFor="user_ids">
+                                {t('services.form.specialists')}
+                            </Label>
                             <MultiSelect
                                 id="user_ids"
                                 options={specialists}
                                 value={specialistIds}
                                 onChange={setSpecialistIds}
-                                placeholder="Select specialists"
-                                searchPlaceholder="Search specialists…"
-                                emptyMessage="No specialists found."
+                                placeholder={t(
+                                    'services.form.specialistsPlaceholder',
+                                )}
+                                searchPlaceholder={t(
+                                    'services.form.specialistsSearchPlaceholder',
+                                )}
+                                emptyMessage={t(
+                                    'services.form.specialistsEmpty',
+                                )}
                                 invalid={Boolean(errors.user_ids)}
                                 data-test="service-specialists-select"
                             />
                             <p className="text-sm text-muted-foreground">
-                                Team members who provide this service.
+                                {t('services.form.specialistsHint')}
                             </p>
                             <InputError message={errors.user_ids} />
                         </div>
@@ -536,14 +590,16 @@ function ServiceFormFields({
                             variant="secondary"
                             onClick={onCancel}
                         >
-                            Cancel
+                            {t('services.form.cancel')}
                         </Button>
                         <Button
                             type="submit"
                             data-test="service-save-button"
                             disabled={processing}
                         >
-                            {isEditing ? 'Save changes' : 'Add service'}
+                            {isEditing
+                                ? t('services.form.save')
+                                : t('services.form.add')}
                         </Button>
                     </SheetFooter>
                 </>

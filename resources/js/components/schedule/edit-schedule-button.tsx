@@ -1,6 +1,7 @@
 import { CalendarClock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { useSchedule } from './schedule-context';
 
@@ -15,6 +16,7 @@ type EditScheduleButtonProps = {
 export default function EditScheduleButton({
     className,
 }: EditScheduleButtonProps) {
+    const { t } = useTranslation('schedule');
     const { selectedDayCount, openDrawer } = useSchedule();
 
     return (
@@ -26,7 +28,7 @@ export default function EditScheduleButton({
             className={cn(className)}
         >
             <CalendarClock className="h-4 w-4" />
-            Edit Schedule
+            {t('editSchedule')}
         </Button>
     );
 }

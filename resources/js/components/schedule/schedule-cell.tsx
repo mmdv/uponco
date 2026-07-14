@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { cellId } from '@/lib/schedule';
 import { cn } from '@/lib/utils';
 import type { DayColumn } from '@/types/schedule';
@@ -19,6 +20,7 @@ const MAX_VISIBLE_SLOTS = 3;
  * light-blue fill. Scheduled days show their time blocks as start–end chips.
  */
 export default function ScheduleCell({ memberId, column }: ScheduleCellProps) {
+    const { t } = useTranslation('schedule');
     const { isSelected, toggleCell, cellSlots } = useSchedule();
     const id = cellId(memberId, column.key);
     const isPast = column.isPast;
@@ -34,10 +36,17 @@ export default function ScheduleCell({ memberId, column }: ScheduleCellProps) {
             disabled={isPast}
             aria-pressed={selected}
             aria-label={`${column.dayNumber} ${column.weekday}${
-                isPast ? ', past day' : ''
+                isPast ? t('cell.pastDaySuffix') : ''
             }${
                 hasSlots
-                    ? `, ${slots.length} time ${slots.length === 1 ? 'block' : 'blocks'}`
+                    ? t('cell.timeBlocksSuffix', {
+                          count: slots.length,
+                          blockWord: t(
+                              slots.length === 1
+                                  ? 'cell.timeBlockSingular'
+                                  : 'cell.timeBlockPlural',
+                          ),
+                      })
                     : ''
             }`}
             onClick={() => {
@@ -75,7 +84,7 @@ export default function ScheduleCell({ memberId, column }: ScheduleCellProps) {
                     ))}
                     {hiddenCount > 0 && (
                         <span className="text-[9px] font-medium text-emerald-700/80 dark:text-emerald-300/80">
-                            +{hiddenCount} more
+                            {t('cell.moreCount', { count: hiddenCount })}
                         </span>
                     )}
                 </>

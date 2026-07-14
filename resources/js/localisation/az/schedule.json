@@ -1,0 +1,33 @@
+{
+    "title": "Cədvəl",
+    "description": "Aylıq əlçatanlığı təyin edin",
+    "editSchedule": "Cədvəli redaktə et",
+    "daysSelected": "{count} {dayWord} seçildi",
+    "daySingular": "gün",
+    "dayPlural": "gün",
+    "drawer": {
+        "title": "Cədvəli redaktə et",
+        "applyingTo": "{count} {dayWord} üçün tətbiq olunur.",
+        "cancel": "Ləğv et",
+        "save": "Yadda saxla",
+        "saving": "Saxlanılır…"
+    },
+    "slotEditor": {
+        "to": "-dən",
+        "addTimeBlock": "Vaxt bloku əlavə et",
+        "startTimeAriaLabel": "Başlanğıc vaxtı {index}",
+        "endTimeAriaLabel": "Bitmə vaxtı {index}",
+        "removeAriaLabel": "{index} vaxt blokunu sil"
+    },
+    "cell": {
+        "moreCount": "+{count} daha",
+        "pastDaySuffix": ", keçmiş gün",
+        "timeBlockSingular": "blok",
+        "timeBlockPlural": "blok",
+        "timeBlocksSuffix": ", {count} vaxt {blockWord}"
+    },
+    "toast": {
+        "saved": "Cədvəl yadda saxlanıldı.",
+        "error": "Zəhmət olmasa xətaları düzəldin və yenidən cəhd edin."
+    }
+}

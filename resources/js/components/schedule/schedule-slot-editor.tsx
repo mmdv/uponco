@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import TimeSlotRow from '@/components/work-hours/time-slot-row';
+import { useTranslation } from '@/hooks/use-translation';
 import type { ScheduleSlot } from '@/types/schedule';
 import type { DayKey } from '@/types/work-hours';
 
@@ -27,6 +28,8 @@ export default function ScheduleSlotEditor({
     onRemove,
     onUpdate,
 }: ScheduleSlotEditorProps) {
+    const { t } = useTranslation('schedule');
+
     return (
         <div className="space-y-3">
             {slots.map((slot, index) => (
@@ -44,7 +47,7 @@ export default function ScheduleSlotEditor({
 
             <Button type="button" variant="outline" size="sm" onClick={onAdd}>
                 <Plus className="h-4 w-4" />
-                Add Time Block
+                {t('slotEditor.addTimeBlock')}
             </Button>
         </div>
     );

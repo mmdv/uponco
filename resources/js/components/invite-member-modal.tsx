@@ -20,6 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useTranslation } from '@/hooks/use-translation';
 import { store as storeInvitation } from '@/routes/company/business/invitations';
 import type { RoleOption, Team } from '@/types';
 
@@ -36,6 +37,7 @@ export default function InviteMemberModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('company');
     const [inviteRole, setInviteRole] = useState<RoleOption['value']>('member');
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -58,28 +60,38 @@ export default function InviteMemberModal({
                     {({ errors, processing }) => (
                         <>
                             <DialogHeader>
-                                <DialogTitle>Invite a team member</DialogTitle>
+                                <DialogTitle>
+                                    {t('business.inviteMemberModal.title')}
+                                </DialogTitle>
                                 <DialogDescription>
-                                    Send an invitation to join this team.
+                                    {t(
+                                        'business.inviteMemberModal.description',
+                                    )}
                                 </DialogDescription>
                             </DialogHeader>
 
                             <div className="grid gap-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
+                                    <Label htmlFor="email">
+                                        {t('business.inviteMemberModal.email')}
+                                    </Label>
                                     <Input
                                         id="email"
                                         name="email"
                                         type="email"
                                         data-test="invite-email"
-                                        placeholder="colleague@example.com"
+                                        placeholder={t(
+                                            'business.inviteMemberModal.emailPlaceholder',
+                                        )}
                                         required
                                     />
                                     <InputError message={errors.email} />
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="role">Role</Label>
+                                    <Label htmlFor="role">
+                                        {t('business.inviteMemberModal.role')}
+                                    </Label>
                                     <Select
                                         name="role"
                                         data-test="invite-role"
@@ -91,7 +103,11 @@ export default function InviteMemberModal({
                                         }
                                     >
                                         <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select a role" />
+                                            <SelectValue
+                                                placeholder={t(
+                                                    'business.inviteMemberModal.rolePlaceholder',
+                                                )}
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {availableRoles.map((role) => (
@@ -110,7 +126,9 @@ export default function InviteMemberModal({
 
                             <DialogFooter className="gap-2">
                                 <DialogClose asChild>
-                                    <Button variant="secondary">Cancel</Button>
+                                    <Button variant="secondary">
+                                        {t('business.inviteMemberModal.cancel')}
+                                    </Button>
                                 </DialogClose>
 
                                 <Button
@@ -118,7 +136,7 @@ export default function InviteMemberModal({
                                     data-test="invite-submit"
                                     disabled={processing}
                                 >
-                                    Send invitation
+                                    {t('business.inviteMemberModal.submit')}
                                 </Button>
                             </DialogFooter>
                         </>

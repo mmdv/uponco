@@ -8,7 +8,154 @@
         "memberPlural": "members",
         "roleSingular": "role",
         "rolePlural": "roles",
-        "stats": "team {member} across {roles} {roleWord}"
+        "stats": "team {member} across {roles} {roleWord}",
+        "nav": {
+            "general": "General",
+            "teamMembers": "Team Members"
+        },
+        "logo": {
+            "title": "Logo",
+            "description": "Add or update your company logo"
+        },
+        "logoUploader": {
+            "noLogo": "No logo",
+            "chooseFile": "Choose file",
+            "save": "Save logo",
+            "remove": "Remove",
+            "hint": "SVG, PNG or JPG. Up to 2MB."
+        },
+        "general": {
+            "title": "General",
+            "description": "Update your team name and settings",
+            "teamName": "Team name",
+            "businessCategory": "Business category",
+            "businessCategoryPlaceholder": "Select a category",
+            "businessCategorySearchPlaceholder": "Search categories…",
+            "businessCategoryEmpty": "No categories found.",
+            "timezone": "Timezone",
+            "timezonePlaceholder": "Select a timezone",
+            "timezoneSearchPlaceholder": "Search timezones…",
+            "timezoneEmpty": "No timezones found.",
+            "save": "Save"
+        },
+        "deleteTeam": {
+            "title": "Delete team",
+            "description": "Permanently delete your team",
+            "warningTitle": "Warning",
+            "warningDescription": "Please proceed with caution, this cannot be undone.",
+            "button": "Delete team",
+            "modalTitle": "Are you sure?",
+            "modalDescription": "This action cannot be undone. This will permanently delete the team \"{name}\".",
+            "confirmLabel": "Type \"{name}\" to confirm",
+            "confirmPlaceholder": "Enter team name",
+            "cancel": "Cancel",
+            "confirm": "Delete team"
+        },
+        "members": {
+            "title": "Team members",
+            "description": "Manage who belongs to this team",
+            "addMember": "Add member",
+            "inviteMember": "Invite member",
+            "removeMemberTooltip": "Remove member",
+            "pendingInvitations": "Pending invitations",
+            "pendingInvitationsDescription": "Invitations that haven't been accepted yet",
+            "cancelInvitationTooltip": "Cancel invitation",
+            "editAriaLabel": "Edit {name}"
+        },
+        "addMemberModal": {
+            "title": "Add a team member",
+            "description": "Create an account and add them to this team right away.",
+            "name": "Name",
+            "namePlaceholder": "Jane",
+            "surname": "Surname",
+            "surnamePlaceholder": "Doe",
+            "jobTitle": "Title",
+            "jobTitlePlaceholder": "Stylist",
+            "email": "Email address",
+            "emailPlaceholder": "jane@example.com",
+            "password": "Password",
+            "passwordPlaceholder": "••••••••",
+            "cancel": "Cancel",
+            "submit": "Add member"
+        },
+        "inviteMemberModal": {
+            "title": "Invite a team member",
+            "description": "Send an invitation to join this team.",
+            "email": "Email address",
+            "emailPlaceholder": "colleague@example.com",
+            "role": "Role",
+            "rolePlaceholder": "Select a role",
+            "cancel": "Cancel",
+            "submit": "Send invitation"
+        },
+        "removeMemberModal": {
+            "title": "Remove team member",
+            "description": "Are you sure you want to remove {name} from this team?",
+            "cancel": "Cancel",
+            "confirm": "Remove member"
+        },
+        "cancelInvitationModal": {
+            "title": "Cancel invitation",
+            "description": "Are you sure you want to cancel the invitation for {email}?",
+            "keep": "Keep invitation",
+            "confirm": "Cancel invitation"
+        },
+        "memberEdit": {
+            "description": "Manage this member's account, profile, access and assignments",
+            "sectionsNav": "Member sections",
+            "sections": {
+                "account": "Account",
+                "profile": "Profile",
+                "access": "Access Control",
+                "locations": "Locations",
+                "services": "Services"
+            },
+            "account": {
+                "title": "Account",
+                "description": "Update this member's name and login email address",
+                "name": "Name",
+                "email": "Email address",
+                "save": "Save"
+            },
+            "profile": {
+                "pictureTitle": "Profile picture",
+                "pictureDescription": "Public photo shown to customers when they book",
+                "title": "Profile",
+                "description": "Public information shown to customers when they book",
+                "name": "Name",
+                "namePlaceholder": "Public display name",
+                "publicEmail": "Public email",
+                "publicEmailPlaceholder": "Contact email shown to customers",
+                "publicEmailHint": "This can differ from the login email.",
+                "phone": "Phone",
+                "phonePlaceholder": "Contact phone number",
+                "jobTitle": "Job title",
+                "jobTitlePlaceholder": "e.g. Senior Stylist",
+                "descriptionLabel": "Description",
+                "descriptionPlaceholder": "Tell customers about this specialist",
+                "save": "Save"
+            },
+            "access": {
+                "title": "Access Control",
+                "description": "The role that determines what this member can do",
+                "ownerNotice": "This member is the team owner.",
+                "ownerCannotChange": "The owner's role cannot be changed here.",
+                "role": "Role",
+                "save": "Save"
+            },
+            "locations": {
+                "title": "Locations",
+                "description": "Branches where this specialist works",
+                "empty": "No locations yet. Add one under Company → Locations.",
+                "save": "Save"
+            },
+            "services": {
+                "title": "Services",
+                "description": "Services this specialist provides",
+                "empty": "No services yet. Add one under Company → Services.",
+                "save": "Save"
+            }
+        }
     },
     "services": {
         "title": "Services",
@@ -17,7 +164,92 @@
         "categoryPlural": "categories",
         "serviceSingular": "service",
         "servicePlural": "services",
-        "empty": "No services yet — add your first one."
+        "empty": "No services yet — add your first one.",
+        "addCategory": "Add category",
+        "addService": "Add service",
+        "addServiceShort": "Service",
+        "noCategories": "No categories yet. Add your first category to start grouping services.",
+        "noServicesInCategory": "No services in this category yet.",
+        "editCategoryTooltip": "Edit category",
+        "deleteCategoryTooltip": "Delete category",
+        "editServiceTooltip": "Edit service",
+        "deleteServiceTooltip": "Delete service",
+        "table": {
+            "status": "Status",
+            "title": "Title",
+            "price": "Price",
+            "duration": "Duration",
+            "type": "Type",
+            "delivery": "Delivery",
+            "actions": "Actions",
+            "active": "Active",
+            "inactive": "Inactive",
+            "free": "Free"
+        },
+        "categoryDialog": {
+            "addTitle": "Add category",
+            "editTitle": "Edit category",
+            "addDescription": "Group your services under a new category.",
+            "editDescription": "Update the name for this category.",
+            "name": "Name",
+            "namePlaceholder": "Hair",
+            "cancel": "Cancel",
+            "save": "Save changes",
+            "add": "Add category"
+        },
+        "deleteCategoryModal": {
+            "title": "Delete category",
+            "confirmWithServices": "Are you sure you want to delete \"{name}\"? This category has {count} service(s) that will no longer be available.",
+            "confirmNoServices": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+            "cancel": "Cancel",
+            "confirm": "Delete category"
+        },
+        "deleteServiceModal": {
+            "title": "Delete service",
+            "confirmDescription": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+            "cancel": "Cancel",
+            "confirm": "Delete service"
+        },
+        "form": {
+            "addTitle": "Add service",
+            "editTitle": "Edit service",
+            "addDescription": "Add a new service for your company.",
+            "editDescription": "Update the details for this service.",
+            "active": "Active",
+            "activeHint": "Inactive services are hidden from use.",
+            "titleLabel": "Title",
+            "titlePlaceholder": "Haircut",
+            "category": "Category",
+            "categoryPlaceholder": "Select a category",
+            "categorySearchPlaceholder": "Search categories…",
+            "categoryEmpty": "No categories found.",
+            "priceType": "Price type",
+            "price": "Price",
+            "minPrice": "Min price",
+            "maxPrice": "Max price",
+            "duration": "Duration (min)",
+            "break": "Break (min)",
+            "serviceType": "Service type",
+            "capacity": "Capacity",
+            "deliveryType": "Delivery type",
+            "onlineMeetingProvider": "Online meeting provider",
+            "onlineMeetingProviderPlaceholder": "Select a provider",
+            "description": "Description",
+            "descriptionPlaceholder": "Describe this service…",
+            "locations": "Locations",
+            "locationsPlaceholder": "Select locations",
+            "locationsSearchPlaceholder": "Search locations…",
+            "locationsEmpty": "No locations found.",
+            "locationsHint": "Branches where this service is offered.",
+            "specialists": "Specialists",
+            "specialistsPlaceholder": "Select specialists",
+            "specialistsSearchPlaceholder": "Search specialists…",
+            "specialistsEmpty": "No specialists found.",
+            "specialistsHint": "Team members who provide this service.",
+            "cancel": "Cancel",
+            "save": "Save changes",
+            "add": "Add service"
+        }
     },
     "schedule": {
         "title": "Schedule",

@@ -2,6 +2,7 @@ import { router, usePage } from '@inertiajs/react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { cellDayKey, cellMemberId } from '@/lib/schedule';
 import { store as scheduleStore } from '@/routes/schedule';
 import type {
@@ -66,6 +67,7 @@ export function ScheduleProvider({
     slots,
     children,
 }: ScheduleProviderProps) {
+    const { t } = useTranslation('schedule');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
@@ -134,14 +136,13 @@ export function ScheduleProvider({
                     onSuccess: () => {
                         setIsDrawerOpen(false);
                         setSelectedCells(new Set());
-                        toast.success('Schedule saved.');
+                        toast.success(t('toast.saved'));
                     },
-                    onError: () =>
-                        toast.error('Please fix the errors and try again.'),
+                    onError: () => toast.error(t('toast.error')),
                 },
             );
         },
-        [selectedCells, teamSlug],
+        [selectedCells, teamSlug, t],
     );
 
     const selectedDayCount = React.useMemo(() => {

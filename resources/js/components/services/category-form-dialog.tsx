@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/hooks/use-translation';
 import { store, update } from '@/routes/company/service-categories';
 import type { ServiceCategory } from '@/types';
 
@@ -28,6 +29,7 @@ export default function CategoryFormDialog({
     category,
     teamSlug,
 }: Props) {
+    const { t } = useTranslation('company');
     const isEditing = category !== null;
 
     return (
@@ -35,12 +37,14 @@ export default function CategoryFormDialog({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>
-                        {isEditing ? 'Edit category' : 'Add category'}
+                        {isEditing
+                            ? t('services.categoryDialog.editTitle')
+                            : t('services.categoryDialog.addTitle')}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
-                            ? 'Update the name for this category.'
-                            : 'Group your services under a new category.'}
+                            ? t('services.categoryDialog.editDescription')
+                            : t('services.categoryDialog.addDescription')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -55,13 +59,17 @@ export default function CategoryFormDialog({
                     {({ errors, processing }) => (
                         <>
                             <div className="grid gap-2 py-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">
+                                    {t('services.categoryDialog.name')}
+                                </Label>
                                 <Input
                                     id="name"
                                     name="name"
                                     data-test="category-name-input"
                                     defaultValue={category?.name ?? ''}
-                                    placeholder="Hair"
+                                    placeholder={t(
+                                        'services.categoryDialog.namePlaceholder',
+                                    )}
                                     autoFocus
                                 />
                                 <InputError message={errors.name} />
@@ -73,7 +81,7 @@ export default function CategoryFormDialog({
                                     variant="secondary"
                                     onClick={() => onOpenChange(false)}
                                 >
-                                    Cancel
+                                    {t('services.categoryDialog.cancel')}
                                 </Button>
                                 <Button
                                     type="submit"
@@ -81,8 +89,8 @@ export default function CategoryFormDialog({
                                     disabled={processing}
                                 >
                                     {isEditing
-                                        ? 'Save changes'
-                                        : 'Add category'}
+                                        ? t('services.categoryDialog.save')
+                                        : t('services.categoryDialog.add')}
                                 </Button>
                             </DialogFooter>
                         </>

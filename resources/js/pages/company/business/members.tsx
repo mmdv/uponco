@@ -16,6 +16,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/hooks/use-translation';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
 import {
@@ -45,6 +46,7 @@ export default function BusinessMembers({
     permissions,
     availableRoles,
 }: Props) {
+    const { t } = useTranslation('company');
     const getInitials = useInitials();
 
     const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -70,20 +72,20 @@ export default function BusinessMembers({
 
     return (
         <>
-            <Head title="Team Members" />
+            <Head title={t('business.members.title')} />
 
-            <h1 className="sr-only">Team Members</h1>
+            <h1 className="sr-only">{t('business.members.title')}</h1>
 
             <div className="flex flex-col space-y-10">
                 <div className="space-y-6">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <Heading
                             variant="small"
-                            title="Team members"
+                            title={t('business.members.title')}
                             description={
                                 permissions.canAddMember ||
                                 permissions.canCreateInvitation
-                                    ? 'Manage who belongs to this team'
+                                    ? t('business.members.description')
                                     : ''
                             }
                         />
@@ -95,7 +97,8 @@ export default function BusinessMembers({
                                     data-test="add-member-button"
                                     onClick={() => setAddDialogOpen(true)}
                                 >
-                                    <UserRoundPlus /> Add member
+                                    <UserRoundPlus />{' '}
+                                    {t('business.members.addMember')}
                                 </Button>
                             ) : null}
 
@@ -104,7 +107,8 @@ export default function BusinessMembers({
                                     data-test="invite-member-button"
                                     onClick={() => setInviteDialogOpen(true)}
                                 >
-                                    <UserPlus /> Invite member
+                                    <UserPlus />{' '}
+                                    {t('business.members.inviteMember')}
                                 </Button>
                             ) : null}
                         </div>
@@ -120,7 +124,10 @@ export default function BusinessMembers({
                                 <Link
                                     href={editMember([team.slug, member.id])}
                                     className="absolute inset-0 rounded-lg"
-                                    aria-label={`Edit ${member.name}`}
+                                    aria-label={t(
+                                        'business.members.editAriaLabel',
+                                        { name: member.name },
+                                    )}
                                     data-test="member-edit-link"
                                 />
 
@@ -170,7 +177,11 @@ export default function BusinessMembers({
                                                     </Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>Remove member</p>
+                                                    <p>
+                                                        {t(
+                                                            'business.members.removeMemberTooltip',
+                                                        )}
+                                                    </p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
@@ -185,8 +196,10 @@ export default function BusinessMembers({
                     <div className="space-y-6">
                         <Heading
                             variant="small"
-                            title="Pending invitations"
-                            description="Invitations that haven't been accepted yet"
+                            title={t('business.members.pendingInvitations')}
+                            description={t(
+                                'business.members.pendingInvitationsDescription',
+                            )}
                         />
 
                         <div className="space-y-3">
@@ -228,7 +241,11 @@ export default function BusinessMembers({
                                                     </Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>Cancel invitation</p>
+                                                    <p>
+                                                        {t(
+                                                            'business.members.cancelInvitationTooltip',
+                                                        )}
+                                                    </p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>

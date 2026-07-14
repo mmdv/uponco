@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy as destroyMember } from '@/routes/company/business/members';
 import type { Team, TeamMember } from '@/types';
 
@@ -26,6 +27,7 @@ export default function RemoveMemberModal({
     open,
     onOpenChange,
 }: Props) {
+    const { t } = useTranslation('company');
     const [processing, setProcessing] = useState(false);
 
     const removeMember = () => {
@@ -44,16 +46,21 @@ export default function RemoveMemberModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Remove team member</DialogTitle>
+                    <DialogTitle>
+                        {t('business.removeMemberModal.title')}
+                    </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to remove{' '}
-                        <strong>{member?.name}</strong> from this team?
+                        {t('business.removeMemberModal.description', {
+                            name: member?.name ?? '',
+                        })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">
+                            {t('business.removeMemberModal.cancel')}
+                        </Button>
                     </DialogClose>
 
                     <Button
@@ -62,7 +69,7 @@ export default function RemoveMemberModal({
                         disabled={processing}
                         onClick={removeMember}
                     >
-                        Remove member
+                        {t('business.removeMemberModal.confirm')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

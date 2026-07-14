@@ -16,6 +16,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTranslation } from '@/hooks/use-translation';
+import type { TranslateFn } from '@/hooks/use-translation';
 import type { SelectOption, Service, ServiceCategory } from '@/types';
 
 type Props = {
@@ -29,9 +31,9 @@ type Props = {
     onDeleteCategory: (category: ServiceCategory) => void;
 };
 
-function formatPrice(service: Service): string {
+function formatPrice(service: Service, t: TranslateFn): string {
     if (service.price_type === 'free') {
-        return 'Free';
+        return t('services.table.free');
     }
 
     if (service.price_type === 'range') {
@@ -51,6 +53,7 @@ export default function ServicesList({
     onEditCategory,
     onDeleteCategory,
 }: Props) {
+    const { t } = useTranslation('company');
     const providerLabels = new Map(
         meetingProviders.map((provider) => [provider.value, provider.label]),
     );
@@ -59,8 +62,7 @@ export default function ServicesList({
         return (
             <div className="rounded-lg border border-dashed p-10 text-center">
                 <p className="text-sm text-muted-foreground">
-                    No categories yet. Add your first category to start grouping
-                    services.
+                    {t('services.noCategories')}
                 </p>
             </div>
         );
@@ -91,7 +93,8 @@ export default function ServicesList({
                                             onAddService(category.id)
                                         }
                                     >
-                                        <Plus className="size-4" /> Service
+                                        <Plus className="size-4" />{' '}
+                                        {t('services.addServiceShort')}
                                     </Button>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
@@ -107,7 +110,11 @@ export default function ServicesList({
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Edit category</p>
+                                            <p>
+                                                {t(
+                                                    'services.editCategoryTooltip',
+                                                )}
+                                            </p>
                                         </TooltipContent>
                                     </Tooltip>
                                     <Tooltip>
@@ -124,7 +131,11 @@ export default function ServicesList({
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Delete category</p>
+                                            <p>
+                                                {t(
+                                                    'services.deleteCategoryTooltip',
+                                                )}
+                                            </p>
                                         </TooltipContent>
                                     </Tooltip>
                                 </div>
@@ -133,20 +144,32 @@ export default function ServicesList({
 
                         {categoryServices.length === 0 ? (
                             <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-                                No services in this category yet.
+                                {t('services.noServicesInCategory')}
                             </p>
                         ) : (
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Title</TableHead>
-                                        <TableHead>Price</TableHead>
-                                        <TableHead>Duration</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Delivery</TableHead>
+                                        <TableHead>
+                                            {t('services.table.status')}
+                                        </TableHead>
+                                        <TableHead>
+                                            {t('services.table.title')}
+                                        </TableHead>
+                                        <TableHead>
+                                            {t('services.table.price')}
+                                        </TableHead>
+                                        <TableHead>
+                                            {t('services.table.duration')}
+                                        </TableHead>
+                                        <TableHead>
+                                            {t('services.table.type')}
+                                        </TableHead>
+                                        <TableHead>
+                                            {t('services.table.delivery')}
+                                        </TableHead>
                                         <TableHead className="text-right">
-                                            Actions
+                                            {t('services.table.actions')}
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -165,15 +188,19 @@ export default function ServicesList({
                                                     }
                                                 >
                                                     {service.is_active
-                                                        ? 'Active'
-                                                        : 'Inactive'}
+                                                        ? t(
+                                                              'services.table.active',
+                                                          )
+                                                        : t(
+                                                              'services.table.inactive',
+                                                          )}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="font-medium">
                                                 {service.title}
                                             </TableCell>
                                             <TableCell>
-                                                {formatPrice(service)}
+                                                {formatPrice(service, t)}
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">
                                                 {service.duration} min
@@ -216,7 +243,9 @@ export default function ServicesList({
                                                             </TooltipTrigger>
                                                             <TooltipContent>
                                                                 <p>
-                                                                    Edit service
+                                                                    {t(
+                                                                        'services.editServiceTooltip',
+                                                                    )}
                                                                 </p>
                                                             </TooltipContent>
                                                         </Tooltip>
@@ -239,8 +268,9 @@ export default function ServicesList({
                                                             </TooltipTrigger>
                                                             <TooltipContent>
                                                                 <p>
-                                                                    Delete
-                                                                    service
+                                                                    {t(
+                                                                        'services.deleteServiceTooltip',
+                                                                    )}
                                                                 </p>
                                                             </TooltipContent>
                                                         </Tooltip>
