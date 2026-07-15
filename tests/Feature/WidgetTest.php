@@ -24,6 +24,16 @@ test('the widget script embeds the company booking url', function () {
         ->assertSee('__UPONCO_WIDGET__', false);
 });
 
+test('the public booking page allows iframe embedding from any origin', function () {
+    $team = Team::factory()->create();
+
+    $response = $this->get(route('public.appointments.show', ['company' => $team->slug]));
+
+    $response->assertOk();
+    expect($response->headers->get('Content-Security-Policy'))->toContain('frame-ancestors *');
+    expect($response->headers->has('X-Frame-Options'))->toBeFalse();
+});
+
 test('the brand page exposes the widget snippet urls to admins', function () {
     $team = Team::factory()->create();
     $admin = User::factory()->create();

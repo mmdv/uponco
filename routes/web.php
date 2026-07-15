@@ -19,6 +19,7 @@ use App\Http\Controllers\PublicAppointmentController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Controllers\WidgetController;
+use App\Http\Middleware\AllowIframeEmbedding;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Http\Middleware\EnsureTeamOnboarded;
 use App\Http\Middleware\EnsureUponcoTeam;
@@ -30,7 +31,7 @@ Route::inertia('/privacy', 'legal/privacy')->name('privacy');
 Route::inertia('/terms', 'legal/terms')->name('terms');
 
 Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'])
-    ->middleware('throttle:60,1')
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
     ->name('public.appointments.show');
 Route::post('appointments/{company}', [PublicAppointmentController::class, 'store'])
     ->middleware('throttle:10,1')
