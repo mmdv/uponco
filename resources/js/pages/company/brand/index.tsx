@@ -1,7 +1,18 @@
 import { Head } from '@inertiajs/react';
-import { Image, Palette, Sparkles, Type } from 'lucide-react';
+import {
+    Check,
+    Code2,
+    Copy,
+    ExternalLink,
+    Image,
+    Palette,
+    Sparkles,
+    Type,
+} from 'lucide-react';
 
 import Heading from '@/components/heading';
+import { Button } from '@/components/ui/button';
+import { useClipboard } from '@/hooks/use-clipboard';
 import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
 import { index as brandIndex } from '@/routes/company/brand';
@@ -27,7 +38,19 @@ const UPCOMING_FEATURES = [
     },
 ];
 
-export default function BrandIndex() {
+type Props = {
+    widget: {
+        scriptUrl: string;
+        bookingUrl: string;
+    };
+};
+
+export default function BrandIndex({ widget }: Props) {
+    const snippet = `<script type="text/javascript" src="${widget.scriptUrl}" charset="UTF-8"></script>`;
+
+    const [copiedText, copy] = useClipboard();
+    const isCopied = copiedText === snippet;
+
     return (
         <>
             <Head title="Brand" />
@@ -38,6 +61,65 @@ export default function BrandIndex() {
                     title="Brand"
                     description="Manage your company brand"
                 />
+
+                {/* Embeddable booking widget */}
+                <div className="rounded-2xl border bg-card p-6">
+                    <div className="flex items-start gap-4">
+                        <div
+                            className={cn(
+                                'flex size-11 flex-none items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm',
+                                PRIMARY_GRADIENT,
+                            )}
+                        >
+                            <Code2 className="size-5" />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                            <h3 className="text-base font-semibold tracking-tight">
+                                Booking widget
+                            </h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Paste this snippet into your website, right
+                                before the closing{' '}
+                                <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                                    &lt;/body&gt;
+                                </code>{' '}
+                                tag. A “Book online” button appears in the corner
+                                and opens your booking page in a pop-up.
+                            </p>
+
+                            <div className="mt-4 flex items-stretch gap-2">
+                                <pre className="min-w-0 flex-1 overflow-x-auto rounded-lg border bg-muted/50 px-3 py-2.5 text-xs leading-relaxed text-foreground">
+                                    <code>{snippet}</code>
+                                </pre>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="flex-none"
+                                    onClick={() => copy(snippet)}
+                                    aria-label="Copy snippet"
+                                >
+                                    {isCopied ? (
+                                        <Check className="size-4 text-emerald-600" />
+                                    ) : (
+                                        <Copy className="size-4" />
+                                    )}
+                                    {isCopied ? 'Copied' : 'Copy'}
+                                </Button>
+                            </div>
+
+                            <a
+                                href={widget.bookingUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                            >
+                                <ExternalLink className="size-3.5" />
+                                Preview your booking page
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <div className="relative overflow-hidden rounded-2xl border bg-card">
                     {/* Ambient gradient glow */}

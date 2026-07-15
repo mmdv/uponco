@@ -14,6 +14,13 @@ class BrandController extends Controller
      */
     public function index(Request $request): Response
     {
-        return Inertia::render('company/brand/index');
+        $team = $request->user()->currentTeam;
+
+        return Inertia::render('company/brand/index', [
+            'widget' => [
+                'scriptUrl' => route('public.widget.script', ['company' => $team->slug]),
+                'bookingUrl' => route('public.appointments.show', ['company' => $team->slug]),
+            ],
+        ]);
     }
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicAppointmentController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\Teams\TeamInvitationController;
+use App\Http\Controllers\WidgetController;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Http\Middleware\EnsureTeamOnboarded;
 use App\Http\Middleware\EnsureUponcoTeam;
@@ -34,6 +35,10 @@ Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'
 Route::post('appointments/{company}', [PublicAppointmentController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('public.appointments.store');
+
+Route::get('widget/{company}.js', [WidgetController::class, 'script'])
+    ->middleware('throttle:60,1')
+    ->name('public.widget.script');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
