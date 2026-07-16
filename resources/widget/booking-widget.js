@@ -25,6 +25,10 @@
     var PRIMARY_DARK = '#3884fe';
     var label = config.label || 'Book online';
 
+    // Desktop drawer width; also referenced when placing the close button just
+    // outside the drawer's top-left corner.
+    var DRAWER_WIDTH = 440;
+
     function injectStyles() {
         var css =
             '.uponco-widget-launcher{position:fixed;right:20px;bottom:20px;z-index:2147483000;display:inline-flex;align-items:center;gap:8px;padding:14px 20px;border:0;border-radius:9999px;cursor:pointer;font:600 15px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#fff;background:linear-gradient(135deg,' +
@@ -34,14 +38,19 @@
             ');box-shadow:0 8px 24px rgba(0,99,255,.35);transition:transform .15s ease,box-shadow .15s ease;}' +
             '.uponco-widget-launcher:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,99,255,.45);}' +
             '.uponco-widget-launcher svg{width:18px;height:18px;flex:none;}' +
-            '.uponco-widget-overlay{position:fixed;inset:0;z-index:2147483001;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.55);opacity:0;transition:opacity .2s ease;padding:16px;}' +
-            '.uponco-widget-overlay.is-open{display:flex;opacity:1;}' +
-            '.uponco-widget-frame-wrap{position:relative;width:100%;max-width:460px;height:100%;max-height:760px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);transform:translateY(12px);transition:transform .2s ease;}' +
-            '.uponco-widget-overlay.is-open .uponco-widget-frame-wrap{transform:translateY(0);}' +
+            '.uponco-widget-overlay{position:fixed;inset:0;z-index:2147483001;display:none;background:rgba(15,23,42,.5);opacity:0;transition:opacity .2s ease;}' +
+            '.uponco-widget-overlay.is-open{display:block;opacity:1;}' +
+            '.uponco-widget-frame-wrap{position:fixed;top:8px;right:8px;bottom:8px;width:' +
+            DRAWER_WIDTH +
+            'px;max-width:calc(100vw - 16px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);transform:translateX(calc(100% + 16px));transition:transform .35s cubic-bezier(.32,.72,0,1);}' +
+            '.uponco-widget-overlay.is-open .uponco-widget-frame-wrap{transform:translateX(0);}' +
             '.uponco-widget-frame-wrap iframe{width:100%;height:100%;border:0;display:block;}' +
-            '.uponco-widget-close{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border:0;border-radius:9999px;cursor:pointer;background:rgba(15,23,42,.6);color:#fff;font-size:20px;line-height:36px;text-align:center;padding:0;}' +
-            '.uponco-widget-close:hover{background:rgba(15,23,42,.85);}' +
-            '@media (max-width:640px){.uponco-widget-overlay{padding:0;}.uponco-widget-frame-wrap{max-width:100%;max-height:100%;border-radius:0;}.uponco-widget-launcher{right:16px;bottom:16px;}}';
+            '.uponco-widget-close{position:fixed;top:14px;right:calc(' +
+            DRAWER_WIDTH +
+            'px + 24px);z-index:2147483002;width:40px;height:40px;border:0;border-radius:9999px;cursor:pointer;background:rgba(255,255,255,.92);color:#0f172a;font-size:22px;line-height:40px;text-align:center;padding:0;box-shadow:0 6px 16px rgba(0,0,0,.25);opacity:0;transform:scale(.9);transition:opacity .2s ease,transform .2s ease;}' +
+            '.uponco-widget-overlay.is-open .uponco-widget-close{opacity:1;transform:scale(1);}' +
+            '.uponco-widget-close:hover{background:#fff;}' +
+            '@media (max-width:640px){.uponco-widget-frame-wrap{top:0;right:0;bottom:0;left:0;width:100%;max-width:100%;border-radius:0;transform:translateX(100%);}.uponco-widget-close{top:12px;right:12px;background:rgba(15,23,42,.55);color:#fff;box-shadow:none;}.uponco-widget-launcher{right:16px;bottom:16px;}}';
 
         var style = document.createElement('style');
         style.type = 'text/css';
@@ -70,6 +79,8 @@
         frameWrap = document.createElement('div');
         frameWrap.className = 'uponco-widget-frame-wrap';
 
+        // The close button lives on the overlay (not inside the drawer, which
+        // clips its overflow) so it can sit just outside the drawer's corner.
         var closeBtn = document.createElement('button');
         closeBtn.className = 'uponco-widget-close';
         closeBtn.setAttribute('type', 'button');
@@ -77,8 +88,8 @@
         closeBtn.innerHTML = '&times;';
         closeBtn.addEventListener('click', closeWidget);
 
-        frameWrap.appendChild(closeBtn);
         overlay.appendChild(frameWrap);
+        overlay.appendChild(closeBtn);
 
         overlay.addEventListener('click', function (event) {
             if (event.target === overlay) {
