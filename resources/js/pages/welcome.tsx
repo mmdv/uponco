@@ -19,6 +19,7 @@ import type { ReactNode } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { useTranslation } from '@/hooks/use-translation';
+import { captureEvent } from '@/lib/analytics';
 import { dashboard, login, privacy, register, terms } from '@/routes';
 
 const currentYear = new Date().getFullYear();
@@ -530,6 +531,14 @@ export default function Welcome() {
                                     </Link>
                                     <Link
                                         href={register()}
+                                        onClick={() =>
+                                            captureEvent(
+                                                'get_started_clicked',
+                                                {
+                                                    placement: 'nav',
+                                                },
+                                            )
+                                        }
                                         className="hidden items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex"
                                     >
                                         {t('nav.getStarted')}
@@ -575,6 +584,14 @@ export default function Welcome() {
                                 <>
                                     <Link
                                         href={register()}
+                                        onClick={() =>
+                                            captureEvent(
+                                                'get_started_clicked',
+                                                {
+                                                    placement: 'hero',
+                                                },
+                                            )
+                                        }
                                         className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
                                     >
                                         {t('hero.ctaStartFree')}
@@ -655,6 +672,13 @@ export default function Welcome() {
                         </div>
                         <Link
                             href={auth.user ? dashboardUrl : register()}
+                            onClick={() => {
+                                if (!auth.user) {
+                                    captureEvent('get_started_clicked', {
+                                        placement: 'free_100',
+                                    });
+                                }
+                            }}
                             className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
                         >
                             {auth.user

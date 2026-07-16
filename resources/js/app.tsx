@@ -1,4 +1,5 @@
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
+import ConsentBanner from '@/components/analytics/consent-banner';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -6,6 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import BusinessLayout from '@/layouts/business/layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { startAnalytics, trackPageVisit } from '@/lib/analytics';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -40,10 +42,19 @@ createInertiaApp({
         }
     },
     strictMode: true,
-    withApp(app) {
+    withApp(app, { ssr, page }) {
+        if (ssr) {
+            return app;
+        }
+
+        // Inertia's `navigate` event covers later visits but not this first
+        // one, so the initial pageview is captured from the page we boot with.
+        startAnalytics(page);
+
         return (
             <TooltipProvider delayDuration={0}>
                 {app}
+                <ConsentBanner />
                 <Toaster />
             </TooltipProvider>
         );
@@ -51,6 +62,10 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+});
+
+router.on('navigate', (event) => {
+    trackPageVisit(event.detail.page);
 });
 
 // This will set light / dark mode on load...

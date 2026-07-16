@@ -6,6 +6,7 @@ use App\Actions\Teams\CreateTeam;
 use App\Concerns\AccountValidationRules;
 use App\Concerns\PasswordValidationRules;
 use App\Models\User;
+use App\Support\Analytics;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -31,7 +32,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return DB::transaction(function () use ($input) {
+        $user = DB::transaction(function () use ($input) {
             $user = User::create([
                 'name' => $input['name'],
                 'email' => $input['email'],
@@ -42,5 +43,9 @@ class CreateNewUser implements CreatesNewUsers
 
             return $user;
         });
+
+        Analytics::record('signup_completed');
+
+        return $user;
     }
 }

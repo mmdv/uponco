@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\BusinessCategory;
 use App\Http\Requests\Teams\OnboardTeamRequest;
 use App\Models\Team;
+use App\Support\Analytics;
 use App\Support\LocationOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,6 +54,11 @@ class OnboardController extends Controller
         });
 
         $team->refresh();
+
+        Analytics::record('onboarding_gate_completed', [
+            'business_category' => $team->business_category?->value,
+            'timezone' => $team->timezone,
+        ]);
 
         return to_route('dashboard', ['current_team' => $team->slug]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Analytics;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,6 +49,13 @@ class HandleInertiaRequests extends Middleware
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
             'locale' => app()->getLocale(),
             'availableLocales' => $this->availableLocales(),
+            'analytics' => [
+                'identity' => fn () => $user ? [
+                    'id' => $user->id,
+                    'team' => $user->currentTeam?->slug,
+                ] : null,
+                'events' => Analytics::pending(),
+            ],
         ];
     }
 

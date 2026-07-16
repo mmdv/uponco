@@ -6,6 +6,7 @@ use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Models\OnboardingProgress;
+use App\Support\Analytics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -51,11 +52,22 @@ class OnboardingController extends Controller
             ]);
         }
 
+        $wasComplete = $progress->completed_at !== null;
+
         $progress->markStep($step, $status);
         $progress->syncFromData($team, $user);
         $progress->current_step = $progress->firstUnresolvedStep();
         $progress->refreshCompletion();
         $progress->save();
+
+        Analytics::record('onboarding_step_resolved', [
+            'step' => $step->value,
+            'status' => $status->value,
+        ]);
+
+        if (! $wasComplete && $progress->completed_at !== null) {
+            Analytics::record('booking_page_live');
+        }
 
         return back();
     }
