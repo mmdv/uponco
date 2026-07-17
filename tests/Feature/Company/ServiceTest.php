@@ -41,6 +41,22 @@ test('the services page can be rendered', function () {
         ->assertOk();
 });
 
+test('the services page ships the options the location drawer needs', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('company/services/index')
+            ->has('countries.0', fn (Assert $country) => $country
+                ->has('value')
+                ->has('label')
+            )
+        );
+});
+
 test('a category can be created', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;

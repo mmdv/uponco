@@ -9,6 +9,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
 use App\Models\User;
+use App\Support\LocationOptions;
 use App\Support\ServiceOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,7 @@ class ServiceController extends Controller
                     'value' => (string) $member->id,
                     'label' => $member->name,
                 ]),
+            'countries' => LocationOptions::countries(),
             'priceTypes' => ServiceOptions::priceTypes(),
             'serviceTypes' => ServiceOptions::serviceTypes(),
             'deliveryTypes' => ServiceOptions::deliveryTypes(),

@@ -34,7 +34,9 @@ type Props = {
     teamSlug: string;
     categories: ServiceCategory[];
     locations: SelectOption[];
+    serviceOptions: SelectOption[];
     specialists: SelectOption[];
+    countries: SelectOption[];
     priceTypes: SelectOption[];
     serviceTypes: SelectOption[];
     google: GoogleIntegrationStatus;
@@ -91,7 +93,9 @@ function ServiceWizardFields({
     teamSlug,
     categories,
     locations,
+    serviceOptions,
     specialists,
+    countries,
     priceTypes,
     serviceTypes,
     google,
@@ -358,6 +362,9 @@ function ServiceWizardFields({
                             <StepLocations
                                 teamSlug={teamSlug}
                                 locations={locations}
+                                services={serviceOptions}
+                                specialists={specialists}
+                                countries={countries}
                                 value={locationIds}
                                 onChange={setLocationIds}
                             />

@@ -292,8 +292,9 @@
             "locations": {
                 "heading": "Bu xidmət harada təklif olunur?",
                 "subheading": "Məkanda göstərilən xidmətlər ən azı bir filialda mövcud olmalıdır.",
-                "empty": "Hələ heç bir filialınız yoxdur. Əvvəlcə filial əlavə edin, sonra bu xidməti yaradın.",
-                "manageLink": "Filialları idarə et"
+                "empty": "Hələ heç bir filialınız yoxdur. Davam etmək üçün ilk filialınızı əlavə edin.",
+                "addLocation": "Filial əlavə et",
+                "addAnotherLocation": "Başqa filial əlavə et"
             },
             "details": {
                 "basics": "Əsas məlumatlar",

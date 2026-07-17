@@ -1,10 +1,10 @@
-import { Link } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Plus } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
+import LocationFormDrawer from '@/components/locations/location-form-drawer';
 import { Button } from '@/components/ui/button';
 import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
 import { useTranslation } from '@/hooks/use-translation';
-import { index as locationsIndex } from '@/routes/company/locations';
 import type { SelectOption } from '@/types';
 
 /**
@@ -14,15 +14,48 @@ import type { SelectOption } from '@/types';
 export default function StepLocations({
     teamSlug,
     locations,
+    services,
+    specialists,
+    countries,
     value,
     onChange,
 }: {
     teamSlug: string;
     locations: SelectOption[];
+    services: SelectOption[];
+    specialists: SelectOption[];
+    countries: SelectOption[];
     value: string[];
     onChange: (value: string[]) => void;
 }) {
     const { t } = useTranslation('company');
+
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    // Saving a location reloads the page props, so anything that appears while
+    // the drawer is open was just created here and is ticked automatically.
+    const knownIds = useRef<string[] | null>(null);
+
+    useEffect(() => {
+        if (knownIds.current === null) {
+            return;
+        }
+
+        const created = locations
+            .map((location) => location.value)
+            .filter((id) => !knownIds.current?.includes(id));
+
+        if (created.length === 0) {
+            return;
+        }
+
+        knownIds.current = null;
+        onChange([...value, ...created]);
+    }, [locations, value, onChange]);
+
+    const openDrawer = () => {
+        knownIds.current = locations.map((location) => location.value);
+        setDrawerOpen(true);
+    };
 
     return (
         <div className="space-y-4">
@@ -41,10 +74,14 @@ export default function StepLocations({
                     <p className="text-sm text-muted-foreground">
                         {t('services.wizard.locations.empty')}
                     </p>
-                    <Button asChild variant="outline">
-                        <Link href={locationsIndex(teamSlug)}>
-                            {t('services.wizard.locations.manageLink')}
-                        </Link>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={openDrawer}
+                        data-test="wizard-add-location-button"
+                    >
+                        <Plus />
+                        {t('services.wizard.locations.addLocation')}
                     </Button>
                 </div>
             ) : (
@@ -58,8 +95,27 @@ export default function StepLocations({
                     <p className="text-sm text-muted-foreground">
                         {t('services.form.locationsHint')}
                     </p>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={openDrawer}
+                        data-test="wizard-add-location-button"
+                    >
+                        <Plus />
+                        {t('services.wizard.locations.addAnotherLocation')}
+                    </Button>
                 </div>
             )}
+
+            <LocationFormDrawer
+                open={drawerOpen}
+                onOpenChange={setDrawerOpen}
+                location={null}
+                teamSlug={teamSlug}
+                services={services}
+                specialists={specialists}
+                countries={countries}
+            />
         </div>
     );
 }

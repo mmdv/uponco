@@ -292,8 +292,9 @@
             "locations": {
                 "heading": "Where is this service offered?",
                 "subheading": "Onsite services must be available in at least one of your locations.",
-                "empty": "You don't have any locations yet. Add one first, then come back to create this service.",
-                "manageLink": "Manage locations"
+                "empty": "You don't have any locations yet. Add your first one to continue.",
+                "addLocation": "Add location",
+                "addAnotherLocation": "Add another location"
             },
             "details": {
                 "basics": "Basics",

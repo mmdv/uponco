@@ -111,7 +111,9 @@ function LocationFormFields({
             {...(isEditing
                 ? update.form([teamSlug, location.id])
                 : store.form(teamSlug))}
-            options={{ preserveScroll: true }}
+            // The drawer can be opened from inside another flow (the service
+            // wizard), so the page must not remount and drop that flow's state.
+            options={{ preserveScroll: true, preserveState: true }}
             onSuccess={onSuccess}
             className="flex min-h-0 flex-1 flex-col"
             disableWhileProcessing

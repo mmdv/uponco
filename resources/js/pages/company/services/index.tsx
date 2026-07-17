@@ -25,6 +25,7 @@ type Props = {
     services: Service[];
     locations: SelectOption[];
     specialists: SelectOption[];
+    countries: SelectOption[];
     priceTypes: SelectOption[];
     serviceTypes: SelectOption[];
     deliveryTypes: SelectOption[];
@@ -37,6 +38,7 @@ export default function ServicesIndex({
     services,
     locations,
     specialists,
+    countries,
     priceTypes,
     serviceTypes,
     deliveryTypes,
@@ -98,6 +100,12 @@ export default function ServicesIndex({
         setDeleteCategoryOpen(true);
     };
 
+    /** The location drawer opened from the wizard attaches existing services. */
+    const serviceOptions: SelectOption[] = services.map((service) => ({
+        value: service.id.toString(),
+        label: service.title,
+    }));
+
     const deletingCategoryServiceCount = deletingCategory
         ? services.filter(
               (service) => service.service_category_id === deletingCategory.id,
@@ -152,7 +160,9 @@ export default function ServicesIndex({
                 teamSlug={teamSlug}
                 categories={categories}
                 locations={locations}
+                serviceOptions={serviceOptions}
                 specialists={specialists}
+                countries={countries}
                 priceTypes={priceTypes}
                 serviceTypes={serviceTypes}
                 google={google}
