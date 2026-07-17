@@ -13,6 +13,9 @@ type Props = {
 
 /**
  * The list of bookable services, grouped under their category headings.
+ *
+ * Categories are optional: the uncategorized group comes first and renders as a
+ * plain list, so a business without categories just sees its services.
  */
 export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
     if (groups.length === 0) {
@@ -26,10 +29,12 @@ export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
     return (
         <div className="space-y-4">
             {groups.map((group) => (
-                <div key={group.id} className="space-y-2">
-                    <p className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                        {group.name}
-                    </p>
+                <div key={group.id ?? 'uncategorized'} className="space-y-2">
+                    {group.name !== null && (
+                        <p className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                            {group.name}
+                        </p>
+                    )}
 
                     <div className="space-y-2">
                         {group.services.map((service) => {

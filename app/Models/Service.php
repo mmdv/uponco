@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
+    'team_id',
     'service_category_id',
     'is_active',
     'title',
@@ -35,7 +36,17 @@ class Service extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Get the category that owns the service.
+     * Get the team that owns the service.
+     *
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    /**
+     * Get the category grouping the service, if it has been given one.
      *
      * @return BelongsTo<ServiceCategory, $this>
      */

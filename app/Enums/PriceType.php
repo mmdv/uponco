@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum PriceType: string
 {
-    case Free = 'free';
     case Fixed = 'fixed';
     case Range = 'range';
+    case Free = 'free';
 
     /**
      * Get the display label for the price type.

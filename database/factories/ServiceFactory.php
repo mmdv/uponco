@@ -7,6 +7,7 @@ use App\Enums\PriceType;
 use App\Enums\ServiceType;
 use App\Models\Service;
 use App\Models\ServiceCategory;
+use App\Models\Team;
 use App\Support\ServiceOptions;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,6 +28,14 @@ class ServiceFactory extends Factory
 
         return [
             'service_category_id' => ServiceCategory::factory(),
+            // Callers typically pass a category and nothing else, so the team is
+            // taken from it to keep the two consistent. Uncategorized services
+            // get their own team instead — see the `uncategorized` state.
+            'team_id' => fn (array $attributes) => $attributes['service_category_id'] === null
+                ? Team::factory()
+                : ServiceCategory::withTrashed()
+                    ->whereKey($attributes['service_category_id'])
+                    ->value('team_id'),
             'is_active' => true,
             'title' => fake()->words(3, true),
             'price_type' => PriceType::Fixed,
@@ -70,6 +79,16 @@ class ServiceFactory extends Factory
             'price' => null,
             'price_min' => 50,
             'price_max' => 200,
+        ]);
+    }
+
+    /**
+     * Indicate that the service has not been given a category.
+     */
+    public function uncategorized(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'service_category_id' => null,
         ]);
     }
 

@@ -12,8 +12,8 @@ export type AppointmentServiceOption = {
     delivery_type: DeliveryType;
     service_type: ServiceTypeValue;
     capacity: number | null;
-    category_id: number;
-    category_name: string;
+    category_id: number | null;
+    category_name: string | null;
     location_ids: number[];
     specialist_ids: number[];
 };

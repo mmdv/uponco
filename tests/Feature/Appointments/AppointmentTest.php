@@ -199,6 +199,32 @@ test('a member can delete their own appointment', function () {
     $this->assertSoftDeleted('appointments', ['id' => $appointment->id]);
 });
 
+test('a service without a category is still bookable', function () {
+    $setup = bookableSetup();
+    $setup['service']->update(['service_category_id' => null]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('appointments', [
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+    ]);
+});
+
+test('the appointments page renders a service without a category', function () {
+    $setup = bookableSetup();
+    $setup['service']->update(['service_category_id' => null]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->assertOk();
+});
+
 test('an appointment can be created and creates a customer', function () {
     $setup = bookableSetup();
 

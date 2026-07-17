@@ -22,12 +22,7 @@ class SyncMemberServicesRequest extends FormRequest
             'ids' => ['array'],
             'ids.*' => [
                 Rule::exists('services', 'id')->where(
-                    fn (Builder $query): Builder => $query->whereIn(
-                        'service_category_id',
-                        fn (Builder $sub): Builder => $sub->select('id')
-                            ->from('service_categories')
-                            ->where('team_id', $teamId),
-                    ),
+                    fn (Builder $query): Builder => $query->where('team_id', $teamId),
                 ),
             ],
         ];

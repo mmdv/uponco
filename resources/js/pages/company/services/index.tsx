@@ -7,12 +7,18 @@ import CategoryFormDialog from '@/components/services/category-form-dialog';
 import DeleteCategoryModal from '@/components/services/delete-category-modal';
 import DeleteServiceModal from '@/components/services/delete-service-modal';
 import ServiceFormDrawer from '@/components/services/service-form-drawer';
+import ServiceWizardDialog from '@/components/services/service-wizard/service-wizard-dialog';
 import ServicesList from '@/components/services/services-list';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as companyIndex } from '@/routes/company';
 import { index as servicesIndex } from '@/routes/company/services';
-import type { SelectOption, Service, ServiceCategory } from '@/types';
+import type {
+    GoogleIntegrationStatus,
+    SelectOption,
+    Service,
+    ServiceCategory,
+} from '@/types';
 
 type Props = {
     categories: ServiceCategory[];
@@ -23,6 +29,7 @@ type Props = {
     serviceTypes: SelectOption[];
     deliveryTypes: SelectOption[];
     meetingProviders: SelectOption[];
+    google: GoogleIntegrationStatus;
 };
 
 export default function ServicesIndex({
@@ -34,11 +41,13 @@ export default function ServicesIndex({
     serviceTypes,
     deliveryTypes,
     meetingProviders,
+    google,
 }: Props) {
     const { t } = useTranslation('company');
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
+    const [serviceWizardOpen, setServiceWizardOpen] = useState(false);
     const [serviceFormOpen, setServiceFormOpen] = useState(false);
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [defaultCategoryId, setDefaultCategoryId] = useState<number | null>(
@@ -59,9 +68,8 @@ export default function ServicesIndex({
         useState<ServiceCategory | null>(null);
 
     const openCreateService = (categoryId: number | null = null) => {
-        setEditingService(null);
         setDefaultCategoryId(categoryId);
-        setServiceFormOpen(true);
+        setServiceWizardOpen(true);
     };
 
     const openEditService = (service: Service) => {
@@ -89,8 +97,6 @@ export default function ServicesIndex({
         setDeletingCategory(category);
         setDeleteCategoryOpen(true);
     };
-
-    const hasCategories = categories.length > 0;
 
     const deletingCategoryServiceCount = deletingCategory
         ? services.filter(
@@ -120,7 +126,6 @@ export default function ServicesIndex({
                         </Button>
                         <Button
                             data-test="add-service-button"
-                            disabled={!hasCategories}
                             onClick={() => openCreateService()}
                         >
                             <Plus /> {t('services.addService')}
@@ -139,6 +144,19 @@ export default function ServicesIndex({
                     onDeleteCategory={confirmDeleteCategory}
                 />
             </div>
+
+            <ServiceWizardDialog
+                open={serviceWizardOpen}
+                onOpenChange={setServiceWizardOpen}
+                defaultCategoryId={defaultCategoryId}
+                teamSlug={teamSlug}
+                categories={categories}
+                locations={locations}
+                specialists={specialists}
+                priceTypes={priceTypes}
+                serviceTypes={serviceTypes}
+                google={google}
+            />
 
             <ServiceFormDrawer
                 open={serviceFormOpen}

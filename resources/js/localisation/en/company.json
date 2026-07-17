@@ -168,7 +168,7 @@
         "addCategory": "Add category",
         "addService": "Add service",
         "addServiceShort": "Service",
-        "noCategories": "No categories yet. Add your first category to start grouping services.",
+        "uncategorized": "Uncategorized",
         "noServicesInCategory": "No services in this category yet.",
         "editCategoryTooltip": "Edit category",
         "deleteCategoryTooltip": "Delete category",
@@ -199,7 +199,7 @@
         },
         "deleteCategoryModal": {
             "title": "Delete category",
-            "confirmWithServices": "Are you sure you want to delete \"{name}\"? This category has {count} service(s) that will no longer be available.",
+            "confirmWithServices": "Are you sure you want to delete \"{name}\"? Its {count} service(s) will be kept and moved to Uncategorized.",
             "confirmNoServices": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
             "cancel": "Cancel",
             "confirm": "Delete category"
@@ -220,6 +220,7 @@
             "titleLabel": "Title",
             "titlePlaceholder": "Haircut",
             "category": "Category",
+            "categoryNone": "No category",
             "categoryPlaceholder": "Select a category",
             "categorySearchPlaceholder": "Search categories…",
             "categoryEmpty": "No categories found.",
@@ -249,6 +250,69 @@
             "cancel": "Cancel",
             "save": "Save changes",
             "add": "Add service"
+        },
+        "wizard": {
+            "title": "Add service",
+            "description": "Set up a new service step by step.",
+            "stepLabel": "Step {current} of {total}",
+            "back": "Back",
+            "next": "Next",
+            "create": "Create service",
+            "cancel": "Cancel",
+            "steps": {
+                "delivery": "Delivery",
+                "onlineMethod": "Meeting setup",
+                "locations": "Locations",
+                "setup": "Setup",
+                "details": "Details"
+            },
+            "delivery": {
+                "heading": "How is this service delivered?",
+                "subheading": "This decides how customers attend their appointment. You can change it later.",
+                "onsiteTitle": "Onsite",
+                "onsiteDescription": "Customers come to one of your locations, such as a salon, clinic or office.",
+                "onlineTitle": "Online",
+                "onlineDescription": "You meet customers over a video call — no physical location needed."
+            },
+            "online": {
+                "heading": "How should meeting links be handled?",
+                "subheading": "Every online appointment needs a meeting link for the customer to join.",
+                "automaticTitle": "Automatic",
+                "automaticDescription": "A meeting link is generated automatically when a booking is made.",
+                "manualTitle": "Manual",
+                "manualDescription": "You send the meeting link to the customer yourself before the meeting starts.",
+                "providersLabel": "Supported providers",
+                "comingSoon": "Coming soon",
+                "connectedAs": "Google is connected as {email} — meeting links will be created automatically.",
+                "connectTitle": "Google account not connected",
+                "connectHint": "Meeting links are created from the assigned specialist's Google account. You can connect now, or later from Settings → Integrations — the service can be saved either way, but no links will be generated until a specialist connects Google.",
+                "manualNoteTitle": "You handle the meeting link",
+                "manualNote": "No link will be generated automatically. You are responsible for sending the meeting link to the customer before each appointment."
+            },
+            "locations": {
+                "heading": "Where is this service offered?",
+                "subheading": "Onsite services must be available in at least one of your locations.",
+                "empty": "You don't have any locations yet. Add one first, then come back to create this service.",
+                "manageLink": "Manage locations"
+            },
+            "details": {
+                "basics": "Basics",
+                "pricing": "Pricing",
+                "scheduling": "Scheduling",
+                "format": "Format",
+                "team": "Team",
+                "visibility": "Visibility",
+                "required": "required",
+                "requiredLegend": "Fields marked * are required."
+            },
+            "summary": {
+                "online": "Online",
+                "onsite": "Onsite",
+                "automatic": "Automatic meeting link (Google Meet)",
+                "manual": "Manual meeting link",
+                "locations": "{count} location(s)",
+                "edit": "Change"
+            }
         }
     },
     "schedule": {

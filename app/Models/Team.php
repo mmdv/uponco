@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -148,13 +147,13 @@ class Team extends Model
     }
 
     /**
-     * Get all services for this team through their categories.
+     * Get all services for this team.
      *
-     * @return HasManyThrough<Service, ServiceCategory, $this>
+     * @return HasMany<Service, $this>
      */
-    public function services(): HasManyThrough
+    public function services(): HasMany
     {
-        return $this->hasManyThrough(Service::class, ServiceCategory::class);
+        return $this->hasMany(Service::class);
     }
 
     /**

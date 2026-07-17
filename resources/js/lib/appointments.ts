@@ -17,8 +17,9 @@ export type AppointmentSelection = {
 };
 
 export type ServiceCategoryGroup = {
-    id: number;
-    name: string;
+    /** `null` for services that have not been given a category. */
+    id: number | null;
+    name: string | null;
     services: AppointmentServiceOption[];
 };
 
@@ -65,11 +66,15 @@ export function getAvailableOptions(
 
 /**
  * Group services by their category for a grouped select control.
+ *
+ * A category is optional, so uncategorized services collect into a single group
+ * keyed by `null`, which is always returned first — callers render it as a plain
+ * list without a category heading.
  */
 export function groupServicesByCategory(
     services: AppointmentServiceOption[],
 ): ServiceCategoryGroup[] {
-    const groups = new Map<number, ServiceCategoryGroup>();
+    const groups = new Map<number | null, ServiceCategoryGroup>();
 
     for (const service of services) {
         const group = groups.get(service.category_id);
@@ -85,7 +90,13 @@ export function groupServicesByCategory(
         }
     }
 
-    return Array.from(groups.values());
+    return Array.from(groups.values()).sort((a, b) => {
+        if (a.id === b.id) {
+            return 0;
+        }
+
+        return a.id === null ? -1 : b.id === null ? 1 : 0;
+    });
 }
 
 /**

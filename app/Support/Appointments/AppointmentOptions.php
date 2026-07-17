@@ -23,7 +23,7 @@ class AppointmentOptions
     /**
      * Get the bookable services for the team, including their category and relationships.
      *
-     * @return array<int, array{id: int, title: string, description: ?string, duration: int, price_type: string, price: ?string, price_min: ?string, price_max: ?string, delivery_type: string, service_type: string, capacity: ?int, category_id: int, category_name: string, location_ids: array<int, int>, specialist_ids: array<int, int>}>
+     * @return array<int, array{id: int, title: string, description: ?string, duration: int, price_type: string, price: ?string, price_min: ?string, price_max: ?string, delivery_type: string, service_type: string, capacity: ?int, category_id: ?int, category_name: ?string, location_ids: array<int, int>, specialist_ids: array<int, int>}>
      */
     public static function services(Team $team): array
     {
@@ -45,7 +45,7 @@ class AppointmentOptions
                 'service_type' => $service->service_type->value,
                 'capacity' => $service->capacity,
                 'category_id' => $service->service_category_id,
-                'category_name' => $service->category->name,
+                'category_name' => $service->category?->name,
                 'location_ids' => $service->locations->pluck('id')->all(),
                 'specialist_ids' => $service->specialists->pluck('id')->all(),
             ])

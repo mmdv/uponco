@@ -24,7 +24,7 @@ class SaveServiceRequest extends FormRequest
             return true;
         }
 
-        return $service->category->team_id === $this->user()->currentTeam->id;
+        return $service->team_id === $this->user()->currentTeam->id;
     }
 
     /**
@@ -34,6 +34,8 @@ class SaveServiceRequest extends FormRequest
     {
         $this->merge([
             'is_active' => $this->boolean('is_active'),
+            // The category select submits an empty value when left unset.
+            'service_category_id' => $this->input('service_category_id') ?: null,
         ]);
     }
 
@@ -46,7 +48,7 @@ class SaveServiceRequest extends FormRequest
     {
         return [
             'service_category_id' => [
-                'required',
+                'nullable',
                 Rule::exists('service_categories', 'id')->where(
                     fn ($query) => $query->where('team_id', $this->user()->currentTeam->id),
                 ),
@@ -68,7 +70,7 @@ class SaveServiceRequest extends FormRequest
             ],
             'capacity' => ['nullable', 'required_if:service_type,group', 'integer', 'min:1', 'max:10000'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'location_ids' => ['array'],
+            'location_ids' => ['array', 'required_if:delivery_type,onsite', 'min:1'],
             'location_ids.*' => [
                 Rule::exists('locations', 'id')->where(
                     fn ($query) => $query->where('team_id', $this->user()->currentTeam->id),
@@ -84,6 +86,19 @@ class SaveServiceRequest extends FormRequest
     }
 
     /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'location_ids.required_if' => __('Onsite services need at least one location.'),
+            'location_ids.min' => __('Onsite services need at least one location.'),
+        ];
+    }
+
+    /**
      * Get the validated payload normalized for the selected price and type options.
      *
      * @return array<string, mixed>
@@ -93,6 +108,8 @@ class SaveServiceRequest extends FormRequest
         $data = $this->validated();
 
         unset($data['location_ids'], $data['user_ids']);
+
+        $data['team_id'] = $this->user()->currentTeam->id;
 
         if ($data['price_type'] !== PriceType::Fixed->value) {
             $data['price'] = null;

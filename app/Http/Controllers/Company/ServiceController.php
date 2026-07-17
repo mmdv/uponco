@@ -55,6 +55,10 @@ class ServiceController extends Controller
             'serviceTypes' => ServiceOptions::serviceTypes(),
             'deliveryTypes' => ServiceOptions::deliveryTypes(),
             'meetingProviders' => ServiceOptions::meetingProviders(),
+            'google' => [
+                'connected' => $request->user()->hasGoogleConnected(),
+                'email' => $request->user()->google_account_email,
+            ],
         ]);
     }
 
@@ -112,7 +116,7 @@ class ServiceController extends Controller
         /** @var Team $team */
         $team = $request->user()->currentTeam;
 
-        abort_unless($service->category->team_id === $team->id, 403);
+        abort_unless($service->team_id === $team->id, 403);
     }
 
     /**

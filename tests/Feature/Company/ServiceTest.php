@@ -6,8 +6,9 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
-function servicePayload(int $categoryId, array $overrides = []): array
+function servicePayload(?int $categoryId = null, array $overrides = []): array
 {
     return array_merge([
         'service_category_id' => $categoryId,
@@ -21,6 +22,13 @@ function servicePayload(int $categoryId, array $overrides = []): array
         'delivery_type' => 'onsite',
         'description' => 'A nice haircut.',
     ], $overrides);
+}
+
+function onsiteServicePayload(Team $team, ?int $categoryId = null, array $overrides = []): array
+{
+    return servicePayload($categoryId, array_merge([
+        'location_ids' => [Location::factory()->for($team)->create()->id],
+    ], $overrides));
 }
 
 test('the services page can be rendered', function () {
@@ -94,7 +102,7 @@ test('a fixed price service can be created', function () {
         ->actingAs($user)
         ->post(
             route('company.services.store', ['current_team' => $team->slug]),
-            servicePayload($category->id),
+            onsiteServicePayload($team, $category->id),
         );
 
     $response->assertRedirect();
@@ -118,7 +126,7 @@ test('a free service clears price columns', function () {
         ->actingAs($user)
         ->post(
             route('company.services.store', ['current_team' => $team->slug]),
-            servicePayload($category->id, ['price_type' => 'free', 'price' => null]),
+            onsiteServicePayload($team, $category->id, ['price_type' => 'free', 'price' => null]),
         )
         ->assertRedirect();
 
@@ -139,7 +147,7 @@ test('a range service stores min and max', function () {
         ->actingAs($user)
         ->post(
             route('company.services.store', ['current_team' => $team->slug]),
-            servicePayload($category->id, [
+            onsiteServicePayload($team, $category->id, [
                 'price_type' => 'range',
                 'price' => null,
                 'price_min' => 30,
@@ -233,6 +241,90 @@ test('online meeting provider is required for online services', function () {
         ->assertSessionHasErrors(['online_meeting_provider']);
 });
 
+test('a service can be created without a category', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            onsiteServicePayload($team),
+        )
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('services', [
+        'team_id' => $team->id,
+        'service_category_id' => null,
+        'title' => 'Haircut',
+    ]);
+});
+
+test('an uncategorized service is listed on the services page', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $service = Service::factory()->uncategorized()->create([
+        'team_id' => $team->id,
+        'title' => 'Standalone',
+    ]);
+
+    $this
+        ->actingAs($user)
+        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->where('services.0.id', $service->id)
+                ->where('services.0.service_category_id', null),
+        );
+});
+
+test('a service can have its category removed', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+    $service = Service::factory()->for($category, 'category')->create();
+
+    $this
+        ->actingAs($user)
+        ->patch(
+            route('company.services.update', ['current_team' => $team->slug, 'service' => $service->id]),
+            onsiteServicePayload($team, null),
+        )
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('services', [
+        'id' => $service->id,
+        'service_category_id' => null,
+    ]);
+});
+
+test('deleting a category keeps its services and uncategorizes them', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+    $service = Service::factory()->for($category, 'category')->create();
+
+    $this
+        ->actingAs($user)
+        ->delete(route('company.service-categories.destroy', [
+            'current_team' => $team->slug,
+            'serviceCategory' => $category->id,
+        ]))
+        ->assertRedirect();
+
+    $this->assertSoftDeleted('service_categories', ['id' => $category->id]);
+
+    $this->assertDatabaseHas('services', [
+        'id' => $service->id,
+        'team_id' => $team->id,
+        'service_category_id' => null,
+        'deleted_at' => null,
+    ]);
+});
+
 test('a service cannot be created in another team category', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;
@@ -259,7 +351,7 @@ test('a service can be updated', function () {
         ->actingAs($user)
         ->patch(
             route('company.services.update', ['current_team' => $team->slug, 'service' => $service->id]),
-            servicePayload($category->id, ['title' => 'New']),
+            onsiteServicePayload($team, $category->id, ['title' => 'New']),
         )
         ->assertRedirect();
 
@@ -372,6 +464,53 @@ test('a service cannot be updated from another team', function () {
             servicePayload($foreignCategory->id),
         )
         ->assertForbidden();
+});
+
+test('an onsite service requires at least one location', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            servicePayload($category->id),
+        )
+        ->assertSessionHasErrors(['location_ids']);
+});
+
+test('an online service does not require a location', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            servicePayload($category->id, [
+                'delivery_type' => 'online',
+                'online_meeting_provider' => 'custom',
+            ]),
+        )
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+});
+
+test('the services page shares the google connection status', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->where('google.connected', false)
+                ->where('google.email', null),
+        );
 });
 
 test('guests cannot access services', function () {

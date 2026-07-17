@@ -22,7 +22,6 @@ export default function StepServices({ data, controls }: Props) {
     const [categoryOpen, setCategoryOpen] = useState(false);
     const [serviceOpen, setServiceOpen] = useState(false);
 
-    const hasCategories = data.categories.length > 0;
     const hasServices = data.services.length > 0;
 
     return (
@@ -69,17 +68,11 @@ export default function StepServices({ data, controls }: Props) {
                 type="button"
                 variant="outline"
                 onClick={() => setServiceOpen(true)}
-                disabled={!hasCategories}
                 data-test="onboarding-add-service"
             >
                 <Plus className="h-4 w-4" />
                 {hasServices ? 'Add another service' : 'Add service'}
             </Button>
-            {!hasCategories ? (
-                <p className="text-sm text-muted-foreground">
-                    Add a category before creating your first service.
-                </p>
-            ) : null}
 
             <CategoryFormDialog
                 open={categoryOpen}
@@ -108,22 +101,20 @@ export default function StepServices({ data, controls }: Props) {
                 <GoogleMeetCard google={data.google} />
             </div>
 
-            {hasCategories ? (
-                <ServiceFormDrawer
-                    open={serviceOpen}
-                    onOpenChange={setServiceOpen}
-                    service={null}
-                    defaultCategoryId={data.categories[0]?.id ?? null}
-                    teamSlug={teamSlug}
-                    categories={data.categories}
-                    locations={data.locations}
-                    specialists={data.specialists}
-                    priceTypes={data.priceTypes}
-                    serviceTypes={data.serviceTypes}
-                    deliveryTypes={data.deliveryTypes}
-                    meetingProviders={data.meetingProviders}
-                />
-            ) : null}
+            <ServiceFormDrawer
+                open={serviceOpen}
+                onOpenChange={setServiceOpen}
+                service={null}
+                defaultCategoryId={null}
+                teamSlug={teamSlug}
+                categories={data.categories}
+                locations={data.locations}
+                specialists={data.specialists}
+                priceTypes={data.priceTypes}
+                serviceTypes={data.serviceTypes}
+                deliveryTypes={data.deliveryTypes}
+                meetingProviders={data.meetingProviders}
+            />
 
             <OnboardingFooter
                 showBack={controls.showBack}

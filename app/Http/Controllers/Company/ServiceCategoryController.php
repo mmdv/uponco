@@ -8,6 +8,7 @@ use App\Models\ServiceCategory;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ServiceCategoryController extends Controller
@@ -39,13 +40,21 @@ class ServiceCategoryController extends Controller
     }
 
     /**
-     * Delete the specified service category.
+     * Delete the specified service category, uncategorizing its services.
+     *
+     * Categories only group services, so deleting one must not take its services
+     * with it. The foreign key nulls on delete, but categories soft-delete and
+     * never trigger it, so the services are detached explicitly.
      */
     public function destroy(Request $request, string $current_team, ServiceCategory $serviceCategory): RedirectResponse
     {
         $this->authorizeCategory($request, $serviceCategory);
 
-        $serviceCategory->delete();
+        DB::transaction(function () use ($serviceCategory): void {
+            $serviceCategory->services()->update(['service_category_id' => null]);
+
+            $serviceCategory->delete();
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Category deleted.')]);
 

@@ -9,7 +9,7 @@ export type ServiceCategory = {
 
 export type Service = {
     id: number;
-    service_category_id: number;
+    service_category_id: number | null;
     is_active: boolean;
     title: string;
     price_type: PriceType;

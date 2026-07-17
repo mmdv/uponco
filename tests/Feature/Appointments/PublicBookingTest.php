@@ -22,6 +22,23 @@ test('the public booking page can be rendered', function () {
         ->assertOk();
 });
 
+test('the public booking page exposes a service without a category', function () {
+    $setup = bookableSetup();
+    $setup['service']->update(['service_category_id' => null]);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->has('services', 1)
+            ->where('services.0.id', $setup['service']->id)
+            ->where('services.0.category_id', null)
+            ->where('services.0.category_name', null)
+            ->etc(),
+        );
+});
+
 test('the platform team is not publicly bookable and redirects home', function () {
     $setup = bookableSetup();
     $setup['team']->update(['slug' => 'uponco']);

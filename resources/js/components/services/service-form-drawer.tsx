@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 
 import InputError from '@/components/input-error';
+import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +18,6 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { store, update } from '@/routes/company/services';
 import type {
@@ -28,52 +28,6 @@ import type {
     ServiceCategory,
     ServiceTypeValue,
 } from '@/types';
-
-/**
- * A horizontal, single-select radio group rendered as a segmented control.
- */
-function OptionToggleGroup({
-    id,
-    options,
-    value,
-    onChange,
-    invalid,
-    ...props
-}: {
-    id?: string;
-    options: SelectOption[];
-    value: string;
-    onChange: (value: string) => void;
-    invalid?: boolean;
-    'data-test'?: string;
-}) {
-    return (
-        <ToggleGroup
-            type="single"
-            id={id}
-            value={value}
-            onValueChange={(next) => {
-                if (next) {
-                    onChange(next);
-                }
-            }}
-            variant="outline"
-            aria-invalid={invalid}
-            className="w-full"
-            {...props}
-        >
-            {options.map((option) => (
-                <ToggleGroupItem
-                    key={option.value}
-                    value={option.value}
-                    className="h-9 flex-1 px-3"
-                >
-                    {option.label}
-                </ToggleGroupItem>
-            ))}
-        </ToggleGroup>
-    );
-}
 
 type Props = {
     open: boolean;
@@ -203,10 +157,15 @@ function ServiceFormFields({
         service?.user_ids.map((id) => id.toString()) ?? [],
     );
 
-    const categoryOptions: SelectOption[] = categories.map((category) => ({
-        value: category.id.toString(),
-        label: category.name,
-    }));
+    // A category is optional, so leaving it unset is an explicit choice rather
+    // than an empty field. The blank value submits as null.
+    const categoryOptions: SelectOption[] = [
+        { value: '', label: t('services.form.categoryNone') },
+        ...categories.map((category) => ({
+            value: category.id.toString(),
+            label: category.name,
+        })),
+    ];
 
     return (
         <Form

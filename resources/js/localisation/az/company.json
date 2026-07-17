@@ -168,7 +168,7 @@
         "addCategory": "Kateqoriya əlavə et",
         "addService": "Xidmət əlavə et",
         "addServiceShort": "Xidmət",
-        "noCategories": "Hələ kateqoriya yoxdur. Xidmətləri qruplaşdırmaq üçün ilk kateqoriyanızı əlavə edin.",
+        "uncategorized": "Kateqoriyasız",
         "noServicesInCategory": "Bu kateqoriyada hələ xidmət yoxdur.",
         "editCategoryTooltip": "Kateqoriyanı redaktə et",
         "deleteCategoryTooltip": "Kateqoriyanı sil",
@@ -199,7 +199,7 @@
         },
         "deleteCategoryModal": {
             "title": "Kateqoriyanı sil",
-            "confirmWithServices": "\"{name}\" kateqoriyasını silmək istədiyinizə əminsiniz? Bu kateqoriyada artıq əlçatan olmayacaq {count} xidmət var.",
+            "confirmWithServices": "\"{name}\" kateqoriyasını silmək istədiyinizə əminsiniz? Onun {count} xidməti saxlanılacaq və Kateqoriyasız bölməsinə köçürüləcək.",
             "confirmNoServices": "\"{name}\" kateqoriyasını silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
             "cancel": "Ləğv et",
             "confirm": "Kateqoriyanı sil"
@@ -220,6 +220,7 @@
             "titleLabel": "Başlıq",
             "titlePlaceholder": "Saç kəsimi",
             "category": "Kateqoriya",
+            "categoryNone": "Kateqoriyasız",
             "categoryPlaceholder": "Kateqoriya seçin",
             "categorySearchPlaceholder": "Kateqoriyaları axtar…",
             "categoryEmpty": "Kateqoriya tapılmadı.",
@@ -249,6 +250,69 @@
             "cancel": "Ləğv et",
             "save": "Dəyişiklikləri saxla",
             "add": "Xidmət əlavə et"
+        },
+        "wizard": {
+            "title": "Xidmət əlavə et",
+            "description": "Yeni xidməti addım-addım qurun.",
+            "stepLabel": "Addım {current} / {total}",
+            "back": "Geri",
+            "next": "Növbəti",
+            "create": "Xidmət yarat",
+            "cancel": "Ləğv et",
+            "steps": {
+                "delivery": "Çatdırılma",
+                "onlineMethod": "Görüş tənzimləmə",
+                "locations": "Filiallar",
+                "setup": "Tənzimləmə",
+                "details": "Təfərrüatlar"
+            },
+            "delivery": {
+                "heading": "Bu xidmət necə göstərilir?",
+                "subheading": "Bu, müştərilərin görüşə necə qatılacağını müəyyən edir. Sonra dəyişə bilərsiniz.",
+                "onsiteTitle": "Məkanda",
+                "onsiteDescription": "Müştərilər filiallarınızdan birinə gəlir — salon, klinika və ya ofis kimi.",
+                "onlineTitle": "Onlayn",
+                "onlineDescription": "Müştərilərlə video zəng üzərindən görüşürsünüz — fiziki məkan tələb olunmur."
+            },
+            "online": {
+                "heading": "Görüş linkləri necə idarə olunsun?",
+                "subheading": "Hər onlayn görüş üçün müştərinin qoşulacağı bir link lazımdır.",
+                "automaticTitle": "Avtomatik",
+                "automaticDescription": "Rezervasiya edildikdə görüş linki avtomatik yaradılır.",
+                "manualTitle": "Manual",
+                "manualDescription": "Görüş başlamazdan əvvəl linki müştəriyə özünüz göndərirsiniz.",
+                "providersLabel": "Dəstəklənən provayderlər",
+                "comingSoon": "Tezliklə",
+                "connectedAs": "Google {email} olaraq qoşulub — görüş linkləri avtomatik yaradılacaq.",
+                "connectTitle": "Google hesabı qoşulmayıb",
+                "connectHint": "Görüş linkləri təyin olunmuş mütəxəssisin Google hesabından yaradılır. İndi qoşula və ya sonra Tənzimləmələr → İnteqrasiyalar bölməsindən qoşula bilərsiniz — xidmət hər halda saxlanıla bilər, lakin mütəxəssis Google-a qoşulana qədər linklər yaradılmayacaq.",
+                "manualNoteTitle": "Görüş linkini siz göndərirsiniz",
+                "manualNote": "Link avtomatik yaradılmayacaq. Hər görüşdən əvvəl linki müştəriyə göndərmək sizin məsuliyyətinizdədir."
+            },
+            "locations": {
+                "heading": "Bu xidmət harada təklif olunur?",
+                "subheading": "Məkanda göstərilən xidmətlər ən azı bir filialda mövcud olmalıdır.",
+                "empty": "Hələ heç bir filialınız yoxdur. Əvvəlcə filial əlavə edin, sonra bu xidməti yaradın.",
+                "manageLink": "Filialları idarə et"
+            },
+            "details": {
+                "basics": "Əsas məlumatlar",
+                "pricing": "Qiymətləndirmə",
+                "scheduling": "Cədvəl",
+                "format": "Format",
+                "team": "Komanda",
+                "visibility": "Görünürlük",
+                "required": "vacibdir",
+                "requiredLegend": "* ilə işarələnmiş sahələr vacibdir."
+            },
+            "summary": {
+                "online": "Onlayn",
+                "onsite": "Məkanda",
+                "automatic": "Avtomatik görüş linki (Google Meet)",
+                "manual": "Manual görüş linki",
+                "locations": "{count} filial",
+                "edit": "Dəyiş"
+            }
         }
     },
     "schedule": {

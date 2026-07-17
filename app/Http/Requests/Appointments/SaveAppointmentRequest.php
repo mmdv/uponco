@@ -51,12 +51,7 @@ class SaveAppointmentRequest extends FormRequest
         return [
             'service_id' => [
                 'required',
-                Rule::exists('services', 'id')->where(
-                    fn ($query) => $query->whereIn(
-                        'service_category_id',
-                        fn ($sub) => $sub->select('id')->from('service_categories')->where('team_id', $teamId),
-                    ),
-                ),
+                Rule::exists('services', 'id')->where(fn ($query) => $query->where('team_id', $teamId)),
             ],
             'location_id' => [
                 'nullable',
