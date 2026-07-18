@@ -56,6 +56,13 @@ export default function OnboardingWizard({ onboarding }: Props) {
     const activeStepInfo = steps[activeIndex];
     const activeMeta = stepMeta[activeStep];
 
+    // Once a service exists the services step swaps the wizard for a summary,
+    // so the "walk through the steps below" copy no longer describes it.
+    const activeDescription =
+        activeStep === 'services' && onboarding.services.services.length > 0
+            ? 'Your first service is ready. Add another if you need one, or move on to the next step.'
+            : activeMeta.description;
+
     const completedCount = steps.filter(
         (step) => step.status !== 'pending',
     ).length;
@@ -241,7 +248,7 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                 ) : null}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                {activeMeta.description}
+                                {activeDescription}
                             </p>
                         </div>
                     </div>

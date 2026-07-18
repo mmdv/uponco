@@ -1,7 +1,9 @@
 import { usePage } from '@inertiajs/react';
-import { Clock } from 'lucide-react';
+import { CheckCircle2, Clock, Plus } from 'lucide-react';
 import { useState } from 'react';
+import ServiceWizardDialog from '@/components/services/service-wizard/service-wizard-dialog';
 import ServiceWizardFields from '@/components/services/service-wizard/service-wizard-fields';
+import { Button } from '@/components/ui/button';
 import type { Onboarding } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
@@ -15,9 +17,7 @@ export default function StepServices({ data, controls }: Props) {
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
-    // Bumping the key remounts the wizard, so creating a service leaves a clean
-    // form behind for the next one instead of the previous answers.
-    const [wizardKey, setWizardKey] = useState(0);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const hasServices = data.services.length > 0;
 
@@ -30,7 +30,8 @@ export default function StepServices({ data, controls }: Props) {
                             key={service.id}
                             className="flex items-center justify-between rounded-lg border p-3"
                         >
-                            <div className="text-sm font-medium">
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                <CheckCircle2 className="h-4 w-4 text-primary" />
                                 {service.title}
                             </div>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -42,11 +43,47 @@ export default function StepServices({ data, controls }: Props) {
                 </div>
             ) : null}
 
-            {/* Rendered flush against the step card: the wizard is the step,
-                not a component nested inside it. */}
-            <ServiceWizardFields
-                key={wizardKey}
-                inline
+            {hasServices ? (
+                /* The step is satisfied, so the wizard gets out of the way —
+                   continuing is the primary path and anything else can wait
+                   until after onboarding. */
+                <div className="space-y-3 rounded-lg border border-dashed p-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                        That's all you need to start taking bookings. You can
+                        add more services any time from your dashboard.
+                    </p>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setDialogOpen(true)}
+                        data-test="onboarding-add-another-service"
+                    >
+                        <Plus />
+                        Add another service
+                    </Button>
+                </div>
+            ) : (
+                /* Rendered flush against the step card: the wizard is the step,
+                   not a component nested inside it. */
+                <ServiceWizardFields
+                    inline
+                    defaultCategoryId={null}
+                    teamSlug={teamSlug}
+                    categories={data.categories}
+                    locations={data.locations}
+                    serviceOptions={data.serviceOptions}
+                    specialists={data.specialists}
+                    countries={data.countries}
+                    priceTypes={data.priceTypes}
+                    serviceTypes={data.serviceTypes}
+                    google={data.google}
+                    onSuccess={() => undefined}
+                />
+            )}
+
+            <ServiceWizardDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
                 defaultCategoryId={null}
                 teamSlug={teamSlug}
                 categories={data.categories}
@@ -57,7 +94,6 @@ export default function StepServices({ data, controls }: Props) {
                 priceTypes={data.priceTypes}
                 serviceTypes={data.serviceTypes}
                 google={data.google}
-                onSuccess={() => setWizardKey((key) => key + 1)}
             />
 
             <OnboardingFooter
