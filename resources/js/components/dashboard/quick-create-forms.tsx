@@ -2,7 +2,7 @@ import AppointmentFormDrawer from '@/components/appointments/appointment-form-dr
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
 import CustomerFormDialog from '@/components/customers/customer-form-dialog';
 import LocationFormDrawer from '@/components/locations/location-form-drawer';
-import ServiceFormDrawer from '@/components/services/service-form-drawer';
+import ServiceWizardDialog from '@/components/services/service-wizard/service-wizard-dialog';
 import type { AppointmentSlot, DashboardFormOptions } from '@/types';
 
 export type QuickCreateForm =
@@ -59,19 +59,19 @@ export default function QuickCreateForms({
                 teamSlug={teamSlug}
             />
 
-            <ServiceFormDrawer
+            <ServiceWizardDialog
                 open={open === 'service'}
                 onOpenChange={(next) => onOpenChange('service', next)}
-                service={null}
                 defaultCategoryId={null}
                 teamSlug={teamSlug}
                 categories={options.services.categories}
                 locations={options.services.locations}
+                serviceOptions={options.services.services}
                 specialists={options.services.specialists}
+                countries={options.services.countries}
                 priceTypes={options.services.priceTypes}
                 serviceTypes={options.services.serviceTypes}
-                deliveryTypes={options.services.deliveryTypes}
-                meetingProviders={options.services.meetingProviders}
+                google={options.services.google}
             />
 
             <LocationFormDrawer

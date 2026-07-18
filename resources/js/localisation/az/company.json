@@ -249,7 +249,12 @@
             "specialistsHint": "Bu xidməti göstərən komanda üzvləri.",
             "cancel": "Ləğv et",
             "save": "Dəyişiklikləri saxla",
-            "add": "Xidmət əlavə et"
+            "add": "Xidmət əlavə et",
+            "categoryHint": "Seçimlidir — siyahınızın səliqəli qalması üçün oxşar xidmətləri qrupllaşdırın.",
+            "categoryAdd": "Kateqoriya əlavə et",
+            "categoryNamePlaceholder": "Yeni kateqoriyanın adı",
+            "categorySave": "Əlavə et",
+            "categoryCancel": "Ləğv et"
         },
         "wizard": {
             "title": "Xidmət əlavə et",
@@ -281,13 +286,16 @@
                 "automaticDescription": "Rezervasiya edildikdə görüş linki avtomatik yaradılır.",
                 "manualTitle": "Manual",
                 "manualDescription": "Görüş başlamazdan əvvəl linki müştəriyə özünüz göndərirsiniz.",
-                "providersLabel": "Dəstəklənən provayderlər",
                 "comingSoon": "Tezliklə",
                 "connectedAs": "Google {email} olaraq qoşulub — görüş linkləri avtomatik yaradılacaq.",
-                "connectTitle": "Google hesabı qoşulmayıb",
-                "connectHint": "Görüş linkləri təyin olunmuş mütəxəssisin Google hesabından yaradılır. İndi qoşula və ya sonra Tənzimləmələr → İnteqrasiyalar bölməsindən qoşula bilərsiniz — xidmət hər halda saxlanıla bilər, lakin mütəxəssis Google-a qoşulana qədər linklər yaradılmayacaq.",
                 "manualNoteTitle": "Görüş linkini siz göndərirsiniz",
-                "manualNote": "Link avtomatik yaradılmayacaq. Hər görüşdən əvvəl linki müştəriyə göndərmək sizin məsuliyyətinizdədir."
+                "manualNote": "Link avtomatik yaradılmayacaq. Hər görüşdən əvvəl linki müştəriyə göndərmək sizin məsuliyyətinizdədir.",
+                "providersHeading": "Avtomatik görüş yaratmaq üçün provayderləri quraşdırın",
+                "providersDescription": "Linklər təyin olunmuş mütəxəssisin hesabından yaradılır. Bunu sonra da quraşdıra bilərsiniz — xidmət hər halda saxlanılır, lakin provayder qoşulana qədər link yaradılmayacaq.",
+                "setupGoogle": "Google quraşdır",
+                "setupTeams": "Teams quraşdır",
+                "setupZoom": "Zoom quraşdır",
+                "googleConnected": "Google qoşulub"
             },
             "locations": {
                 "heading": "Bu xidmət harada təklif olunur?",

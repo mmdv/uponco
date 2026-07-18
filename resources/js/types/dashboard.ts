@@ -5,6 +5,7 @@ import type {
     AppointmentSpecialistOption,
 } from './appointments';
 import type { SelectOption } from './locations';
+import type { GoogleIntegrationStatus } from './onboarding';
 import type { ServiceCategory } from './services';
 
 export type DashboardStats = {
@@ -32,12 +33,15 @@ export type DashboardFormOptions = {
     };
     services: {
         categories: ServiceCategory[];
+        services: SelectOption[];
         locations: SelectOption[];
         specialists: SelectOption[];
+        countries: SelectOption[];
         priceTypes: SelectOption[];
         serviceTypes: SelectOption[];
         deliveryTypes: SelectOption[];
         meetingProviders: SelectOption[];
+        google: GoogleIntegrationStatus;
     };
     locations: {
         services: SelectOption[];

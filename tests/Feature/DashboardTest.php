@@ -38,7 +38,6 @@ function dashboardOwner(): array
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $owner->id,
-        'locations_status' => OnboardingStepStatus::Skipped,
         'services_status' => OnboardingStepStatus::Skipped,
         'profile_status' => OnboardingStepStatus::Completed,
         'schedule_status' => OnboardingStepStatus::Completed,

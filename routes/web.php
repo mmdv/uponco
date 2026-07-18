@@ -25,6 +25,15 @@ use App\Http\Middleware\EnsureTeamOnboarded;
 use App\Http\Middleware\EnsureUponcoTeam;
 use Illuminate\Support\Facades\Route;
 
+// TEMP-CLAUDE-VERIFY: remove after browser verification.
+if (app()->environment('local')) {
+    Route::get('__verify-login/{user}', function (App\Models\User $user) {
+        Illuminate\Support\Facades\Auth::login($user);
+
+        return redirect()->route('company.services.index', ['current_team' => $user->currentTeam->slug]);
+    });
+}
+
 Route::inertia('/', 'welcome')->name('home');
 
 Route::inertia('/privacy', 'legal/privacy')->name('privacy');

@@ -4,7 +4,6 @@ namespace App\Enums;
 
 enum OnboardingStep: string
 {
-    case Locations = 'locations';
     case Services = 'services';
     case Profile = 'profile';
     case Schedule = 'schedule';
@@ -23,8 +22,7 @@ enum OnboardingStep: string
     public function label(): string
     {
         return match ($this) {
-            self::Locations => 'Locations',
-            self::Services => 'Services',
+            self::Services => 'Set up services',
             self::Profile => 'Work profile',
             self::Schedule => 'Work hours',
         };

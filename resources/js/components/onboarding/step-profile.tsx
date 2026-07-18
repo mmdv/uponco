@@ -15,7 +15,17 @@ type Props = {
     controls: StepControls;
 };
 
+/** Marks a field the user cannot continue without. */
+function RequiredMark() {
+    return (
+        <span className="text-destructive" aria-hidden>
+            *
+        </span>
+    );
+}
+
 export default function StepProfile({ data, controls }: Props) {
+    const [name, setName] = useState(data.name);
     const [jobTitle, setJobTitle] = useState(data.job_title ?? '');
 
     return (
@@ -27,13 +37,23 @@ export default function StepProfile({ data, controls }: Props) {
         >
             {({ errors, processing }) => (
                 <>
+                    <p className="text-sm text-muted-foreground">
+                        Fields marked <RequiredMark /> are required. Everything
+                        else is optional — you can fill it in later from your
+                        profile settings.
+                    </p>
+
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">
+                            Name <RequiredMark />
+                        </Label>
                         <Input
                             id="name"
                             name="name"
-                            defaultValue={data.name}
+                            value={name}
+                            onChange={(event) => setName(event.target.value)}
                             required
+                            aria-required
                             autoComplete="name"
                             placeholder="Public display name"
                         />
@@ -41,7 +61,9 @@ export default function StepProfile({ data, controls }: Props) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="job_title">Job title</Label>
+                        <Label htmlFor="job_title">
+                            Job title <RequiredMark />
+                        </Label>
                         <Input
                             id="job_title"
                             name="job_title"
@@ -51,15 +73,16 @@ export default function StepProfile({ data, controls }: Props) {
                             }
                             placeholder="e.g. Senior Stylist"
                             required
+                            aria-required
                         />
                         <p className="text-sm text-muted-foreground">
-                            Required — shown next to your name.
+                            Shown next to your name on your booking page.
                         </p>
                         <InputError message={errors.job_title} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Public email</Label>
+                        <Label htmlFor="email">Public email (optional)</Label>
                         <Input
                             id="email"
                             type="email"
@@ -71,7 +94,7 @@ export default function StepProfile({ data, controls }: Props) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="phone">Phone</Label>
+                        <Label htmlFor="phone">Phone (optional)</Label>
                         <PhoneInput
                             id="phone"
                             name="phone"
@@ -82,7 +105,9 @@ export default function StepProfile({ data, controls }: Props) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">
+                            Description (optional)
+                        </Label>
                         <Textarea
                             id="description"
                             name="description"
@@ -96,7 +121,9 @@ export default function StepProfile({ data, controls }: Props) {
                         showBack={controls.showBack}
                         onBack={controls.onBack}
                         saving={processing || controls.saving}
-                        continueDisabled={jobTitle.trim() === ''}
+                        continueDisabled={
+                            name.trim() === '' || jobTitle.trim() === ''
+                        }
                     />
                 </>
             )}

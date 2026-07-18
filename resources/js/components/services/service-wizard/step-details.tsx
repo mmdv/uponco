@@ -1,10 +1,10 @@
 import InputError from '@/components/input-error';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
+import CategoryField from '@/components/services/service-wizard/category-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,6 +56,7 @@ export default function StepDetails({
     summary,
     onEditDelivery,
     categoryOptions,
+    teamSlug,
     specialists,
     priceTypes,
     serviceTypes,
@@ -66,6 +67,7 @@ export default function StepDetails({
     summary: string;
     onEditDelivery: () => void;
     categoryOptions: SelectOption[];
+    teamSlug: string;
     specialists: SelectOption[];
     priceTypes: SelectOption[];
     serviceTypes: SelectOption[];
@@ -115,25 +117,13 @@ export default function StepDetails({
                 <InputError message={errors.title} />
             </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="wizard_category">
-                    {t('services.form.category')}
-                </Label>
-                <SearchableSelect
-                    id="wizard_category"
-                    options={categoryOptions}
-                    value={details.categoryId}
-                    onChange={(categoryId) => onPatch({ categoryId })}
-                    placeholder={t('services.form.categoryPlaceholder')}
-                    searchPlaceholder={t(
-                        'services.form.categorySearchPlaceholder',
-                    )}
-                    emptyMessage={t('services.form.categoryEmpty')}
-                    invalid={Boolean(errors.service_category_id)}
-                    data-test="wizard-category-select"
-                />
-                <InputError message={errors.service_category_id} />
-            </div>
+            <CategoryField
+                value={details.categoryId}
+                onChange={(categoryId) => onPatch({ categoryId })}
+                options={categoryOptions}
+                teamSlug={teamSlug}
+                error={errors.service_category_id}
+            />
 
             <div className="grid gap-2">
                 <Label htmlFor="wizard_description">

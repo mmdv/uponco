@@ -249,7 +249,12 @@
             "specialistsHint": "Team members who provide this service.",
             "cancel": "Cancel",
             "save": "Save changes",
-            "add": "Add service"
+            "add": "Add service",
+            "categoryHint": "Optional — group related services together to keep your list organised.",
+            "categoryAdd": "Add category",
+            "categoryNamePlaceholder": "New category name",
+            "categorySave": "Add",
+            "categoryCancel": "Cancel"
         },
         "wizard": {
             "title": "Add service",
@@ -281,13 +286,16 @@
                 "automaticDescription": "A meeting link is generated automatically when a booking is made.",
                 "manualTitle": "Manual",
                 "manualDescription": "You send the meeting link to the customer yourself before the meeting starts.",
-                "providersLabel": "Supported providers",
                 "comingSoon": "Coming soon",
                 "connectedAs": "Google is connected as {email} — meeting links will be created automatically.",
-                "connectTitle": "Google account not connected",
-                "connectHint": "Meeting links are created from the assigned specialist's Google account. You can connect now, or later from Settings → Integrations — the service can be saved either way, but no links will be generated until a specialist connects Google.",
                 "manualNoteTitle": "You handle the meeting link",
-                "manualNote": "No link will be generated automatically. You are responsible for sending the meeting link to the customer before each appointment."
+                "manualNote": "No link will be generated automatically. You are responsible for sending the meeting link to the customer before each appointment.",
+                "providersHeading": "Set up providers for automatic meeting generation",
+                "providersDescription": "Links are created from the assigned specialist’s account. You can set this up later — the service saves either way, but no links are generated until a provider is connected.",
+                "setupGoogle": "Set up Google",
+                "setupTeams": "Set up Teams",
+                "setupZoom": "Set up Zoom",
+                "googleConnected": "Google connected"
             },
             "locations": {
                 "heading": "Where is this service offered?",

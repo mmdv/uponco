@@ -113,14 +113,14 @@ test('resolving an onboarding step queues the step and its status', function () 
         ->actingAs($user)
         ->patch(route('onboarding.steps.update', [
             'current_team' => $team->slug,
-            'step' => OnboardingStep::Locations->value,
+            'step' => OnboardingStep::Services->value,
         ]), ['status' => OnboardingStepStatus::Skipped->value]);
 
     expect(session('analytics_events')[0])
         ->toMatchArray([
             'name' => 'onboarding_step_resolved',
             'properties' => [
-                'step' => 'locations',
+                'step' => 'services',
                 'status' => 'skipped',
             ],
         ]);
@@ -134,7 +134,6 @@ test('the booking page going live is queued when the last step resolves', functi
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $user->id,
-        'locations_status' => OnboardingStepStatus::Skipped,
         'services_status' => OnboardingStepStatus::Skipped,
         'profile_status' => OnboardingStepStatus::Completed,
     ]);
@@ -157,7 +156,6 @@ test('an already live booking page does not queue the event again', function () 
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $user->id,
-        'locations_status' => OnboardingStepStatus::Skipped,
         'services_status' => OnboardingStepStatus::Skipped,
         'profile_status' => OnboardingStepStatus::Completed,
         'schedule_status' => OnboardingStepStatus::Completed,

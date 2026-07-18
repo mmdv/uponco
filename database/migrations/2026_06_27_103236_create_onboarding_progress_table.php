@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -37,7 +36,9 @@ return new class extends Migration
                 $table->string($column)->default(OnboardingStepStatus::Pending->value);
             }
 
-            $table->string('current_step')->default(OnboardingStep::Locations->value);
+            // Hardcoded for the same reason as the step columns above: the
+            // first step at the time this table was created.
+            $table->string('current_step')->default('locations');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 

@@ -1,11 +1,7 @@
 import { usePage } from '@inertiajs/react';
-import { Plus, Tag, Video } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { useState } from 'react';
-import GoogleMeetCard from '@/components/integrations/google-meet-card';
-import CategoryFormDialog from '@/components/services/category-form-dialog';
-import ServiceFormDrawer from '@/components/services/service-form-drawer';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import ServiceWizardFields from '@/components/services/service-wizard/service-wizard-fields';
 import type { Onboarding } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
@@ -19,44 +15,26 @@ export default function StepServices({ data, controls }: Props) {
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
-    const [categoryOpen, setCategoryOpen] = useState(false);
-    const [serviceOpen, setServiceOpen] = useState(false);
+    // Bumping the key remounts the wizard, so creating a service leaves a clean
+    // form behind for the next one instead of the previous answers.
+    const [wizardKey, setWizardKey] = useState(0);
 
     const hasServices = data.services.length > 0;
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-wrap items-center gap-2">
-                {data.categories.map((category) => (
-                    <Badge
-                        key={category.id}
-                        variant="secondary"
-                        className="gap-1"
-                    >
-                        <Tag className="h-3 w-3" />
-                        {category.name}
-                    </Badge>
-                ))}
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCategoryOpen(true)}
-                    data-test="onboarding-add-category"
-                >
-                    <Plus className="h-4 w-4" /> Add category
-                </Button>
-            </div>
-
             {hasServices ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                     {data.services.map((service) => (
                         <div
                             key={service.id}
-                            className="flex items-center justify-between rounded-lg border p-4"
+                            className="flex items-center justify-between rounded-lg border p-3"
                         >
-                            <div className="font-medium">{service.title}</div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-sm font-medium">
+                                {service.title}
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Clock className="h-3.5 w-3.5" />
                                 {service.duration} min
                             </div>
                         </div>
@@ -64,56 +42,22 @@ export default function StepServices({ data, controls }: Props) {
                 </div>
             ) : null}
 
-            <Button
-                type="button"
-                variant="outline"
-                onClick={() => setServiceOpen(true)}
-                data-test="onboarding-add-service"
-            >
-                <Plus className="h-4 w-4" />
-                {hasServices ? 'Add another service' : 'Add service'}
-            </Button>
-
-            <CategoryFormDialog
-                open={categoryOpen}
-                onOpenChange={setCategoryOpen}
-                category={null}
-                teamSlug={teamSlug}
-            />
-
-            <div className="space-y-3 rounded-lg border p-4">
-                <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
-                        <Video className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div className="space-y-1">
-                        <p className="text-sm font-medium">
-                            Online services? Add automatic meeting links
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            Connect your Google account and every online booking
-                            gets a Google Meet link created for you. We support
-                            Google Meet for now — more providers are on the way.
-                        </p>
-                    </div>
-                </div>
-
-                <GoogleMeetCard google={data.google} />
-            </div>
-
-            <ServiceFormDrawer
-                open={serviceOpen}
-                onOpenChange={setServiceOpen}
-                service={null}
+            {/* Rendered flush against the step card: the wizard is the step,
+                not a component nested inside it. */}
+            <ServiceWizardFields
+                key={wizardKey}
+                inline
                 defaultCategoryId={null}
                 teamSlug={teamSlug}
                 categories={data.categories}
                 locations={data.locations}
+                serviceOptions={data.serviceOptions}
                 specialists={data.specialists}
+                countries={data.countries}
                 priceTypes={data.priceTypes}
                 serviceTypes={data.serviceTypes}
-                deliveryTypes={data.deliveryTypes}
-                meetingProviders={data.meetingProviders}
+                google={data.google}
+                onSuccess={() => setWizardKey((key) => key + 1)}
             />
 
             <OnboardingFooter

@@ -24,11 +24,10 @@ class OnboardingProgressFactory extends Factory
         return [
             'team_id' => Team::factory(),
             'user_id' => User::factory(),
-            'locations_status' => OnboardingStepStatus::Pending,
             'services_status' => OnboardingStepStatus::Pending,
             'profile_status' => OnboardingStepStatus::Pending,
             'schedule_status' => OnboardingStepStatus::Pending,
-            'current_step' => OnboardingStep::Locations,
+            'current_step' => OnboardingStep::Services,
             'completed_at' => null,
         ];
     }
@@ -39,7 +38,6 @@ class OnboardingProgressFactory extends Factory
     public function completed(): static
     {
         return $this->state(fn (array $attributes): array => [
-            'locations_status' => OnboardingStepStatus::Completed,
             'services_status' => OnboardingStepStatus::Completed,
             'profile_status' => OnboardingStepStatus::Completed,
             'schedule_status' => OnboardingStepStatus::Completed,

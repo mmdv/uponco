@@ -36,7 +36,7 @@ function onboardingStepRoute(Team $team, OnboardingStep $step): string
     ]);
 }
 
-test('owners see the onboarding wizard with all four steps', function () {
+test('owners see the onboarding wizard with all three steps', function () {
     [$user, $team] = onboardingOwner();
 
     $this
@@ -46,8 +46,9 @@ test('owners see the onboarding wizard with all four steps', function () {
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
             ->has('onboarding')
-            ->has('onboarding.steps', 4)
-            ->where('onboarding.currentStep', 'locations')
+            ->has('onboarding.steps', 3)
+            ->where('onboarding.currentStep', 'services')
+            ->where('onboarding.steps.0.key', 'services')
         );
 });
 
@@ -74,14 +75,14 @@ test('mandatory steps auto-complete when their data already exists', function ()
         ->actingAs($user)
         ->get(dashboardRoute($team))
         ->assertInertia(fn ($page) => $page
-            ->where('onboarding.steps.0.status', 'pending')    // locations
-            ->where('onboarding.steps.1.status', 'pending')    // services
-            ->where('onboarding.steps.2.status', 'completed')  // profile
+            ->where('onboarding.steps.0.status', 'pending')    // services
+            ->where('onboarding.steps.1.status', 'completed')  // profile
+            ->where('onboarding.steps.2.status', 'pending')    // schedule
         );
 
     $progress = OnboardingProgress::firstWhere('user_id', $user->id);
     expect($progress->statusFor(OnboardingStep::Profile))->toBe(OnboardingStepStatus::Completed);
-    expect($progress->statusFor(OnboardingStep::Locations))->toBe(OnboardingStepStatus::Pending);
+    expect($progress->statusFor(OnboardingStep::Services))->toBe(OnboardingStepStatus::Pending);
 });
 
 test('an optional step can be skipped and advances the current step', function () {
@@ -89,15 +90,15 @@ test('an optional step can be skipped and advances the current step', function (
 
     $this
         ->actingAs($user)
-        ->patch(onboardingStepRoute($team, OnboardingStep::Locations), [
+        ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
             'status' => OnboardingStepStatus::Skipped->value,
         ])
         ->assertRedirect()
         ->assertSessionHasNoErrors();
 
     $progress = OnboardingProgress::firstWhere('user_id', $user->id);
-    expect($progress->statusFor(OnboardingStep::Locations))->toBe(OnboardingStepStatus::Skipped);
-    expect($progress->current_step)->toBe(OnboardingStep::Services);
+    expect($progress->statusFor(OnboardingStep::Services))->toBe(OnboardingStepStatus::Skipped);
+    expect($progress->current_step)->toBe(OnboardingStep::Profile);
 });
 
 test('a mandatory step cannot be skipped', function () {
@@ -152,11 +153,32 @@ test('the onboarding payload includes schedule members and google status', funct
         ->actingAs($user)
         ->get(dashboardRoute($team))
         ->assertInertia(fn ($page) => $page
-            ->where('onboarding.steps.3.key', 'schedule')
-            ->where('onboarding.steps.3.mandatory', true)
+            ->where('onboarding.steps.2.key', 'schedule')
+            ->where('onboarding.steps.2.mandatory', true)
             ->has('onboarding.schedule.members', 1)
             ->has('onboarding.schedule.slots')
             ->where('onboarding.services.google.connected', false)
+        );
+});
+
+test('the services payload carries everything the inline service wizard needs', function () {
+    [$user, $team] = onboardingOwner();
+
+    $this
+        ->actingAs($user)
+        ->get(dashboardRoute($team))
+        ->assertInertia(fn ($page) => $page
+            ->has('onboarding.services.categories')
+            ->has('onboarding.services.services')
+            ->has('onboarding.services.serviceOptions')
+            ->has('onboarding.services.locations')
+            ->has('onboarding.services.specialists')
+            ->has('onboarding.services.countries')
+            ->has('onboarding.services.priceTypes')
+            ->has('onboarding.services.serviceTypes')
+            ->has('onboarding.services.google')
+            // Locations are created from inside the wizard now.
+            ->missing('onboarding.locations')
         );
 });
 
@@ -165,7 +187,7 @@ test('an invalid status is rejected', function () {
 
     $this
         ->actingAs($user)
-        ->patch(onboardingStepRoute($team, OnboardingStep::Locations), [
+        ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
             'status' => 'pending',
         ])
         ->assertSessionHasErrors('status');
@@ -189,7 +211,7 @@ test('regular members cannot update onboarding steps', function () {
 
     $this
         ->actingAs($member)
-        ->patch(onboardingStepRoute($team, OnboardingStep::Locations), [
+        ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
             'status' => OnboardingStepStatus::Skipped->value,
         ])
         ->assertForbidden();
@@ -203,7 +225,6 @@ test('the wizard disappears once every step is resolved', function () {
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $user->id,
-        'locations_status' => OnboardingStepStatus::Skipped,
         'services_status' => OnboardingStepStatus::Skipped,
     ]);
 

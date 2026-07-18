@@ -1,20 +1,12 @@
 import { router, usePage } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
-import {
-    CalendarClock,
-    Check,
-    MapPin,
-    Minus,
-    Tag,
-    UserRound,
-} from 'lucide-react';
+import { CalendarClock, Check, Minus, Tag, UserRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import OnboardingController from '@/actions/App/Http/Controllers/OnboardingController';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Onboarding, OnboardingStepKey } from '@/types';
 import type { StepControls } from './controls';
-import StepLocations from './step-locations';
 import StepProfile from './step-profile';
 import StepSchedule from './step-schedule';
 import StepServices from './step-services';
@@ -27,20 +19,15 @@ const stepMeta: Record<
     OnboardingStepKey,
     { icon: LucideIcon; description: string }
 > = {
-    locations: {
-        icon: MapPin,
-        description:
-            'Add the places customers visit you — a salon, studio, or office. Working fully online? You can skip this step.',
-    },
     services: {
         icon: Tag,
         description:
-            'Services are what customers book. Create a category first, then add your services with a duration and price.',
+            'Services are what customers book. Walk through the steps below to set one up — you can add the locations you work from along the way.',
     },
     profile: {
         icon: UserRound,
         description:
-            'Introduce yourself. Your name, title, and contact details appear on your public booking page.',
+            'Introduce yourself. Your name and title are required; everything else is optional and appears on your public booking page.',
     },
     schedule: {
         icon: CalendarClock,
@@ -249,17 +236,9 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                 <h2 className="text-lg font-semibold text-foreground">
                                     {activeStepInfo?.label}
                                 </h2>
-                                <Badge
-                                    variant={
-                                        activeStepInfo?.mandatory
-                                            ? 'secondary'
-                                            : 'outline'
-                                    }
-                                >
-                                    {activeStepInfo?.mandatory
-                                        ? 'Required'
-                                        : 'Optional'}
-                                </Badge>
+                                {activeStepInfo?.mandatory ? (
+                                    <Badge variant="secondary">Required</Badge>
+                                ) : null}
                             </div>
                             <p className="text-sm text-muted-foreground">
                                 {activeMeta.description}
@@ -267,12 +246,6 @@ export default function OnboardingWizard({ onboarding }: Props) {
                         </div>
                     </div>
 
-                    {activeStep === 'locations' ? (
-                        <StepLocations
-                            data={onboarding.locations}
-                            controls={controls}
-                        />
-                    ) : null}
                     {activeStep === 'services' ? (
                         <StepServices
                             data={onboarding.services}

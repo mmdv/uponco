@@ -6,7 +6,6 @@ use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\OnboardingStep;
 use App\Enums\TeamRole;
 use App\Models\Appointment;
-use App\Models\Location;
 use App\Models\OnboardingProgress;
 use App\Models\ScheduleSlot;
 use App\Models\Service;
@@ -48,7 +47,7 @@ class DashboardController extends Controller
             'upcomingAppointments' => $onboarding === null
                 ? $this->upcomingAppointments($team, $timezone, $specialistId)
                 : null,
-            'formOptions' => $onboarding === null ? $this->formOptions($team) : null,
+            'formOptions' => $onboarding === null ? $this->formOptions($team, $user) : null,
             'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $team)),
         ]);
     }
@@ -59,7 +58,7 @@ class DashboardController extends Controller
      *
      * @return array<string, mixed>
      */
-    protected function formOptions(Team $team): array
+    protected function formOptions(Team $team, User $user): array
     {
         $serviceOptions = $this->toOptions($team->services()->orderBy('title')->get(), 'title');
         $locationOptions = $this->toOptions($team->locations()->orderBy('name')->get(), 'name');
@@ -76,12 +75,18 @@ class DashboardController extends Controller
                     'id' => $category->id,
                     'name' => $category->name,
                 ]),
+                'services' => $serviceOptions,
                 'locations' => $locationOptions,
                 'specialists' => $specialistOptions,
+                'countries' => LocationOptions::countries(),
                 'priceTypes' => ServiceOptions::priceTypes(),
                 'serviceTypes' => ServiceOptions::serviceTypes(),
                 'deliveryTypes' => ServiceOptions::deliveryTypes(),
                 'meetingProviders' => ServiceOptions::meetingProviders(),
+                'google' => [
+                    'connected' => $user->hasGoogleConnected(),
+                    'email' => $user->google_account_email,
+                ],
             ],
             'locations' => [
                 'services' => $serviceOptions,
@@ -209,16 +214,6 @@ class DashboardController extends Controller
                 'status' => $progress->statusFor($step)->value,
                 'mandatory' => $step->isMandatory(),
             ])->all(),
-            'locations' => [
-                'locations' => $team->locations()
-                    ->with(['services:id', 'specialists:id'])
-                    ->orderBy('name')
-                    ->get()
-                    ->map(fn (Location $location): array => $this->toLocationArray($location)),
-                'services' => $this->toOptions($team->services()->orderBy('title')->get(), 'title'),
-                'specialists' => $this->toOptions($team->members()->orderBy('name')->get(), 'name'),
-                'countries' => LocationOptions::countries(),
-            ],
             'services' => [
                 'categories' => $team->serviceCategories()->orderBy('name')->get()->map(fn (ServiceCategory $category): array => [
                     'id' => $category->id,
@@ -229,12 +224,14 @@ class DashboardController extends Controller
                     ->orderBy('title')
                     ->get()
                     ->map(fn (Service $service): array => $this->toServiceArray($service)),
+                // The wizard can create a location inline, which needs the same
+                // options the standalone location form uses.
+                'serviceOptions' => $this->toOptions($team->services()->orderBy('title')->get(), 'title'),
                 'locations' => $this->toOptions($team->locations()->orderBy('name')->get(), 'name'),
                 'specialists' => $this->toOptions($team->members()->orderBy('name')->get(), 'name'),
+                'countries' => LocationOptions::countries(),
                 'priceTypes' => ServiceOptions::priceTypes(),
                 'serviceTypes' => ServiceOptions::serviceTypes(),
-                'deliveryTypes' => ServiceOptions::deliveryTypes(),
-                'meetingProviders' => ServiceOptions::meetingProviders(),
                 'google' => [
                     'connected' => $user->hasGoogleConnected(),
                     'email' => $user->google_account_email,
@@ -300,28 +297,6 @@ class DashboardController extends Controller
             'value' => (string) $model->id,
             'label' => $model->{$labelKey},
         ]);
-    }
-
-    /**
-     * Transform a location into its form representation.
-     *
-     * @return array<string, mixed>
-     */
-    protected function toLocationArray(Location $location): array
-    {
-        return [
-            'id' => $location->id,
-            'is_active' => $location->is_active,
-            'name' => $location->name,
-            'country' => $location->country,
-            'city' => $location->city,
-            'street_address' => $location->street_address,
-            'unit' => $location->unit,
-            'postal_code' => $location->postal_code,
-            'phone' => $location->phone,
-            'service_ids' => $location->services->pluck('id')->all(),
-            'user_ids' => $location->specialists->pluck('id')->all(),
-        ];
     }
 
     /**

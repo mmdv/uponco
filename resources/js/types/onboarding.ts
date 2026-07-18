@@ -1,12 +1,8 @@
-import type { Location, SelectOption } from './locations';
+import type { SelectOption } from './locations';
 import type { ScheduleMember, ScheduleSlotMap } from './schedule';
 import type { Service, ServiceCategory } from './services';
 
-export type OnboardingStepKey =
-    | 'locations'
-    | 'services'
-    | 'profile'
-    | 'schedule';
+export type OnboardingStepKey = 'services' | 'profile' | 'schedule';
 
 export type OnboardingStepStatus = 'pending' | 'completed' | 'skipped';
 
@@ -33,21 +29,15 @@ export type GoogleIntegrationStatus = {
 export type Onboarding = {
     currentStep: OnboardingStepKey;
     steps: OnboardingStepInfo[];
-    locations: {
-        locations: Location[];
-        services: SelectOption[];
-        specialists: SelectOption[];
-        countries: SelectOption[];
-    };
     services: {
         categories: ServiceCategory[];
         services: Service[];
+        serviceOptions: SelectOption[];
         locations: SelectOption[];
         specialists: SelectOption[];
+        countries: SelectOption[];
         priceTypes: SelectOption[];
         serviceTypes: SelectOption[];
-        deliveryTypes: SelectOption[];
-        meetingProviders: SelectOption[];
         google: GoogleIntegrationStatus;
     };
     profile: OnboardingProfile;
