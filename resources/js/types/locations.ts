@@ -8,6 +8,11 @@ export type Location = {
     unit: string | null;
     postal_code: string;
     phone: string | null;
+    place_id: string | null;
+    formatted_address: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    is_geocoded: boolean;
     service_ids: number[];
     user_ids: number[];
 };

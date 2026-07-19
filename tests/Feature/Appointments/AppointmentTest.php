@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentBooked;
+use App\Support\Appointments\AppointmentCalendar;
 use App\Support\Appointments\SlotGenerator;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Notification;
@@ -892,4 +893,163 @@ test('an appointment from another team cannot be deleted', function () {
         ->actingAs($setup['user'])
         ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $otherAppointment]))
         ->assertForbidden();
+});
+
+test('the calendar invite location is the postal address only, without the business name or unit', function () {
+    $setup = bookableSetup();
+
+    $setup['location']->update([
+        'name' => 'Downtown Studio',
+        'street_address' => '12 Main Street',
+        'unit' => 'Suite 4',
+        'postal_code' => '1010',
+        'city' => 'Vienna',
+        'country' => 'AT',
+        'place_id' => null,
+        'formatted_address' => null,
+        'latitude' => null,
+        'longitude' => null,
+    ]);
+
+    $customer = Customer::factory()->for($setup['team'])->create(['email' => 'jane@example.com']);
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->fresh()->id,
+        'specialist_id' => $setup['user']->id,
+        'customer_id' => $customer->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $ics = AppointmentCalendar::ics($appointment->fresh());
+
+    $locationLine = collect(explode("\r\n", $ics))
+        ->first(fn (string $line): bool => str_starts_with($line, 'LOCATION:'));
+
+    // The name and unit are what previously derailed geocoding.
+    expect($locationLine)
+        ->toContain('12 Main Street')
+        ->toContain('Vienna')
+        ->not->toContain('Downtown Studio')
+        ->not->toContain('Suite 4');
+
+    // They are still communicated, just not in the geocoded field. Folding
+    // splits long lines, so unfold before looking for the values.
+    $unfolded = str_replace("\r\n ", '', $ics);
+
+    expect($unfolded)->toContain('Downtown Studio')->toContain('Suite 4');
+});
+
+test('a geocoded location adds coordinates to the calendar invite', function () {
+    $setup = bookableSetup();
+
+    $setup['location']->update([
+        'formatted_address' => 'Stephansplatz 1, 1010 Wien, Austria',
+        'place_id' => 'ChIJn8o2UZ4HbUcRRluiUYrlwv0',
+        'latitude' => 48.2085000,
+        'longitude' => 16.3730000,
+    ]);
+
+    $customer = Customer::factory()->for($setup['team'])->create(['email' => 'jane@example.com']);
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'customer_id' => $customer->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $ics = AppointmentCalendar::ics($appointment->fresh());
+
+    expect($ics)
+        ->toContain('GEO:48.2085;16.373')
+        ->toContain('X-APPLE-STRUCTURED-LOCATION')
+        ->toContain('LOCATION:Stephansplatz 1');
+});
+
+test('the confirmation email links to directions that pin the exact place', function () {
+    $setup = bookableSetup();
+
+    $setup['location']->update([
+        'formatted_address' => 'Stephansplatz 1, 1010 Wien, Austria',
+        'place_id' => 'ChIJn8o2UZ4HbUcRRluiUYrlwv0',
+        'latitude' => 48.2085000,
+        'longitude' => 16.3730000,
+    ]);
+
+    $customer = Customer::factory()->for($setup['team'])->create([
+        'name' => 'Jane Doe',
+        'email' => 'jane@example.com',
+    ]);
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'customer_id' => $customer->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $html = (string) (new AppointmentBooked($appointment->fresh()))->toMail($customer)->render();
+
+    expect($html)
+        ->toContain('Get directions')
+        ->toContain('destination=48.2085%2C16.373')
+        ->toContain('destination_place_id=ChIJn8o2UZ4HbUcRRluiUYrlwv0');
+});
+
+test('an online appointment gets no directions link or coordinates', function () {
+    $setup = bookableSetup();
+    $setup['location']->update(['latitude' => 48.2085, 'longitude' => 16.373]);
+
+    $customer = Customer::factory()->for($setup['team'])->create(['email' => 'jane@example.com']);
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'customer_id' => $customer->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+        'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+    ]);
+
+    $appointment = $appointment->fresh();
+    $ics = AppointmentCalendar::ics($appointment);
+    $html = (string) (new AppointmentBooked($appointment))->toMail($customer)->render();
+
+    expect($ics)
+        ->toContain('LOCATION:https://meet.google.com/abc-defg-hij')
+        ->not->toContain('GEO:');
+    expect($html)->not->toContain('Get directions');
+});
+
+test('long calendar lines are folded to stay within the 75 octet limit', function () {
+    $setup = bookableSetup();
+    $setup['location']->update([
+        'formatted_address' => 'Stephansplatz 1, 1010 Wien, Austria',
+        'place_id' => 'ChIJn8o2UZ4HbUcRRluiUYrlwv0',
+        'latitude' => 48.2085,
+        'longitude' => 16.373,
+    ]);
+
+    $customer = Customer::factory()->for($setup['team'])->create(['email' => 'jane@example.com']);
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'customer_id' => $customer->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+        'notes' => str_repeat('An unusually long note about parking. ', 10),
+    ]);
+
+    foreach (explode("\r\n", AppointmentCalendar::ics($appointment->fresh())) as $line) {
+        expect(strlen($line))->toBeLessThanOrEqual(75);
+    }
 });

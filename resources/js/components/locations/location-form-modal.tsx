@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 
 import InputError from '@/components/input-error';
+import AddressAutocomplete from '@/components/locations/address-autocomplete';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -111,6 +112,22 @@ function LocationFormFields({
 
     const [isActive, setIsActive] = useState(location?.is_active ?? true);
     const [country, setCountry] = useState(location?.country ?? '');
+    const [city, setCity] = useState(location?.city ?? '');
+    const [streetAddress, setStreetAddress] = useState(
+        location?.street_address ?? '',
+    );
+    const [postalCode, setPostalCode] = useState(location?.postal_code ?? '');
+
+    // Set only when an address is picked from Google Places. These are what
+    // make the directions in appointment emails resolve exactly, so they are
+    // cleared the moment the operator edits the address by hand.
+    const [place, setPlace] = useState({
+        place_id: location?.place_id ?? '',
+        formatted_address: location?.formatted_address ?? '',
+        latitude: location?.latitude ?? null,
+        longitude: location?.longitude ?? null,
+    });
+
     const [serviceIds, setServiceIds] = useState<string[]>(
         location?.service_ids.map((id) => id.toString()) ?? [],
     );
@@ -138,6 +155,26 @@ function LocationFormFields({
                         value={isActive ? '1' : '0'}
                     />
                     <input type="hidden" name="country" value={country} />
+                    <input
+                        type="hidden"
+                        name="place_id"
+                        value={place.place_id}
+                    />
+                    <input
+                        type="hidden"
+                        name="formatted_address"
+                        value={place.formatted_address}
+                    />
+                    <input
+                        type="hidden"
+                        name="latitude"
+                        value={place.latitude ?? ''}
+                    />
+                    <input
+                        type="hidden"
+                        name="longitude"
+                        value={place.longitude ?? ''}
+                    />
                     {serviceIds.map((id) => (
                         <input
                             key={`service-${id}`}
@@ -205,6 +242,49 @@ function LocationFormFields({
                         </FormSection>
 
                         <FormSection title={t('form.sections.address')}>
+                            <div className="grid gap-2">
+                                <Label htmlFor="address_search">
+                                    {t('form.addressSearch')}
+                                </Label>
+                                <AddressAutocomplete
+                                    teamSlug={teamSlug}
+                                    country={country}
+                                    initialAddress={
+                                        location?.formatted_address ?? null
+                                    }
+                                    initialVerified={
+                                        location?.is_geocoded ?? false
+                                    }
+                                    onResolved={(resolved) => {
+                                        setPlace({
+                                            place_id: resolved.place_id,
+                                            formatted_address:
+                                                resolved.formatted_address,
+                                            latitude: resolved.latitude,
+                                            longitude: resolved.longitude,
+                                        });
+
+                                        setStreetAddress(
+                                            resolved.street_address,
+                                        );
+                                        setCity(resolved.city);
+                                        setPostalCode(resolved.postal_code);
+
+                                        if (resolved.country) {
+                                            setCountry(resolved.country);
+                                        }
+                                    }}
+                                    onCleared={() =>
+                                        setPlace({
+                                            place_id: '',
+                                            formatted_address: '',
+                                            latitude: null,
+                                            longitude: null,
+                                        })
+                                    }
+                                />
+                            </div>
+
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="country">
@@ -233,7 +313,10 @@ function LocationFormFields({
                                     <Input
                                         id="city"
                                         name="city"
-                                        defaultValue={location?.city ?? ''}
+                                        value={city}
+                                        onChange={(event) =>
+                                            setCity(event.target.value)
+                                        }
                                         placeholder="San Francisco"
                                     />
                                     <InputError message={errors.city} />
@@ -246,8 +329,9 @@ function LocationFormFields({
                                     <Input
                                         id="street_address"
                                         name="street_address"
-                                        defaultValue={
-                                            location?.street_address ?? ''
+                                        value={streetAddress}
+                                        onChange={(event) =>
+                                            setStreetAddress(event.target.value)
                                         }
                                         placeholder="123 Market St"
                                     />
@@ -276,8 +360,9 @@ function LocationFormFields({
                                     <Input
                                         id="postal_code"
                                         name="postal_code"
-                                        defaultValue={
-                                            location?.postal_code ?? ''
+                                        value={postalCode}
+                                        onChange={(event) =>
+                                            setPostalCode(event.target.value)
                                         }
                                         placeholder="94103"
                                     />

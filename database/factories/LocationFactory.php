@@ -33,6 +33,21 @@ class LocationFactory extends Factory
     }
 
     /**
+     * Indicate that the address was resolved through Google Places, giving
+     * the location coordinates and a canonical address.
+     */
+    public function geocoded(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'place_id' => 'ChIJ'.fake()->regexify('[A-Za-z0-9_-]{23}'),
+            'formatted_address' => $attributes['street_address'].', '
+                .$attributes['postal_code'].' '.$attributes['city'],
+            'latitude' => fake()->latitude(),
+            'longitude' => fake()->longitude(),
+        ]);
+    }
+
+    /**
      * Indicate that the location is inactive.
      */
     public function inactive(): static

@@ -15,7 +15,12 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 // Inertia to treat it as a scroll region. Otherwise Inertia only resets the
 // window scroll — which never moves here — and every client-side visit keeps
 // the previous page's scroll position.
-document.getElementById('app')?.setAttribute('scroll-region', '');
+//
+// Guarded because this module is also evaluated in Node when Inertia warms up
+// its SSR module graph, where there is no `document`.
+if (typeof document !== 'undefined') {
+    document.getElementById('app')?.setAttribute('scroll-region', '');
+}
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

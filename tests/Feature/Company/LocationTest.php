@@ -218,3 +218,63 @@ test('users cannot access locations for teams they do not belong to', function (
         ->get(route('company.locations.index', ['current_team' => $otherTeam->slug]))
         ->assertForbidden();
 });
+
+test('a location stores the coordinates returned by address autocomplete', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->post(route('company.locations.store', ['current_team' => $team->slug]), locationPayload([
+            'place_id' => 'ChIJn8o2UZ4HbUcRRluiUYrlwv0',
+            'formatted_address' => 'Stephansplatz 1, 1010 Wien, Austria',
+            'latitude' => 48.2085,
+            'longitude' => 16.373,
+        ]))
+        ->assertRedirect();
+
+    $location = Location::where('team_id', $team->id)->sole();
+
+    expect($location->isGeocoded())->toBeTrue();
+    expect($location->place_id)->toBe('ChIJn8o2UZ4HbUcRRluiUYrlwv0');
+    expect($location->directionsUrl())->toContain('destination=48.2085%2C16.373');
+});
+
+test('a location saved without autocomplete still produces a best effort directions link', function () {
+    $location = Location::factory()->create([
+        'name' => 'Downtown Studio',
+        'street_address' => '12 Main Street',
+        'unit' => 'Suite 4',
+        'postal_code' => '1010',
+        'city' => 'Vienna',
+        'country' => 'AT',
+        'place_id' => null,
+        'formatted_address' => null,
+        'latitude' => null,
+        'longitude' => null,
+    ]);
+
+    expect($location->isGeocoded())->toBeFalse();
+
+    // The business name and unit must stay out of the mapped address.
+    expect($location->mappableAddress())
+        ->toContain('12 Main Street')
+        ->not->toContain('Downtown Studio')
+        ->not->toContain('Suite 4');
+
+    expect($location->directionsUrl())
+        ->toStartWith('https://www.google.com/maps/dir/?')
+        ->toContain(urlencode('12 Main Street'));
+});
+
+test('coordinates are rejected unless both are supplied', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->post(route('company.locations.store', ['current_team' => $team->slug]), locationPayload([
+            'latitude' => 48.2085,
+        ]))
+        ->assertSessionHasErrors('longitude');
+});

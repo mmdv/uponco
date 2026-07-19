@@ -1,10 +1,10 @@
 import { Check, Copy, ExternalLink, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { PublicBookingFlow } from '@/components/public-booking/booking-flow';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
-import { PublicBookingFlow } from '@/pages/public/appointments/book';
 import { show as bookingPage } from '@/routes/public/appointments';
 import type {
     AppointmentLocationOption,

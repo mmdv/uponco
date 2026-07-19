@@ -3,6 +3,7 @@
 use App\Enums\TeamRole;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BackofficeController;
+use App\Http\Controllers\Company\AddressLookupController;
 use App\Http\Controllers\Company\BrandController;
 use App\Http\Controllers\Company\BusinessController;
 use App\Http\Controllers\Company\BusinessInvitationController;
@@ -107,6 +108,9 @@ Route::prefix('{current_team}')
 
             Route::post('company/business/invitations', [BusinessInvitationController::class, 'store'])->name('company.business.invitations.store');
             Route::delete('company/business/invitations/{invitation}', [BusinessInvitationController::class, 'destroy'])->name('company.business.invitations.destroy');
+
+            Route::get('company/locations/address/suggest', [AddressLookupController::class, 'suggest'])->name('company.locations.address.suggest');
+            Route::get('company/locations/address/resolve', [AddressLookupController::class, 'resolve'])->name('company.locations.address.resolve');
 
             Route::get('company/locations', [LocationController::class, 'index'])->name('company.locations.index');
             Route::post('company/locations', [LocationController::class, 'store'])->name('company.locations.store');

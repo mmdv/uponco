@@ -86,9 +86,21 @@
                                                 {{ $locationAddress }}
                                             </p>
                                         @endif
+                                        @if ($locationUnit)
+                                            <p style="margin:2px 0 0;font-family:{{ $font }};font-size:13px;line-height:1.5;color:#71717a;">
+                                                {{ $locationUnit }}
+                                            </p>
+                                        @endif
                                         @if ($locationPhone)
                                             <p style="margin:2px 0 0;font-family:{{ $font }};font-size:13px;color:#71717a;">
                                                 {{ $locationPhone }}
+                                            </p>
+                                        @endif
+                                        @if ($directionsUrl)
+                                            <p style="margin:10px 0 0;font-family:{{ $font }};font-size:14px;font-weight:600;">
+                                                <a href="{{ $directionsUrl }}" target="_blank" style="color:#0063ff;text-decoration:none;">
+                                                    {{ __('Get directions') }} &rarr;
+                                                </a>
                                             </p>
                                         @endif
 

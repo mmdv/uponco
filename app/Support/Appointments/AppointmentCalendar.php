@@ -20,17 +20,27 @@ class AppointmentCalendar
         $team = $appointment->team;
 
         $meetingUrl = $appointment->meeting_url;
+        $place = $appointment->location;
 
-        // For an online appointment the join link is the most useful "location".
+        // Calendar clients geocode LOCATION verbatim, so it must contain the
+        // postal address and nothing else — a business name or unit number in
+        // the string is what makes "Directions" land on the wrong pin.
         $location = $meetingUrl
-            ?: ($appointment->location
-                ? (new Collection([$appointment->location->name, $appointment->location->fullAddress()]))->filter()->implode(', ')
-                : __('Online'));
+            ?: ($place?->mappableAddress() ?? __('Online'));
 
         $description = (new Collection([
             $meetingUrl ? __('Join: :url', ['url' => $meetingUrl]) : null,
             __('Service: :service', ['service' => $appointment->service->title]),
             __('Specialist: :specialist', ['specialist' => $appointment->specialist->name]),
+            // The name and unit still matter to the customer once they arrive,
+            // so they move into the description rather than being dropped.
+            $place && ! $meetingUrl ? __('Place: :name', ['name' => $place->name]) : null,
+            $place && ! $meetingUrl && filled($place->unit)
+                ? __('Unit: :unit', ['unit' => $place->unit])
+                : null,
+            $place && ! $meetingUrl && $place->directionsUrl()
+                ? __('Directions: :url', ['url' => $place->directionsUrl()])
+                : null,
             $appointment->notes,
         ]))->filter()->implode("\n");
 
@@ -54,13 +64,46 @@ class AppointmentCalendar
             $lines[] = 'URL:'.self::escape($meetingUrl);
         }
 
+        // Coordinates take priority over the text address in every major
+        // calendar client, so a geocoded location can never be mis-resolved.
+        if (! $meetingUrl && $place?->isGeocoded()) {
+            $lines[] = 'GEO:'.$place->latitude.';'.$place->longitude;
+            $lines[] = 'X-APPLE-STRUCTURED-LOCATION;VALUE=URI;'
+                .'X-ADDRESS='.self::escape((string) $place->mappableAddress()).';'
+                .'X-APPLE-RADIUS=100;X-TITLE='.self::escape($place->name).':'
+                .'geo:'.$place->latitude.','.$place->longitude;
+        }
+
         $lines = array_merge($lines, [
             'STATUS:CONFIRMED',
             'END:VEVENT',
             'END:VCALENDAR',
         ]);
 
-        return implode("\r\n", $lines)."\r\n";
+        return implode("\r\n", array_map(self::fold(...), $lines))."\r\n";
+    }
+
+    /**
+     * Fold a content line to the 75-octet limit required by RFC 5545.
+     *
+     * Continuation lines are prefixed with a single space. Without this a long
+     * value — a directions URL, say — is silently rejected by stricter
+     * parsers such as Outlook.
+     */
+    protected static function fold(string $line): string
+    {
+        if (strlen($line) <= 75) {
+            return $line;
+        }
+
+        $folded = substr($line, 0, 75);
+        $rest = substr($line, 75);
+
+        foreach (str_split($rest, 74) as $chunk) {
+            $folded .= "\r\n ".$chunk;
+        }
+
+        return $folded;
     }
 
     /**

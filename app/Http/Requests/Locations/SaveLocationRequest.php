@@ -35,6 +35,13 @@ class SaveLocationRequest extends FormRequest
             'unit' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:32'],
             'phone' => ['nullable', 'string', 'max:32'],
+            // Populated when the operator picks an address from autocomplete.
+            // Nullable so a location can still be saved by hand if Google has
+            // no record of the address, or the integration is unconfigured.
+            'place_id' => ['nullable', 'string', 'max:255'],
+            'formatted_address' => ['nullable', 'string', 'max:255'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90', 'required_with:longitude'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180', 'required_with:latitude'],
             'service_ids' => ['array'],
             'service_ids.*' => [
                 Rule::in($this->user()->currentTeam->services()->pluck('services.id')->all()),

@@ -121,6 +121,11 @@ class LocationController extends Controller
             'unit' => $location->unit,
             'postal_code' => $location->postal_code,
             'phone' => $location->phone,
+            'place_id' => $location->place_id,
+            'formatted_address' => $location->formatted_address,
+            'latitude' => $location->latitude,
+            'longitude' => $location->longitude,
+            'is_geocoded' => $location->isGeocoded(),
             'service_ids' => $location->services->pluck('id')->all(),
             'user_ids' => $location->specialists->pluck('id')->all(),
         ];

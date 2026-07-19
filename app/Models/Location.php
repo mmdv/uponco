@@ -21,6 +21,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'unit',
     'postal_code',
     'phone',
+    'place_id',
+    'formatted_address',
+    'latitude',
+    'longitude',
 ])]
 class Location extends Model
 {
@@ -58,10 +62,78 @@ class Location extends Model
     }
 
     /**
-     * The full postal address as a single line, e.g.
-     * "12 Main Street, Suite 4, 1010, Vienna, Austria".
+     * Whether the location resolved to real coordinates via Google Places.
+     * Legacy rows saved before address autocomplete existed will not have.
      */
-    public function fullAddress(): ?string
+    public function isGeocoded(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
+    }
+
+    /**
+     * The address to hand to a mapping service.
+     *
+     * Prefers the canonical address Google returned over the operator's typed
+     * fields, and deliberately omits both the business name and the unit —
+     * neither is part of the postal address and both break geocoding.
+     */
+    public function mappableAddress(): ?string
+    {
+        if (filled($this->formatted_address)) {
+            return $this->formatted_address;
+        }
+
+        $parts = array_filter([
+            $this->street_address,
+            $this->postal_code,
+            $this->city,
+            $this->country ? LocationOptions::countryName($this->country) : null,
+        ], fn (?string $part): bool => filled($part));
+
+        return $parts === [] ? null : implode(', ', $parts);
+    }
+
+    /**
+     * A Google Maps directions link that resolves to this exact place.
+     *
+     * When the location is geocoded we send coordinates plus the place id,
+     * which pins the destination precisely instead of leaving Google to
+     * re-interpret a free-text address. Otherwise we fall back to an encoded
+     * address query, which is best effort.
+     */
+    public function directionsUrl(): ?string
+    {
+        if ($this->isGeocoded()) {
+            $query = [
+                'api' => '1',
+                'destination' => $this->latitude.','.$this->longitude,
+            ];
+
+            if (filled($this->place_id)) {
+                $query['destination_place_id'] = $this->place_id;
+            }
+
+            return 'https://www.google.com/maps/dir/?'.http_build_query($query);
+        }
+
+        $address = $this->mappableAddress();
+
+        if (blank($address)) {
+            return null;
+        }
+
+        return 'https://www.google.com/maps/dir/?'.http_build_query([
+            'api' => '1',
+            'destination' => $address,
+        ]);
+    }
+
+    /**
+     * The full postal address as a single line, including the unit — for
+     * display only. Never hand this to a map: the unit is not part of the
+     * geocodable address. Use {@see mappableAddress()} for that.
+     */
+    public function displayAddress(): ?string
     {
         $parts = array_filter([
             $this->street_address,
@@ -83,6 +155,8 @@ class Location extends Model
     {
         return [
             'is_active' => 'boolean',
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
     }
 }
