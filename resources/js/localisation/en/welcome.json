@@ -6,9 +6,9 @@
     },
     "hero": {
         "badge": "First 100 appointments free — no card required",
-        "titleLead": "Your digital bridge to your",
-        "titleHighlight": "customers",
-        "subtitle": "Easy appointment booking for your business — every location, every service, online or onsite. Set up in five minutes and let customers book in seconds.",
+        "titleLead": "Uponco is appointment booking software for your",
+        "titleHighlight": "business",
+        "subtitle": "Uponco lets you publish your services and locations, take bookings online or onsite across every branch, and send automatic reminders. Your digital bridge to your customers — set up in five minutes and let customers book in seconds.",
         "ctaStartFree": "Start free",
         "ctaSeeHow": "See how it works",
         "ctaGoDashboard": "Go to dashboard",
@@ -56,6 +56,27 @@
                 "description": "Set up your locations, services and team and start taking bookings today."
             }
         }
+    },
+    "google": {
+        "heading": "Works with your Google Calendar",
+        "subheading": "Connect your Google account and Uponco adds every confirmed appointment straight to your calendar, with a Google Meet link created automatically for online bookings.",
+        "items": {
+            "sync": {
+                "title": "Appointments on your calendar",
+                "description": "When a customer books, Uponco creates an event in the Google Calendar of the account you connected, so your existing schedule stays in one place."
+            },
+            "meet": {
+                "title": "Automatic Google Meet links",
+                "description": "Online appointments get a Google Meet link generated with the event and shared with your customer in their confirmation."
+            },
+            "control": {
+                "title": "You stay in control",
+                "description": "Connecting Google is optional and Uponco only asks to manage calendar events. We never read your emails, contacts or files, and you can disconnect at any time from your settings."
+            }
+        },
+        "dataNote": "Uponco uses Google user data only to create and update these appointment events on your behalf. We do not sell it or use it for advertising. See our",
+        "dataNoteLink": "Privacy Policy",
+        "dataNoteTail": "for details."
     },
     "free100": {
         "heading": "Your first 100 appointments are free",
