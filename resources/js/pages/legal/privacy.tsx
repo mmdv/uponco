@@ -2,7 +2,7 @@ import LegalLayout, { LegalSection } from '@/layouts/legal-layout';
 
 export default function Privacy() {
     return (
-        <LegalLayout title="Privacy Policy" lastUpdated="7 July 2026">
+        <LegalLayout title="Privacy Policy" lastUpdated="19 July 2026">
             <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
                 This Privacy Policy explains how Uponco (“Uponco”, “we”, “us” or
                 “our”) collects, uses and protects personal data when you use
@@ -73,6 +73,22 @@ export default function Privacy() {
                         </span>{' '}
                         If you sign in with a third-party provider, we receive
                         basic profile information such as your name and email.
+                    </li>
+                    <li>
+                        <span className="font-medium text-foreground">
+                            Usage and analytics data.
+                        </span>{' '}
+                        Pages viewed, features used and similar
+                        product-analytics events, which we may associate with
+                        your account and team so we can understand how the
+                        Service is used. See{' '}
+                        <a
+                            href="#cookies"
+                            className="font-medium text-primary hover:underline"
+                        >
+                            Cookies and analytics
+                        </a>
+                        .
                     </li>
                 </ul>
             </LegalSection>
@@ -158,9 +174,23 @@ export default function Privacy() {
                         members) when you submit a booking;
                     </li>
                     <li>
-                        Service providers who process data on our behalf — such
-                        as hosting, email delivery and meeting-link generation —
-                        under appropriate data-processing agreements;
+                        Service providers who process data on our behalf, under
+                        appropriate data-processing agreements. These currently
+                        cover hosting, email delivery, product analytics
+                        (PostHog) and Google services described below;
+                    </li>
+                    <li>
+                        <span className="font-medium text-foreground">
+                            Google.
+                        </span>{' '}
+                        If a business connects its Google account, we create
+                        calendar events with Google Meet links in that account;
+                        the event contains the service name, the business name,
+                        the appointment time and any notes on the booking. When
+                        a business searches for an address while setting up a
+                        location, the text typed into the address field is sent
+                        to the Google Places API to return suggestions. If you
+                        sign in with Google, Google processes that sign-in;
                     </li>
                     <li>
                         Authorities or third parties where required by law or to
@@ -184,8 +214,11 @@ export default function Privacy() {
                     Service and for legitimate business or legal purposes.
                     Account and business data is kept while your account is
                     active; you may request deletion as described below. Booking
-                    data is retained by the relevant business according to its
-                    own retention practices.
+                    data is stored by us on behalf of the business you booked
+                    with and is kept for as long as that business keeps its
+                    account and its own retention settings require, so requests
+                    to delete a booking are decided by that business. We may
+                    keep limited records longer where the law requires it.
                 </p>
             </LegalSection>
 
@@ -218,13 +251,37 @@ export default function Privacy() {
                 </p>
             </LegalSection>
 
-            <LegalSection id="cookies" heading="11. Cookies">
+            <LegalSection id="cookies" heading="11. Cookies and analytics">
                 <p>
                     We use strictly necessary cookies to keep you signed in and
-                    to operate the Service securely. We do not use these cookies
-                    for advertising. Your browser settings allow you to control
-                    cookies, though disabling essential cookies may affect
-                    functionality.
+                    to operate the Service securely. These are set without
+                    consent because the Service cannot work without them.
+                </p>
+                <p>
+                    We also use a product-analytics service, PostHog, to
+                    understand how the Service is used and to improve it.
+                    PostHog processes data on our behalf as a processor, on
+                    servers located in the European Union. It records events
+                    such as page views, the pages and features you use and,
+                    where you are signed in, an identifier for your account and
+                    team. On public booking pages it also records which business
+                    the page belongs to.
+                </p>
+                <p>
+                    Analytics cookies are only set after you accept them in the
+                    cookie banner. Until you make a choice, and if you decline,
+                    analytics runs without cookies and without storing an
+                    identifier on your device — which means we can still count
+                    the visit but cannot recognise you when you return. Inside
+                    the embedded booking widget analytics is always cookieless.
+                    You can change your decision at any time by clearing this
+                    site's data in your browser, and your browser settings let
+                    you control cookies generally, though disabling essential
+                    cookies will affect functionality.
+                </p>
+                <p>
+                    We do not use cookies for advertising and we do not run
+                    advertising or cross-site tracking networks.
                 </p>
             </LegalSection>
 
