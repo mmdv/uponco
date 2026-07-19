@@ -16,6 +16,7 @@ function servicePayload(?int $categoryId = null, array $overrides = []): array
         'title' => 'Haircut',
         'price_type' => 'fixed',
         'price' => 50,
+        'currency' => 'USD',
         'duration' => 60,
         'technical_break' => 10,
         'service_type' => 'individual',
@@ -535,4 +536,74 @@ test('guests cannot access services', function () {
     $this
         ->get(route('company.services.index', ['current_team' => $team->slug]))
         ->assertRedirect(route('login'));
+});
+
+test('a service stores the chosen currency', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            onsiteServicePayload($team, $category->id, ['currency' => 'AZN']),
+        )
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('services', [
+        'title' => 'Haircut',
+        'currency' => 'AZN',
+    ]);
+});
+
+test('an unsupported currency is rejected', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            onsiteServicePayload($team, $category->id, ['currency' => 'GBP']),
+        )
+        ->assertSessionHasErrors('currency');
+});
+
+test('a missing currency falls back to the one matching the UI language', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->withUnencryptedCookie('locale', 'az')
+        ->post(
+            route('company.services.store', ['current_team' => $team->slug]),
+            onsiteServicePayload($team, $category->id, ['currency' => null]),
+        )
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('services', [
+        'title' => 'Haircut',
+        'currency' => 'AZN',
+    ]);
+});
+
+test('the services page ships the currency options', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('company/services/index')
+            ->where('currencies', [
+                ['value' => 'EUR', 'label' => 'EUR'],
+                ['value' => 'USD', 'label' => 'USD'],
+                ['value' => 'AZN', 'label' => 'AZN'],
+            ])
+        );
 });

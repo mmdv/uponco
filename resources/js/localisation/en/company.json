@@ -224,6 +224,7 @@
             "categoryPlaceholder": "Select a category",
             "categorySearchPlaceholder": "Search categories…",
             "categoryEmpty": "No categories found.",
+            "currency": "Currency",
             "priceType": "Price type",
             "price": "Price",
             "minPrice": "Min price",

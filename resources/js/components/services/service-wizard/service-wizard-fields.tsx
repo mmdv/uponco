@@ -7,7 +7,8 @@ import type { WizardDetails } from '@/components/services/service-wizard/step-de
 import StepLocations from '@/components/services/service-wizard/step-locations';
 import StepOnlineMethod from '@/components/services/service-wizard/step-online-method';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from '@/hooks/use-translation';
+import { useLocale, useTranslation } from '@/hooks/use-translation';
+import { defaultCurrencyForLocale } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { store } from '@/routes/company/services';
 import type {
@@ -28,6 +29,7 @@ export type ServiceWizardFieldsProps = {
     specialists: SelectOption[];
     countries: SelectOption[];
     priceTypes: SelectOption[];
+    currencies: SelectOption[];
     serviceTypes: SelectOption[];
     google: GoogleIntegrationStatus;
 };
@@ -65,6 +67,7 @@ export default function ServiceWizardFields({
     specialists,
     countries,
     priceTypes,
+    currencies,
     serviceTypes,
     google,
     inline = false,
@@ -80,6 +83,7 @@ export default function ServiceWizardFields({
     footer?: React.ReactNode;
 }) {
     const { t } = useTranslation('company');
+    const { locale } = useLocale();
 
     const [step, setStep] = useState<StepId>('delivery');
     // Nothing is validated until the user asks to create the service, so the
@@ -94,6 +98,7 @@ export default function ServiceWizardFields({
         description: '',
         priceType: 'fixed',
         price: '',
+        currency: defaultCurrencyForLocale(locale),
         priceMin: '',
         priceMax: '',
         duration: '',
@@ -228,6 +233,11 @@ export default function ServiceWizardFields({
                             />
                         </>
                     )}
+                    <input
+                        type="hidden"
+                        name="currency"
+                        value={details.currency}
+                    />
                     <input
                         type="hidden"
                         name="duration"
@@ -387,6 +397,7 @@ export default function ServiceWizardFields({
                                     teamSlug={teamSlug}
                                     specialists={specialists}
                                     priceTypes={priceTypes}
+                                    currencies={currencies}
                                     serviceTypes={serviceTypes}
                                     errors={submitted ? errors : {}}
                                 />

@@ -76,9 +76,7 @@ export default function AppointmentFormDrawer({
             >
                 <SheetHeader className="shrink-0 border-b">
                     <SheetTitle>
-                        {isEditing
-                            ? t('form.editTitle')
-                            : t('form.newTitle')}
+                        {isEditing ? t('form.editTitle') : t('form.newTitle')}
                     </SheetTitle>
                     <SheetDescription>
                         {isEditing
@@ -139,9 +137,7 @@ function AppointmentFormFields({
 
     const initialDate = useMemo(
         () =>
-            appointment
-                ? toDateInputValue(appointment.start_at, timezone)
-                : '',
+            appointment ? toDateInputValue(appointment.start_at, timezone) : '',
         [appointment, timezone],
     );
 
@@ -399,7 +395,9 @@ function AppointmentFormFields({
                                     value={locationId?.toString() ?? ''}
                                     onChange={handleLocationChange}
                                     placeholder={t('form.selectLocation')}
-                                    searchPlaceholder={t('form.searchLocations')}
+                                    searchPlaceholder={t(
+                                        'form.searchLocations',
+                                    )}
                                     emptyMessage={t('form.noLocations')}
                                     invalid={Boolean(errors.location_id)}
                                     data-test="appointment-location-select"

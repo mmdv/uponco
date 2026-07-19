@@ -80,6 +80,7 @@ class DashboardController extends Controller
                 'specialists' => $specialistOptions,
                 'countries' => LocationOptions::countries(),
                 'priceTypes' => ServiceOptions::priceTypes(),
+                'currencies' => ServiceOptions::currencies(),
                 'serviceTypes' => ServiceOptions::serviceTypes(),
                 'deliveryTypes' => ServiceOptions::deliveryTypes(),
                 'meetingProviders' => ServiceOptions::meetingProviders(),
@@ -231,6 +232,7 @@ class DashboardController extends Controller
                 'specialists' => $this->toOptions($team->members()->orderBy('name')->get(), 'name'),
                 'countries' => LocationOptions::countries(),
                 'priceTypes' => ServiceOptions::priceTypes(),
+                'currencies' => ServiceOptions::currencies(),
                 'serviceTypes' => ServiceOptions::serviceTypes(),
                 'google' => [
                     'connected' => $user->hasGoogleConnected(),
@@ -315,6 +317,7 @@ class DashboardController extends Controller
             'price' => $service->price,
             'price_min' => $service->price_min,
             'price_max' => $service->price_max,
+            'currency' => $service->currency->value,
             'duration' => $service->duration,
             'technical_break' => $service->technical_break,
             'service_type' => $service->service_type->value,

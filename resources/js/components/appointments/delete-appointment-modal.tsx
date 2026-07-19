@@ -65,7 +65,9 @@ export default function DeleteAppointmentModal({
 
                 <DialogFooter className="gap-2">
                     <DialogClose asChild>
-                        <Button variant="secondary">{t('delete.cancel')}</Button>
+                        <Button variant="secondary">
+                            {t('delete.cancel')}
+                        </Button>
                     </DialogClose>
 
                     <Button

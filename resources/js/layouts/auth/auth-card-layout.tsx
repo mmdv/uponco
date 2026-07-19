@@ -22,7 +22,7 @@ export default function AuthCardLayout({
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
             <div className="flex w-full max-w-md flex-col gap-6">
                 <div className="flex flex-col gap-6">
-                    <Card className="rounded-xl gap-0 pb-2">
+                    <Card className="gap-0 rounded-xl pb-2">
                         <CardHeader className="px-10 pt-6 pb-0 text-center">
                             <Link
                                 href={home()}

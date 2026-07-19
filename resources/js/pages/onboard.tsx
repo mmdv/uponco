@@ -19,7 +19,11 @@ type Props = {
     businessCategories: SelectOption[];
 };
 
-export default function Onboard({ team, timezones, businessCategories }: Props) {
+export default function Onboard({
+    team,
+    timezones,
+    businessCategories,
+}: Props) {
     const { currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 

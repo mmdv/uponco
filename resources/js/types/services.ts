@@ -1,4 +1,5 @@
 export type PriceType = 'free' | 'fixed' | 'range';
+export type CurrencyCode = 'EUR' | 'USD' | 'AZN';
 export type ServiceTypeValue = 'individual' | 'group';
 export type DeliveryType = 'online' | 'onsite';
 
@@ -16,6 +17,7 @@ export type Service = {
     price: string | null;
     price_min: string | null;
     price_max: string | null;
+    currency: CurrencyCode;
     duration: number;
     technical_break: number;
     service_type: ServiceTypeValue;

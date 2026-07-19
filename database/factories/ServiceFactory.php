@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Currency;
 use App\Enums\DeliveryType;
 use App\Enums\PriceType;
 use App\Enums\ServiceType;
@@ -42,6 +43,7 @@ class ServiceFactory extends Factory
             'price' => fake()->randomFloat(2, 10, 500),
             'price_min' => null,
             'price_max' => null,
+            'currency' => Currency::Default,
             'duration' => fake()->numberBetween(15, 240),
             'technical_break' => fake()->numberBetween(0, 30),
             'service_type' => $serviceType,

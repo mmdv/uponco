@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useTranslation } from '@/hooks/use-translation';
 import type { TranslateFn } from '@/hooks/use-translation';
+import { currencySymbol } from '@/lib/currency';
 import type { SelectOption, Service, ServiceCategory } from '@/types';
 
 type Props = {
@@ -36,11 +37,13 @@ function formatPrice(service: Service, t: TranslateFn): string {
         return t('services.table.free');
     }
 
+    const symbol = currencySymbol(service.currency);
+
     if (service.price_type === 'range') {
-        return `${service.price_min ?? '—'} – ${service.price_max ?? '—'}`;
+        return `${service.price_min ? symbol + service.price_min : '—'} – ${service.price_max ? symbol + service.price_max : '—'}`;
     }
 
-    return service.price ?? '—';
+    return service.price ? symbol + service.price : '—';
 }
 
 type ServicesTableProps = {

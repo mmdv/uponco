@@ -91,7 +91,9 @@ export default function CalendarWeekView({
                                     className="absolute right-2 -translate-y-1/2 text-xs text-muted-foreground"
                                     style={{ top: index * HOUR_HEIGHT }}
                                 >
-                                    {index === 0 ? '' : formatMinutes(hour * 60)}
+                                    {index === 0
+                                        ? ''
+                                        : formatMinutes(hour * 60)}
                                 </div>
                             ))}
                         </div>
@@ -148,7 +150,9 @@ export default function CalendarWeekView({
                                         type="button"
                                         data-test="calendar-appointment"
                                         onClick={() =>
-                                            onSelectAppointment(item.appointment)
+                                            onSelectAppointment(
+                                                item.appointment,
+                                            )
                                         }
                                         className="absolute z-10 overflow-hidden rounded border border-primary/30 bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:shadow-md"
                                         style={{

@@ -84,8 +84,8 @@ export default function BrandIndex({ widget }: Props) {
                                 <code className="rounded bg-muted px-1 py-0.5 text-xs">
                                     &lt;/body&gt;
                                 </code>{' '}
-                                tag. A “Book online” button appears in the corner
-                                and opens your booking page in a pop-up.
+                                tag. A “Book online” button appears in the
+                                corner and opens your booking page in a pop-up.
                             </p>
 
                             <div className="mt-4 flex items-stretch gap-2">

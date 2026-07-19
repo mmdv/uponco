@@ -18,6 +18,11 @@
         "newTitle": "Filial əlavə et",
         "editDescription": "Bu filialın təfərrüatlarını yeniləyin.",
         "newDescription": "Şirkətiniz üçün yeni filial əlavə edin.",
+        "sections": {
+            "details": "Təfərrüatlar",
+            "address": "Ünvan",
+            "assignments": "Xidmətlər və mütəxəssislər"
+        },
         "active": "Aktiv",
         "activeHint": "Qeyri-aktiv filiallar istifadədən gizlədilir.",
         "name": "Ad",

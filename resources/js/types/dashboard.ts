@@ -38,6 +38,7 @@ export type DashboardFormOptions = {
         specialists: SelectOption[];
         countries: SelectOption[];
         priceTypes: SelectOption[];
+        currencies: SelectOption[];
         serviceTypes: SelectOption[];
         deliveryTypes: SelectOption[];
         meetingProviders: SelectOption[];

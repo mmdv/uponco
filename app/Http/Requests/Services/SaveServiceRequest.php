@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Services;
 
+use App\Enums\Currency;
 use App\Enums\DeliveryType;
 use App\Enums\PriceType;
 use App\Enums\ServiceType;
@@ -36,6 +37,9 @@ class SaveServiceRequest extends FormRequest
             'is_active' => $this->boolean('is_active'),
             // The category select submits an empty value when left unset.
             'service_category_id' => $this->input('service_category_id') ?: null,
+            // Free services hide the currency select, so fall back to whatever
+            // suits the active UI language rather than failing validation.
+            'currency' => $this->input('currency') ?: Currency::forLocale(app()->getLocale())->value,
         ]);
     }
 
@@ -59,6 +63,7 @@ class SaveServiceRequest extends FormRequest
             'price' => ['nullable', 'required_if:price_type,fixed', 'numeric', 'min:0', 'max:99999999'],
             'price_min' => ['nullable', 'required_if:price_type,range', 'numeric', 'min:0', 'max:99999999'],
             'price_max' => ['nullable', 'required_if:price_type,range', 'numeric', 'min:0', 'max:99999999', 'gte:price_min'],
+            'currency' => ['required', Rule::enum(Currency::class)],
             'duration' => ['required', 'integer', 'min:1', 'max:1440'],
             'technical_break' => ['required', 'integer', 'min:0', 'max:1440'],
             'service_type' => ['required', Rule::enum(ServiceType::class)],

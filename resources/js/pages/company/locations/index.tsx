@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import Heading from '@/components/heading';
 import DeleteLocationModal from '@/components/locations/delete-location-modal';
-import LocationFormDrawer from '@/components/locations/location-form-drawer';
+import LocationFormModal from '@/components/locations/location-form-modal';
 import LocationsGrid from '@/components/locations/locations-grid';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
@@ -78,7 +78,7 @@ export default function LocationsIndex({
                 />
             </div>
 
-            <LocationFormDrawer
+            <LocationFormModal
                 open={formOpen}
                 onOpenChange={setFormOpen}
                 location={editing}

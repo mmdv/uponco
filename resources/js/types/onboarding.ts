@@ -37,6 +37,7 @@ export type Onboarding = {
         specialists: SelectOption[];
         countries: SelectOption[];
         priceTypes: SelectOption[];
+        currencies: SelectOption[];
         serviceTypes: SelectOption[];
         google: GoogleIntegrationStatus;
     };

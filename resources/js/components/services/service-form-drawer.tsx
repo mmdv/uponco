@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 
 import InputError from '@/components/input-error';
+import { CurrencySelect } from '@/components/services/currency-select';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,9 +19,11 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useTranslation } from '@/hooks/use-translation';
+import { useLocale, useTranslation } from '@/hooks/use-translation';
+import { defaultCurrencyForLocale } from '@/lib/currency';
 import { store, update } from '@/routes/company/services';
 import type {
+    CurrencyCode,
     DeliveryType,
     PriceType,
     SelectOption,
@@ -39,6 +42,7 @@ type Props = {
     locations: SelectOption[];
     specialists: SelectOption[];
     priceTypes: SelectOption[];
+    currencies: SelectOption[];
     serviceTypes: SelectOption[];
     deliveryTypes: SelectOption[];
     meetingProviders: SelectOption[];
@@ -54,6 +58,7 @@ export default function ServiceFormDrawer({
     locations,
     specialists,
     priceTypes,
+    currencies,
     serviceTypes,
     deliveryTypes,
     meetingProviders,
@@ -89,6 +94,7 @@ export default function ServiceFormDrawer({
                     locations={locations}
                     specialists={specialists}
                     priceTypes={priceTypes}
+                    currencies={currencies}
                     serviceTypes={serviceTypes}
                     deliveryTypes={deliveryTypes}
                     meetingProviders={meetingProviders}
@@ -108,6 +114,7 @@ type FieldsProps = {
     locations: SelectOption[];
     specialists: SelectOption[];
     priceTypes: SelectOption[];
+    currencies: SelectOption[];
     serviceTypes: SelectOption[];
     deliveryTypes: SelectOption[];
     meetingProviders: SelectOption[];
@@ -123,6 +130,7 @@ function ServiceFormFields({
     locations,
     specialists,
     priceTypes,
+    currencies,
     serviceTypes,
     deliveryTypes,
     meetingProviders,
@@ -130,6 +138,7 @@ function ServiceFormFields({
     onCancel,
 }: FieldsProps) {
     const { t } = useTranslation('company');
+    const { locale } = useLocale();
     const isEditing = service !== null;
 
     const [isActive, setIsActive] = useState(service?.is_active ?? true);
@@ -140,6 +149,9 @@ function ServiceFormFields({
     );
     const [priceType, setPriceType] = useState<PriceType>(
         service?.price_type ?? 'fixed',
+    );
+    const [currency, setCurrency] = useState<CurrencyCode>(
+        service?.currency ?? defaultCurrencyForLocale(locale),
     );
     const [serviceType, setServiceType] = useState<ServiceTypeValue>(
         service?.service_type ?? 'individual',
@@ -302,52 +314,98 @@ function ServiceFormFields({
                                 <Label htmlFor="price">
                                     {t('services.form.price')}
                                 </Label>
-                                <Input
-                                    id="price"
-                                    name="price"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    defaultValue={service?.price ?? ''}
-                                    placeholder="50.00"
-                                />
+                                <div className="flex items-start gap-2">
+                                    <Input
+                                        id="price"
+                                        name="price"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        defaultValue={service?.price ?? ''}
+                                        placeholder="50.00"
+                                        className="flex-1"
+                                    />
+                                    <CurrencySelect
+                                        id="currency"
+                                        name="currency"
+                                        value={currency}
+                                        onChange={setCurrency}
+                                        options={currencies}
+                                        label={t('services.form.currency')}
+                                        className="w-24"
+                                        data-test="service-currency-select"
+                                    />
+                                </div>
                                 <InputError message={errors.price} />
                             </div>
                         )}
 
                         {priceType === 'range' && (
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="price_min">
-                                        {t('services.form.minPrice')}
-                                    </Label>
-                                    <Input
-                                        id="price_min"
-                                        name="price_min"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        defaultValue={service?.price_min ?? ''}
-                                        placeholder="50.00"
-                                    />
-                                    <InputError message={errors.price_min} />
+                            <div className="grid gap-2">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="price_min">
+                                            {t('services.form.minPrice')}
+                                        </Label>
+                                        <Input
+                                            id="price_min"
+                                            name="price_min"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            defaultValue={
+                                                service?.price_min ?? ''
+                                            }
+                                            placeholder="50.00"
+                                        />
+                                        <InputError
+                                            message={errors.price_min}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="price_max">
+                                            {t('services.form.maxPrice')}
+                                        </Label>
+                                        <Input
+                                            id="price_max"
+                                            name="price_max"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            defaultValue={
+                                                service?.price_max ?? ''
+                                            }
+                                            placeholder="200.00"
+                                        />
+                                        <InputError
+                                            message={errors.price_max}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="price_max">
-                                        {t('services.form.maxPrice')}
+                                    <Label htmlFor="currency">
+                                        {t('services.form.currency')}
                                     </Label>
-                                    <Input
-                                        id="price_max"
-                                        name="price_max"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        defaultValue={service?.price_max ?? ''}
-                                        placeholder="200.00"
+                                    <CurrencySelect
+                                        id="currency"
+                                        name="currency"
+                                        value={currency}
+                                        onChange={setCurrency}
+                                        options={currencies}
+                                        label={t('services.form.currency')}
+                                        className="w-24"
+                                        data-test="service-currency-select"
                                     />
-                                    <InputError message={errors.price_max} />
                                 </div>
                             </div>
+                        )}
+
+                        {priceType === 'free' && (
+                            <input
+                                type="hidden"
+                                name="currency"
+                                value={currency}
+                            />
                         )}
 
                         <div className="grid grid-cols-2 gap-3">

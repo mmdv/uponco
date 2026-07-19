@@ -161,11 +161,7 @@ export default function CalendarDayView({
         }
 
         setDrop(
-            evaluateDrop(
-                minutesForPointer(event.clientY, drag),
-                drag,
-                nowMs(),
-            ),
+            evaluateDrop(minutesForPointer(event.clientY, drag), drag, nowMs()),
         );
     };
 

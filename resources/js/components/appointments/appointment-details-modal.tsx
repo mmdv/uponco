@@ -1,4 +1,12 @@
-import { Calendar, Clock, Mail, MapPin, Pencil, Phone, User } from 'lucide-react';
+import {
+    Calendar,
+    Clock,
+    Mail,
+    MapPin,
+    Pencil,
+    Phone,
+    User,
+} from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';

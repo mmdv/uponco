@@ -84,7 +84,7 @@ export default function CalendarMonthView({
                         <div
                             key={key}
                             className={cn(
-                                'min-h-28 border-b border-r p-1.5 [&:nth-child(7n)]:border-r-0',
+                                'min-h-28 border-r border-b p-1.5 [&:nth-child(7n)]:border-r-0',
                                 !isCurrentMonth && 'bg-muted/20',
                             )}
                         >

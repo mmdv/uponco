@@ -1,7 +1,7 @@
 import { MapPin, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import LocationFormDrawer from '@/components/locations/location-form-drawer';
+import LocationFormModal from '@/components/locations/location-form-modal';
 import { Button } from '@/components/ui/button';
 import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
 import { useTranslation } from '@/hooks/use-translation';
@@ -107,7 +107,7 @@ export default function StepLocations({
                 </div>
             )}
 
-            <LocationFormDrawer
+            <LocationFormModal
                 open={drawerOpen}
                 onOpenChange={setDrawerOpen}
                 location={null}

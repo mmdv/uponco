@@ -1,7 +1,7 @@
 import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
 import CustomerFormDialog from '@/components/customers/customer-form-dialog';
-import LocationFormDrawer from '@/components/locations/location-form-drawer';
+import LocationFormModal from '@/components/locations/location-form-modal';
 import ServiceWizardDialog from '@/components/services/service-wizard/service-wizard-dialog';
 import type { AppointmentSlot, DashboardFormOptions } from '@/types';
 
@@ -70,11 +70,12 @@ export default function QuickCreateForms({
                 specialists={options.services.specialists}
                 countries={options.services.countries}
                 priceTypes={options.services.priceTypes}
+                currencies={options.services.currencies}
                 serviceTypes={options.services.serviceTypes}
                 google={options.services.google}
             />
 
-            <LocationFormDrawer
+            <LocationFormModal
                 open={open === 'location'}
                 onOpenChange={(next) => onOpenChange('location', next)}
                 location={null}

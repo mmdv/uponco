@@ -2,8 +2,8 @@ import { Link } from '@inertiajs/react';
 import { ArrowUpRight } from 'lucide-react';
 import type { ComponentType } from 'react';
 
-import { ACCENTS  } from '@/components/dashboard/accents';
-import type {Accent} from '@/components/dashboard/accents';
+import { ACCENTS } from '@/components/dashboard/accents';
+import type { Accent } from '@/components/dashboard/accents';
 import { cn } from '@/lib/utils';
 
 const numberFormatter = new Intl.NumberFormat();
@@ -38,14 +38,16 @@ export default function StatCard({
             className={cn(
                 'group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-[#f1f3f5] bg-card p-5 shadow-soft transition-all duration-500 ease-out hover:-translate-y-0.5 dark:border-border',
                 styles.ring,
-                mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+                mounted
+                    ? 'translate-y-0 opacity-100'
+                    : 'translate-y-3 opacity-0',
             )}
             style={{ transitionDelay: `${delay}ms` }}
         >
             {/* tinted corner glow */}
             <div
                 className={cn(
-                    'pointer-events-none absolute -right-10 -top-10 size-24 rounded-full opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100',
+                    'pointer-events-none absolute -top-10 -right-10 size-24 rounded-full opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100',
                     styles.soft,
                 )}
             />

@@ -220,7 +220,10 @@ export function positionAppointments(
                 appointmentDateKey(appointment, timezone) === dayKey,
         )
         .map((appointment) => {
-            const rawStart = minutesFromMidnight(appointment.start_at, timezone);
+            const rawStart = minutesFromMidnight(
+                appointment.start_at,
+                timezone,
+            );
             const rawEnd = minutesFromMidnight(appointment.end_at, timezone);
 
             const startMinutes = Math.max(rawStart, GRID_START_MINUTES);
@@ -230,7 +233,8 @@ export function positionAppointments(
                 GRID_END_MINUTES,
             );
 
-            const top = ((startMinutes - GRID_START_MINUTES) / 60) * HOUR_HEIGHT;
+            const top =
+                ((startMinutes - GRID_START_MINUTES) / 60) * HOUR_HEIGHT;
             const height = Math.max(
                 ((endMinutes - startMinutes) / 60) * HOUR_HEIGHT,
                 18,

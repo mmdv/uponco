@@ -1,4 +1,9 @@
-import type { DeliveryType, PriceType, ServiceTypeValue } from './services';
+import type {
+    CurrencyCode,
+    DeliveryType,
+    PriceType,
+    ServiceTypeValue,
+} from './services';
 
 export type AppointmentServiceOption = {
     id: number;
@@ -9,6 +14,7 @@ export type AppointmentServiceOption = {
     price: string | null;
     price_min: string | null;
     price_max: string | null;
+    currency: CurrencyCode;
     delivery_type: DeliveryType;
     service_type: ServiceTypeValue;
     capacity: number | null;

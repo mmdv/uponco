@@ -61,8 +61,8 @@ export default function DeleteTeamModal({
                                 <DialogDescription>
                                     This action cannot be undone. This will
                                     permanently delete the team{' '}
-                                    <strong>"{team.name}"</strong> and all of its
-                                    data.
+                                    <strong>"{team.name}"</strong> and all of
+                                    its data.
                                 </DialogDescription>
                             </DialogHeader>
 

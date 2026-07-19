@@ -32,6 +32,7 @@ function makeService(
         price: '50',
         price_min: null,
         price_max: null,
+        currency: 'EUR',
         delivery_type: 'onsite',
         service_type: 'individual',
         capacity: null,
@@ -308,7 +309,7 @@ describe('buildMetaLabel', () => {
             makeService({ duration: 90, price_type: 'fixed', price: '50' }),
         );
 
-        expect(label).toBe('1h 30m · 50');
+        expect(label).toBe('1h 30m · €50');
     });
 
     it('omits an empty price', () => {

@@ -5,6 +5,8 @@ import type {
     AppointmentSpecialistOption,
 } from '@/types';
 
+import { formatAmount } from './currency';
+
 const priceFormatter = new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -261,16 +263,16 @@ export function formatServicePrice(service: AppointmentServiceOption): string {
             return 'Free';
         case 'range':
             if (service.price_min && service.price_max) {
-                return `${priceFormatter.format(Number(service.price_min))}–${priceFormatter.format(Number(service.price_max))}`;
+                return `${formatAmount(service.price_min, service.currency)}–${priceFormatter.format(Number(service.price_max))}`;
             }
 
             return service.price
-                ? priceFormatter.format(Number(service.price))
+                ? formatAmount(service.price, service.currency)
                 : '';
         case 'fixed':
         default:
             return service.price
-                ? priceFormatter.format(Number(service.price))
+                ? formatAmount(service.price, service.currency)
                 : '';
     }
 }

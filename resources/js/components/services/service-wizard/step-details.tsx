@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { CurrencySelect } from '@/components/services/currency-select';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import CategoryField from '@/components/services/service-wizard/category-field';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,12 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
-import type { PriceType, SelectOption, ServiceTypeValue } from '@/types';
+import type {
+    CurrencyCode,
+    PriceType,
+    SelectOption,
+    ServiceTypeValue,
+} from '@/types';
 
 export type WizardDetails = {
     title: string;
@@ -17,6 +23,7 @@ export type WizardDetails = {
     description: string;
     priceType: PriceType;
     price: string;
+    currency: CurrencyCode;
     priceMin: string;
     priceMax: string;
     duration: string;
@@ -59,6 +66,7 @@ export default function StepDetails({
     teamSlug,
     specialists,
     priceTypes,
+    currencies,
     serviceTypes,
     errors,
 }: {
@@ -70,6 +78,7 @@ export default function StepDetails({
     teamSlug: string;
     specialists: SelectOption[];
     priceTypes: SelectOption[];
+    currencies: SelectOption[];
     serviceTypes: SelectOption[];
     errors: Record<string, string>;
 }) {
@@ -168,25 +177,37 @@ export default function StepDetails({
                         {t('services.form.price')}{' '}
                         <RequiredMark label={requiredLabel} />
                     </Label>
-                    <Input
-                        id="wizard_price"
-                        aria-required="true"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={details.price}
-                        onChange={(event) =>
-                            onPatch({ price: event.target.value })
-                        }
-                        placeholder="50.00"
-                        aria-invalid={Boolean(errors.price)}
-                    />
+                    <div className="flex items-start gap-2">
+                        <Input
+                            id="wizard_price"
+                            aria-required="true"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={details.price}
+                            onChange={(event) =>
+                                onPatch({ price: event.target.value })
+                            }
+                            placeholder="50.00"
+                            aria-invalid={Boolean(errors.price)}
+                            className="flex-1"
+                        />
+                        <CurrencySelect
+                            id="wizard_currency"
+                            value={details.currency}
+                            onChange={(currency) => onPatch({ currency })}
+                            options={currencies}
+                            label={t('services.form.currency')}
+                            className="w-24"
+                            data-test="wizard-currency-select"
+                        />
+                    </div>
                     <InputError message={errors.price} />
                 </div>
             )}
 
             {details.priceType === 'range' && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
                     <div className="grid gap-2">
                         <Label htmlFor="wizard_price_min">
                             {t('services.form.minPrice')}{' '}
@@ -226,6 +247,20 @@ export default function StepDetails({
                             aria-invalid={Boolean(errors.price_max)}
                         />
                         <InputError message={errors.price_max} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="wizard_range_currency">
+                            {t('services.form.currency')}
+                        </Label>
+                        <CurrencySelect
+                            id="wizard_range_currency"
+                            value={details.currency}
+                            onChange={(currency) => onPatch({ currency })}
+                            options={currencies}
+                            label={t('services.form.currency')}
+                            className="w-full sm:w-24"
+                            data-test="wizard-range-currency-select"
+                        />
                     </div>
                 </div>
             )}

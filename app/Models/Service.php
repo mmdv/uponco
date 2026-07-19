@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Currency;
 use App\Enums\DeliveryType;
 use App\Enums\PriceType;
 use App\Enums\ServiceType;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'price',
     'price_min',
     'price_max',
+    'currency',
     'duration',
     'technical_break',
     'service_type',
@@ -98,6 +100,7 @@ class Service extends Model
             'price' => 'decimal:2',
             'price_min' => 'decimal:2',
             'price_max' => 'decimal:2',
+            'currency' => Currency::class,
             'duration' => 'integer',
             'technical_break' => 'integer',
             'capacity' => 'integer',

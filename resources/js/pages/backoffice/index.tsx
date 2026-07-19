@@ -5,12 +5,7 @@ import Heading from '@/components/heading';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
     TableBody,
@@ -156,7 +151,9 @@ export default function BackofficeIndex({ teams }: Props) {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
-                                                    <TableHead>Member</TableHead>
+                                                    <TableHead>
+                                                        Member
+                                                    </TableHead>
                                                     <TableHead>Role</TableHead>
                                                     <TableHead className="w-0 text-right">
                                                         Actions
@@ -256,7 +253,9 @@ export default function BackofficeIndex({ teams }: Props) {
     );
 }
 
-BackofficeIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+BackofficeIndex.layout = (props: {
+    currentTeam?: { slug: string } | null;
+}) => ({
     breadcrumbs: [
         {
             title: 'Backoffice',

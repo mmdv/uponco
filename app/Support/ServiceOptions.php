@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\Currency;
 use App\Enums\DeliveryType;
 use App\Enums\PriceType;
 use App\Enums\ServiceType;
@@ -26,6 +27,16 @@ class ServiceOptions
     public static function priceTypes(): array
     {
         return PriceType::options();
+    }
+
+    /**
+     * Get the currency select options.
+     *
+     * @return array<array{value: string, label: string}>
+     */
+    public static function currencies(): array
+    {
+        return Currency::options();
     }
 
     /**

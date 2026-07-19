@@ -75,6 +75,7 @@ export default function StepServices({ data, controls }: Props) {
                     specialists={data.specialists}
                     countries={data.countries}
                     priceTypes={data.priceTypes}
+                    currencies={data.currencies}
                     serviceTypes={data.serviceTypes}
                     google={data.google}
                     onSuccess={() => undefined}
@@ -92,6 +93,7 @@ export default function StepServices({ data, controls }: Props) {
                 specialists={data.specialists}
                 countries={data.countries}
                 priceTypes={data.priceTypes}
+                currencies={data.currencies}
                 serviceTypes={data.serviceTypes}
                 google={data.google}
             />

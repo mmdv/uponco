@@ -27,6 +27,7 @@ type Props = {
     specialists: SelectOption[];
     countries: SelectOption[];
     priceTypes: SelectOption[];
+    currencies: SelectOption[];
     serviceTypes: SelectOption[];
     deliveryTypes: SelectOption[];
     meetingProviders: SelectOption[];
@@ -40,6 +41,7 @@ export default function ServicesIndex({
     specialists,
     countries,
     priceTypes,
+    currencies,
     serviceTypes,
     deliveryTypes,
     meetingProviders,
@@ -164,6 +166,7 @@ export default function ServicesIndex({
                 specialists={specialists}
                 countries={countries}
                 priceTypes={priceTypes}
+                currencies={currencies}
                 serviceTypes={serviceTypes}
                 google={google}
             />
@@ -178,6 +181,7 @@ export default function ServicesIndex({
                 locations={locations}
                 specialists={specialists}
                 priceTypes={priceTypes}
+                currencies={currencies}
                 serviceTypes={serviceTypes}
                 deliveryTypes={deliveryTypes}
                 meetingProviders={meetingProviders}

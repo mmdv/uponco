@@ -18,6 +18,11 @@
         "newTitle": "Add location",
         "editDescription": "Update the details for this location.",
         "newDescription": "Add a new location for your company.",
+        "sections": {
+            "details": "Details",
+            "address": "Address",
+            "assignments": "Services & specialists"
+        },
         "active": "Active",
         "activeHint": "Inactive locations are hidden from use.",
         "name": "Name",

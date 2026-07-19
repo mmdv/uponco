@@ -15,6 +15,7 @@ function makeService(
         price: '50',
         price_min: null,
         price_max: null,
+        currency: 'EUR',
         delivery_type: 'onsite',
         service_type: 'individual',
         capacity: null,
