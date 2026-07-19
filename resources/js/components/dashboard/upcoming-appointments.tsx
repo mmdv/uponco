@@ -24,7 +24,7 @@ export default function UpcomingAppointments({
     const { t } = useTranslation('dashboard');
 
     return (
-        <Card className="h-full max-w-full">
+        <Card className="max-w-full">
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="text-base font-medium">

@@ -2,9 +2,16 @@
     "title": "Dashboard",
     "header": {
         "welcomeBack": "Welcome back,",
-        "subtitle": "Here's what's happening with your bookings today.",
-        "bookingPage": "Booking page",
-        "addAppointment": "Add appointment"
+        "subtitle": "Here's what's happening with your bookings today."
+    },
+    "bookingPage": {
+        "title": "Your booking page",
+        "subtitle": "Share this link so customers can book with you directly.",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "share": "Share",
+        "open": "Open",
+        "shareTitle": "Book with"
     },
     "stats": {
         "customers": "Customers",

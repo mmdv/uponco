@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
 import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
+import BookingPageCard from '@/components/dashboard/booking-page-card';
 import BookingsChart from '@/components/dashboard/bookings-chart';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
 import DashboardStats from '@/components/dashboard/dashboard-stats';
@@ -124,35 +125,16 @@ export default function Dashboard({
             <Head title={t('title')} />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
-                <DashboardHeader
-                    firstName={firstName}
-                    teamSlug={teamSlug}
-                    onAddAppointment={() => setOpenForm('appointment')}
-                />
+                <DashboardHeader firstName={firstName} />
 
                 {/*
-                    Desktop: a 2/3 left column (the week ahead + stats stacked)
-                    beside a 1/3 right rail holding the upcoming appointments,
-                    which spans both rows so it reads as a tall portrait card.
-                    Mobile: a single column reordered to Upcoming → Week ahead →
-                    Stats.
+                    Desktop: a 2/3 left column stacking upcoming appointments,
+                    the week ahead and the stats, beside a 1/3 right rail
+                    holding the public booking link. Mobile: a single column
+                    with the booking link card last.
                 */}
                 <div className="grid gap-6 lg:grid-cols-3">
-                    {trend.length > 0 && (
-                        <div className="order-2 min-w-0 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-1">
-                            <BookingsChart trend={trend} mounted={mounted} />
-                        </div>
-                    )}
-
-                    <div className="order-3 min-w-0 lg:order-none lg:col-span-2 lg:col-start-1 lg:row-start-2">
-                        <DashboardStats
-                            stats={safeStats}
-                            teamSlug={teamSlug}
-                            mounted={mounted}
-                        />
-                    </div>
-
-                    <div className="order-1 min-w-0 lg:order-none lg:col-start-3 lg:row-span-2 lg:row-start-1">
+                    <div className="flex min-w-0 flex-col gap-6 lg:col-span-2 lg:col-start-1 lg:row-start-1">
                         <UpcomingAppointments
                             appointments={upcoming}
                             teamSlug={teamSlug}
@@ -162,7 +144,33 @@ export default function Dashboard({
                                 setDetailsOpen(true);
                             }}
                         />
+
+                        {trend.length > 0 && (
+                            <BookingsChart trend={trend} mounted={mounted} />
+                        )}
+
+                        <DashboardStats
+                            stats={safeStats}
+                            teamSlug={teamSlug}
+                            mounted={mounted}
+                        />
                     </div>
+
+                    {formOptions && (
+                        <div className="min-w-0 lg:col-start-3 lg:row-start-1 lg:self-start">
+                            <BookingPageCard
+                                teamSlug={teamSlug}
+                                companyName={currentTeam?.name ?? ''}
+                                logoUrl={currentTeam?.logoUrl}
+                                timezone={timezone}
+                                services={formOptions.appointments.services}
+                                locations={formOptions.appointments.locations}
+                                specialists={
+                                    formOptions.appointments.specialists
+                                }
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

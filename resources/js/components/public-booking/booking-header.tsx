@@ -27,6 +27,12 @@ type Props = {
     logoUrl?: string | null;
     theme: PublicTheme;
     onThemeChange: (theme: PublicTheme) => void;
+    /**
+     * Hides the share/appearance menu. Used by the dashboard preview, where
+     * sharing lives on the surrounding card and the theme and locale belong to
+     * the signed-in user rather than to a visitor.
+     */
+    showMenu?: boolean;
 };
 
 /**
@@ -64,6 +70,7 @@ export default function BookingHeader({
     logoUrl,
     theme,
     onThemeChange,
+    showMenu = true,
 }: Props) {
     const { locale, availableLocales, setLocale } = useLocale();
     const [shareUrl] = useState(currentUrl);
@@ -117,122 +124,128 @@ export default function BookingHeader({
                 </div>
             </div>
 
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Share and appearance"
-                        data-test="booking-header-menu"
-                    >
-                        <EllipsisVertical className="size-5" />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-72 space-y-4">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">
-                            Theme
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                            <Button
-                                type="button"
-                                variant={
-                                    theme === 'light' ? 'default' : 'outline'
-                                }
-                                onClick={() => onThemeChange('light')}
-                                data-test="booking-theme-light"
-                            >
-                                <Sun className="size-4" />
-                                Light
-                            </Button>
-                            <Button
-                                type="button"
-                                variant={
-                                    theme === 'dark' ? 'default' : 'outline'
-                                }
-                                onClick={() => onThemeChange('dark')}
-                                data-test="booking-theme-dark"
-                            >
-                                <Moon className="size-4" />
-                                Dark
-                            </Button>
-                        </div>
-                    </div>
-
-                    {availableLocales.length > 1 ? (
+            {showMenu && (
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Share and appearance"
+                            data-test="booking-header-menu"
+                        >
+                            <EllipsisVertical className="size-5" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-72 space-y-4">
                         <div className="space-y-2">
                             <p className="text-xs font-medium text-muted-foreground">
-                                Language
+                                Theme
                             </p>
                             <div className="grid grid-cols-2 gap-2">
-                                {availableLocales.map((language) => (
-                                    <Button
-                                        key={language.code}
-                                        type="button"
-                                        variant={
-                                            locale === language.code
-                                                ? 'default'
-                                                : 'outline'
-                                        }
-                                        onClick={() => setLocale(language.code)}
-                                        data-test={`booking-language-${language.code}`}
-                                    >
-                                        <Languages className="size-4" />
-                                        {language.native}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
-
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">
-                            Share
-                        </p>
-                        {canNativeShare ? (
-                            <Button
-                                type="button"
-                                className="w-full"
-                                onClick={handleNativeShare}
-                                data-test="booking-share-native"
-                            >
-                                <Share2 className="size-4" />
-                                Share booking page
-                            </Button>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    readOnly
-                                    value={shareUrl}
-                                    onFocus={(event) =>
-                                        event.currentTarget.select()
-                                    }
-                                    className="h-9 text-xs"
-                                    data-test="booking-share-link"
-                                />
                                 <Button
                                     type="button"
-                                    size="icon"
-                                    variant="outline"
-                                    className={cn(
-                                        'shrink-0',
-                                        copied && 'text-primary',
-                                    )}
-                                    onClick={handleCopy}
-                                    aria-label="Copy booking link"
-                                    data-test="booking-share-copy"
+                                    variant={
+                                        theme === 'light'
+                                            ? 'default'
+                                            : 'outline'
+                                    }
+                                    onClick={() => onThemeChange('light')}
+                                    data-test="booking-theme-light"
                                 >
-                                    {copied ? (
-                                        <Check className="size-4" />
-                                    ) : (
-                                        <Copy className="size-4" />
-                                    )}
+                                    <Sun className="size-4" />
+                                    Light
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant={
+                                        theme === 'dark' ? 'default' : 'outline'
+                                    }
+                                    onClick={() => onThemeChange('dark')}
+                                    data-test="booking-theme-dark"
+                                >
+                                    <Moon className="size-4" />
+                                    Dark
                                 </Button>
                             </div>
-                        )}
-                    </div>
-                </PopoverContent>
-            </Popover>
+                        </div>
+
+                        {availableLocales.length > 1 ? (
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    Language
+                                </p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {availableLocales.map((language) => (
+                                        <Button
+                                            key={language.code}
+                                            type="button"
+                                            variant={
+                                                locale === language.code
+                                                    ? 'default'
+                                                    : 'outline'
+                                            }
+                                            onClick={() =>
+                                                setLocale(language.code)
+                                            }
+                                            data-test={`booking-language-${language.code}`}
+                                        >
+                                            <Languages className="size-4" />
+                                            {language.native}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        <div className="space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">
+                                Share
+                            </p>
+                            {canNativeShare ? (
+                                <Button
+                                    type="button"
+                                    className="w-full"
+                                    onClick={handleNativeShare}
+                                    data-test="booking-share-native"
+                                >
+                                    <Share2 className="size-4" />
+                                    Share booking page
+                                </Button>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        readOnly
+                                        value={shareUrl}
+                                        onFocus={(event) =>
+                                            event.currentTarget.select()
+                                        }
+                                        className="h-9 text-xs"
+                                        data-test="booking-share-link"
+                                    />
+                                    <Button
+                                        type="button"
+                                        size="icon"
+                                        variant="outline"
+                                        className={cn(
+                                            'shrink-0',
+                                            copied && 'text-primary',
+                                        )}
+                                        onClick={handleCopy}
+                                        aria-label="Copy booking link"
+                                        data-test="booking-share-copy"
+                                    >
+                                        {copied ? (
+                                            <Check className="size-4" />
+                                        ) : (
+                                            <Copy className="size-4" />
+                                        )}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            )}
         </div>
     );
 }

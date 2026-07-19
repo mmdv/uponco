@@ -2,9 +2,16 @@
     "title": "İdarə paneli",
     "header": {
         "welcomeBack": "Xoş gəldiniz,",
-        "subtitle": "Bu gün rezervasiyalarınızda baş verənlər.",
-        "bookingPage": "Rezervasiya səhifəsi",
-        "addAppointment": "Görüş əlavə et"
+        "subtitle": "Bu gün rezervasiyalarınızda baş verənlər."
+    },
+    "bookingPage": {
+        "title": "Rezervasiya səhifəniz",
+        "subtitle": "Bu linki paylaşın ki, müştərilər birbaşa rezervasiya edə bilsin.",
+        "copy": "Linki kopyala",
+        "copied": "Kopyalandı",
+        "share": "Paylaş",
+        "open": "Aç",
+        "shareTitle": "Rezervasiya:"
     },
     "stats": {
         "customers": "Müştərilər",

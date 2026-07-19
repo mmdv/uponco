@@ -2,9 +2,12 @@
 
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\OnboardingProgress;
+use App\Models\ScheduleSlot;
+use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
 
@@ -97,6 +100,50 @@ test('the dashboard reports booking and customer stats when onboarding is hidden
             ->has('formOptions.appointments')
             ->has('formOptions.services')
             ->has('formOptions.locations')
+        );
+});
+
+test('the dashboard exposes the booking options and slots the embedded booking preview needs', function () {
+    [$owner, $team] = dashboardOwner();
+
+    $service = Service::factory()->create(['team_id' => $team->id, 'duration' => 60]);
+    $service->specialists()->attach($owner);
+
+    ScheduleSlot::create([
+        'team_id' => $team->id,
+        'user_id' => $owner->id,
+        'date' => now()->addDay()->toDateString(),
+        'start_time' => '09:00',
+        'end_time' => '11:00',
+    ]);
+
+    // The preview renders the public booking flow with these props, and its
+    // slot picker reloads `availableSlots` from the dashboard route itself.
+    $this
+        ->actingAs($owner)
+        ->get(route('dashboard', [
+            'current_team' => $team->slug,
+            'service_id' => $service->id,
+            'specialist_id' => $owner->id,
+            'date' => now()->addDay()->toDateString(),
+        ]), [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()),
+            'X-Inertia-Partial-Component' => 'dashboard',
+            'X-Inertia-Partial-Data' => 'availableSlots',
+        ])
+        ->assertOk()
+        ->assertJsonStructure(['props' => ['availableSlots']]);
+
+    $this
+        ->actingAs($owner)
+        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('timezone')
+            ->has('formOptions.appointments.services')
+            ->has('formOptions.appointments.locations')
+            ->has('formOptions.appointments.specialists')
         );
 });
 

@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 type Props = {
     step: number;
@@ -9,6 +10,8 @@ type Props = {
     onBack: () => void;
     onContinue: () => void;
     onSubmit: () => void;
+    /** Pins the bar to its container instead of the viewport (embedded preview). */
+    embedded?: boolean;
 };
 
 /**
@@ -22,9 +25,17 @@ export default function BookingFooter({
     onBack,
     onContinue,
     onSubmit,
+    embedded = false,
 }: Props) {
     return (
-        <footer className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-[460px] items-center gap-3 border-t bg-background/95 px-5 py-3.5 backdrop-blur">
+        <footer
+            className={cn(
+                'flex w-full items-center gap-3 border-t bg-background/95 px-5 py-3.5 backdrop-blur',
+                embedded
+                    ? 'sticky bottom-0'
+                    : 'fixed inset-x-0 bottom-0 mx-auto max-w-[460px]',
+            )}
+        >
             {step > 0 && (
                 <Button
                     type="button"
