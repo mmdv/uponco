@@ -6,9 +6,9 @@
     },
     "hero": {
         "badge": "İlk 100 görüş pulsuz — kart tələb olunmur",
-        "titleLead": "Uponco biznesiniz üçün görüş rezervasiyası",
-        "titleHighlight": "proqramıdır",
-        "subtitle": "Uponco ilə xidmətlərinizi və məkanlarınızı yerləşdirin, hər filialda onlayn və ya yerində rezervasiya qəbul edin və avtomatik xatırlatmalar göndərin. Müştərilərinizə rəqəmsal körpünüz — beş dəqiqəyə qurun və müştərilər saniyələr içində rezervasiya etsin.",
+        "titleLead": "Müştərilərinizə rəqəmsal",
+        "titleHighlight": "körpünüz",
+        "subtitle": "Biznesiniz üçün asan görüş rezervasiyası — hər filial, hər xidmət, onlayn və ya yerində. Beş dəqiqəyə qur və müştərilərin saniyələr içində rezervasiya etməsinə imkan yarat.",
         "ctaStartFree": "Pulsuz başla",
         "ctaSeeHow": "Necə işlədiyinə bax",
         "ctaGoDashboard": "İdarə panelinə keç",
@@ -56,27 +56,6 @@
                 "description": "Filiallarınızı, xidmətlərinizi və komandanızı qurun və bu gün rezervasiya qəbuluna başlayın."
             }
         }
-    },
-    "google": {
-        "heading": "Google Təqviminizlə işləyir",
-        "subheading": "Google hesabınızı qoşun və Uponco təsdiqlənmiş hər görüşü birbaşa təqviminizə əlavə etsin, onlayn rezervasiyalar üçün isə avtomatik Google Meet linki yaratsın.",
-        "items": {
-            "sync": {
-                "title": "Görüşlər təqviminizdə",
-                "description": "Müştəri rezervasiya edəndə Uponco qoşduğunuz hesabın Google Təqvimində tədbir yaradır ki, mövcud cədvəliniz bir yerdə qalsın."
-            },
-            "meet": {
-                "title": "Avtomatik Google Meet linkləri",
-                "description": "Onlayn görüşlər üçün tədbirlə birlikdə Google Meet linki yaradılır və təsdiq mesajında müştəri ilə paylaşılır."
-            },
-            "control": {
-                "title": "Nəzarət sizdədir",
-                "description": "Google-u qoşmaq məcburi deyil və Uponco yalnız təqvim tədbirlərini idarə etmək icazəsi istəyir. E-poçtlarınızı, kontaktlarınızı və ya fayllarınızı heç vaxt oxumuruq və istənilən vaxt ayarlardan ayıra bilərsiniz."
-            }
-        },
-        "dataNote": "Uponco Google istifadəçi məlumatlarını yalnız sizin adınıza bu görüş tədbirlərini yaratmaq və yeniləmək üçün istifadə edir. Onu satmırıq və reklam üçün istifadə etmirik. Ətraflı üçün",
-        "dataNoteLink": "Məxfilik Siyasətimizə",
-        "dataNoteTail": "baxın."
     },
     "free100": {
         "heading": "İlk 100 görüşünüz pulsuzdur",

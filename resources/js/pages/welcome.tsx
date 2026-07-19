@@ -10,7 +10,6 @@ import {
     MapPin,
     Rocket,
     Scissors,
-    ShieldCheck,
     User,
     Users,
     Video,
@@ -488,10 +487,7 @@ export default function Welcome() {
 
     return (
         <>
-            {/* Leads with what the product does; the layout appends " - Uponco",
-                so the full title names the app and its purpose for reviewers
-                and crawlers that only read the title. */}
-            <Head title="Appointment Booking Software for Your Business" />
+            <Head title="Your digital bridge to your customers" />
 
             <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
                 {/* Header */}
@@ -691,70 +687,6 @@ export default function Welcome() {
                             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                         </Link>
                     </div>
-                </section>
-
-                {/* Google integration. Google's OAuth verification requires the
-                    home page to explain what the app does with Google account
-                    access and which data it touches, so this stays on the
-                    public page rather than behind sign-in. */}
-                <section
-                    id="google-calendar"
-                    className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-14"
-                >
-                    <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                            {t('google.heading')}
-                        </h2>
-                        <p className="mt-3 text-muted-foreground">
-                            {t('google.subheading')}
-                        </p>
-                    </div>
-
-                    <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                        {[
-                            {
-                                icon: CalendarClock,
-                                title: t('google.items.sync.title'),
-                                description: t('google.items.sync.description'),
-                            },
-                            {
-                                icon: Video,
-                                title: t('google.items.meet.title'),
-                                description: t('google.items.meet.description'),
-                            },
-                            {
-                                icon: ShieldCheck,
-                                title: t('google.items.control.title'),
-                                description: t(
-                                    'google.items.control.description',
-                                ),
-                            },
-                        ].map(({ icon: Icon, title, description }) => (
-                            <div
-                                key={title}
-                                className="rounded-xl border border-border bg-card p-6"
-                            >
-                                <span className="inline-flex size-9 items-center justify-center rounded-md bg-secondary">
-                                    <Icon className="size-4.5 text-primary" />
-                                </span>
-                                <h3 className="mt-4 font-medium">{title}</h3>
-                                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                    {description}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <p className="mx-auto mt-6 max-w-2xl text-center text-sm text-muted-foreground">
-                        {t('google.dataNote')}{' '}
-                        <Link
-                            href={privacy()}
-                            className="font-medium text-primary hover:underline"
-                        >
-                            {t('google.dataNoteLink')}
-                        </Link>{' '}
-                        {t('google.dataNoteTail')}
-                    </p>
                 </section>
 
                 {/* Footer */}
