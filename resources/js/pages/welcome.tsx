@@ -2,27 +2,32 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
     BellRing,
+    Building2,
     CalendarClock,
+    CalendarCheck,
     Check,
     Clock,
     Globe,
     Layers,
+    Link2,
     MapPin,
     Rocket,
     Scissors,
+    Settings2,
+    ShieldCheck,
     User,
+    UserRound,
     Users,
     Video,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
-import { LanguageSwitcher } from '@/components/language-switcher';
+import { SiteFooter, SUPPORT_EMAIL } from '@/components/marketing/site-footer';
+import { SiteHeader } from '@/components/marketing/site-header';
 import { useTranslation } from '@/hooks/use-translation';
 import { captureEvent } from '@/lib/analytics';
-import { dashboard, login, privacy, register, terms } from '@/routes';
-
-const currentYear = new Date().getFullYear();
+import { dashboard, pricing, privacy, register } from '@/routes';
 
 const demoDays = [
     { label: 'Today', day: '14', month: 'Jul' },
@@ -207,6 +212,21 @@ function BookingDemo() {
         </div>
     );
 }
+
+const howItWorksSteps: { icon: ReactNode; i18nKey: string }[] = [
+    { icon: <Settings2 className="size-5" />, i18nKey: 'setUp' },
+    { icon: <Link2 className="size-5" />, i18nKey: 'share' },
+    { icon: <CalendarCheck className="size-5" />, i18nKey: 'run' },
+];
+
+const dataItems: { icon: ReactNode; i18nKey: string }[] = [
+    { icon: <UserRound className="size-4" />, i18nKey: 'account' },
+    { icon: <Building2 className="size-4" />, i18nKey: 'business' },
+    { icon: <CalendarClock className="size-4" />, i18nKey: 'booking' },
+    { icon: <Video className="size-4" />, i18nKey: 'google' },
+];
+
+const assuranceKeys = ['noSelling', 'noAds', 'noSharing', 'deletion'] as const;
 
 const spotlightFeatures: {
     icon: ReactNode;
@@ -490,64 +510,7 @@ export default function Welcome() {
             <Head title="Your digital bridge to your customers" />
 
             <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
-                {/* Header */}
-                <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur">
-                    <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-                        <Link
-                            href="/"
-                            className="flex items-center gap-2 font-semibold"
-                        >
-                            <span className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary">
-                                <AppLogoIcon className="size-5 fill-current text-white" />
-                            </span>
-                            <span className="hidden sm:inline">Uponco</span>
-                        </Link>
-
-                        <div className="flex items-center gap-2">
-                            <LanguageSwitcher />
-                            {auth.user ? (
-                                <Link
-                                    href={dashboardUrl}
-                                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-                                >
-                                    {t('nav.dashboard')}
-                                    <ArrowRight className="size-4" />
-                                </Link>
-                            ) : (
-                                <>
-                                    {/* Mobile: single primary sign-in button */}
-                                    <Link
-                                        href={login()}
-                                        className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:hidden"
-                                    >
-                                        {t('nav.signIn')}
-                                    </Link>
-                                    {/* Desktop: sign-in + get started */}
-                                    <Link
-                                        href={login()}
-                                        className="hidden items-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
-                                    >
-                                        {t('nav.signIn')}
-                                    </Link>
-                                    <Link
-                                        href={register()}
-                                        onClick={() =>
-                                            captureEvent(
-                                                'get_started_clicked',
-                                                {
-                                                    placement: 'nav',
-                                                },
-                                            )
-                                        }
-                                        className="hidden items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex"
-                                    >
-                                        {t('nav.getStarted')}
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    </nav>
-                </header>
+                <SiteHeader />
 
                 {/* Hero */}
                 <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pt-14 pb-14 sm:pt-20 lg:grid-cols-2 lg:gap-8">
@@ -627,6 +590,63 @@ export default function Welcome() {
                     <BookingDemo />
                 </section>
 
+                {/* What Uponco does — plain, always-visible description of the
+                    product, so both crawlers and reviewers can read what the
+                    app actually is without interacting with anything. */}
+                <section
+                    id="about"
+                    className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-14"
+                >
+                    <div className="mx-auto max-w-3xl">
+                        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                            {t('about.heading')}
+                        </h2>
+                        <p className="mt-4 text-lg text-muted-foreground">
+                            {t('about.lead')}
+                        </p>
+                        <div className="mt-5 space-y-4 leading-relaxed text-muted-foreground">
+                            <p>{t('about.paragraphOne')}</p>
+                            <p>{t('about.paragraphTwo')}</p>
+                            <p>{t('about.paragraphThree')}</p>
+                        </div>
+                    </div>
+                </section>
+
+                {/* How Uponco works */}
+                <section
+                    id="how-it-works"
+                    className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-14"
+                >
+                    <div className="mx-auto max-w-2xl text-center">
+                        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                            {t('how.heading')}
+                        </h2>
+                        <p className="mt-3 text-muted-foreground">
+                            {t('how.subheading')}
+                        </p>
+                    </div>
+
+                    <ol className="mt-10 grid gap-5 md:grid-cols-3">
+                        {howItWorksSteps.map((step, i) => (
+                            <li
+                                key={step.i18nKey}
+                                className="rounded-xl border border-border bg-card p-6"
+                            >
+                                <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    {step.icon}
+                                </span>
+                                <h3 className="mt-4 font-semibold">
+                                    {i + 1}.{' '}
+                                    {t(`how.steps.${step.i18nKey}.title`)}
+                                </h3>
+                                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                    {t(`how.steps.${step.i18nKey}.description`)}
+                                </p>
+                            </li>
+                        ))}
+                    </ol>
+                </section>
+
                 {/* Feature spotlight */}
                 <section
                     id="features"
@@ -670,55 +690,110 @@ export default function Welcome() {
                                 ))}
                             </div>
                         </div>
-                        <Link
-                            href={auth.user ? dashboardUrl : register()}
-                            onClick={() => {
-                                if (!auth.user) {
-                                    captureEvent('get_started_clicked', {
-                                        placement: 'free_100',
-                                    });
-                                }
-                            }}
-                            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
-                        >
-                            {auth.user
-                                ? t('free100.ctaGoDashboard')
-                                : t('free100.ctaClaim')}
-                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                        </Link>
+                        <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
+                            <Link
+                                href={auth.user ? dashboardUrl : register()}
+                                onClick={() => {
+                                    if (!auth.user) {
+                                        captureEvent('get_started_clicked', {
+                                            placement: 'free_100',
+                                        });
+                                    }
+                                }}
+                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
+                            >
+                                {auth.user
+                                    ? t('free100.ctaGoDashboard')
+                                    : t('free100.ctaClaim')}
+                                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
+                            <Link
+                                href={pricing()}
+                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                            >
+                                {t('free100.ctaPricing')}
+                            </Link>
+                        </div>
                     </div>
                 </section>
 
-                {/* Footer */}
-                <footer className="border-t border-border/60">
-                    <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                            <span className="flex aspect-square size-6 items-center justify-center rounded-md bg-primary">
-                                <AppLogoIcon className="size-3.5 fill-current text-white" />
-                            </span>
-                            Uponco
-                        </div>
-                        <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-5">
-                            <div className="flex items-center gap-5 text-sm text-muted-foreground">
-                                <Link
-                                    href={privacy()}
-                                    className="transition-colors hover:text-foreground"
-                                >
-                                    {t('footer.privacy')}
-                                </Link>
-                                <Link
-                                    href={terms()}
-                                    className="transition-colors hover:text-foreground"
-                                >
-                                    {t('footer.terms')}
-                                </Link>
+                {/* Data transparency — spells out what Uponco collects and
+                    why, including the exact Google scopes we request, and
+                    links out to the full Privacy Policy. */}
+                <section
+                    id="your-data"
+                    className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-14"
+                >
+                    <div className="mx-auto max-w-2xl text-center">
+                        <span className="inline-flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <ShieldCheck className="size-5" />
+                        </span>
+                        <h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
+                            {t('data.heading')}
+                        </h2>
+                        <p className="mt-3 text-muted-foreground">
+                            {t('data.subheading')}
+                        </p>
+                    </div>
+
+                    <div className="mt-10 grid gap-4 md:grid-cols-2">
+                        {dataItems.map((item) => (
+                            <div
+                                key={item.i18nKey}
+                                className="rounded-xl border border-border bg-card p-6"
+                            >
+                                <h3 className="flex items-center gap-2.5 font-semibold">
+                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        {item.icon}
+                                    </span>
+                                    {t(`data.items.${item.i18nKey}.title`)}
+                                </h3>
+                                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                                    {t(
+                                        `data.items.${item.i18nKey}.description`,
+                                    )}
+                                </p>
                             </div>
-                            <p className="text-center text-sm text-muted-foreground">
-                                © {currentYear} {t('footer.copyright')}
+                        ))}
+                    </div>
+
+                    <div className="mt-4 rounded-xl border border-border bg-secondary/50 p-6 sm:p-8">
+                        <h3 className="font-semibold">
+                            {t('data.assurance.heading')}
+                        </h3>
+                        <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                            {assuranceKeys.map((key) => (
+                                <li
+                                    key={key}
+                                    className="flex items-start gap-2.5 text-sm text-muted-foreground"
+                                >
+                                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                                    {t(`data.assurance.items.${key}`)}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="mt-6 flex flex-col items-start gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-sm text-muted-foreground">
+                                {t('data.contactLead')}{' '}
+                                <a
+                                    href={`mailto:${SUPPORT_EMAIL}`}
+                                    className="font-medium text-primary hover:underline"
+                                >
+                                    {SUPPORT_EMAIL}
+                                </a>
                             </p>
+                            <Link
+                                href={privacy()}
+                                className="group inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-secondary"
+                            >
+                                {t('data.privacyCta')}
+                                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
                         </div>
                     </div>
-                </footer>
+                </section>
+
+                <SiteFooter />
             </div>
         </>
     );

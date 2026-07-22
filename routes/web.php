@@ -18,6 +18,7 @@ use App\Http\Controllers\OnboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicAppointmentController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Controllers\WidgetController;
 use App\Http\Middleware\AllowIframeEmbedding;
@@ -27,6 +28,11 @@ use App\Http\Middleware\EnsureUponcoTeam;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+Route::inertia('/pricing', 'pricing')->name('pricing');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::inertia('/privacy', 'legal/privacy')->name('privacy');
 Route::inertia('/terms', 'legal/terms')->name('terms');

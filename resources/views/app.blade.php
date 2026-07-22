@@ -6,9 +6,36 @@
 
         {{-- SEO: server-rendered so crawlers and social scrapers (which don't run JS) can read them --}}
         @php
-            $seoTitle = config('app.name').' — Appointment Booking Software for Your Business';
-            $seoDescription = config('app.name').' is easy appointment booking software for your business. Manage every location and service, online or onsite, with automatic reminders.';
-            $ogDescription = 'Easy appointment booking for your business — online or onsite, with reminders. Your first 100 appointments are free.';
+            $appName = config('app.name');
+
+            // Per-page title and description for the public marketing pages, so
+            // each one is indexed on its own terms instead of sharing the home
+            // page's copy. Anything else falls back to the site-wide default.
+            $seoPages = [
+                'welcome' => [
+                    'title' => $appName.' — Appointment Booking Software for Your Business',
+                    'description' => $appName.' is easy appointment booking software for your business. Manage every location and service, online or onsite, with automatic reminders.',
+                ],
+                'pricing' => [
+                    'title' => 'Pricing — '.$appName,
+                    'description' => $appName.' pricing: your first 100 appointments are free forever, then €5.00 per user per month. Free for everyone while '.$appName.' is in beta.',
+                ],
+                'legal/privacy' => [
+                    'title' => 'Privacy Policy — '.$appName,
+                    'description' => 'How '.$appName.' collects, uses and protects personal data, including the Google account data we request and why.',
+                ],
+                'legal/terms' => [
+                    'title' => 'Terms & Conditions — '.$appName,
+                    'description' => 'The terms and conditions that govern your use of '.$appName.'.',
+                ],
+            ];
+
+            $seoPage = $seoPages[$page['component']] ?? $seoPages['welcome'];
+            $seoTitle = $seoPage['title'];
+            $seoDescription = $seoPage['description'];
+            $ogDescription = $page['component'] === 'welcome'
+                ? 'Easy appointment booking for your business — online or onsite, with reminders. Your first 100 appointments are free.'
+                : $seoDescription;
             $seoImage = rtrim(config('app.url'), '/').'/og-image.png';
             $canonical = url()->current();
             $structuredData = [

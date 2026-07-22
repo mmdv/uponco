@@ -1,0 +1,83 @@
+{
+    "meta": {
+        "title": "Qiymətlər"
+    },
+    "hero": {
+        "badge": "Uponco beta mərhələsindədir — hazırda hər şey pulsuzdur",
+        "heading": "Sadə qiymətlər, sürprizsiz",
+        "subtitle": "Uponco müştərilərinizə rəqəmsal körpünüzdür. Pulsuz başlayın, ilk 100 görüşünüz üçün pulsuz qalın və yalnız onları keçdikdə istifadəçi başına sabit ödəniş edin."
+    },
+    "beta": {
+        "heading": "Uponco beta mərhələsində olduğu müddətdə pulsuzdur",
+        "description": "Uponco hazırda beta mərhələsindədir, ona görə də bütün funksiyalar hər bir biznes üçün pulsuzdur — ödəniləcək heç nə yoxdur və kart daxil etmək tələb olunmur. Ödənişli planlar başlayanda, hər hansı ödənişdən xeyli əvvəl sizə e-poçtla xəbər verəcəyik və təsdiqiniz olmadan heç vaxt ödəniş alınmayacaq."
+    },
+    "plans": {
+        "free": {
+            "name": "Pulsuz",
+            "price": "€0",
+            "period": "həmişəlik",
+            "tagline": "İlk 100 görüşünüz həmişəlik pulsuzdur.",
+            "features": {
+                "appointments": "İlk 100 görüş həmişəlik pulsuz",
+                "allFeatures": "Uponco-nun bütün funksiyaları daxildir",
+                "noCard": "Kredit kartı tələb olunmur",
+                "publicPage": "Öz ictimai rezervasiya səhifəniz və sayt vidcetiniz"
+            },
+            "cta": "Pulsuz başla"
+        },
+        "growth": {
+            "name": "İstifadəçi başına",
+            "price": "€5.00",
+            "period": "istifadəçi / ay",
+            "tagline": "Pulsuz 100 görüşdən sonra yalnız rezervasiya qəbul edən şəxslər üçün ödəyin.",
+            "features": {
+                "unlimited": "Limitsiz görüş",
+                "perUser": "Rezervasiya qəbul edən hər komanda üzvü üçün ayda €5.00",
+                "everything": "Pulsuz plandakı hər şey, funksiya məhdudiyyəti olmadan",
+                "cancel": "İstənilən vaxt ləğv edin — müqavilə və öhdəlik yoxdur"
+            },
+            "cta": "Başla"
+        }
+    },
+    "included": {
+        "heading": "Bütün planlara daxildir",
+        "items": {
+            "multiLocation": "Limitsiz filial və xidmət",
+            "team": "Komanda üzvləri, iş saatları və mütəxəssis üzrə əlçatanlıq",
+            "individualGroup": "Fərdi görüşlər və qrup sessiyaları",
+            "onlineOnsite": "Onlayn görüşlər və yerində ziyarətlər",
+            "reminders": "Avtomatik e-poçt təsdiqləri və xatırlatmaları",
+            "widget": "İctimai rezervasiya səhifəsi və sayta yerləşdirilə bilən vidcet",
+            "google": "Könüllü Google Calendar və Google Meet inteqrasiyası",
+            "languages": "Çoxdilli interfeys"
+        }
+    },
+    "faq": {
+        "heading": "Qiymətlərlə bağlı suallar",
+        "items": {
+            "counts": {
+                "question": "Görüş nə sayılır?",
+                "answer": "Uponco vasitəsilə təsdiqlənən hər rezervasiya bir görüş sayılır — istər ictimai rezervasiya səhifənizdə edilsin, istərsə də komandanız tərəfindən əlavə olunsun. Ləğv edilmiş rezervasiyalar pulsuz 100 görüşünüzdən çıxılmır."
+            },
+            "afterFree": {
+                "question": "Pulsuz 100 görüşdən sonra nə olur?",
+                "answer": "Heç nə dayanmır. Uponco işləməyə davam edir və beta mərhələsində pulsuz qalır. Ödənişli planlar işə düşəndə, hər hansı ödənişdən əvvəl sizdən plan seçməyiniz xahiş olunacaq."
+            },
+            "whoIsAUser": {
+                "question": "Kim istifadəçi sayılır?",
+                "answer": "İstifadəçi — rezervasiya qəbul edən və ya təqvimi idarə edən, Uponco hesabı olan komanda üzvüdür. Müştərilərinizin hesaba ehtiyacı yoxdur və onlardan heç vaxt ödəniş alınmır."
+            },
+            "cancel": {
+                "question": "Ləğv edə bilərəmmi?",
+                "answer": "Bəli. Müqavilə və minimum müddət yoxdur. İstənilən vaxt ləğv edə, məlumatlarınızı ixrac edə və hesabınızı bağlaya bilərsiniz."
+            }
+        }
+    },
+    "cta": {
+        "heading": "İlk rezervasiyanızı qəbul etməyə hazırsınız?",
+        "subtitle": "Biznesinizi təxminən beş dəqiqəyə qurun. Kart yoxdur, öhdəlik yoxdur.",
+        "primary": "Pulsuz başla",
+        "dashboard": "İdarə panelinə keç",
+        "secondary": "Ana səhifəyə qayıt"
+    }
+}

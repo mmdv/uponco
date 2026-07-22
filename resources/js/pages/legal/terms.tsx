@@ -5,7 +5,7 @@ import { privacy } from '@/routes';
 export default function Terms() {
     return (
         <LegalLayout title="Terms & Conditions" lastUpdated="7 July 2026">
-            <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+            <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
                 These Terms &amp; Conditions (“Terms”) govern your access to and
                 use of the Uponco appointment-booking platform (the “Service”)
                 provided by Uponco (“Uponco”, “we”, “us” or “our”). By creating
@@ -58,7 +58,7 @@ export default function Terms() {
 
             <LegalSection id="acceptable-use" heading="4. Acceptable use">
                 <p>You agree not to:</p>
-                <ul className="list-disc space-y-1.5 pl-5">
+                <ul className="list-disc space-y-2 pl-5">
                     <li>
                         Use the Service for any unlawful or fraudulent purpose;
                     </li>

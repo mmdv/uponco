@@ -2,13 +2,14 @@
     "nav": {
         "signIn": "Daxil ol",
         "getStarted": "Başla",
-        "dashboard": "İdarə paneli"
+        "dashboard": "İdarə paneli",
+        "pricing": "Qiymətlər"
     },
     "hero": {
         "badge": "İlk 100 görüş pulsuz — kart tələb olunmur",
         "titleLead": "Müştərilərinizə rəqəmsal",
         "titleHighlight": "körpünüz",
-        "subtitle": "Biznesiniz üçün asan görüş rezervasiyası — hər filial, hər xidmət, onlayn və ya yerində. Beş dəqiqəyə qur və müştərilərin saniyələr içində rezervasiya etməsinə imkan yarat.",
+        "subtitle": "Uponco biznesiniz üçün görüş rezervasiyası proqramıdır — hər filial, hər xidmət, onlayn və ya yerində. Beş dəqiqəyə qurun və müştərilərin saniyələr içində rezervasiya etməsinə imkan yaradın.",
         "ctaStartFree": "Pulsuz başla",
         "ctaSeeHow": "Necə işlədiyinə bax",
         "ctaGoDashboard": "İdarə panelinə keç",
@@ -26,6 +27,31 @@
         "confirmBooking": "Rezervasiyanı təsdiqlə",
         "bookedIn": "Rezervasiyanız təsdiqləndi",
         "reminderSent": "Xatırlatma göndərildi"
+    },
+    "about": {
+        "heading": "Uponco nə edir",
+        "lead": "Uponco xidmət göstərən bizneslər üçün veb əsaslı görüş rezervasiyası və cədvəl idarəetmə platformasıdır — gözəllik salonları, klinikalar, studiyalar, məşqçilər, konsultantlar və görüş əsasında işləyən hər kəs üçün.",
+        "paragraphOne": "Uponco biznesinizə öz ictimai rezervasiya səhifəsini verir. Siz filiallarınızı, təklif etdiyiniz xidmətləri, onları göstərən komanda üzvlərini və hər birinin iş saatlarını əlavə edirsiniz. Uponco bunu canlı əlçatanlıq təqviminə çevirir: müştəriləriniz rezervasiya linkinizi açır, xidmət, mütəxəssis, gün və boş vaxt aralığı seçib təsdiqləyir — zəng etmədən, yazışmadan və hesab yaratmadan.",
+        "paragraphTwo": "Bu rezervasiya səhifəsinin arxasında Uponco bütün biznesiniz üçün vahid təqvim saxlayır. İkiqat rezervasiyanın qarşısını alır, həm fərdi görüşləri, həm də məhdud yerli qrup sessiyalarını idarə edir, yerində ziyarətləri və onlayn görüşləri dəstəkləyir, hər görüşdən əvvəl avtomatik e-poçt xatırlatmaları göndərir ki, daha az müştəri gəlməyi unutsun. Komandanız istənilən cihazdan görüşlərə baxa, onları yenidən planlaya və ləğv edə bilər, siz isə eyni rezervasiya axınını kiçik vidcet skripti ilə öz saytınıza yerləşdirə bilərsiniz.",
+        "paragraphThree": "Uponco təqviminizi idarə etməyə daha az, müştərilərinizin gəldiyi işi görməyə isə daha çox vaxt ayırmağınıza kömək edir."
+    },
+    "how": {
+        "heading": "Uponco necə işləyir",
+        "subheading": "Qeydiyyatdan ilk rezervasiyanıza qədər üç addım.",
+        "steps": {
+            "setUp": {
+                "title": "Biznesinizi qurun",
+                "description": "Pulsuz hesab yaradın, sonra filiallarınızı, xidmətlərinizi, komanda üzvlərinizi və iş saatlarınızı əlavə edin. Uponco sizi təxminən beş dəqiqədə bu addımlardan keçirir."
+            },
+            "share": {
+                "title": "Rezervasiya linkinizi paylaşın",
+                "description": "Uponco sizə ictimai rezervasiya səhifəsi verir. Linki müştərilərinizlə paylaşın və ya rezervasiya vidcetini öz saytınıza yerləşdirin."
+            },
+            "run": {
+                "title": "Təqvimi Uponco-ya həvalə edin",
+                "description": "Rezervasiyalar vahid təqvimə düşür. Uponco ikiqat rezervasiyanın qarşısını alır, xatırlatmaları avtomatik göndərir və bütün komandanızı sinxron saxlayır."
+            }
+        }
     },
     "features": {
         "heading": "Rezervasiya qəbulu üçün lazım olan hər şey",
@@ -57,6 +83,39 @@
             }
         }
     },
+    "data": {
+        "heading": "Uponco məlumatlarınızı niyə istəyir",
+        "subheading": "Uponco yalnız rezervasiyalarınızı idarə etmək üçün lazım olan məlumatı istəyir. Aşağıda topladığımız hər bir məlumat və onun istifadə məqsədi göstərilib.",
+        "items": {
+            "account": {
+                "title": "Hesab məlumatlarınız",
+                "description": "Adınız və e-poçt ünvanınız — Uponco hesabınızı yaratmaq, sizi sistemə daxil etmək, rezervasiya bildirişləri və xidmət e-poçtları göndərmək üçün istifadə edir."
+            },
+            "business": {
+                "title": "Biznes məlumatlarınız",
+                "description": "Şirkət adınız, loqonuz, filiallarınız, xidmətləriniz, komanda üzvləriniz və iş saatlarınız — Uponco ictimai rezervasiya səhifənizi qurmaq və hansı vaxt aralıqlarının boş olduğunu hesablamaq üçün istifadə edir."
+            },
+            "booking": {
+                "title": "Müştərilərinizin rezervasiya məlumatları",
+                "description": "Müştərilərinizin rezervasiya zamanı təqdim etdiyi ad, əlaqə məlumatları və görüş seçimləri — Uponco görüşü təsdiqləmək, təqviminizdə göstərmək və xatırlatma göndərmək üçün istifadə edir. Bu məlumatların sahibi sizin biznesinizdir; Uponco onları yalnız sizin adınızdan emal edir."
+            },
+            "google": {
+                "title": "Google hesabınız — yalnız qoşsanız",
+                "description": "Google-u qoşmaq könüllüdür. Qoşmağı seçsəniz, Uponco e-poçt ünvanınızı və Google Calendar tədbir icazəsini yalnız bir məqsədlə istəyir: Uponco vasitəsilə rezervasiya edilən onlayn görüşlər üçün təqvim tədbirini və Google Meet linkini yaratmaq. Uponco təqviminizdəki başqa heç nəyi oxumur və dəyişmir, siz isə istənilən vaxt tənzimləmələrdən Google-u ayıra bilərsiniz."
+            }
+        },
+        "assurance": {
+            "heading": "Uponco heç vaxt nə etmir",
+            "items": {
+                "noSelling": "Uponco nə sizin, nə də müştərilərinizin məlumatlarını heç vaxt satmır.",
+                "noAds": "Uponco Google istifadəçi məlumatlarını heç vaxt reklam və ya profilləşdirmə üçün istifadə etmir.",
+                "noSharing": "Uponco məlumatları yalnız platformanın işləməsi üçün lazım olan təchizatçılarla, məsələn hostinq və e-poçt çatdırılması ilə paylaşır.",
+                "deletion": "İstənilən vaxt məlumatlarınızı silə və hesabınızı bağlaya bilərsiniz."
+            }
+        },
+        "privacyCta": "Tam Məxfilik Siyasətini oxuyun",
+        "contactLead": "Məlumatlarınızla bağlı sualınız var? Bizə yazın:"
+    },
     "free100": {
         "heading": "İlk 100 görüşünüz pulsuzdur",
         "items": {
@@ -65,11 +124,16 @@
             "payAsYouGrow": "Yalnız böyüdükcə ödə"
         },
         "ctaClaim": "Pulsuz 100-ü əldə et",
-        "ctaGoDashboard": "İdarə panelinə keç"
+        "ctaGoDashboard": "İdarə panelinə keç",
+        "ctaPricing": "Qiymətlərə bax"
     },
     "footer": {
-        "privacy": "Məxfilik",
-        "terms": "Şərtlər",
-        "copyright": "Uponco. Müştərilərinizə rəqəmsal körpünüz."
+        "tagline": "Uponco müştərilərinizə rəqəmsal körpünüzdür — hər filial və hər xidmət üçün, onlayn və ya yerində asan görüş rezervasiyası.",
+        "linksHeading": "Uponco",
+        "pricing": "Qiymətlər",
+        "privacy": "Məxfilik Siyasəti",
+        "terms": "Qaydalar və Şərtlər",
+        "contact": "Əlaqə",
+        "copyright": "Uponco. Bütün hüquqlar qorunur."
     }
 }

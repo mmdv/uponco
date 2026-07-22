@@ -1,0 +1,83 @@
+{
+    "meta": {
+        "title": "Pricing"
+    },
+    "hero": {
+        "badge": "Uponco is in beta — everything is free right now",
+        "heading": "Simple pricing, no surprises",
+        "subtitle": "Uponco is your digital bridge to your customers. Start free, stay free for your first 100 appointments, and pay a flat rate per user only when you outgrow them."
+    },
+    "beta": {
+        "heading": "Free while Uponco is in beta",
+        "description": "Uponco is currently in beta, so every feature is free for every business — there is nothing to pay and no card to enter. When paid plans begin, we will tell you by email well before anything is charged, and you will never be billed without confirming first."
+    },
+    "plans": {
+        "free": {
+            "name": "Free",
+            "price": "€0",
+            "period": "forever",
+            "tagline": "Your first 100 appointments are free forever.",
+            "features": {
+                "appointments": "First 100 appointments free, forever",
+                "allFeatures": "Every Uponco feature included",
+                "noCard": "No credit card required",
+                "publicPage": "Your own public booking page and website widget"
+            },
+            "cta": "Start free"
+        },
+        "growth": {
+            "name": "Per user",
+            "price": "€5.00",
+            "period": "per user / month",
+            "tagline": "After your free 100 appointments, pay only for the people who take bookings.",
+            "features": {
+                "unlimited": "Unlimited appointments",
+                "perUser": "€5.00 per month for each team member who takes bookings",
+                "everything": "Everything in Free, with no feature limits",
+                "cancel": "Cancel any time — no contract, no lock-in"
+            },
+            "cta": "Get started"
+        }
+    },
+    "included": {
+        "heading": "Included in every plan",
+        "items": {
+            "multiLocation": "Unlimited locations and services",
+            "team": "Team members, working hours and per-specialist availability",
+            "individualGroup": "Individual appointments and group sessions",
+            "onlineOnsite": "Online meetings and onsite visits",
+            "reminders": "Automatic email confirmations and reminders",
+            "widget": "Public booking page and embeddable website widget",
+            "google": "Optional Google Calendar and Google Meet integration",
+            "languages": "Multi-language interface"
+        }
+    },
+    "faq": {
+        "heading": "Pricing questions",
+        "items": {
+            "counts": {
+                "question": "What counts as an appointment?",
+                "answer": "Every booking confirmed through Uponco counts as one appointment, whether it was made on your public booking page or added by your team. Cancelled bookings are not counted against your free 100."
+            },
+            "afterFree": {
+                "question": "What happens after my free 100 appointments?",
+                "answer": "Nothing breaks. Uponco keeps working, and while we are in beta it stays free. When paid plans launch, you will be asked to choose a plan before anything is charged."
+            },
+            "whoIsAUser": {
+                "question": "Who counts as a user?",
+                "answer": "A user is a team member with an Uponco account who takes bookings or manages the calendar. Your customers never need an account and are never charged."
+            },
+            "cancel": {
+                "question": "Can I cancel?",
+                "answer": "Yes. There is no contract and no minimum term. You can cancel, export your data and close your account at any time."
+            }
+        }
+    },
+    "cta": {
+        "heading": "Ready to take your first booking?",
+        "subtitle": "Set up your business in about five minutes. No card, no commitment.",
+        "primary": "Start free",
+        "dashboard": "Go to dashboard",
+        "secondary": "Back to home"
+    }
+}

@@ -28,6 +28,8 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+            case name === 'pricing':
+                return null;
             case name.startsWith('public/'):
                 return null;
             case name.startsWith('legal/'):

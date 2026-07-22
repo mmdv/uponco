@@ -3,7 +3,7 @@ import LegalLayout, { LegalSection } from '@/layouts/legal-layout';
 export default function Privacy() {
     return (
         <LegalLayout title="Privacy Policy" lastUpdated="19 July 2026">
-            <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+            <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
                 This Privacy Policy explains how Uponco (“Uponco”, “we”, “us” or
                 “our”) collects, uses and protects personal data when you use
                 our appointment-booking platform (the “Service”). We are
@@ -37,7 +37,7 @@ export default function Privacy() {
 
             <LegalSection id="data-we-collect" heading="2. Data we collect">
                 <p>We collect the following categories of personal data:</p>
-                <ul className="list-disc space-y-1.5 pl-5">
+                <ul className="list-disc space-y-2 pl-5">
                     <li>
                         <span className="font-medium text-foreground">
                             Account data.
@@ -98,7 +98,7 @@ export default function Privacy() {
                 heading="3. How we use your data"
             >
                 <p>We process personal data to:</p>
-                <ul className="list-disc space-y-1.5 pl-5">
+                <ul className="list-disc space-y-2 pl-5">
                     <li>Provide, operate and maintain the Service;</li>
                     <li>
                         Create and manage accounts, teams and business profiles;
@@ -123,7 +123,7 @@ export default function Privacy() {
                     Under the GDPR, we rely on the following legal bases for
                     processing:
                 </p>
-                <ul className="list-disc space-y-1.5 pl-5">
+                <ul className="list-disc space-y-2 pl-5">
                     <li>
                         <span className="font-medium text-foreground">
                             Performance of a contract
@@ -168,7 +168,7 @@ export default function Privacy() {
 
             <LegalSection id="sharing" heading="6. How we share data">
                 <p>We do not sell your personal data. We share it only with:</p>
-                <ul className="list-disc space-y-1.5 pl-5">
+                <ul className="list-disc space-y-2 pl-5">
                     <li>
                         The business you book with (and its authorised team
                         members) when you submit a booking;
