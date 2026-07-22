@@ -33,7 +33,12 @@
         "lead": "Uponco xidmət göstərən bizneslər üçün veb əsaslı görüş rezervasiyası və cədvəl idarəetmə platformasıdır — gözəllik salonları, klinikalar, studiyalar, məşqçilər, konsultantlar və görüş əsasında işləyən hər kəs üçün.",
         "paragraphOne": "Uponco biznesinizə öz ictimai rezervasiya səhifəsini verir. Siz filiallarınızı, təklif etdiyiniz xidmətləri, onları göstərən komanda üzvlərini və hər birinin iş saatlarını əlavə edirsiniz. Uponco bunu canlı əlçatanlıq təqviminə çevirir: müştəriləriniz rezervasiya linkinizi açır, xidmət, mütəxəssis, gün və boş vaxt aralığı seçib təsdiqləyir — zəng etmədən, yazışmadan və hesab yaratmadan.",
         "paragraphTwo": "Bu rezervasiya səhifəsinin arxasında Uponco bütün biznesiniz üçün vahid təqvim saxlayır. İkiqat rezervasiyanın qarşısını alır, həm fərdi görüşləri, həm də məhdud yerli qrup sessiyalarını idarə edir, yerində ziyarətləri və onlayn görüşləri dəstəkləyir, hər görüşdən əvvəl avtomatik e-poçt xatırlatmaları göndərir ki, daha az müştəri gəlməyi unutsun. Komandanız istənilən cihazdan görüşlərə baxa, onları yenidən planlaya və ləğv edə bilər, siz isə eyni rezervasiya axınını kiçik vidcet skripti ilə öz saytınıza yerləşdirə bilərsiniz.",
-        "paragraphThree": "Uponco təqviminizi idarə etməyə daha az, müştərilərinizin gəldiyi işi görməyə isə daha çox vaxt ayırmağınıza kömək edir."
+        "paragraphThree": "Uponco təqviminizi idarə etməyə daha az, müştərilərinizin gəldiyi işi görməyə isə daha çox vaxt ayırmağınıza kömək edir.",
+        "pillars": {
+            "bookingPage": "Öz rezervasiya səhifəniz",
+            "sharedCalendar": "Bütün komanda üçün vahid təqvim",
+            "lessAdmin": "Daha az kağız işi, daha çox əsl iş"
+        }
     },
     "how": {
         "heading": "Uponco necə işləyir",

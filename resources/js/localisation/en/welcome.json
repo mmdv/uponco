@@ -33,7 +33,12 @@
         "lead": "Uponco is a web-based appointment booking and scheduling platform for service businesses — salons, clinics, studios, coaches, consultants and anyone else who works by appointment.",
         "paragraphOne": "Uponco gives your business its own public booking page. You add your locations, the services you offer and the team members who deliver them, along with the hours each of them works. Uponco turns that into a live availability calendar: your customers open your booking link, pick a service, a specialist, a day and a free time slot, and confirm — no phone calls, no back-and-forth messages, and no account needed on their side.",
         "paragraphTwo": "Behind that booking page, Uponco keeps one shared calendar for your whole business. It prevents double bookings, handles both individual appointments and group sessions with limited capacity, supports onsite visits as well as online meetings, and sends automatic email reminders before each appointment so fewer customers forget to show up. Your team can view, reschedule and cancel appointments from any device, and you can embed the same booking flow directly into your own website with a small widget script.",
-        "paragraphThree": "Uponco helps you spend less time managing your calendar and more time doing the work your customers came for."
+        "paragraphThree": "Uponco helps you spend less time managing your calendar and more time doing the work your customers came for.",
+        "pillars": {
+            "bookingPage": "Your own booking page",
+            "sharedCalendar": "One calendar for the whole team",
+            "lessAdmin": "Less admin, more of the actual work"
+        }
     },
     "how": {
         "heading": "How Uponco works",

@@ -135,14 +135,34 @@
 }
 
 @theme {
-    --animate-progress-fill: progress-fill 5s linear forwards;
+    /* Gentle horizontal nudge for the connector arrows between step cards. */
+    --animate-nudge-x: nudge-x 1.8s ease-in-out infinite;
 
-    @keyframes progress-fill {
-        from {
-            width: 0%;
+    @keyframes nudge-x {
+        0%,
+        100% {
+            transform: translateX(-1px);
         }
-        to {
-            width: 100%;
+        50% {
+            transform: translateX(2px);
+        }
+    }
+
+    /* Light travelling down the centre rail of the About timeline. */
+    --animate-rail-flow: rail-flow 5s ease-in-out infinite;
+
+    @keyframes rail-flow {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        15%,
+        85% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(400%);
+            opacity: 0;
         }
     }
 }
