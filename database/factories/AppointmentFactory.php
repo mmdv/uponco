@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AppointmentStatus;
 use App\Enums\DeliveryType;
 use App\Models\Appointment;
 use App\Models\Customer;
@@ -34,6 +35,8 @@ class AppointmentFactory extends Factory
             'customer_id' => Customer::factory(),
             'start_at' => $startAt,
             'end_at' => $endAt,
+            'status' => AppointmentStatus::Booked,
+            'cancelled_at' => null,
             'delivery_type' => DeliveryType::Onsite,
             'online_meeting_provider' => null,
             'meeting_url' => null,
@@ -51,6 +54,17 @@ class AppointmentFactory extends Factory
             'location_id' => null,
             'delivery_type' => DeliveryType::Online,
             'online_meeting_provider' => 'google_meet',
+        ]);
+    }
+
+    /**
+     * Indicate that the appointment has been cancelled.
+     */
+    public function cancelled(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => AppointmentStatus::Cancelled,
+            'cancelled_at' => now(),
         ]);
     }
 }

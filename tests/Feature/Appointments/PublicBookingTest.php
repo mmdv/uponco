@@ -5,14 +5,31 @@ use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Notifications\Appointments\AppointmentBooked;
+use App\Notifications\Appointments\AppointmentCancelled;
 use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Notifications\Dispatcher;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia as Assert;
+
+/**
+ * Create a booked appointment for the given setup at its bookable start time.
+ */
+function bookedAppointment(array $setup, array $overrides = []): Appointment
+{
+    return Appointment::factory()->create(array_merge([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ], $overrides));
+}
 
 test('the public booking page can be rendered', function () {
     $setup = bookableSetup();
@@ -365,4 +382,129 @@ test('a guest booking validates availability', function () {
     $this
         ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
         ->assertSessionHasErrors('start_at');
+});
+
+test('a cancelled appointment does not block its slot for a new booking', function () {
+    $setup = bookableSetup();
+
+    // A cancelled appointment sits on the slot but must no longer occupy it.
+    bookedAppointment($setup)->cancel();
+
+    $this
+        ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    expect(Appointment::query()->booked()->count())->toBe(1);
+});
+
+test('a cancelled group booking does not consume session capacity', function () {
+    $setup = bookableSetup(['service_type' => 'group', 'capacity' => 1]);
+
+    // The single seat is taken by a cancelled booking, so it is free again.
+    bookedAppointment($setup)->cancel();
+
+    $this
+        ->post(
+            route('public.appointments.store', ['company' => $setup['team']->slug]),
+            appointmentPayload($setup, ['customer_email' => 'new@example.com', 'customer_phone' => null]),
+        )
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    expect(Appointment::query()->booked()->where('start_at', $setup['startAt'])->count())->toBe(1);
+});
+
+test('the cancel page renders the booking details for a valid signed link', function () {
+    $setup = bookableSetup();
+    $appointment = bookedAppointment($setup);
+
+    $this
+        ->get(URL::signedRoute('public.appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/cancel')
+            ->where('company.name', $setup['team']->name)
+            ->where('appointment.id', $appointment->id)
+            ->where('appointment.service.title', $setup['service']->title)
+            ->where('canCancel', true)
+            ->where('alreadyCancelled', false)
+            ->where('isPast', false),
+        );
+});
+
+test('the cancel page rejects an unsigned or tampered link', function () {
+    $setup = bookableSetup();
+    $appointment = bookedAppointment($setup);
+
+    $this
+        ->get(route('public.appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertForbidden();
+});
+
+test('a customer can cancel their appointment from the signed link', function () {
+    Notification::fake();
+    $setup = bookableSetup();
+    $customer = Customer::factory()->for($setup['team'])->create(['email' => 'jane@example.com']);
+    $appointment = bookedAppointment($setup, ['customer_id' => $customer->id]);
+
+    $this
+        ->post(URL::signedRoute('public.appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertRedirect();
+
+    // The row is kept for reporting; only its status changes.
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'status' => 'cancelled',
+        'deleted_at' => null,
+    ]);
+
+    expect($appointment->fresh()->cancelled_at)->not->toBeNull();
+
+    Notification::assertSentOnDemand(
+        AppointmentCancelled::class,
+        fn (AppointmentCancelled $notification, array $channels, object $notifiable): bool => $notifiable->routeNotificationFor('mail') === 'jane@example.com',
+    );
+});
+
+test('a past appointment cannot be cancelled from the link', function () {
+    $setup = bookableSetup();
+    $appointment = bookedAppointment($setup, [
+        'start_at' => CarbonImmutable::now('UTC')->subDay(),
+        'end_at' => CarbonImmutable::now('UTC')->subDay()->addMinutes(60),
+    ]);
+
+    $this
+        ->post(URL::signedRoute('public.appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertRedirect();
+
+    expect($appointment->fresh()->isCancelled())->toBeFalse();
+});
+
+test('an already cancelled appointment is not cancelled again', function () {
+    Notification::fake();
+    $setup = bookableSetup();
+    $appointment = bookedAppointment($setup);
+    $appointment->cancel();
+    $cancelledAt = $appointment->fresh()->cancelled_at;
+
+    $this
+        ->post(URL::signedRoute('public.appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertRedirect();
+
+    // The cancellation timestamp is untouched and no second email is sent.
+    expect($appointment->fresh()->cancelled_at->equalTo($cancelledAt))->toBeTrue();
+    Notification::assertNothingSent();
+});
+
+test('cancelled appointments are excluded from the team listing', function () {
+    $setup = bookableSetup();
+    bookedAppointment($setup);
+    bookedAppointment($setup, ['start_at' => $setup['startAt']->addDay(), 'end_at' => $setup['startAt']->addDay()->addMinutes(60)])->cancel();
+
+    $this
+        ->actingAs($setup['user'])
+        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->has('appointments', 1));
 });

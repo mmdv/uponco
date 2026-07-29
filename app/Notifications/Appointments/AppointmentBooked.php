@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\URL;
 
 class AppointmentBooked extends Notification implements ShouldQueue
 {
@@ -99,6 +100,10 @@ class AppointmentBooked extends Notification implements ShouldQueue
                 ]),
                 'notes' => $appointment->notes,
                 'meetingUrl' => $appointment->meeting_url,
+                // Signed link that lets the customer cancel this booking without
+                // signing in. The controller still enforces that a past
+                // appointment can't be cancelled, so the link never expires.
+                'cancelUrl' => URL::signedRoute('public.appointments.cancel', ['appointment' => $appointment->id]),
             ])
             ->attachData(
                 AppointmentCalendar::ics($appointment),

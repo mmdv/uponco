@@ -108,6 +108,7 @@ class DashboardController extends Controller
     protected function stats(Team $team, ?int $specialistId = null): array
     {
         $bookings = fn () => $team->appointments()
+            ->booked()
             ->when($specialistId, fn ($query) => $query->where('specialist_id', $specialistId));
 
         return [
@@ -134,6 +135,7 @@ class DashboardController extends Controller
         $today = $start->toDateString();
 
         $counts = $team->appointments()
+            ->booked()
             ->when($specialistId, fn ($query) => $query->where('specialist_id', $specialistId))
             ->whereBetween('start_at', [$start->utc(), $end->utc()])
             ->get(['start_at'])
@@ -168,6 +170,7 @@ class DashboardController extends Controller
     protected function upcomingAppointments(Team $team, string $timezone, ?int $specialistId = null): array
     {
         return $team->appointments()
+            ->booked()
             ->with(['service:id,title', 'location:id,name', 'specialist:id,name', 'customer:id,name,email,phone'])
             ->when($specialistId, fn ($query) => $query->where('specialist_id', $specialistId))
             ->where('start_at', '>=', now())

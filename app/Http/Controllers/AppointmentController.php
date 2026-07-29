@@ -30,6 +30,7 @@ class AppointmentController extends Controller
         return Inertia::render('appointments/index', [
             'timezone' => $timezone,
             'appointments' => $team->appointments()
+                ->booked()
                 ->with(['service:id,title', 'location:id,name', 'specialist:id,name', 'customer:id,name,email,phone'])
                 // Admins and owners see the whole team's schedule; members only see their own.
                 ->unless($user->teamRole($team)?->isAtLeast(TeamRole::Admin), fn ($query) => $query->where('specialist_id', $user->id))

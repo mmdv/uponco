@@ -48,6 +48,13 @@ Route::post('appointments/{company}', [PublicAppointmentController::class, 'stor
     ->middleware('throttle:10,1')
     ->name('public.appointments.store');
 
+Route::get('appointments/cancel/{appointment}', [PublicAppointmentController::class, 'showCancel'])
+    ->middleware(['signed', 'throttle:60,1'])
+    ->name('public.appointments.cancel');
+Route::post('appointments/cancel/{appointment}', [PublicAppointmentController::class, 'cancel'])
+    ->middleware(['signed', 'throttle:10,1'])
+    ->name('public.appointments.cancel.store');
+
 Route::get('widget/{company}.js', [WidgetController::class, 'script'])
     ->middleware('throttle:60,1')
     ->name('public.widget.script');

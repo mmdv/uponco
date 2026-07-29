@@ -151,6 +151,7 @@ class SlotGenerator
     protected static function bookedIntervals(User $specialist, CarbonImmutable $day, ?int $ignoreAppointmentId): Collection
     {
         return Appointment::query()
+            ->booked()
             ->where('specialist_id', $specialist->id)
             ->where('start_at', '<', $day->endOfDay()->utc())
             ->where('end_at', '>', $day->utc())

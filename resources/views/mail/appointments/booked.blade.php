@@ -135,9 +135,25 @@
                                 {{ __('A calendar invitation is attached to this email so you can add the appointment to your calendar.') }}
                             </p>
 
-                            <p style="margin:12px 0 0;font-family:{{ $font }};font-size:14px;line-height:1.6;color:#3f3f46;">
-                                {{ __('If you need to reschedule or cancel, simply reply to this email and we will be glad to assist you.') }}
-                            </p>
+                            @if (! empty($cancelUrl))
+                                <p style="margin:12px 0 0;font-family:{{ $font }};font-size:14px;line-height:1.6;color:#3f3f46;">
+                                    {{ __('Can no longer make it? You can cancel this appointment online using the link below. If you would rather reschedule, simply reply to this email and we will be glad to assist you.') }}
+                                </p>
+
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+                                    <tr>
+                                        <td align="center" style="border-radius:10px;border:1px solid #e4e4e7;background-color:#ffffff;">
+                                            <a href="{{ $cancelUrl }}" target="_blank" style="display:block;padding:13px 24px;font-family:{{ $font }};font-size:14px;font-weight:600;color:#dc2626;text-decoration:none;">
+                                                {{ __('Cancel appointment') }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            @else
+                                <p style="margin:12px 0 0;font-family:{{ $font }};font-size:14px;line-height:1.6;color:#3f3f46;">
+                                    {{ __('If you need to reschedule or cancel, simply reply to this email and we will be glad to assist you.') }}
+                                </p>
+                            @endif
 
                             <p style="margin:24px 0 0;font-family:{{ $font }};font-size:14px;line-height:1.6;color:#3f3f46;">
                                 {{ __('Kind regards,') }}<br>

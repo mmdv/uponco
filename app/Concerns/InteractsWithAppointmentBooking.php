@@ -11,6 +11,7 @@ use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentBooked;
+use App\Notifications\Appointments\AppointmentCancelled;
 use App\Support\Appointments\SlotGenerator;
 use App\Support\Google\GoogleCalendarService;
 use Carbon\CarbonInterface;
@@ -108,6 +109,7 @@ trait InteractsWithAppointmentBooking
     {
         if (! $service->isGroup()) {
             $taken = Appointment::query()
+                ->booked()
                 ->where('specialist_id', $specialistId)
                 ->where('start_at', '<', $endAt)
                 ->where('end_at', '>', $startAt)
@@ -124,6 +126,7 @@ trait InteractsWithAppointmentBooking
         }
 
         $session = Appointment::query()
+            ->booked()
             ->where('service_id', $service->id)
             ->where('specialist_id', $specialistId)
             ->where('start_at', $startAt)
@@ -179,6 +182,28 @@ trait InteractsWithAppointmentBooking
         try {
             Notification::route('mail', $customer->email)
                 ->notify(new AppointmentBooked($appointment, $change));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    /**
+     * Email the customer confirming that their appointment was cancelled.
+     *
+     * As with the booking confirmation, the email is only sent when the customer
+     * supplied an address.
+     */
+    protected function notifyCustomerCancelled(Appointment $appointment): void
+    {
+        $customer = $appointment->customer;
+
+        if (! $customer?->email) {
+            return;
+        }
+
+        try {
+            Notification::route('mail', $customer->email)
+                ->notify(new AppointmentCancelled($appointment));
         } catch (\Throwable $e) {
             report($e);
         }
