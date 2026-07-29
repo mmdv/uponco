@@ -241,6 +241,18 @@ export function filterPreviewSlotsByDuration(
 }
 
 /**
+ * Build initials from a person's name for an avatar fallback.
+ */
+export function nameInitials(name: string): string {
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('');
+}
+
+/**
  * Format a service duration in minutes as a short human label, e.g. "1h 30m".
  */
 export function formatDuration(minutes: number): string {

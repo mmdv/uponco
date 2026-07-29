@@ -44,6 +44,8 @@ export type AppointmentSpecialistOption = {
     id: number;
     name: string;
     avatar?: string | null;
+    job_title?: string | null;
+    description?: string | null;
     service_ids: number[];
     location_ids: number[];
     next_available: SpecialistAvailabilityPreview | null;

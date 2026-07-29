@@ -16,6 +16,14 @@
                     'title' => $appName.' — Appointment Booking Software for Your Business',
                     'description' => $appName.' is easy appointment booking software for your business. Manage every location and service, online or onsite, with automatic reminders.',
                 ],
+                'features' => [
+                    'title' => 'Features — '.$appName,
+                    'description' => 'Everything '.$appName.' does: your own booking page, one shared calendar for the whole team, multi-location and multi-service bookings, group sessions, online meetings and automatic reminders.',
+                ],
+                'your-data' => [
+                    'title' => 'Your Data — '.$appName,
+                    'description' => 'Exactly what data '.$appName.' collects, why each item is needed, and the Google account permissions we request — plus what we never do with it.',
+                ],
                 'pricing' => [
                     'title' => 'Pricing — '.$appName,
                     'description' => $appName.' pricing: your first 100 appointments are free forever, then €5.00 per user per month. Free for everyone while '.$appName.' is in beta.',

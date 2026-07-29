@@ -1,0 +1,37 @@
+{
+    "meta": {
+        "title": "Your data"
+    },
+    "heading": "Why Uponco asks for your data",
+    "subheading": "Uponco only asks for the information it needs to run your bookings. Here is exactly what we collect and what each item is used for.",
+    "items": {
+        "account": {
+            "title": "Your account details",
+            "description": "Your name and email address, so Uponco can create your account, sign you in, and send you booking notifications and service emails."
+        },
+        "business": {
+            "title": "Your business details",
+            "description": "Your company name, logo, locations, services, team members and working hours, so Uponco can build your public booking page and work out which time slots are free."
+        },
+        "booking": {
+            "title": "Your customers' booking details",
+            "description": "The name, contact details and appointment choices your customers submit when they book, so Uponco can confirm the appointment, show it on your calendar and send reminders. Your business owns this data; Uponco only processes it on your behalf."
+        },
+        "google": {
+            "title": "Your Google account — only if you connect it",
+            "description": "Connecting Google is optional. If you choose to connect it, Uponco requests your email address and the Google Calendar events permission for one purpose: to create the calendar event and Google Meet link for online appointments booked through Uponco. Uponco does not read or change anything else in your calendar, and you can disconnect Google at any time in your settings."
+        }
+    },
+    "assurance": {
+        "heading": "What Uponco never does",
+        "items": {
+            "noSelling": "Uponco never sells your data or your customers' data.",
+            "noAds": "Uponco never uses Google user data for advertising or profiling.",
+            "noSharing": "Uponco shares data only with the providers needed to run the platform, such as hosting and email delivery.",
+            "deletion": "You can delete your data and close your account at any time."
+        }
+    },
+    "privacyCta": "Read the full Privacy Policy",
+    "termsCta": "Read the Terms",
+    "contactLead": "Questions about your data? Email us at"
+}

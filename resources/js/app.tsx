@@ -30,6 +30,10 @@ createInertiaApp({
                 return null;
             case name === 'pricing':
                 return null;
+            case name === 'features':
+                return null;
+            case name === 'your-data':
+                return null;
             case name.startsWith('public/'):
                 return null;
             case name.startsWith('legal/'):

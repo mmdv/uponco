@@ -12,6 +12,8 @@ it('serves every public marketing page to guests', function (string $route, stri
         ->assertInertia(fn (AssertableInertia $page) => $page->component($component));
 })->with([
     'home' => ['home', 'welcome'],
+    'features' => ['features', 'features'],
+    'your data' => ['yourData', 'your-data'],
     'pricing' => ['pricing', 'pricing'],
     'privacy' => ['privacy', 'legal/privacy'],
     'terms' => ['terms', 'legal/terms'],
@@ -24,6 +26,8 @@ it('renders the page-specific title and description for crawlers', function (str
         ->assertSee('<meta name="robots" content="index, follow, max-image-preview:large">', false);
 })->with([
     'home' => ['home', 'Uponco — Appointment Booking Software for Your Business'],
+    'features' => ['features', 'Features — Uponco'],
+    'your data' => ['yourData', 'Your Data — Uponco'],
     'pricing' => ['pricing', 'Pricing — Uponco'],
     'privacy' => ['privacy', 'Privacy Policy — Uponco'],
     'terms' => ['terms', 'Terms &amp; Conditions — Uponco'],
@@ -34,7 +38,7 @@ it('lists every public page in the sitemap', function () {
         ->assertOk()
         ->assertHeader('Content-Type', 'application/xml');
 
-    foreach (['home', 'pricing', 'privacy', 'terms'] as $name) {
+    foreach (['home', 'features', 'yourData', 'pricing', 'privacy', 'terms'] as $name) {
         $response->assertSee('<loc>'.route($name).'</loc>', false);
     }
 });

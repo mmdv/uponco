@@ -1,7 +1,9 @@
-import { Check } from 'lucide-react';
+import { Check, Info } from 'lucide-react';
+import { useState } from 'react';
 
+import SpecialistProfileDialog from '@/components/public-booking/specialist-profile-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { filterPreviewSlotsByDuration } from '@/lib/appointments';
+import { filterPreviewSlotsByDuration, nameInitials } from '@/lib/appointments';
 import { cn } from '@/lib/utils';
 import type { AppointmentSpecialistOption } from '@/types';
 
@@ -14,20 +16,9 @@ type Props = {
 };
 
 /**
- * Build initials from a specialist's name for the avatar fallback.
- */
-function initials(name: string): string {
-    return name
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase())
-        .join('');
-}
-
-/**
  * The list of specialists. Each row previews the specialist's nearest working
- * day and a few of their work-hour time slots.
+ * day and a few of their work-hour time slots, plus an info button that opens
+ * the specialist's public profile without selecting them.
  */
 export default function SpecialistPicker({
     specialists,
@@ -35,6 +26,10 @@ export default function SpecialistPicker({
     serviceDuration,
     onSelect,
 }: Props) {
+    const [profile, setProfile] = useState<AppointmentSpecialistOption | null>(
+        null,
+    );
+
     if (specialists.length === 0) {
         return (
             <p className="px-1 py-6 text-center text-sm text-muted-foreground">
@@ -59,12 +54,21 @@ export default function SpecialistPicker({
                         : (preview?.slots ?? []);
 
                 return (
-                    <button
+                    // A plain button can't wrap the nested info button, so the
+                    // row itself carries the button role and key handling.
+                    <div
                         key={specialist.id}
-                        type="button"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => onSelect(specialist.id)}
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                onSelect(specialist.id);
+                            }
+                        }}
                         className={cn(
-                            'flex w-full gap-3 rounded-xl border p-3 text-left transition-all duration-200',
+                            'flex w-full cursor-pointer gap-3 rounded-xl border p-3 text-left transition-all duration-200',
                             isSelected
                                 ? 'border-primary bg-primary/5'
                                 : 'border-border hover:border-primary/40',
@@ -79,7 +83,7 @@ export default function SpecialistPicker({
                                 />
                             ) : null}
                             <AvatarFallback className="bg-muted text-xs font-medium">
-                                {initials(specialist.name)}
+                                {nameInitials(specialist.name)}
                             </AvatarFallback>
                         </Avatar>
 
@@ -88,16 +92,39 @@ export default function SpecialistPicker({
                                 <p className="truncate text-sm font-medium">
                                     {specialist.name}
                                 </p>
-                                <span
-                                    className={cn(
-                                        'flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors',
-                                        isSelected
-                                            ? 'border-primary bg-primary text-primary-foreground'
-                                            : 'border-muted-foreground/30',
-                                    )}
-                                >
-                                    {isSelected && <Check className="size-3" />}
-                                </span>
+
+                                <div className="flex shrink-0 items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        aria-label={`About ${specialist.name}`}
+                                        data-test={`specialist-info-${specialist.id}`}
+                                        onClick={(event) => {
+                                            // Reading the bio must never pick
+                                            // the specialist for the booking.
+                                            event.stopPropagation();
+                                            setProfile(specialist);
+                                        }}
+                                        onKeyDown={(event) =>
+                                            event.stopPropagation()
+                                        }
+                                        className="flex size-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        <Info className="size-4" />
+                                    </button>
+
+                                    <span
+                                        className={cn(
+                                            'flex size-5 items-center justify-center rounded-full border transition-colors',
+                                            isSelected
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-muted-foreground/30',
+                                        )}
+                                    >
+                                        {isSelected && (
+                                            <Check className="size-3" />
+                                        )}
+                                    </span>
+                                </div>
                             </div>
 
                             {preview && slots.length > 0 ? (
@@ -122,9 +149,14 @@ export default function SpecialistPicker({
                                 </p>
                             )}
                         </div>
-                    </button>
+                    </div>
                 );
             })}
+
+            <SpecialistProfileDialog
+                specialist={profile}
+                onClose={() => setProfile(null)}
+            />
         </div>
     );
 }

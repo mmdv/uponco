@@ -1,0 +1,99 @@
+{
+    "meta": {
+        "title": "İmkanlar"
+    },
+    "hero": {
+        "heading": "Uponco nə edir",
+        "lead": "Uponco xidmət göstərən bizneslər üçün veb əsaslı görüş rezervasiyası və cədvəl idarəetmə platformasıdır — gözəllik salonları, klinikalar, studiyalar, məşqçilər, konsultantlar və görüş əsasında işləyən hər kəs üçün."
+    },
+    "pillars": {
+        "bookingPage": "Öz rezervasiya səhifəniz",
+        "sharedCalendar": "Bütün komanda üçün vahid təqvim",
+        "lessAdmin": "Daha az kağız işi, daha çox əsl iş"
+    },
+    "paragraphOne": "Uponco biznesinizə öz ictimai rezervasiya səhifəsini verir. Siz filiallarınızı, təklif etdiyiniz xidmətləri, onları göstərən komanda üzvlərini və hər birinin iş saatlarını əlavə edirsiniz. Uponco bunu canlı əlçatanlıq təqviminə çevirir: müştəriləriniz rezervasiya linkinizi açır, xidmət, mütəxəssis, gün və boş vaxt aralığı seçib təsdiqləyir — zəng etmədən, yazışmadan və hesab yaratmadan.",
+    "paragraphTwo": "Bu rezervasiya səhifəsinin arxasında Uponco bütün biznesiniz üçün vahid təqvim saxlayır. İkiqat rezervasiyanın qarşısını alır, həm fərdi görüşləri, həm də məhdud yerli qrup sessiyalarını idarə edir, yerində ziyarətləri və onlayn görüşləri dəstəkləyir, hər görüşdən əvvəl avtomatik e-poçt xatırlatmaları göndərir ki, daha az müştəri gəlməyi unutsun. Komandanız istənilən cihazdan görüşlərə baxa, onları yenidən planlaya və ləğv edə bilər, siz isə eyni rezervasiya axınını kiçik vidcet skripti ilə öz saytınıza yerləşdirə bilərsiniz.",
+    "paragraphThree": "Uponco təqviminizi idarə etməyə daha az, müştərilərinizin gəldiyi işi görməyə isə daha çox vaxt ayırmağınıza kömək edir.",
+    "sketches": {
+        "liveForCustomers": "Müştəriləriniz üçün canlı",
+        "thisWeek": "Bu həftə",
+        "fourPeople": "4 nəfər",
+        "noDoubleBookings": "Heç vaxt ikiqat rezervasiya yoxdur",
+        "inTheBackground": "Uponco bunu arxa planda edir",
+        "handled": {
+            "reminders": "Xatırlatmalar avtomatik göndərilir",
+            "slots": "Vaxt aralıqları daim güncəldir",
+            "noPhoneTag": "Zəng izləmək yoxdur, yazışma yoxdur"
+        }
+    },
+    "bento": {
+        "heading": "Rezervasiya qəbulu üçün lazım olan hər şey",
+        "subheading": "Biznesinizi sizin üçün ən vacib insanlarla birləşdirən sadə bir alət.",
+        "spotsFilled": "8 yerdən 6-sı doludur",
+        "online": {
+            "title": "Onlayn",
+            "description": "Görüş linki avtomatik göndərilir"
+        },
+        "onsite": {
+            "title": "Yerində",
+            "description": "Ünvan hər rezervasiya ilə paylaşılır"
+        },
+        "onboardingTasks": {
+            "locations": "Filiallarınızı əlavə edin",
+            "services": "Xidmətlərinizi yaradın",
+            "team": "Komandanızı dəvət edin",
+            "link": "Rezervasiya linkinizi paylaşın"
+        },
+        "items": {
+            "multiLocation": {
+                "title": "Çoxfiliallı",
+                "description": "Bütün filialların rezervasiyalarını vahid təqvimdən idarə edin."
+            },
+            "multiService": {
+                "title": "Çoxxidmətli",
+                "description": "İstənilən sayda xidmət təklif edin, hər biri öz müddəti və komandası ilə."
+            },
+            "individualGroup": {
+                "title": "Fərdi və qrup",
+                "description": "Təkbətək görüşlər qəbul edin və ya qrup sessiyalarını asanlıqla doldurun."
+            },
+            "onlineOnsite": {
+                "title": "Onlayn və ya yerində",
+                "description": "Virtual görüşlər və ya üzbəüz ziyarətlər keçirin — seçim müştərinizindir."
+            },
+            "reminders": {
+                "title": "Avtomatik xatırlatmalar",
+                "description": "Hər müştəriyə vaxtında göndərilən xatırlatmalarla gəlməmələri azaldın."
+            },
+            "onboarding": {
+                "title": "5 dəqiqəlik başlanğıc",
+                "description": "Filiallarınızı, xidmətlərinizi və komandanızı qurun və bu gün rezervasiya qəbuluna başlayın."
+            }
+        }
+    },
+    "how": {
+        "heading": "Uponco necə işləyir",
+        "subheading": "Qeydiyyatdan ilk rezervasiyanıza qədər üç addım.",
+        "steps": {
+            "setUp": {
+                "title": "Biznesinizi qurun",
+                "description": "Pulsuz hesab yaradın, sonra filiallarınızı, xidmətlərinizi, komanda üzvlərinizi və iş saatlarınızı əlavə edin. Uponco sizi təxminən beş dəqiqədə bu addımlardan keçirir."
+            },
+            "share": {
+                "title": "Rezervasiya linkinizi paylaşın",
+                "description": "Uponco sizə ictimai rezervasiya səhifəsi verir. Linki müştərilərinizlə paylaşın və ya rezervasiya vidcetini öz saytınıza yerləşdirin."
+            },
+            "run": {
+                "title": "Təqvimi Uponco-ya həvalə edin",
+                "description": "Rezervasiyalar vahid təqvimə düşür. Uponco ikiqat rezervasiyanın qarşısını alır, xatırlatmaları avtomatik göndərir və bütün komandanızı sinxron saxlayır."
+            }
+        }
+    },
+    "cta": {
+        "heading": "İlk rezervasiyanızı qəbul etməyə hazırsınız?",
+        "subheading": "İlk 100 görüşünüz pulsuzdur. Kart yoxdur, öhdəlik yoxdur.",
+        "ctaStartFree": "Pulsuz başla",
+        "ctaGoDashboard": "İdarə panelinə keç",
+        "ctaPricing": "Qiymətlərə bax"
+    }
+}

@@ -77,7 +77,7 @@ class AppointmentOptions
     /**
      * Get the team's specialists, including their service and location relationships.
      *
-     * @return array<int, array{id: int, name: string, avatar: ?string, service_ids: array<int, int>, location_ids: array<int, int>, next_available: ?array{date: string, label: string, slots: array<int, string>}, available_days: array<int, string>}>
+     * @return array<int, array{id: int, name: string, avatar: ?string, job_title: ?string, description: ?string, service_ids: array<int, int>, location_ids: array<int, int>, next_available: ?array{date: string, label: string, slots: array<int, string>}, available_days: array<int, string>}>
      */
     public static function specialists(Team $team): array
     {
@@ -90,6 +90,7 @@ class AppointmentOptions
 
         return $team->members()
             ->with([
+                'profile:id,user_id,job_title,description',
                 'services:id',
                 'locations:id',
                 'scheduleSlots' => fn ($query) => $query
@@ -105,6 +106,8 @@ class AppointmentOptions
                     'id' => $member->id,
                     'name' => $member->name,
                     'avatar' => $member->avatar,
+                    'job_title' => $member->profile?->job_title,
+                    'description' => $member->profile?->description,
                     'service_ids' => $member->services->pluck('id')->all(),
                     'location_ids' => $member->locations->pluck('id')->all(),
                     'next_available' => $availability['preview'],

@@ -18,7 +18,9 @@ class SitemapController extends Controller
      */
     protected const PAGES = [
         'home' => '1.0',
+        'features' => '0.9',
         'pricing' => '0.8',
+        'yourData' => '0.6',
         'privacy' => '0.5',
         'terms' => '0.5',
     ];

@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
 import { useTranslation } from '@/hooks/use-translation';
-import { pricing, privacy, terms } from '@/routes';
+import { features, pricing, privacy, terms, yourData } from '@/routes';
 
 const currentYear = new Date().getFullYear();
 
@@ -21,7 +20,9 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
     const { t } = useTranslation('welcome');
 
     const links = [
+        { href: features(), label: t('footer.features') },
         { href: pricing(), label: t('footer.pricing') },
+        { href: yourData(), label: t('footer.yourData') },
         { href: privacy(), label: t('footer.privacy') },
         { href: terms(), label: t('footer.terms') },
     ];
@@ -31,12 +32,11 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
             <div className={`mx-auto w-full ${maxWidth} px-6 py-14 sm:py-16`}>
                 <div className="flex flex-col gap-10 sm:flex-row sm:justify-between sm:gap-16">
                     <div className="max-w-sm">
-                        <div className="flex items-center gap-2.5 text-lg font-semibold">
-                            <span className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary">
-                                <AppLogoIcon className="size-5 fill-current text-white" />
-                            </span>
-                            Uponco
-                        </div>
+                        <img
+                            src="/icons/horizontal-logo.svg"
+                            alt="Uponco"
+                            className="h-8 w-auto"
+                        />
                         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                             {t('footer.tagline')}
                         </p>

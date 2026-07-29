@@ -1,0 +1,37 @@
+{
+    "meta": {
+        "title": "Məlumatlarınız"
+    },
+    "heading": "Uponco məlumatlarınızı niyə istəyir",
+    "subheading": "Uponco yalnız rezervasiyalarınızı idarə etmək üçün lazım olan məlumatı istəyir. Aşağıda topladığımız hər bir məlumat və onun istifadə məqsədi göstərilib.",
+    "items": {
+        "account": {
+            "title": "Hesab məlumatlarınız",
+            "description": "Adınız və e-poçt ünvanınız — Uponco hesabınızı yaratmaq, sizi sistemə daxil etmək, rezervasiya bildirişləri və xidmət e-poçtları göndərmək üçün istifadə edir."
+        },
+        "business": {
+            "title": "Biznes məlumatlarınız",
+            "description": "Şirkət adınız, loqonuz, filiallarınız, xidmətləriniz, komanda üzvləriniz və iş saatlarınız — Uponco ictimai rezervasiya səhifənizi qurmaq və hansı vaxt aralıqlarının boş olduğunu hesablamaq üçün istifadə edir."
+        },
+        "booking": {
+            "title": "Müştərilərinizin rezervasiya məlumatları",
+            "description": "Müştərilərinizin rezervasiya zamanı təqdim etdiyi ad, əlaqə məlumatları və görüş seçimləri — Uponco görüşü təsdiqləmək, təqviminizdə göstərmək və xatırlatma göndərmək üçün istifadə edir. Bu məlumatların sahibi sizin biznesinizdir; Uponco onları yalnız sizin adınızdan emal edir."
+        },
+        "google": {
+            "title": "Google hesabınız — yalnız qoşsanız",
+            "description": "Google-u qoşmaq könüllüdür. Qoşmağı seçsəniz, Uponco e-poçt ünvanınızı və Google Calendar tədbir icazəsini yalnız bir məqsədlə istəyir: Uponco vasitəsilə rezervasiya edilən onlayn görüşlər üçün təqvim tədbirini və Google Meet linkini yaratmaq. Uponco təqviminizdəki başqa heç nəyi oxumur və dəyişmir, siz isə istənilən vaxt tənzimləmələrdən Google-u ayıra bilərsiniz."
+        }
+    },
+    "assurance": {
+        "heading": "Uponco heç vaxt nə etmir",
+        "items": {
+            "noSelling": "Uponco nə sizin, nə də müştərilərinizin məlumatlarını heç vaxt satmır.",
+            "noAds": "Uponco Google istifadəçi məlumatlarını heç vaxt reklam və ya profilləşdirmə üçün istifadə etmir.",
+            "noSharing": "Uponco məlumatları yalnız platformanın işləməsi üçün lazım olan təchizatçılarla, məsələn hostinq və e-poçt çatdırılması ilə paylaşır.",
+            "deletion": "İstənilən vaxt məlumatlarınızı silə və hesabınızı bağlaya bilərsiniz."
+        }
+    },
+    "privacyCta": "Tam Məxfilik Siyasətini oxuyun",
+    "termsCta": "Qaydaları oxuyun",
+    "contactLead": "Məlumatlarınızla bağlı sualınız var? Bizə yazın:"
+}

@@ -3,6 +3,7 @@
         "signIn": "Sign in",
         "getStarted": "Get started",
         "dashboard": "Dashboard",
+        "features": "Features",
         "pricing": "Pricing"
     },
     "hero": {
@@ -28,98 +29,42 @@
         "bookedIn": "You're booked in",
         "reminderSent": "Reminder sent"
     },
-    "about": {
-        "heading": "What Uponco does",
-        "lead": "Uponco is a web-based appointment booking and scheduling platform for service businesses — salons, clinics, studios, coaches, consultants and anyone else who works by appointment.",
-        "paragraphOne": "Uponco gives your business its own public booking page. You add your locations, the services you offer and the team members who deliver them, along with the hours each of them works. Uponco turns that into a live availability calendar: your customers open your booking link, pick a service, a specialist, a day and a free time slot, and confirm — no phone calls, no back-and-forth messages, and no account needed on their side.",
-        "paragraphTwo": "Behind that booking page, Uponco keeps one shared calendar for your whole business. It prevents double bookings, handles both individual appointments and group sessions with limited capacity, supports onsite visits as well as online meetings, and sends automatic email reminders before each appointment so fewer customers forget to show up. Your team can view, reschedule and cancel appointments from any device, and you can embed the same booking flow directly into your own website with a small widget script.",
-        "paragraphThree": "Uponco helps you spend less time managing your calendar and more time doing the work your customers came for.",
-        "pillars": {
-            "bookingPage": "Your own booking page",
-            "sharedCalendar": "One calendar for the whole team",
-            "lessAdmin": "Less admin, more of the actual work"
-        }
-    },
-    "how": {
-        "heading": "How Uponco works",
-        "subheading": "Three steps from signing up to taking your first booking.",
-        "steps": {
-            "setUp": {
-                "title": "Set up your business",
-                "description": "Create a free account, then add your locations, services, team members and working hours. Uponco guides you through it in about five minutes."
-            },
-            "share": {
-                "title": "Share your booking link",
-                "description": "Uponco gives you a public booking page. Share the link with your customers, or embed the booking widget on your own website."
-            },
-            "run": {
-                "title": "Let Uponco run the calendar",
-                "description": "Bookings land in one shared calendar. Uponco blocks double bookings, sends reminders automatically and keeps your whole team in sync."
-            }
-        }
-    },
-    "features": {
-        "heading": "Everything you need to take bookings",
-        "subheading": "One simple tool to connect your business with the people who matter most.",
+    "value": {
+        "heading": "Bookings, without the back-and-forth",
+        "subheading": "Share one link. Uponco takes care of the rest.",
         "items": {
-            "multiLocation": {
-                "title": "Multi-location",
-                "description": "Manage bookings across every branch from a single, unified calendar."
+            "bookingPage": {
+                "title": "Your own booking page",
+                "description": "Customers pick a service, a specialist and a free time slot — no calls, no messages, no account needed."
             },
-            "multiService": {
-                "title": "Multi-service",
-                "description": "Offer any number of services, each with its own duration and team."
-            },
-            "individualGroup": {
-                "title": "Individual & group",
-                "description": "Take one-on-one appointments or fill group sessions with ease."
-            },
-            "onlineOnsite": {
-                "title": "Online or onsite",
-                "description": "Host virtual meetings or in-person visits — your customers choose."
+            "sharedCalendar": {
+                "title": "One calendar for the team",
+                "description": "Every location, service and team member in one place, with double bookings blocked automatically."
             },
             "reminders": {
                 "title": "Automatic reminders",
-                "description": "Cut no-shows with timely reminders sent to every customer."
+                "description": "Uponco emails every customer before their appointment, so far fewer of them forget to show up."
+            }
+        },
+        "cta": "Explore all features"
+    },
+    "setup": {
+        "heading": "Live in five minutes",
+        "subheading": "No setup fee, no installation, no training day.",
+        "steps": {
+            "setUp": {
+                "title": "Set up your business",
+                "description": "Add your locations, services, team and working hours."
             },
-            "onboarding": {
-                "title": "5-minute onboarding",
-                "description": "Set up your locations, services and team and start taking bookings today."
+            "share": {
+                "title": "Share your link",
+                "description": "Send your booking link out, or embed it on your own website."
+            },
+            "run": {
+                "title": "Start taking bookings",
+                "description": "Everything lands in one calendar your whole team can see."
             }
         }
-    },
-    "data": {
-        "heading": "Why Uponco asks for your data",
-        "subheading": "Uponco only asks for the information it needs to run your bookings. Here is exactly what we collect and what each item is used for.",
-        "items": {
-            "account": {
-                "title": "Your account details",
-                "description": "Your name and email address, so Uponco can create your account, sign you in, and send you booking notifications and service emails."
-            },
-            "business": {
-                "title": "Your business details",
-                "description": "Your company name, logo, locations, services, team members and working hours, so Uponco can build your public booking page and work out which time slots are free."
-            },
-            "booking": {
-                "title": "Your customers' booking details",
-                "description": "The name, contact details and appointment choices your customers submit when they book, so Uponco can confirm the appointment, show it on your calendar and send reminders. Your business owns this data; Uponco only processes it on your behalf."
-            },
-            "google": {
-                "title": "Your Google account — only if you connect it",
-                "description": "Connecting Google is optional. If you choose to connect it, Uponco requests your email address and the Google Calendar events permission for one purpose: to create the calendar event and Google Meet link for online appointments booked through Uponco. Uponco does not read or change anything else in your calendar, and you can disconnect Google at any time in your settings."
-            }
-        },
-        "assurance": {
-            "heading": "What Uponco never does",
-            "items": {
-                "noSelling": "Uponco never sells your data or your customers' data.",
-                "noAds": "Uponco never uses Google user data for advertising or profiling.",
-                "noSharing": "Uponco shares data only with the providers needed to run the platform, such as hosting and email delivery.",
-                "deletion": "You can delete your data and close your account at any time."
-            }
-        },
-        "privacyCta": "Read the full Privacy Policy",
-        "contactLead": "Questions about your data? Email us at"
     },
     "free100": {
         "heading": "Your first 100 appointments are free",
@@ -132,10 +77,17 @@
         "ctaGoDashboard": "Go to dashboard",
         "ctaPricing": "See pricing"
     },
+    "dataStrip": {
+        "heading": "Your data stays yours",
+        "description": "Uponco only asks for what it needs to run your bookings. We never sell your data or your customers' data.",
+        "cta": "See what we collect"
+    },
     "footer": {
         "tagline": "Uponco is your digital bridge to your customers — easy appointment booking for every location and service, online or onsite.",
         "linksHeading": "Uponco",
+        "features": "Features",
         "pricing": "Pricing",
+        "yourData": "Your data",
         "privacy": "Privacy Policy",
         "terms": "Terms & Conditions",
         "contact": "Contact",

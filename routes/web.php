@@ -29,6 +29,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
+Route::inertia('/features', 'features')->name('features');
+
+Route::inertia('/your-data', 'your-data')->name('yourData');
+
 Route::inertia('/pricing', 'pricing')->name('pricing');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');

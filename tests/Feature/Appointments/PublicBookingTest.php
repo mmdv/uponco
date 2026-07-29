@@ -85,6 +85,37 @@ test('the booking page exposes the company logo and specialist avatars', functio
         );
 });
 
+test('the booking page exposes the specialist job title and description', function () {
+    $setup = bookableSetup();
+
+    $setup['user']->profile()->updateOrCreate([], [
+        'name' => $setup['user']->name,
+        'job_title' => 'Senior Barber',
+        'description' => 'Ten years of fades and beard work.',
+    ]);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('specialists.0.job_title', 'Senior Barber')
+            ->where('specialists.0.description', 'Ten years of fades and beard work.')
+        );
+});
+
+test('the booking page returns null profile details when the specialist has no profile', function () {
+    $setup = bookableSetup();
+    $setup['user']->profile()->delete();
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('specialists.0.job_title', null)
+            ->where('specialists.0.description', null)
+        );
+});
+
 test('the booking page returns null media when none is set', function () {
     $setup = bookableSetup();
 

@@ -1,6 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
-import AppLogoIcon from '@/components/app-logo-icon';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { captureEvent } from '@/lib/analytics';
@@ -19,14 +18,12 @@ export function SiteHeader() {
     return (
         <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur">
             <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-                <Link
-                    href={home()}
-                    className="flex items-center gap-2 font-semibold"
-                >
-                    <span className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary">
-                        <AppLogoIcon className="size-5 fill-current text-white" />
-                    </span>
-                    <span className="hidden sm:inline">Uponco</span>
+                <Link href={home()} className="flex items-center">
+                    <img
+                        src="/icons/horizontal-logo.svg"
+                        alt="Uponco"
+                        className="h-6 w-auto"
+                    />
                 </Link>
 
                 <div className="flex items-center gap-1 sm:gap-2">
