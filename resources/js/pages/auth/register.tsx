@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 
@@ -14,6 +15,10 @@ type Props = {
 };
 
 export default function Register({ passwordRules }: Props) {
+    // Autofocusing on a phone pops the keyboard open before the page has
+    // settled, which scrolls the form out from under the user on arrival.
+    const isMobile = useIsMobile();
+
     return (
         <>
             <Head title="Register" />
@@ -32,9 +37,11 @@ export default function Register({ passwordRules }: Props) {
                                     id="name"
                                     type="text"
                                     required
-                                    autoFocus
+                                    autoFocus={!isMobile}
                                     tabIndex={1}
                                     autoComplete="name"
+                                    autoCapitalize="words"
+                                    enterKeyHint="next"
                                     name="name"
                                     placeholder="Full name"
                                 />
@@ -52,6 +59,11 @@ export default function Register({ passwordRules }: Props) {
                                     required
                                     tabIndex={2}
                                     autoComplete="email"
+                                    autoCapitalize="none"
+                                    autoCorrect="off"
+                                    spellCheck={false}
+                                    inputMode="email"
+                                    enterKeyHint="next"
                                     name="email"
                                     placeholder="email@example.com"
                                 />
@@ -65,6 +77,7 @@ export default function Register({ passwordRules }: Props) {
                                     required
                                     tabIndex={3}
                                     autoComplete="new-password"
+                                    enterKeyHint="next"
                                     name="password"
                                     placeholder="Password"
                                     passwordrules={passwordRules}
@@ -81,6 +94,7 @@ export default function Register({ passwordRules }: Props) {
                                     required
                                     tabIndex={4}
                                     autoComplete="new-password"
+                                    enterKeyHint="go"
                                     name="password_confirmation"
                                     placeholder="Confirm password"
                                     passwordrules={passwordRules}

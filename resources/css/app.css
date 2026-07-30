@@ -207,6 +207,15 @@
         scrollbar-gutter: stable;
     }
 
+    /* When a field is focused the browser scrolls it into view. Reserve room
+       around it so it never lands flush against the keyboard (or the AutoFill
+       bar iOS floats above it) and its label stays visible. */
+    input,
+    select,
+    textarea {
+        scroll-margin-block: 6rem;
+    }
+
     .safe-area-inset-top {
         padding-top: env(safe-area-inset-top);
     }
