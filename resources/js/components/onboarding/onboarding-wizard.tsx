@@ -1,6 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
-import { ChevronLeft } from 'lucide-react';
-import { useState } from 'react';
+import { Check, ChevronLeft } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import OnboardingController from '@/actions/App/Http/Controllers/OnboardingController';
 import { useServiceDraft } from '@/components/services/service-wizard/service-draft';
@@ -11,6 +11,7 @@ import type { Onboarding, OnboardingStepKey } from '@/types';
 
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
+import OnboardingScreen from './onboarding-screen';
 import ScreenDelivery from './screen-delivery';
 import ScreenDetails from './screen-details';
 import ScreenDone from './screen-done';
@@ -52,6 +53,18 @@ const entryScreen: Record<OnboardingStepKey, ScreenId> = {
     services: 'delivery',
     profile: 'profile',
     schedule: 'schedule',
+};
+
+/** Short names for the rail that tracks progress on a wide screen. */
+const screenLabels: Record<ScreenId, string> = {
+    intro: 'Welcome',
+    delivery: 'Delivery',
+    location: 'Location',
+    'online-method': 'Meeting links',
+    details: 'Service',
+    profile: 'Profile',
+    schedule: 'Working hours',
+    done: 'Done',
 };
 
 /** Screens that carry the progress count; intro and done are chrome. */
@@ -133,122 +146,217 @@ export default function OnboardingWizard({ onboarding }: Props) {
     // Finishing the last step flips this on the server; the closing screen is
     // then the only thing left to show.
     const current: ScreenId = onboarding.completed ? 'done' : screen;
+    const counted = isCounted(current);
+
+    // A screen change swaps the content under a scroll position that belonged to
+    // the previous one, so every screen starts at its own top.
+    const scrollArea = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        scrollArea.current?.scrollTo({ top: 0 });
+    }, [current]);
 
     return (
-        <div className="flex min-h-svh flex-col bg-background">
-            {isCounted(current) ? (
-                <header className="sticky top-0 z-20 bg-background/95 backdrop-blur">
-                    <div className="mx-auto flex h-12 w-full max-w-xl items-center px-1">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={goBack}
-                            disabled={saving}
-                            aria-label="Back"
-                            data-test="onboarding-back"
-                        >
-                            <ChevronLeft className="size-5" />
-                        </Button>
+        <div className="bg-background md:flex md:min-h-svh md:items-center md:justify-center md:bg-muted/40 md:p-6 lg:p-10">
+            <div
+                className={cn(
+                    'flex h-svh w-full flex-col overflow-hidden md:h-auto md:rounded-2xl md:border md:bg-background md:shadow-xl',
+                    counted ? 'md:max-w-5xl md:flex-row' : 'md:max-w-lg',
+                )}
+            >
+                {counted ? (
+                    <aside className="hidden w-72 shrink-0 flex-col gap-8 border-r bg-muted/30 p-8 md:flex">
+                        <div className="space-y-1.5">
+                            <p className="text-sm font-medium text-foreground">
+                                Set up your business
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                Step {position} of {countedScreens.length}
+                            </p>
+                        </div>
 
-                        <span className="flex-1 text-center text-xs text-muted-foreground">
-                            Step {position} of {countedScreens.length}
-                        </span>
+                        <ol className="space-y-4">
+                            {countedScreens.map((item, itemIndex) => {
+                                const isDone = itemIndex + 1 < position;
+                                const isCurrent = item === current;
 
-                        <div className="size-9" />
-                    </div>
+                                return (
+                                    <li
+                                        key={item}
+                                        className="flex items-center gap-3"
+                                        aria-current={
+                                            isCurrent ? 'step' : undefined
+                                        }
+                                    >
+                                        <span
+                                            className={cn(
+                                                'flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium',
+                                                isDone &&
+                                                    'border-primary bg-primary text-primary-foreground',
+                                                isCurrent &&
+                                                    'border-primary text-primary',
+                                                !isDone &&
+                                                    !isCurrent &&
+                                                    'text-muted-foreground',
+                                            )}
+                                        >
+                                            {isDone ? (
+                                                <Check className="size-3.5" />
+                                            ) : (
+                                                itemIndex + 1
+                                            )}
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                'text-sm',
+                                                isCurrent
+                                                    ? 'font-medium text-foreground'
+                                                    : 'text-muted-foreground',
+                                            )}
+                                        >
+                                            {screenLabels[item]}
+                                        </span>
+                                    </li>
+                                );
+                            })}
+                        </ol>
+                    </aside>
+                ) : null}
 
-                    <div className="h-0.5 w-full bg-muted">
-                        <div
-                            className="h-full bg-primary transition-all duration-500 ease-out"
-                            style={{
-                                width: `${
-                                    (position / countedScreens.length) * 100
-                                }%`,
-                            }}
-                        />
-                    </div>
-                </header>
-            ) : null}
-
-            <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-6">
                 <div
-                    key={current}
                     className={cn(
-                        'flex flex-1 animate-in flex-col duration-300 fade-in',
-                        direction === 'forward'
-                            ? 'slide-in-from-right-4'
-                            : 'slide-in-from-left-4',
+                        // `min-w-0` keeps a wide screen — the schedule grid —
+                        // scrolling inside the card instead of stretching it.
+                        'flex min-h-0 w-full min-w-0 flex-1 flex-col',
+                        counted && 'md:h-[min(40rem,calc(100svh-5rem))]',
                     )}
                 >
-                    {current === 'intro' && (
-                        <ScreenIntro onStart={() => goTo('delivery')} />
-                    )}
+                    {counted ? (
+                        <header className="shrink-0 bg-background/95 backdrop-blur">
+                            <div className="flex h-12 items-center px-1 md:px-4">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={goBack}
+                                    disabled={saving}
+                                    aria-label="Back"
+                                    data-test="onboarding-back"
+                                >
+                                    <ChevronLeft className="size-5" />
+                                </Button>
 
-                    {current === 'delivery' && (
-                        <ScreenDelivery
-                            value={deliveryType}
-                            onChange={service.setDeliveryType}
-                            onNext={goNext}
-                        />
-                    )}
+                                <span className="flex-1 text-center text-xs text-muted-foreground md:hidden">
+                                    Step {position} of {countedScreens.length}
+                                </span>
 
-                    {current === 'location' && (
-                        <ScreenLocation
-                            data={onboarding.services}
-                            teamSlug={teamSlug}
-                            value={locationIds}
-                            onChange={service.setLocationIds}
-                            onNext={goNext}
-                        />
-                    )}
+                                <div className="size-9 md:hidden" />
+                            </div>
 
-                    {current === 'online-method' && (
-                        <div className="flex flex-1 flex-col space-y-6">
-                            <ScreenHeader
-                                title="How are meeting links handled?"
-                                description="Every online appointment needs a link to join."
-                            />
+                            <div className="h-0.5 w-full bg-muted md:hidden">
+                                <div
+                                    className="h-full bg-primary transition-all duration-500 ease-out"
+                                    style={{
+                                        width: `${
+                                            (position / countedScreens.length) *
+                                            100
+                                        }%`,
+                                    }}
+                                />
+                            </div>
+                        </header>
+                    ) : null}
 
-                            <StepOnlineMethod
-                                value={service.draft.meetingProvider}
-                                onChange={service.setMeetingProvider}
-                                google={onboarding.services.google}
-                            />
+                    <main
+                        ref={scrollArea}
+                        className="min-h-0 flex-1 overflow-y-auto px-4 md:px-8"
+                    >
+                        <div
+                            key={current}
+                            className={cn(
+                                'flex min-h-full animate-in flex-col duration-300 fade-in',
+                                direction === 'forward'
+                                    ? 'slide-in-from-right-4'
+                                    : 'slide-in-from-left-4',
+                            )}
+                        >
+                            {current === 'intro' && (
+                                <ScreenIntro onStart={() => goTo('delivery')} />
+                            )}
 
-                            <OnboardingFooter
-                                disabled={service.draft.meetingProvider === ''}
-                                onClick={goNext}
-                            />
+                            {current === 'delivery' && (
+                                <ScreenDelivery
+                                    value={deliveryType}
+                                    onChange={service.setDeliveryType}
+                                    onNext={goNext}
+                                />
+                            )}
+
+                            {current === 'location' && (
+                                <ScreenLocation
+                                    data={onboarding.services}
+                                    teamSlug={teamSlug}
+                                    value={locationIds}
+                                    onChange={service.setLocationIds}
+                                    onNext={goNext}
+                                />
+                            )}
+
+                            {current === 'online-method' && (
+                                <OnboardingScreen
+                                    footer={
+                                        <OnboardingFooter
+                                            disabled={
+                                                service.draft
+                                                    .meetingProvider === ''
+                                            }
+                                            onClick={goNext}
+                                        />
+                                    }
+                                >
+                                    <ScreenHeader
+                                        title="How are meeting links handled?"
+                                        description="Every online appointment needs a link to join."
+                                    />
+
+                                    <StepOnlineMethod
+                                        value={service.draft.meetingProvider}
+                                        onChange={service.setMeetingProvider}
+                                        google={onboarding.services.google}
+                                    />
+                                </OnboardingScreen>
+                            )}
+
+                            {current === 'details' && (
+                                <ScreenDetails
+                                    data={onboarding.services}
+                                    teamSlug={teamSlug}
+                                    service={service}
+                                    controls={controls}
+                                />
+                            )}
+
+                            {current === 'profile' && (
+                                <StepProfile
+                                    data={onboarding.profile}
+                                    controls={controls}
+                                />
+                            )}
+
+                            {current === 'schedule' && (
+                                <StepSchedule
+                                    data={onboarding.schedule}
+                                    controls={controls}
+                                />
+                            )}
+
+                            {current === 'done' && (
+                                <ScreenDone teamSlug={teamSlug} />
+                            )}
                         </div>
-                    )}
-
-                    {current === 'details' && (
-                        <ScreenDetails
-                            data={onboarding.services}
-                            teamSlug={teamSlug}
-                            service={service}
-                            controls={controls}
-                        />
-                    )}
-
-                    {current === 'profile' && (
-                        <StepProfile
-                            data={onboarding.profile}
-                            controls={controls}
-                        />
-                    )}
-
-                    {current === 'schedule' && (
-                        <StepSchedule
-                            data={onboarding.schedule}
-                            controls={controls}
-                        />
-                    )}
-
-                    {current === 'done' && <ScreenDone teamSlug={teamSlug} />}
+                    </main>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

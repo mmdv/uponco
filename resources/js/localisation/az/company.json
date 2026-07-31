@@ -313,7 +313,9 @@
                 "team": "Komanda",
                 "visibility": "Görünürlük",
                 "required": "vacibdir",
-                "requiredLegend": "* ilə işarələnmiş sahələr vacibdir."
+                "requiredLegend": "* ilə işarələnmiş sahələr vacibdir.",
+                "advanced": "Əlavə seçimlər",
+                "advancedHint": "Kateqoriya, təsvir, fasilə və görünürlük."
             },
             "summary": {
                 "online": "Onlayn",

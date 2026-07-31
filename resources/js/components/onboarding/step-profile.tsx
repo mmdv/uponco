@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { Onboarding } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
+import { ScreenBody, ScreenFooterBar } from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 type Props = {
@@ -34,90 +35,102 @@ export default function StepProfile({ data, controls }: Props) {
             {...ProfileController.update.form()}
             options={{ preserveScroll: true }}
             onSuccess={controls.onComplete}
-            className="flex flex-1 flex-col space-y-6"
+            className="flex min-h-full flex-1 flex-col"
         >
             {({ errors, processing }) => (
                 <>
-                    <ScreenHeader
-                        title="Your work profile"
-                        description="This is what customers see on your booking page."
-                    />
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">
-                            Name <RequiredMark />
-                        </Label>
-                        <Input
-                            id="name"
-                            name="name"
-                            value={name}
-                            onChange={(event) => setName(event.target.value)}
-                            required
-                            aria-required
-                            autoComplete="name"
-                            placeholder="Public display name"
+                    <ScreenBody>
+                        <ScreenHeader
+                            title="Your work profile"
+                            description="This is what customers see on your booking page."
                         />
-                        <InputError message={errors.name} />
-                    </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="job_title">
-                            Job title <RequiredMark />
-                        </Label>
-                        <Input
-                            id="job_title"
-                            name="job_title"
-                            value={jobTitle}
-                            onChange={(event) =>
-                                setJobTitle(event.target.value)
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div className="grid gap-2">
+                                <Label htmlFor="name">
+                                    Name <RequiredMark />
+                                </Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    value={name}
+                                    onChange={(event) =>
+                                        setName(event.target.value)
+                                    }
+                                    required
+                                    aria-required
+                                    autoComplete="name"
+                                    placeholder="Public display name"
+                                />
+                                <InputError message={errors.name} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="job_title">
+                                    Job title <RequiredMark />
+                                </Label>
+                                <Input
+                                    id="job_title"
+                                    name="job_title"
+                                    value={jobTitle}
+                                    onChange={(event) =>
+                                        setJobTitle(event.target.value)
+                                    }
+                                    placeholder="e.g. Senior Stylist"
+                                    required
+                                    aria-required
+                                />
+                                <InputError message={errors.job_title} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="email">
+                                    Public email (optional)
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    defaultValue={data.email ?? ''}
+                                    placeholder="Contact email shown to customers"
+                                />
+                                <InputError message={errors.email} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone">Phone (optional)</Label>
+                                <PhoneInput
+                                    id="phone"
+                                    name="phone"
+                                    defaultValue={data.phone ?? ''}
+                                    placeholder="Contact phone number"
+                                />
+                                <InputError message={errors.phone} />
+                            </div>
+
+                            <div className="grid gap-2 md:col-span-2">
+                                <Label htmlFor="description">
+                                    Description (optional)
+                                </Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    defaultValue={data.description ?? ''}
+                                    placeholder="Tell customers about yourself and your work"
+                                />
+                                <InputError message={errors.description} />
+                            </div>
+                        </div>
+                    </ScreenBody>
+
+                    <ScreenFooterBar>
+                        <OnboardingFooter
+                            saving={processing || controls.saving}
+                            disabled={
+                                name.trim() === '' || jobTitle.trim() === ''
                             }
-                            placeholder="e.g. Senior Stylist"
-                            required
-                            aria-required
                         />
-                        <InputError message={errors.job_title} />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Public email (optional)</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            name="email"
-                            defaultValue={data.email ?? ''}
-                            placeholder="Contact email shown to customers"
-                        />
-                        <InputError message={errors.email} />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="phone">Phone (optional)</Label>
-                        <PhoneInput
-                            id="phone"
-                            name="phone"
-                            defaultValue={data.phone ?? ''}
-                            placeholder="Contact phone number"
-                        />
-                        <InputError message={errors.phone} />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="description">
-                            Description (optional)
-                        </Label>
-                        <Textarea
-                            id="description"
-                            name="description"
-                            defaultValue={data.description ?? ''}
-                            placeholder="Tell customers about yourself and your work"
-                        />
-                        <InputError message={errors.description} />
-                    </div>
-
-                    <OnboardingFooter
-                        saving={processing || controls.saving}
-                        disabled={name.trim() === '' || jobTitle.trim() === ''}
-                    />
+                    </ScreenFooterBar>
                 </>
             )}
         </Form>

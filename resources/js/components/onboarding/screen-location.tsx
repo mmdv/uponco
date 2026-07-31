@@ -8,6 +8,10 @@ import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
 import type { Onboarding } from '@/types';
 
 import OnboardingFooter from './onboarding-footer';
+import OnboardingScreen, {
+    ScreenBody,
+    ScreenFooterBar,
+} from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 type Props = {
@@ -57,25 +61,29 @@ function FirstLocation({ data, teamSlug, onChange, onNext }: Props) {
     }, [saved, locations, onChange, onNext]);
 
     return (
-        <div className="flex flex-1 flex-col space-y-6">
-            <ScreenHeader
-                title="Where do you work?"
-                description="Add the address customers will come to."
-            />
+        <div className="flex min-h-full flex-1 flex-col">
+            <ScreenBody className="pb-0">
+                <ScreenHeader
+                    title="Where do you work?"
+                    description="Add the address customers will come to."
+                />
 
-            <LocationFormFields
-                inline
-                showAssignments={false}
-                location={null}
-                teamSlug={teamSlug}
-                services={data.serviceOptions}
-                specialists={data.specialists}
-                countries={data.countries}
-                onSuccess={() => setSaved(true)}
-                footer={({ processing }) => (
-                    <OnboardingFooter saving={processing || saved} />
-                )}
-            />
+                <LocationFormFields
+                    inline
+                    showAssignments={false}
+                    location={null}
+                    teamSlug={teamSlug}
+                    services={data.serviceOptions}
+                    specialists={data.specialists}
+                    countries={data.countries}
+                    onSuccess={() => setSaved(true)}
+                    footer={({ processing }) => (
+                        <ScreenFooterBar>
+                            <OnboardingFooter saving={processing || saved} />
+                        </ScreenFooterBar>
+                    )}
+                />
+            </ScreenBody>
         </div>
     );
 }
@@ -112,7 +120,14 @@ function PickLocation({ data, teamSlug, value, onChange, onNext }: Props) {
     };
 
     return (
-        <div className="flex flex-1 flex-col space-y-6">
+        <OnboardingScreen
+            footer={
+                <OnboardingFooter
+                    disabled={value.length === 0}
+                    onClick={onNext}
+                />
+            }
+        >
             <ScreenHeader
                 title="Where do you work?"
                 description="Pick the places this service is offered at."
@@ -145,8 +160,6 @@ function PickLocation({ data, teamSlug, value, onChange, onNext }: Props) {
                 countries={data.countries}
                 showAssignments={false}
             />
-
-            <OnboardingFooter disabled={value.length === 0} onClick={onNext} />
-        </div>
+        </OnboardingScreen>
     );
 }

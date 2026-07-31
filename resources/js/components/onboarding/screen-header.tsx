@@ -10,11 +10,13 @@ export default function ScreenHeader({
     description: string;
 }) {
     return (
-        <div className="space-y-1.5">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+        <div className="space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-balance text-foreground md:text-3xl">
                 {title}
             </h1>
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <p className="text-base text-pretty text-muted-foreground">
+                {description}
+            </p>
         </div>
     );
 }

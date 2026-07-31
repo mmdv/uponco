@@ -1,8 +1,15 @@
+import { ChevronDown } from 'lucide-react';
+
 import InputError from '@/components/input-error';
 import { CurrencySelect } from '@/components/services/currency-select';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import CategoryField from '@/components/services/service-wizard/category-field';
 import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
@@ -10,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
+import { cn } from '@/lib/utils';
 import type {
     CurrencyCode,
     PriceType,
@@ -70,6 +78,7 @@ export default function StepDetails({
     serviceTypes,
     errors,
     showSpecialists = true,
+    collapseAdvanced = false,
 }: {
     details: WizardDetails;
     onPatch: (patch: Partial<WizardDetails>) => void;
@@ -85,9 +94,81 @@ export default function StepDetails({
     errors: Record<string, string>;
     /** Off when the flow assigns the specialist itself. */
     showSpecialists?: boolean;
+    /**
+     * Tucks the optional fields — category, description, break and visibility —
+     * behind a disclosure, so the step is a short list of what must be filled in.
+     */
+    collapseAdvanced?: boolean;
 }) {
     const { t } = useTranslation('company');
     const requiredLabel = t('services.wizard.details.required');
+
+    const categoryField = (
+        <CategoryField
+            value={details.categoryId}
+            onChange={(categoryId) => onPatch({ categoryId })}
+            options={categoryOptions}
+            teamSlug={teamSlug}
+            error={errors.service_category_id}
+        />
+    );
+
+    const descriptionField = (
+        <div className="grid gap-2">
+            <Label htmlFor="wizard_description">
+                {t('services.form.description')}
+            </Label>
+            <Textarea
+                id="wizard_description"
+                value={details.description}
+                onChange={(event) =>
+                    onPatch({ description: event.target.value })
+                }
+                placeholder={t('services.form.descriptionPlaceholder')}
+                rows={3}
+            />
+            <InputError message={errors.description} />
+        </div>
+    );
+
+    const technicalBreakField = (
+        <div className="grid gap-2">
+            <Label htmlFor="wizard_technical_break">
+                {t('services.form.break')}
+            </Label>
+            <Input
+                id="wizard_technical_break"
+                type="number"
+                min="0"
+                value={details.technicalBreak}
+                onChange={(event) =>
+                    onPatch({ technicalBreak: event.target.value })
+                }
+                placeholder="0"
+                aria-invalid={Boolean(errors.technical_break)}
+            />
+            <InputError message={errors.technical_break} />
+        </div>
+    );
+
+    const visibilityField = (
+        <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="space-y-0.5">
+                <Label htmlFor="wizard_is_active">
+                    {t('services.form.active')}
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                    {t('services.form.activeHint')}
+                </p>
+            </div>
+            <Switch
+                id="wizard_is_active"
+                checked={details.isActive}
+                onCheckedChange={(isActive) => onPatch({ isActive })}
+                data-test="wizard-active-switch"
+            />
+        </div>
+    );
 
     return (
         <div className="space-y-5">
@@ -132,29 +213,12 @@ export default function StepDetails({
                 <InputError message={errors.title} />
             </div>
 
-            <CategoryField
-                value={details.categoryId}
-                onChange={(categoryId) => onPatch({ categoryId })}
-                options={categoryOptions}
-                teamSlug={teamSlug}
-                error={errors.service_category_id}
-            />
-
-            <div className="grid gap-2">
-                <Label htmlFor="wizard_description">
-                    {t('services.form.description')}
-                </Label>
-                <Textarea
-                    id="wizard_description"
-                    value={details.description}
-                    onChange={(event) =>
-                        onPatch({ description: event.target.value })
-                    }
-                    placeholder={t('services.form.descriptionPlaceholder')}
-                    rows={3}
-                />
-                <InputError message={errors.description} />
-            </div>
+            {collapseAdvanced ? null : (
+                <>
+                    {categoryField}
+                    {descriptionField}
+                </>
+            )}
 
             <SectionHeading>
                 {t('services.wizard.details.pricing')}
@@ -275,7 +339,9 @@ export default function StepDetails({
                 {t('services.wizard.details.scheduling')}
             </SectionHeading>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div
+                className={cn('grid gap-3', collapseAdvanced || 'grid-cols-2')}
+            >
                 <div className="grid gap-2">
                     <Label htmlFor="wizard_duration">
                         {t('services.form.duration')}{' '}
@@ -296,23 +362,7 @@ export default function StepDetails({
                     />
                     <InputError message={errors.duration} />
                 </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="wizard_technical_break">
-                        {t('services.form.break')}
-                    </Label>
-                    <Input
-                        id="wizard_technical_break"
-                        type="number"
-                        min="0"
-                        value={details.technicalBreak}
-                        onChange={(event) =>
-                            onPatch({ technicalBreak: event.target.value })
-                        }
-                        placeholder="0"
-                        aria-invalid={Boolean(errors.technical_break)}
-                    />
-                    <InputError message={errors.technical_break} />
-                </div>
+                {collapseAdvanced ? null : technicalBreakField}
             </div>
 
             <SectionHeading>
@@ -393,26 +443,39 @@ export default function StepDetails({
                 </>
             ) : null}
 
-            <SectionHeading>
-                {t('services.wizard.details.visibility')}
-            </SectionHeading>
+            {collapseAdvanced ? (
+                <Collapsible
+                    className="rounded-lg border"
+                    data-test="wizard-advanced"
+                >
+                    <CollapsibleTrigger className="flex w-full items-center gap-3 rounded-lg p-3 text-left [&[data-state=open]>svg]:rotate-180">
+                        <span className="flex-1 space-y-0.5">
+                            <span className="block text-sm font-medium">
+                                {t('services.wizard.details.advanced')}
+                            </span>
+                            <span className="block text-sm text-muted-foreground">
+                                {t('services.wizard.details.advancedHint')}
+                            </span>
+                        </span>
+                        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform" />
+                    </CollapsibleTrigger>
 
-            <div className="flex items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                    <Label htmlFor="wizard_is_active">
-                        {t('services.form.active')}
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                        {t('services.form.activeHint')}
-                    </p>
-                </div>
-                <Switch
-                    id="wizard_is_active"
-                    checked={details.isActive}
-                    onCheckedChange={(isActive) => onPatch({ isActive })}
-                    data-test="wizard-active-switch"
-                />
-            </div>
+                    <CollapsibleContent className="space-y-5 border-t p-3">
+                        {categoryField}
+                        {descriptionField}
+                        {technicalBreakField}
+                        {visibilityField}
+                    </CollapsibleContent>
+                </Collapsible>
+            ) : (
+                <>
+                    <SectionHeading>
+                        {t('services.wizard.details.visibility')}
+                    </SectionHeading>
+
+                    {visibilityField}
+                </>
+            )}
         </div>
     );
 }

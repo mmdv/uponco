@@ -313,7 +313,9 @@
                 "team": "Team",
                 "visibility": "Visibility",
                 "required": "required",
-                "requiredLegend": "Fields marked * are required."
+                "requiredLegend": "Fields marked * are required.",
+                "advanced": "More options",
+                "advancedHint": "Category, description, break time and visibility."
             },
             "summary": {
                 "online": "Online",

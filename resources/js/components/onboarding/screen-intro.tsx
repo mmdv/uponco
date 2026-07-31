@@ -2,6 +2,7 @@ import { CalendarClock, MapPin, Tag, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import OnboardingFooter from './onboarding-footer';
+import OnboardingScreen from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 const checklist: { icon: LucideIcon; label: string }[] = [
@@ -13,25 +14,27 @@ const checklist: { icon: LucideIcon; label: string }[] = [
 
 export default function ScreenIntro({ onStart }: { onStart: () => void }) {
     return (
-        <div className="flex flex-1 flex-col space-y-8">
+        <OnboardingScreen
+            footer={<OnboardingFooter label="Get started" onClick={onStart} />}
+        >
             <ScreenHeader
                 title="Finish setting up your business"
                 description="Four quick things and you're ready to take bookings."
             />
 
-            <ul className="space-y-4">
+            <ul className="space-y-3">
                 {checklist.map((item) => (
                     <li
                         key={item.label}
-                        className="flex items-center gap-3 text-sm"
+                        className="flex items-center gap-3 rounded-lg border bg-card p-3 text-sm"
                     >
-                        <item.icon className="size-5 shrink-0 text-muted-foreground" />
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <item.icon className="size-4.5" />
+                        </span>
                         {item.label}
                     </li>
                 ))}
             </ul>
-
-            <OnboardingFooter label="Get started" onClick={onStart} />
-        </div>
+        </OnboardingScreen>
     );
 }

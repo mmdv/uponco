@@ -2,6 +2,7 @@ import StepDelivery from '@/components/services/service-wizard/step-delivery';
 import type { DeliveryType } from '@/types';
 
 import OnboardingFooter from './onboarding-footer';
+import OnboardingScreen from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 /**
@@ -20,7 +21,11 @@ export default function ScreenDelivery({
     onNext: () => void;
 }) {
     return (
-        <div className="flex flex-1 flex-col space-y-6">
+        <OnboardingScreen
+            footer={
+                <OnboardingFooter disabled={value === ''} onClick={onNext} />
+            }
+        >
             <ScreenHeader
                 title="How do you meet customers?"
                 description="This decides how they attend their appointment."
@@ -32,8 +37,6 @@ export default function ScreenDelivery({
                 disabled={COMING_SOON}
                 showHeading={false}
             />
-
-            <OnboardingFooter disabled={value === ''} onClick={onNext} />
-        </div>
+        </OnboardingScreen>
     );
 }

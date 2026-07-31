@@ -13,8 +13,8 @@ type Props = {
 };
 
 /**
- * The one action every screen ends with, pinned to the bottom of the viewport
- * so it stays under the thumb on a phone.
+ * The one action every screen ends with. Full width so it stays under the thumb
+ * on a phone, and sized to its label once there is room for it.
  */
 export default function OnboardingFooter({
     label = 'Continue',
@@ -22,23 +22,19 @@ export default function OnboardingFooter({
     saving = false,
     onClick,
 }: Props) {
-    // Bleeds to the screen edges on a phone, where the bar reads as part of the
-    // chrome; on wider screens it stays inside the content column.
     return (
-        <div className="sticky inset-x-0 bottom-0 -mx-4 mt-auto border-t bg-background/95 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur sm:mx-0 sm:px-0">
-            <div className="mx-auto flex w-full max-w-xl justify-end">
-                <Button
-                    type={onClick ? 'button' : 'submit'}
-                    onClick={onClick}
-                    disabled={disabled || saving}
-                    size="lg"
-                    className="w-full sm:w-auto"
-                    data-test="onboarding-continue"
-                >
-                    {saving ? <Spinner /> : null}
-                    {label}
-                </Button>
-            </div>
+        <div className="flex justify-end">
+            <Button
+                type={onClick ? 'button' : 'submit'}
+                onClick={onClick}
+                disabled={disabled || saving}
+                size="lg"
+                className="w-full sm:w-auto sm:min-w-40"
+                data-test="onboarding-continue"
+            >
+                {saving ? <Spinner /> : null}
+                {label}
+            </Button>
         </div>
     );
 }

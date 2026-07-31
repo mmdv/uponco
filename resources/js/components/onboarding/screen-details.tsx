@@ -10,6 +10,7 @@ import type { Onboarding, SelectOption } from '@/types';
 
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
+import { ScreenBody, ScreenFooterBar } from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 type Props = {
@@ -54,37 +55,42 @@ export default function ScreenDetails({
             options={{ preserveScroll: true }}
             onBefore={() => setSubmitted(true)}
             onSuccess={controls.onComplete}
-            className="flex flex-1 flex-col space-y-6"
+            className="flex min-h-full flex-1 flex-col"
             disableWhileProcessing
         >
             {({ errors, processing }) => (
                 <>
                     <ServiceFormInputs draft={service.draft} />
 
-                    <ScreenHeader
-                        title="Tell us about your service"
-                        description="This is what customers see and book."
-                    />
+                    <ScreenBody>
+                        <ScreenHeader
+                            title="Tell us about your service"
+                            description="This is what customers see and book."
+                        />
 
-                    <StepDetails
-                        details={service.draft.details}
-                        onPatch={service.patchDetails}
-                        summary={null}
-                        onEditDelivery={() => undefined}
-                        categoryOptions={categoryOptions}
-                        teamSlug={teamSlug}
-                        specialists={data.specialists}
-                        priceTypes={data.priceTypes}
-                        currencies={data.currencies}
-                        serviceTypes={data.serviceTypes}
-                        errors={submitted ? errors : {}}
-                        showSpecialists={false}
-                    />
+                        <StepDetails
+                            details={service.draft.details}
+                            onPatch={service.patchDetails}
+                            summary={null}
+                            onEditDelivery={() => undefined}
+                            categoryOptions={categoryOptions}
+                            teamSlug={teamSlug}
+                            specialists={data.specialists}
+                            priceTypes={data.priceTypes}
+                            currencies={data.currencies}
+                            serviceTypes={data.serviceTypes}
+                            errors={submitted ? errors : {}}
+                            showSpecialists={false}
+                            collapseAdvanced
+                        />
+                    </ScreenBody>
 
-                    <OnboardingFooter
-                        saving={processing || controls.saving}
-                        disabled={service.draft.details.title.trim() === ''}
-                    />
+                    <ScreenFooterBar>
+                        <OnboardingFooter
+                            saving={processing || controls.saving}
+                            disabled={service.draft.details.title.trim() === ''}
+                        />
+                    </ScreenFooterBar>
                 </>
             )}
         </Form>
