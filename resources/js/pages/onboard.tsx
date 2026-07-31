@@ -5,7 +5,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SearchableSelect } from '@/components/ui/searchable-select';
+import { SelectDialog } from '@/components/ui/select-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import type { SelectOption } from '@/types';
 
@@ -65,8 +65,9 @@ export default function Onboard({
                                 value={businessCategory}
                             />
                             <Label htmlFor="business_category">Category</Label>
-                            <SearchableSelect
+                            <SelectDialog
                                 id="business_category"
+                                title="Choose Category"
                                 options={businessCategories}
                                 value={businessCategory}
                                 onChange={setBusinessCategory}
@@ -85,8 +86,9 @@ export default function Onboard({
                                 value={timezone}
                             />
                             <Label htmlFor="timezone">Timezone</Label>
-                            <SearchableSelect
+                            <SelectDialog
                                 id="timezone"
+                                title="Choose Timezone"
                                 options={timezones}
                                 value={timezone}
                                 onChange={setTimezone}
