@@ -40,6 +40,10 @@ createInertiaApp({
                 return null;
             case name === 'onboard':
                 return AuthLayout;
+            // The setup flow owns the whole screen; the app shell would only
+            // eat vertical space it needs on a phone.
+            case name === 'onboarding':
+                return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name === 'company/business/members/edit':

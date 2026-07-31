@@ -1,278 +1,274 @@
 import { router, usePage } from '@inertiajs/react';
-import type { LucideIcon } from 'lucide-react';
-import { CalendarClock, Check, Minus, Tag, UserRound } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import { useState } from 'react';
+
 import OnboardingController from '@/actions/App/Http/Controllers/OnboardingController';
-import { Badge } from '@/components/ui/badge';
+import { useServiceDraft } from '@/components/services/service-wizard/service-draft';
+import StepOnlineMethod from '@/components/services/service-wizard/step-online-method';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Onboarding, OnboardingStepKey } from '@/types';
+
 import type { StepControls } from './controls';
+import OnboardingFooter from './onboarding-footer';
+import ScreenDelivery from './screen-delivery';
+import ScreenDetails from './screen-details';
+import ScreenDone from './screen-done';
+import ScreenHeader from './screen-header';
+import ScreenIntro from './screen-intro';
+import ScreenLocation from './screen-location';
 import StepProfile from './step-profile';
 import StepSchedule from './step-schedule';
-import StepServices from './step-services';
 
 type Props = {
     onboarding: Onboarding;
 };
 
-const stepMeta: Record<
-    OnboardingStepKey,
-    { icon: LucideIcon; description: string }
-> = {
-    services: {
-        icon: Tag,
-        description:
-            'Services are what customers book. Walk through the steps below to set one up — you can add the locations you work from along the way.',
-    },
-    profile: {
-        icon: UserRound,
-        description:
-            'Introduce yourself. Your name and title are required; everything else is optional and appears on your public booking page.',
-    },
-    schedule: {
-        icon: CalendarClock,
-        description:
-            'Set your working hours so customers can only book when you are actually available.',
-    },
+type ScreenId =
+    | 'intro'
+    | 'delivery'
+    | 'location'
+    | 'online-method'
+    | 'details'
+    | 'profile'
+    | 'schedule'
+    | 'done';
+
+/**
+ * Which backend step a screen belongs to. Several screens share one step: the
+ * step is only marked done on the last of them.
+ */
+const stepForScreen: Partial<Record<ScreenId, OnboardingStepKey>> = {
+    delivery: 'services',
+    location: 'services',
+    'online-method': 'services',
+    details: 'services',
+    profile: 'profile',
+    schedule: 'schedule',
 };
 
+/** The first screen of each backend step, used when resuming a part-done flow. */
+const entryScreen: Record<OnboardingStepKey, ScreenId> = {
+    services: 'delivery',
+    profile: 'profile',
+    schedule: 'schedule',
+};
+
+/** Screens that carry the progress count; intro and done are chrome. */
+const isCounted = (screen: ScreenId): boolean =>
+    screen !== 'intro' && screen !== 'done';
+
 export default function OnboardingWizard({ onboarding }: Props) {
-    const { currentTeam } = usePage().props;
+    const { auth, currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
 
-    const { steps } = onboarding;
+    const service = useServiceDraft({
+        categoryId: null,
+        // Whoever is setting the team up is the specialist for their first
+        // service, so the picker never has to be shown.
+        specialistIds: [auth.user.id.toString()],
+    });
+    const { deliveryType, locationIds } = service.draft;
 
-    const [activeStep, setActiveStep] = useState<OnboardingStepKey>(
-        onboarding.currentStep,
+    const [screen, setScreen] = useState<ScreenId>(() =>
+        initialScreen(onboarding),
     );
     const [direction, setDirection] = useState<'forward' | 'back'>('forward');
     const [saving, setSaving] = useState(false);
 
-    const activeIndex = useMemo(
-        () => steps.findIndex((step) => step.key === activeStep),
-        [steps, activeStep],
-    );
+    // The middle screen depends on the delivery branch. Online is not live yet,
+    // but keeping the branch here means turning it on is a one-line change.
+    const screens: ScreenId[] = [
+        'intro',
+        'delivery',
+        deliveryType === 'online' ? 'online-method' : 'location',
+        'details',
+        'profile',
+        'schedule',
+        'done',
+    ];
 
-    const activeStepInfo = steps[activeIndex];
-    const activeMeta = stepMeta[activeStep];
+    const index = screens.indexOf(screen);
+    const countedScreens = screens.filter(isCounted);
+    const position = countedScreens.indexOf(screen) + 1;
 
-    // Once a service exists the services step swaps the wizard for a summary,
-    // so the "walk through the steps below" copy no longer describes it.
-    const activeDescription =
-        activeStep === 'services' && onboarding.services.services.length > 0
-            ? 'Your first service is ready. Add another if you need one, or move on to the next step.'
-            : activeMeta.description;
-
-    const completedCount = steps.filter(
-        (step) => step.status !== 'pending',
-    ).length;
-    const progress = Math.round((completedCount / steps.length) * 100);
-
-    const goTo = (index: number): void => {
-        const target = steps[index];
-
-        if (target) {
-            setDirection(index < activeIndex ? 'back' : 'forward');
-            setActiveStep(target.key);
-        }
+    const goTo = (next: ScreenId, way: 'forward' | 'back' = 'forward') => {
+        setDirection(way);
+        setScreen(next);
     };
 
-    const persist = (status: 'completed' | 'skipped'): void => {
+    const goNext = () => goTo(screens[Math.min(index + 1, screens.length - 1)]);
+    const goBack = () =>
+        goTo(screens[Math.max(index - 1, 0)] ?? 'intro', 'back');
+
+    /** Mark the current screen's backend step done, then move on. */
+    const complete = () => {
+        const step = stepForScreen[screen];
+
+        if (!step) {
+            goNext();
+
+            return;
+        }
+
         setSaving(true);
         router.patch(
-            OnboardingController.update([teamSlug, activeStep]).url,
-            { status },
+            OnboardingController.update([teamSlug, step]).url,
+            { status: 'completed' },
             {
                 preserveScroll: true,
                 preserveState: true,
-                onSuccess: () => goTo(activeIndex + 1),
+                onSuccess: goNext,
                 onFinish: () => setSaving(false),
             },
         );
     };
 
     const controls: StepControls = {
-        showBack: activeIndex > 0,
         saving,
-        onBack: () => goTo(activeIndex - 1),
-        onComplete: () => persist('completed'),
-        onSkip: () => persist('skipped'),
+        onComplete: complete,
+        onNext: goNext,
     };
 
-    const selectStep = (key: OnboardingStepKey): void => {
-        const index = steps.findIndex((step) => step.key === key);
-        const target = steps[index];
-
-        if (target && (target.status !== 'pending' || key === activeStep)) {
-            goTo(index);
-        }
-    };
+    // Finishing the last step flips this on the server; the closing screen is
+    // then the only thing left to show.
+    const current: ScreenId = onboarding.completed ? 'done' : screen;
 
     return (
-        <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-12">
-            <header className="text-center">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                    Finish setting up your business
-                </h1>
-                <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-                    Complete these steps and you're ready to take bookings.
-                </p>
-            </header>
+        <div className="flex min-h-svh flex-col bg-background">
+            {isCounted(current) ? (
+                <header className="sticky top-0 z-20 bg-background/95 backdrop-blur">
+                    <div className="mx-auto flex h-12 w-full max-w-xl items-center px-1">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={goBack}
+                            disabled={saving}
+                            aria-label="Back"
+                            data-test="onboarding-back"
+                        >
+                            <ChevronLeft className="size-5" />
+                        </Button>
 
-            <div className="mt-6 space-y-2">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>
-                        {completedCount} of {steps.length} steps done
-                    </span>
-                    <span className="font-medium text-foreground">
-                        {progress}%
-                    </span>
-                </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div
-                        className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
-                        style={{ width: `${progress}%` }}
-                    />
-                </div>
-            </div>
+                        <span className="flex-1 text-center text-xs text-muted-foreground">
+                            Step {position} of {countedScreens.length}
+                        </span>
 
-            <nav aria-label="Onboarding steps" className="mt-8">
-                <ol className="flex w-full items-start">
-                    {steps.map((step, index) => {
-                        const isActive = step.key === activeStep;
-                        const isCompleted = step.status === 'completed';
-                        const isSkipped = step.status === 'skipped';
-                        const isClickable =
-                            step.status !== 'pending' || isActive;
-                        const isReached = index <= activeIndex;
-                        const StepIcon = stepMeta[step.key].icon;
-
-                        return (
-                            <li key={step.key} className="relative flex-1">
-                                {index > 0 ? (
-                                    <div
-                                        aria-hidden
-                                        className={cn(
-                                            'absolute top-5 right-[calc(50%+1.5rem)] left-[calc(-50%+1.5rem)] h-0.5 rounded-full transition-colors duration-500',
-                                            steps[index - 1].status !==
-                                                'pending' || isReached
-                                                ? 'bg-primary'
-                                                : 'bg-border',
-                                        )}
-                                    />
-                                ) : null}
-
-                                <button
-                                    type="button"
-                                    disabled={!isClickable}
-                                    onClick={() => selectStep(step.key)}
-                                    aria-current={isActive ? 'step' : undefined}
-                                    data-test={`onboarding-tab-${step.key}`}
-                                    className="group relative flex w-full flex-col items-center gap-2"
-                                >
-                                    <span
-                                        className={cn(
-                                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300',
-                                            isCompleted
-                                                ? 'border-primary bg-primary text-primary-foreground'
-                                                : isSkipped
-                                                  ? 'border-muted-foreground/30 bg-muted text-muted-foreground'
-                                                  : isActive
-                                                    ? 'scale-110 border-primary bg-primary/10 text-primary ring-4 ring-primary/10'
-                                                    : 'border-border bg-background text-muted-foreground',
-                                            isClickable && !isActive
-                                                ? 'group-hover:border-primary/60 group-hover:text-primary'
-                                                : '',
-                                        )}
-                                    >
-                                        {isCompleted ? (
-                                            <Check className="h-4.5 w-4.5 animate-in duration-300 zoom-in" />
-                                        ) : isSkipped ? (
-                                            <Minus className="h-4.5 w-4.5" />
-                                        ) : (
-                                            <StepIcon className="h-4.5 w-4.5" />
-                                        )}
-                                    </span>
-
-                                    <span
-                                        className={cn(
-                                            'hidden text-xs font-medium transition-colors duration-300 sm:block',
-                                            isActive
-                                                ? 'text-foreground'
-                                                : 'text-muted-foreground',
-                                        )}
-                                    >
-                                        {step.label}
-                                        {step.mandatory ? (
-                                            <span className="text-destructive">
-                                                {' '}
-                                                *
-                                            </span>
-                                        ) : null}
-                                    </span>
-                                </button>
-                            </li>
-                        );
-                    })}
-                </ol>
-
-                <p className="mt-3 text-center text-sm text-muted-foreground sm:hidden">
-                    Step {activeIndex + 1} of {steps.length}:{' '}
-                    <span className="font-medium text-foreground">
-                        {activeStepInfo?.label}
-                    </span>
-                </p>
-            </nav>
-
-            <div
-                key={activeStep}
-                className={cn(
-                    'mt-8 animate-in duration-500 fade-in',
-                    direction === 'forward'
-                        ? 'slide-in-from-right-6'
-                        : 'slide-in-from-left-6',
-                )}
-            >
-                <section className="rounded-xl border bg-card p-5 shadow-sm sm:p-8">
-                    <div className="mb-6 flex items-start gap-4">
-                        <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary sm:flex">
-                            <activeMeta.icon className="h-5 w-5" />
-                        </div>
-                        <div className="space-y-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <h2 className="text-lg font-semibold text-foreground">
-                                    {activeStepInfo?.label}
-                                </h2>
-                                {activeStepInfo?.mandatory ? (
-                                    <Badge variant="secondary">Required</Badge>
-                                ) : null}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                                {activeDescription}
-                            </p>
-                        </div>
+                        <div className="size-9" />
                     </div>
 
-                    {activeStep === 'services' ? (
-                        <StepServices
+                    <div className="h-0.5 w-full bg-muted">
+                        <div
+                            className="h-full bg-primary transition-all duration-500 ease-out"
+                            style={{
+                                width: `${
+                                    (position / countedScreens.length) * 100
+                                }%`,
+                            }}
+                        />
+                    </div>
+                </header>
+            ) : null}
+
+            <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-6">
+                <div
+                    key={current}
+                    className={cn(
+                        'flex flex-1 animate-in flex-col duration-300 fade-in',
+                        direction === 'forward'
+                            ? 'slide-in-from-right-4'
+                            : 'slide-in-from-left-4',
+                    )}
+                >
+                    {current === 'intro' && (
+                        <ScreenIntro onStart={() => goTo('delivery')} />
+                    )}
+
+                    {current === 'delivery' && (
+                        <ScreenDelivery
+                            value={deliveryType}
+                            onChange={service.setDeliveryType}
+                            onNext={goNext}
+                        />
+                    )}
+
+                    {current === 'location' && (
+                        <ScreenLocation
                             data={onboarding.services}
+                            teamSlug={teamSlug}
+                            value={locationIds}
+                            onChange={service.setLocationIds}
+                            onNext={goNext}
+                        />
+                    )}
+
+                    {current === 'online-method' && (
+                        <div className="flex flex-1 flex-col space-y-6">
+                            <ScreenHeader
+                                title="How are meeting links handled?"
+                                description="Every online appointment needs a link to join."
+                            />
+
+                            <StepOnlineMethod
+                                value={service.draft.meetingProvider}
+                                onChange={service.setMeetingProvider}
+                                google={onboarding.services.google}
+                            />
+
+                            <OnboardingFooter
+                                disabled={service.draft.meetingProvider === ''}
+                                onClick={goNext}
+                            />
+                        </div>
+                    )}
+
+                    {current === 'details' && (
+                        <ScreenDetails
+                            data={onboarding.services}
+                            teamSlug={teamSlug}
+                            service={service}
                             controls={controls}
                         />
-                    ) : null}
-                    {activeStep === 'profile' ? (
+                    )}
+
+                    {current === 'profile' && (
                         <StepProfile
                             data={onboarding.profile}
                             controls={controls}
                         />
-                    ) : null}
-                    {activeStep === 'schedule' ? (
+                    )}
+
+                    {current === 'schedule' && (
                         <StepSchedule
                             data={onboarding.schedule}
                             controls={controls}
                         />
-                    ) : null}
-                </section>
-            </div>
+                    )}
+
+                    {current === 'done' && <ScreenDone teamSlug={teamSlug} />}
+                </div>
+            </main>
         </div>
     );
+}
+
+/**
+ * Where to drop the user in. The intro is only worth showing when nothing has
+ * happened yet; otherwise they resume at the step the server says is next.
+ */
+function initialScreen(onboarding: Onboarding): ScreenId {
+    if (onboarding.completed) {
+        return 'done';
+    }
+
+    const untouched = onboarding.steps.every(
+        (step) => step.status === 'pending',
+    );
+
+    if (untouched && onboarding.services.services.length === 0) {
+        return 'intro';
+    }
+
+    return entryScreen[onboarding.currentStep];
 }

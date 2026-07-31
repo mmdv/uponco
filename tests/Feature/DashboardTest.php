@@ -27,8 +27,8 @@ function dashboardMember(): array
 }
 
 /**
- * Create a team owner whose onboarding is already complete so the dashboard
- * renders its stats and upcoming appointments instead of the wizard.
+ * Create a team owner whose onboarding is already complete, so the dashboard
+ * renders instead of redirecting them into the setup flow.
  *
  * @return array{0: User, 1: Team}
  */
@@ -41,7 +41,7 @@ function dashboardOwner(): array
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $owner->id,
-        'services_status' => OnboardingStepStatus::Skipped,
+        'services_status' => OnboardingStepStatus::Completed,
         'profile_status' => OnboardingStepStatus::Completed,
         'schedule_status' => OnboardingStepStatus::Completed,
         'completed_at' => now(),
@@ -59,14 +59,12 @@ test('guests are redirected to the login page', function () {
 });
 
 test('authenticated users can visit the dashboard', function () {
-    $user = User::factory()->create();
-    $team = $user->currentTeam;
+    [$owner, $team] = dashboardOwner();
 
-    $response = $this
-        ->actingAs($user)
-        ->get(route('dashboard'));
-
-    $response->assertOk();
+    $this
+        ->actingAs($owner)
+        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->assertOk();
 });
 
 test('the dashboard reports booking and customer stats when onboarding is hidden', function () {
@@ -92,7 +90,6 @@ test('the dashboard reports booking and customer stats when onboarding is hidden
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
-            ->where('onboarding', null)
             ->where('stats.customers', 2)
             ->where('stats.totalBookings', 4)
             ->where('stats.upcoming', 3)
@@ -208,7 +205,6 @@ test('admins see every specialist booking in the dashboard stats and upcoming li
         ->get(route('dashboard', ['current_team' => $team->slug]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->where('onboarding', null)
             ->where('stats.totalBookings', 3)
             ->where('stats.upcoming', 3)
             ->has('upcomingAppointments', 3)
@@ -283,7 +279,7 @@ test('members only see their own bookings in the week ahead trend', function () 
         );
 });
 
-test('the dashboard omits the booking trend while the onboarding wizard is shown', function () {
+test('the dashboard sends owners to the setup flow until onboarding is finished', function () {
     $owner = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
@@ -291,24 +287,5 @@ test('the dashboard omits the booking trend while the onboarding wizard is shown
     $this
         ->actingAs($owner)
         ->get(route('dashboard', ['current_team' => $team->slug]))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page->where('weeklyTrend', null));
-});
-
-test('the dashboard omits stats while the onboarding wizard is shown', function () {
-    $owner = User::factory()->create();
-    $team = Team::factory()->create();
-    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
-
-    $this
-        ->actingAs($owner)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('dashboard')
-            ->where('stats', null)
-            ->where('upcomingAppointments', null)
-            ->where('formOptions', null)
-            ->has('onboarding')
-        );
+        ->assertRedirect(route('onboarding.show', ['current_team' => $team->slug]));
 });

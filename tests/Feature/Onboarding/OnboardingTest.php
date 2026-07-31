@@ -5,12 +5,13 @@ use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Models\OnboardingProgress;
 use App\Models\ScheduleSlot;
+use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
 
 /**
  * Create a user that owns a fully set-up team (so it clears the onboarding
- * gate) but has not yet completed the dashboard wizard steps.
+ * gate) but has not yet completed the setup flow's steps.
  *
  * @return array{0: User, 1: Team}
  */
@@ -28,6 +29,11 @@ function dashboardRoute(Team $team): string
     return route('dashboard', ['current_team' => $team->slug]);
 }
 
+function onboardingRoute(Team $team): string
+{
+    return route('onboarding.show', ['current_team' => $team->slug]);
+}
+
 function onboardingStepRoute(Team $team, OnboardingStep $step): string
 {
     return route('onboarding.steps.update', [
@@ -36,23 +42,40 @@ function onboardingStepRoute(Team $team, OnboardingStep $step): string
     ]);
 }
 
-test('owners see the onboarding wizard with all three steps', function () {
+/** Satisfy every step's underlying data so onboarding can complete. */
+function completeOnboardingData(User $user, Team $team): void
+{
+    $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
+    ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
+    Service::factory()->create(['team_id' => $team->id]);
+}
+
+test('the dashboard sends owners to onboarding until it is finished', function () {
     [$user, $team] = onboardingOwner();
 
     $this
         ->actingAs($user)
         ->get(dashboardRoute($team))
+        ->assertRedirect(onboardingRoute($team));
+});
+
+test('owners see the setup flow with all three steps', function () {
+    [$user, $team] = onboardingOwner();
+
+    $this
+        ->actingAs($user)
+        ->get(onboardingRoute($team))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('dashboard')
-            ->has('onboarding')
-            ->has('onboarding.steps', 3)
-            ->where('onboarding.currentStep', 'services')
-            ->where('onboarding.steps.0.key', 'services')
+            ->component('onboarding')
+            ->where('completed', false)
+            ->has('steps', 3)
+            ->where('currentStep', 'services')
+            ->where('steps.0.key', 'services')
         );
 });
 
-test('regular members do not see the onboarding wizard', function () {
+test('regular members go straight to the dashboard', function () {
     [, $team] = onboardingOwner();
     $member = User::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
@@ -61,23 +84,31 @@ test('regular members do not see the onboarding wizard', function () {
         ->actingAs($member)
         ->get(dashboardRoute($team))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('dashboard')
-            ->where('onboarding', null)
-        );
+        ->assertInertia(fn ($page) => $page->component('dashboard'));
 });
 
-test('mandatory steps auto-complete when their data already exists', function () {
+test('regular members cannot open the setup flow', function () {
+    [, $team] = onboardingOwner();
+    $member = User::factory()->create();
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+
+    $this
+        ->actingAs($member)
+        ->get(onboardingRoute($team))
+        ->assertForbidden();
+});
+
+test('steps auto-complete when their data already exists', function () {
     [$user, $team] = onboardingOwner();
     $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
 
     $this
         ->actingAs($user)
-        ->get(dashboardRoute($team))
+        ->get(onboardingRoute($team))
         ->assertInertia(fn ($page) => $page
-            ->where('onboarding.steps.0.status', 'pending')    // services
-            ->where('onboarding.steps.1.status', 'completed')  // profile
-            ->where('onboarding.steps.2.status', 'pending')    // schedule
+            ->where('steps.0.status', 'pending')    // services
+            ->where('steps.1.status', 'completed')  // profile
+            ->where('steps.2.status', 'pending')    // schedule
         );
 
     $progress = OnboardingProgress::firstWhere('user_id', $user->id);
@@ -85,42 +116,43 @@ test('mandatory steps auto-complete when their data already exists', function ()
     expect($progress->statusFor(OnboardingStep::Services))->toBe(OnboardingStepStatus::Pending);
 });
 
-test('an optional step can be skipped and advances the current step', function () {
+test('no step can be skipped', function () {
+    [$user, $team] = onboardingOwner();
+
+    foreach (OnboardingStep::cases() as $step) {
+        $this
+            ->actingAs($user)
+            ->patch(onboardingStepRoute($team, $step), [
+                'status' => OnboardingStepStatus::Skipped->value,
+            ])
+            ->assertSessionHasErrors('status');
+    }
+
+    expect(OnboardingProgress::firstWhere('user_id', $user->id)?->statusFor(OnboardingStep::Services))
+        ->not->toBe(OnboardingStepStatus::Skipped);
+});
+
+test('completing the services step requires a saved service', function () {
     [$user, $team] = onboardingOwner();
 
     $this
         ->actingAs($user)
         ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
-            'status' => OnboardingStepStatus::Skipped->value,
+            'status' => OnboardingStepStatus::Completed->value,
         ])
-        ->assertRedirect()
+        ->assertSessionHasErrors('status');
+
+    Service::factory()->create(['team_id' => $team->id]);
+
+    $this
+        ->actingAs($user)
+        ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
+            'status' => OnboardingStepStatus::Completed->value,
+        ])
         ->assertSessionHasNoErrors();
 
-    $progress = OnboardingProgress::firstWhere('user_id', $user->id);
-    expect($progress->statusFor(OnboardingStep::Services))->toBe(OnboardingStepStatus::Skipped);
-    expect($progress->current_step)->toBe(OnboardingStep::Profile);
-});
-
-test('a mandatory step cannot be skipped', function () {
-    [$user, $team] = onboardingOwner();
-
-    $this
-        ->actingAs($user)
-        ->patch(onboardingStepRoute($team, OnboardingStep::Profile), [
-            'status' => OnboardingStepStatus::Skipped->value,
-        ])
-        ->assertSessionHasErrors('status');
-});
-
-test('the schedule step is mandatory and cannot be skipped', function () {
-    [$user, $team] = onboardingOwner();
-
-    $this
-        ->actingAs($user)
-        ->patch(onboardingStepRoute($team, OnboardingStep::Schedule), [
-            'status' => OnboardingStepStatus::Skipped->value,
-        ])
-        ->assertSessionHasErrors('status');
+    expect(OnboardingProgress::firstWhere('user_id', $user->id)->statusFor(OnboardingStep::Services))
+        ->toBe(OnboardingStepStatus::Completed);
 });
 
 test('completing the schedule step requires saved work hours', function () {
@@ -146,39 +178,40 @@ test('completing the schedule step requires saved work hours', function () {
         ->toBe(OnboardingStepStatus::Completed);
 });
 
-test('the onboarding payload includes schedule members and google status', function () {
+test('the payload includes schedule members and google status', function () {
     [$user, $team] = onboardingOwner();
 
     $this
         ->actingAs($user)
-        ->get(dashboardRoute($team))
+        ->get(onboardingRoute($team))
         ->assertInertia(fn ($page) => $page
-            ->where('onboarding.steps.2.key', 'schedule')
-            ->where('onboarding.steps.2.mandatory', true)
-            ->has('onboarding.schedule.members', 1)
-            ->has('onboarding.schedule.slots')
-            ->where('onboarding.services.google.connected', false)
+            ->where('steps.2.key', 'schedule')
+            ->where('steps.2.mandatory', true)
+            ->has('schedule.members', 1)
+            ->has('schedule.slots')
+            ->where('services.google.connected', false)
         );
 });
 
-test('the services payload carries everything the inline service wizard needs', function () {
+test('the services payload carries everything the service screens need', function () {
     [$user, $team] = onboardingOwner();
 
     $this
         ->actingAs($user)
-        ->get(dashboardRoute($team))
+        ->get(onboardingRoute($team))
         ->assertInertia(fn ($page) => $page
-            ->has('onboarding.services.categories')
-            ->has('onboarding.services.services')
-            ->has('onboarding.services.serviceOptions')
-            ->has('onboarding.services.locations')
-            ->has('onboarding.services.specialists')
-            ->has('onboarding.services.countries')
-            ->has('onboarding.services.priceTypes')
-            ->has('onboarding.services.serviceTypes')
-            ->has('onboarding.services.google')
-            // Locations are created from inside the wizard now.
-            ->missing('onboarding.locations')
+            ->has('services.categories')
+            ->has('services.services')
+            ->has('services.serviceOptions')
+            ->has('services.locations')
+            ->has('services.specialists')
+            ->has('services.countries')
+            ->has('services.priceTypes')
+            ->has('services.currencies')
+            ->has('services.serviceTypes')
+            ->has('services.google')
+            // Locations are created from inside the flow now.
+            ->missing('locations')
         );
 });
 
@@ -193,7 +226,7 @@ test('an invalid status is rejected', function () {
         ->assertSessionHasErrors('status');
 });
 
-test('completing a mandatory step requires the underlying data', function () {
+test('completing a step requires the underlying data', function () {
     [$user, $team] = onboardingOwner();
 
     $this
@@ -212,26 +245,35 @@ test('regular members cannot update onboarding steps', function () {
     $this
         ->actingAs($member)
         ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
-            'status' => OnboardingStepStatus::Skipped->value,
+            'status' => OnboardingStepStatus::Completed->value,
         ])
         ->assertForbidden();
 });
 
-test('the wizard disappears once every step is resolved', function () {
+test('the flow reports itself complete once every step is resolved', function () {
     [$user, $team] = onboardingOwner();
-    $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
-    ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
+    completeOnboardingData($user, $team);
 
-    OnboardingProgress::create([
-        'team_id' => $team->id,
-        'user_id' => $user->id,
-        'services_status' => OnboardingStepStatus::Skipped,
-    ]);
+    // The closing screen still needs the page, so it keeps rendering — only the
+    // completed flag changes.
+    $this
+        ->actingAs($user)
+        ->get(onboardingRoute($team))
+        ->assertInertia(fn ($page) => $page
+            ->component('onboarding')
+            ->where('completed', true)
+        );
+
+    expect(OnboardingProgress::firstWhere('user_id', $user->id)->completed_at)->not->toBeNull();
+});
+
+test('the dashboard stops redirecting once onboarding is complete', function () {
+    [$user, $team] = onboardingOwner();
+    completeOnboardingData($user, $team);
 
     $this
         ->actingAs($user)
         ->get(dashboardRoute($team))
-        ->assertInertia(fn ($page) => $page->where('onboarding', null));
-
-    expect(OnboardingProgress::firstWhere('user_id', $user->id)->completed_at)->not->toBeNull();
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('dashboard'));
 });

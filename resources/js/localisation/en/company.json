@@ -217,7 +217,7 @@
             "editDescription": "Update the details for this service.",
             "active": "Active",
             "activeHint": "Inactive services are hidden from use.",
-            "titleLabel": "Title",
+            "titleLabel": "Service name",
             "titlePlaceholder": "Haircut",
             "category": "Category",
             "categoryNone": "No category",

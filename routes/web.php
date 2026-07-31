@@ -80,6 +80,7 @@ Route::prefix('{current_team}')
     ->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
         Route::patch('onboarding/steps/{step}', [OnboardingController::class, 'update'])->name('onboarding.steps.update');
 
         Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');

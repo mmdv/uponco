@@ -12,6 +12,7 @@ import { isTeamManager } from '@/lib/teams';
 import type { Onboarding } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
+import ScreenHeader from './screen-header';
 
 type Props = {
     data: Onboarding['schedule'];
@@ -28,7 +29,12 @@ export default function StepSchedule({ data, controls }: Props) {
     const hasSlots = Object.keys(data.slots).length > 0;
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-1 flex-col space-y-6">
+            <ScreenHeader
+                title="When do you work?"
+                description="Customers can only book inside these hours."
+            />
+
             <ScheduleProvider
                 members={data.members}
                 showMemberColumn={isAdmin}
@@ -51,12 +57,10 @@ export default function StepSchedule({ data, controls }: Props) {
             </ScheduleProvider>
 
             <OnboardingFooter
-                showBack={controls.showBack}
-                onBack={controls.onBack}
                 saving={controls.saving}
-                onContinue={controls.onComplete}
-                continueLabel="Finish"
-                continueDisabled={!hasSlots}
+                onClick={controls.onComplete}
+                label="Finish"
+                disabled={!hasSlots}
             />
         </div>
     );

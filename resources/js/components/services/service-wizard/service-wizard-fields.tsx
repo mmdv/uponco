@@ -1,24 +1,25 @@
 import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 
+import {
+    ServiceFormInputs,
+    useServiceDraft,
+} from '@/components/services/service-wizard/service-draft';
 import StepDelivery from '@/components/services/service-wizard/step-delivery';
 import StepDetails from '@/components/services/service-wizard/step-details';
-import type { WizardDetails } from '@/components/services/service-wizard/step-details';
 import StepLocations from '@/components/services/service-wizard/step-locations';
 import StepOnlineMethod from '@/components/services/service-wizard/step-online-method';
 import { Button } from '@/components/ui/button';
-import { useLocale, useTranslation } from '@/hooks/use-translation';
-import { defaultCurrencyForLocale } from '@/lib/currency';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { store } from '@/routes/company/services';
 import type {
-    DeliveryType,
     GoogleIntegrationStatus,
     SelectOption,
     ServiceCategory,
 } from '@/types';
 
-type StepId = 'delivery' | 'online-method' | 'locations' | 'details';
+export type StepId = 'delivery' | 'online-method' | 'locations' | 'details';
 
 export type ServiceWizardFieldsProps = {
     defaultCategoryId: number | null;
@@ -35,7 +36,7 @@ export type ServiceWizardFieldsProps = {
 };
 
 /** Which wizard step a server-side validation error belongs to. */
-function stepForField(field: string): StepId {
+export function stepForField(field: string): StepId {
     if (field === 'delivery_type') {
         return 'delivery';
     }
@@ -83,34 +84,19 @@ export default function ServiceWizardFields({
     footer?: React.ReactNode;
 }) {
     const { t } = useTranslation('company');
-    const { locale } = useLocale();
 
     const [step, setStep] = useState<StepId>('delivery');
     // Nothing is validated until the user asks to create the service, so the
     // details step opens clean instead of flagging fields nobody has filled in.
     const [submitted, setSubmitted] = useState(false);
-    const [deliveryType, setDeliveryType] = useState<DeliveryType | ''>('');
-    const [meetingProvider, setMeetingProvider] = useState('');
-    const [locationIds, setLocationIds] = useState<string[]>([]);
-    const [details, setDetails] = useState<WizardDetails>({
-        title: '',
-        categoryId: defaultCategoryId?.toString() ?? '',
-        description: '',
-        priceType: 'fixed',
-        price: '',
-        currency: defaultCurrencyForLocale(locale),
-        priceMin: '',
-        priceMax: '',
-        duration: '',
-        technicalBreak: '0',
-        serviceType: 'individual',
-        capacity: '',
-        specialistIds: [],
-        isActive: true,
-    });
-
-    const patchDetails = (patch: Partial<WizardDetails>) =>
-        setDetails((current) => ({ ...current, ...patch }));
+    const {
+        draft,
+        setDeliveryType,
+        setMeetingProvider,
+        setLocationIds,
+        patchDetails,
+    } = useServiceDraft({ categoryId: defaultCategoryId });
+    const { deliveryType, meetingProvider, locationIds, details } = draft;
 
     // The middle step depends on the delivery branch; before a delivery type
     // is picked the online branch is shown as a placeholder in the indicator.
@@ -136,15 +122,6 @@ export default function ServiceWizardFields({
               : step === 'locations'
                 ? locationIds.length > 0
                 : true;
-
-    const selectDeliveryType = (next: DeliveryType) => {
-        setDeliveryType(next);
-
-        // Online services are not tied to a branch.
-        if (next === 'online') {
-            setLocationIds([]);
-        }
-    };
 
     const summary =
         deliveryType === 'onsite'
@@ -191,103 +168,7 @@ export default function ServiceWizardFields({
         >
             {({ errors, processing }) => (
                 <>
-                    <input
-                        type="hidden"
-                        name="is_active"
-                        value={details.isActive ? '1' : '0'}
-                    />
-                    <input
-                        type="hidden"
-                        name="service_category_id"
-                        value={details.categoryId}
-                    />
-                    <input type="hidden" name="title" value={details.title} />
-                    <input
-                        type="hidden"
-                        name="description"
-                        value={details.description}
-                    />
-                    <input
-                        type="hidden"
-                        name="price_type"
-                        value={details.priceType}
-                    />
-                    {details.priceType === 'fixed' && (
-                        <input
-                            type="hidden"
-                            name="price"
-                            value={details.price}
-                        />
-                    )}
-                    {details.priceType === 'range' && (
-                        <>
-                            <input
-                                type="hidden"
-                                name="price_min"
-                                value={details.priceMin}
-                            />
-                            <input
-                                type="hidden"
-                                name="price_max"
-                                value={details.priceMax}
-                            />
-                        </>
-                    )}
-                    <input
-                        type="hidden"
-                        name="currency"
-                        value={details.currency}
-                    />
-                    <input
-                        type="hidden"
-                        name="duration"
-                        value={details.duration}
-                    />
-                    <input
-                        type="hidden"
-                        name="technical_break"
-                        value={details.technicalBreak}
-                    />
-                    <input
-                        type="hidden"
-                        name="service_type"
-                        value={details.serviceType}
-                    />
-                    {details.serviceType === 'group' && (
-                        <input
-                            type="hidden"
-                            name="capacity"
-                            value={details.capacity}
-                        />
-                    )}
-                    <input
-                        type="hidden"
-                        name="delivery_type"
-                        value={deliveryType}
-                    />
-                    {deliveryType === 'online' && (
-                        <input
-                            type="hidden"
-                            name="online_meeting_provider"
-                            value={meetingProvider}
-                        />
-                    )}
-                    {locationIds.map((id) => (
-                        <input
-                            key={`location-${id}`}
-                            type="hidden"
-                            name="location_ids[]"
-                            value={id}
-                        />
-                    ))}
-                    {details.specialistIds.map((id) => (
-                        <input
-                            key={`specialist-${id}`}
-                            type="hidden"
-                            name="user_ids[]"
-                            value={id}
-                        />
-                    ))}
+                    <ServiceFormInputs draft={draft} />
 
                     {/* Tabs sit on the panel's top border and the active one
                         opens into it: its bottom border is transparent, and the
@@ -366,7 +247,7 @@ export default function ServiceWizardFields({
                             {step === 'delivery' && (
                                 <StepDelivery
                                     value={deliveryType}
-                                    onChange={selectDeliveryType}
+                                    onChange={setDeliveryType}
                                 />
                             )}
                             {step === 'online-method' && (

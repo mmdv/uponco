@@ -30,13 +30,13 @@ enum OnboardingStep: string
 
     /**
      * Determine if the step must be completed (cannot be skipped).
+     *
+     * Every step is: a team cannot take a booking without a service, a public
+     * profile and work hours.
      */
     public function isMandatory(): bool
     {
-        return match ($this) {
-            self::Profile, self::Schedule => true,
-            default => false,
-        };
+        return true;
     }
 
     /**

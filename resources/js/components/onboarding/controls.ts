@@ -1,13 +1,12 @@
 /**
- * Navigation handlers shared by every onboarding step panel. The wizard owns
- * the active-step state and persistence; panels call these to move forward.
+ * What a screen can do to the flow around it. The wizard owns navigation and
+ * persistence; a screen only reports that its own work is done.
  */
 export type StepControls = {
-    showBack: boolean;
+    /** A step is being persisted, so actions should be disabled. */
     saving: boolean;
-    onBack: () => void;
-    /** Mark the current step completed and advance. */
+    /** Mark this screen's backend step complete and move on. */
     onComplete: () => void;
-    /** Mark the current step skipped and advance (optional steps only). */
-    onSkip: () => void;
+    /** Move on without touching the backend, for screens that only collect state. */
+    onNext: () => void;
 };

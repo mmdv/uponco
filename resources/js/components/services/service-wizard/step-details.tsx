@@ -69,10 +69,12 @@ export default function StepDetails({
     currencies,
     serviceTypes,
     errors,
+    showSpecialists = true,
 }: {
     details: WizardDetails;
     onPatch: (patch: Partial<WizardDetails>) => void;
-    summary: string;
+    /** Null hides the delivery recap, for flows that have their own back button. */
+    summary: string | null;
     onEditDelivery: () => void;
     categoryOptions: SelectOption[];
     teamSlug: string;
@@ -81,25 +83,29 @@ export default function StepDetails({
     currencies: SelectOption[];
     serviceTypes: SelectOption[];
     errors: Record<string, string>;
+    /** Off when the flow assigns the specialist itself. */
+    showSpecialists?: boolean;
 }) {
     const { t } = useTranslation('company');
     const requiredLabel = t('services.wizard.details.required');
 
     return (
         <div className="space-y-5">
-            <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-4 py-3">
-                <p className="text-sm" data-test="wizard-summary">
-                    {summary}
-                </p>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={onEditDelivery}
-                >
-                    {t('services.wizard.summary.edit')}
-                </Button>
-            </div>
+            {summary !== null ? (
+                <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-4 py-3">
+                    <p className="text-sm" data-test="wizard-summary">
+                        {summary}
+                    </p>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={onEditDelivery}
+                    >
+                        {t('services.wizard.summary.edit')}
+                    </Button>
+                </div>
+            ) : null}
 
             <p className="text-xs text-muted-foreground">
                 {t('services.wizard.details.requiredLegend')}
@@ -352,30 +358,40 @@ export default function StepDetails({
                 </div>
             )}
 
-            <SectionHeading>{t('services.wizard.details.team')}</SectionHeading>
+            {showSpecialists ? (
+                <>
+                    <SectionHeading>
+                        {t('services.wizard.details.team')}
+                    </SectionHeading>
 
-            <div className="grid gap-2">
-                <Label htmlFor="wizard_user_ids">
-                    {t('services.form.specialists')}
-                </Label>
-                <MultiSelect
-                    id="wizard_user_ids"
-                    options={specialists}
-                    value={details.specialistIds}
-                    onChange={(specialistIds) => onPatch({ specialistIds })}
-                    placeholder={t('services.form.specialistsPlaceholder')}
-                    searchPlaceholder={t(
-                        'services.form.specialistsSearchPlaceholder',
-                    )}
-                    emptyMessage={t('services.form.specialistsEmpty')}
-                    invalid={Boolean(errors.user_ids)}
-                    data-test="wizard-specialists-select"
-                />
-                <p className="text-sm text-muted-foreground">
-                    {t('services.form.specialistsHint')}
-                </p>
-                <InputError message={errors.user_ids} />
-            </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="wizard_user_ids">
+                            {t('services.form.specialists')}
+                        </Label>
+                        <MultiSelect
+                            id="wizard_user_ids"
+                            options={specialists}
+                            value={details.specialistIds}
+                            onChange={(specialistIds) =>
+                                onPatch({ specialistIds })
+                            }
+                            placeholder={t(
+                                'services.form.specialistsPlaceholder',
+                            )}
+                            searchPlaceholder={t(
+                                'services.form.specialistsSearchPlaceholder',
+                            )}
+                            emptyMessage={t('services.form.specialistsEmpty')}
+                            invalid={Boolean(errors.user_ids)}
+                            data-test="wizard-specialists-select"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                            {t('services.form.specialistsHint')}
+                        </p>
+                        <InputError message={errors.user_ids} />
+                    </div>
+                </>
+            ) : null}
 
             <SectionHeading>
                 {t('services.wizard.details.visibility')}

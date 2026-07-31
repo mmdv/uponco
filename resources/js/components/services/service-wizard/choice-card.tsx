@@ -14,6 +14,8 @@ export default function ChoiceCard({
     description,
     selected,
     onSelect,
+    disabled = false,
+    badge,
     'data-test': dataTest,
 }: {
     icon: LucideIcon;
@@ -21,6 +23,10 @@ export default function ChoiceCard({
     description: string;
     selected: boolean;
     onSelect: () => void;
+    /** Dims the card and blocks selection, for options that are not live yet. */
+    disabled?: boolean;
+    /** Small note beside the title, such as "Coming soon". */
+    badge?: React.ReactNode;
     'data-test'?: string;
 }) {
     return (
@@ -28,19 +34,23 @@ export default function ChoiceCard({
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-disabled={disabled || undefined}
+            disabled={disabled}
             onClick={onSelect}
             data-test={dataTest}
             className={cn(
                 'relative flex w-full items-start gap-3 rounded-lg border p-4 text-left transition-colors',
-                selected
-                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                    : 'hover:bg-accent/50',
+                disabled
+                    ? 'cursor-not-allowed opacity-60'
+                    : selected
+                      ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                      : 'hover:bg-accent/50',
             )}
         >
             <span
                 className={cn(
                     'mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border',
-                    selected
+                    selected && !disabled
                         ? 'border-primary/30 bg-primary/10 text-primary'
                         : 'text-muted-foreground',
                 )}
@@ -48,19 +58,26 @@ export default function ChoiceCard({
                 <Icon className="size-5" />
             </span>
             <span className="min-w-0 space-y-1 pr-6">
-                <span
-                    className={cn(
-                        'block text-sm font-medium',
-                        selected && 'text-primary',
-                    )}
-                >
-                    {title}
+                <span className="flex flex-wrap items-center gap-2">
+                    <span
+                        className={cn(
+                            'text-sm font-medium',
+                            selected && !disabled && 'text-primary',
+                        )}
+                    >
+                        {title}
+                    </span>
+                    {badge ? (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                            {badge}
+                        </span>
+                    ) : null}
                 </span>
                 <span className="block text-sm text-muted-foreground">
                     {description}
                 </span>
             </span>
-            {selected && (
+            {selected && !disabled && (
                 <CheckCircle2 className="absolute top-4 right-4 size-5 text-primary" />
             )}
         </button>

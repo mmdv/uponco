@@ -11,22 +11,30 @@ import type { DeliveryType } from '@/types';
 export default function StepDelivery({
     value,
     onChange,
+    disabled = [],
+    showHeading = true,
 }: {
     value: DeliveryType | '';
     onChange: (value: DeliveryType) => void;
+    /** Delivery types that are not available yet, shown as "coming soon". */
+    disabled?: DeliveryType[];
+    /** Off when the surrounding screen already provides the heading. */
+    showHeading?: boolean;
 }) {
     const { t } = useTranslation('company');
 
     return (
         <div className="space-y-4">
-            <div className="space-y-1">
-                <h3 className="text-sm font-medium">
-                    {t('services.wizard.delivery.heading')}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                    {t('services.wizard.delivery.subheading')}
-                </p>
-            </div>
+            {showHeading ? (
+                <div className="space-y-1">
+                    <h3 className="text-sm font-medium">
+                        {t('services.wizard.delivery.heading')}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                        {t('services.wizard.delivery.subheading')}
+                    </p>
+                </div>
+            ) : null}
 
             <div
                 role="radiogroup"
@@ -41,6 +49,12 @@ export default function StepDelivery({
                     )}
                     selected={value === 'onsite'}
                     onSelect={() => onChange('onsite')}
+                    disabled={disabled.includes('onsite')}
+                    badge={
+                        disabled.includes('onsite')
+                            ? t('services.wizard.online.comingSoon')
+                            : undefined
+                    }
                     data-test="wizard-delivery-onsite"
                 />
                 <ChoiceCard
@@ -51,6 +65,12 @@ export default function StepDelivery({
                     )}
                     selected={value === 'online'}
                     onSelect={() => onChange('online')}
+                    disabled={disabled.includes('online')}
+                    badge={
+                        disabled.includes('online')
+                            ? t('services.wizard.online.comingSoon')
+                            : undefined
+                    }
                     data-test="wizard-delivery-online"
                 />
             </div>

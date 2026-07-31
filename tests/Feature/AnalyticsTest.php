@@ -6,6 +6,7 @@ use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Models\OnboardingProgress;
 use App\Models\ScheduleSlot;
+use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
 
@@ -45,6 +46,22 @@ function analyticsGateOwner(): array
 }
 
 /**
+ * Finish onboarding for the team so the dashboard renders instead of
+ * redirecting into the setup flow.
+ */
+function analyticsOnboarded(User $user, Team $team): void
+{
+    OnboardingProgress::create([
+        'team_id' => $team->id,
+        'user_id' => $user->id,
+        'services_status' => OnboardingStepStatus::Completed,
+        'profile_status' => OnboardingStepStatus::Completed,
+        'schedule_status' => OnboardingStepStatus::Completed,
+        'completed_at' => now(),
+    ]);
+}
+
+/**
  * Get the names of the analytics events queued in the session.
  *
  * @return list<string>
@@ -65,6 +82,7 @@ test('a guest page shares no analytics identity', function () {
 
 test('an authenticated page shares the user and their current team', function () {
     [$user, $team] = analyticsOwner();
+    analyticsOnboarded($user, $team);
 
     $this
         ->actingAs($user)
@@ -108,20 +126,21 @@ test('completing the onboarding gate queues an event carrying the category', fun
 
 test('resolving an onboarding step queues the step and its status', function () {
     [$user, $team] = analyticsOwner();
+    Service::factory()->create(['team_id' => $team->id]);
 
     $this
         ->actingAs($user)
         ->patch(route('onboarding.steps.update', [
             'current_team' => $team->slug,
             'step' => OnboardingStep::Services->value,
-        ]), ['status' => OnboardingStepStatus::Skipped->value]);
+        ]), ['status' => OnboardingStepStatus::Completed->value]);
 
     expect(session('analytics_events')[0])
         ->toMatchArray([
             'name' => 'onboarding_step_resolved',
             'properties' => [
                 'step' => 'services',
-                'status' => 'skipped',
+                'status' => 'completed',
             ],
         ]);
 });
@@ -130,11 +149,12 @@ test('the booking page going live is queued when the last step resolves', functi
     [$user, $team] = analyticsOwner();
     $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
     ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
+    Service::factory()->create(['team_id' => $team->id]);
 
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $user->id,
-        'services_status' => OnboardingStepStatus::Skipped,
+        'services_status' => OnboardingStepStatus::Completed,
         'profile_status' => OnboardingStepStatus::Completed,
     ]);
 
@@ -153,10 +173,12 @@ test('an already live booking page does not queue the event again', function () 
     $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
     ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
 
+    Service::factory()->create(['team_id' => $team->id]);
+
     OnboardingProgress::create([
         'team_id' => $team->id,
         'user_id' => $user->id,
-        'services_status' => OnboardingStepStatus::Skipped,
+        'services_status' => OnboardingStepStatus::Completed,
         'profile_status' => OnboardingStepStatus::Completed,
         'schedule_status' => OnboardingStepStatus::Completed,
         'completed_at' => now(),
@@ -174,6 +196,7 @@ test('an already live booking page does not queue the event again', function () 
 
 test('a queued event reaches the next page and is then cleared', function () {
     [$user, $team] = analyticsOwner();
+    analyticsOnboarded($user, $team);
 
     $this->post(route('register.store'), [
         'name' => 'Test User',

@@ -1,70 +1,42 @@
-import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 
 type Props = {
-    showBack: boolean;
-    onBack: () => void;
-    saving: boolean;
-    /** When provided, renders a Skip button for optional steps. */
-    onSkip?: () => void;
-    skipLabel?: string;
-    continueLabel?: string;
-    continueDisabled?: boolean;
+    label?: string;
+    disabled?: boolean;
+    saving?: boolean;
     /**
-     * When provided, the continue button is a plain button calling this handler.
-     * When omitted, the continue button submits the surrounding form.
+     * When provided, the button is a plain button calling this handler. When
+     * omitted, it submits the surrounding form.
      */
-    onContinue?: () => void;
+    onClick?: () => void;
 };
 
+/**
+ * The one action every screen ends with, pinned to the bottom of the viewport
+ * so it stays under the thumb on a phone.
+ */
 export default function OnboardingFooter({
-    showBack,
-    onBack,
-    saving,
-    onSkip,
-    skipLabel = 'Skip for now',
-    continueLabel = 'Continue',
-    continueDisabled = false,
-    onContinue,
+    label = 'Continue',
+    disabled = false,
+    saving = false,
+    onClick,
 }: Props) {
+    // Bleeds to the screen edges on a phone, where the bar reads as part of the
+    // chrome; on wider screens it stays inside the content column.
     return (
-        <div className="flex flex-col-reverse gap-2 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                {showBack ? (
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={onBack}
-                        disabled={saving}
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                        Back
-                    </Button>
-                ) : null}
-            </div>
-
-            <div className="flex flex-col gap-2 sm:flex-row">
-                {onSkip ? (
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onSkip}
-                        disabled={saving}
-                        data-test="onboarding-skip"
-                    >
-                        {skipLabel}
-                    </Button>
-                ) : null}
-
+        <div className="sticky inset-x-0 bottom-0 -mx-4 mt-auto border-t bg-background/95 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur sm:mx-0 sm:px-0">
+            <div className="mx-auto flex w-full max-w-xl justify-end">
                 <Button
-                    type={onContinue ? 'button' : 'submit'}
-                    onClick={onContinue}
-                    disabled={continueDisabled || saving}
+                    type={onClick ? 'button' : 'submit'}
+                    onClick={onClick}
+                    disabled={disabled || saving}
+                    size="lg"
+                    className="w-full sm:w-auto"
                     data-test="onboarding-continue"
                 >
                     {saving ? <Spinner /> : null}
-                    {continueLabel}
+                    {label}
                 </Button>
             </div>
         </div>

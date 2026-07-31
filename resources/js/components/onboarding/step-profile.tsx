@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { Onboarding } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
+import ScreenHeader from './screen-header';
 
 type Props = {
     data: Onboarding['profile'];
@@ -33,15 +34,14 @@ export default function StepProfile({ data, controls }: Props) {
             {...ProfileController.update.form()}
             options={{ preserveScroll: true }}
             onSuccess={controls.onComplete}
-            className="space-y-6"
+            className="flex flex-1 flex-col space-y-6"
         >
             {({ errors, processing }) => (
                 <>
-                    <p className="text-sm text-muted-foreground">
-                        Fields marked <RequiredMark /> are required. Everything
-                        else is optional — you can fill it in later from your
-                        profile settings.
-                    </p>
+                    <ScreenHeader
+                        title="Your work profile"
+                        description="This is what customers see on your booking page."
+                    />
 
                     <div className="grid gap-2">
                         <Label htmlFor="name">
@@ -75,9 +75,6 @@ export default function StepProfile({ data, controls }: Props) {
                             required
                             aria-required
                         />
-                        <p className="text-sm text-muted-foreground">
-                            Shown next to your name on your booking page.
-                        </p>
                         <InputError message={errors.job_title} />
                     </div>
 
@@ -118,12 +115,8 @@ export default function StepProfile({ data, controls }: Props) {
                     </div>
 
                     <OnboardingFooter
-                        showBack={controls.showBack}
-                        onBack={controls.onBack}
                         saving={processing || controls.saving}
-                        continueDisabled={
-                            name.trim() === '' || jobTitle.trim() === ''
-                        }
+                        disabled={name.trim() === '' || jobTitle.trim() === ''}
                     />
                 </>
             )}

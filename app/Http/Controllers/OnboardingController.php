@@ -7,13 +7,34 @@ use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Models\OnboardingProgress;
 use App\Support\Analytics;
+use App\Support\OnboardingPayload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OnboardingController extends Controller
 {
+    /**
+     * Show the onboarding flow.
+     *
+     * This deliberately still renders once onboarding is complete: finishing the
+     * last step redirects back here, and the payload's `completed` flag is what
+     * tells the flow to show its closing screen.
+     */
+    public function show(Request $request, string $current_team): Response
+    {
+        $user = $request->user();
+        $team = $user->currentTeam;
+
+        $role = $user->teamRole($team);
+        abort_unless($role !== null && $role->isAtLeast(TeamRole::Admin), 403);
+
+        return Inertia::render('onboarding', OnboardingPayload::build($user, $team));
+    }
+
     /**
      * Record the status of a single onboarding step for the current user.
      */

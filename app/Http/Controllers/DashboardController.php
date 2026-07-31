@@ -3,20 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
-use App\Enums\OnboardingStep;
 use App\Enums\TeamRole;
 use App\Models\Appointment;
-use App\Models\OnboardingProgress;
-use App\Models\ScheduleSlot;
-use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
 use App\Models\User;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\LocationOptions;
+use App\Support\OnboardingPayload;
 use App\Support\ServiceOptions;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -27,27 +25,31 @@ class DashboardController extends Controller
     use InteractsWithAppointmentBooking;
 
     /**
-     * Show the dashboard, including the onboarding wizard for owners and admins.
+     * Show the dashboard, or send owners and admins to onboarding first.
      */
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
         $team = $user->currentTeam;
-        $onboarding = $this->onboarding($user, $team);
+        $isTeamAdmin = $user->teamRole($team)?->isAtLeast(TeamRole::Admin) ?? false;
+
+        // The dashboard is not much use before there is anything to show, so
+        // whoever can set the team up is taken through onboarding instead.
+        if ($isTeamAdmin && OnboardingPayload::progress($user, $team)->completed_at === null) {
+            return to_route('onboarding.show', $team);
+        }
+
         $timezone = $team->timezone ?: config('app.timezone');
 
         // Admins and owners see the whole team's bookings; members only see their own.
-        $specialistId = $user->teamRole($team)?->isAtLeast(TeamRole::Admin) ? null : $user->id;
+        $specialistId = $isTeamAdmin ? null : $user->id;
 
         return Inertia::render('dashboard', [
-            'onboarding' => $onboarding,
             'timezone' => $timezone,
-            'stats' => $onboarding === null ? $this->stats($team, $specialistId) : null,
-            'weeklyTrend' => $onboarding === null ? $this->weeklyTrend($team, $timezone, $specialistId) : null,
-            'upcomingAppointments' => $onboarding === null
-                ? $this->upcomingAppointments($team, $timezone, $specialistId)
-                : null,
-            'formOptions' => $onboarding === null ? $this->formOptions($team, $user) : null,
+            'stats' => $this->stats($team, $specialistId),
+            'weeklyTrend' => $this->weeklyTrend($team, $timezone, $specialistId),
+            'upcomingAppointments' => $this->upcomingAppointments($team, $timezone, $specialistId),
+            'formOptions' => $this->formOptions($team, $user),
             'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $team)),
         ]);
     }
@@ -182,115 +184,6 @@ class DashboardController extends Controller
     }
 
     /**
-     * Build the onboarding payload, or null when it should not be shown.
-     *
-     * @return array<string, mixed>|null
-     */
-    protected function onboarding(User $user, Team $team): ?array
-    {
-        $role = $user->teamRole($team);
-
-        if ($role === null || ! $role->isAtLeast(TeamRole::Admin)) {
-            return null;
-        }
-
-        $progress = OnboardingProgress::firstOrCreate([
-            'team_id' => $team->id,
-            'user_id' => $user->id,
-        ]);
-
-        $progress->syncFromData($team, $user);
-        $progress->refreshCompletion();
-
-        if ($progress->isDirty()) {
-            $progress->save();
-        }
-
-        if ($progress->completed_at !== null) {
-            return null;
-        }
-
-        return [
-            'currentStep' => $progress->current_step->value,
-            'steps' => collect(OnboardingStep::cases())->map(fn (OnboardingStep $step): array => [
-                'key' => $step->value,
-                'label' => $step->label(),
-                'status' => $progress->statusFor($step)->value,
-                'mandatory' => $step->isMandatory(),
-            ])->all(),
-            'services' => [
-                'categories' => $team->serviceCategories()->orderBy('name')->get()->map(fn (ServiceCategory $category): array => [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                ]),
-                'services' => $team->services()
-                    ->with(['locations:id', 'specialists:id'])
-                    ->orderBy('title')
-                    ->get()
-                    ->map(fn (Service $service): array => $this->toServiceArray($service)),
-                // The wizard can create a location inline, which needs the same
-                // options the standalone location form uses.
-                'serviceOptions' => $this->toOptions($team->services()->orderBy('title')->get(), 'title'),
-                'locations' => $this->toOptions($team->locations()->orderBy('name')->get(), 'name'),
-                'specialists' => $this->toOptions($team->members()->orderBy('name')->get(), 'name'),
-                'countries' => LocationOptions::countries(),
-                'priceTypes' => ServiceOptions::priceTypes(),
-                'currencies' => ServiceOptions::currencies(),
-                'serviceTypes' => ServiceOptions::serviceTypes(),
-                'google' => [
-                    'connected' => $user->hasGoogleConnected(),
-                    'email' => $user->google_account_email,
-                ],
-            ],
-            'profile' => [
-                'name' => $user->profile?->name ?? $user->name,
-                'email' => $user->profile?->email,
-                'phone' => $user->profile?->phone,
-                'job_title' => $user->profile?->job_title,
-                'description' => $user->profile?->description,
-            ],
-            'schedule' => $this->scheduleData($team),
-        ];
-    }
-
-    /**
-     * Build the scheduling grid payload (members and existing slots) for the
-     * onboarding work-hours step. Managers schedule the whole team, so every
-     * member is returned as a grid row.
-     *
-     * @return array{members: array<int, array<string, mixed>>, slots: array<string, array<int, array{start: string, end: string}>>}
-     */
-    protected function scheduleData(Team $team): array
-    {
-        $members = $team->members()->get();
-
-        $slots = ScheduleSlot::query()
-            ->where('team_id', $team->id)
-            ->whereIn('user_id', $members->pluck('id'))
-            ->orderBy('start_time')
-            ->get();
-
-        return [
-            'members' => $members->map(fn (User $member): array => [
-                'id' => $member->id,
-                'name' => $member->name,
-                'avatar' => $member->avatar ?? null,
-                'role' => $member->pivot->role->value,
-            ])->values()->all(),
-            'slots' => $slots
-                ->groupBy(fn (ScheduleSlot $slot): string => $slot->user_id.':'.$slot->date->format('Y-m-d'))
-                ->map(fn (Collection $daySlots): array => $daySlots
-                    ->map(fn (ScheduleSlot $slot): array => [
-                        'start' => substr((string) $slot->start_time, 0, 5),
-                        'end' => substr((string) $slot->end_time, 0, 5),
-                    ])
-                    ->values()
-                    ->all())
-                ->all(),
-        ];
-    }
-
-    /**
      * Map a collection of models into value/label select options.
      *
      * @param  Collection<int, Model>  $models
@@ -302,34 +195,5 @@ class DashboardController extends Controller
             'value' => (string) $model->id,
             'label' => $model->{$labelKey},
         ]);
-    }
-
-    /**
-     * Transform a service into its form representation.
-     *
-     * @return array<string, mixed>
-     */
-    protected function toServiceArray(Service $service): array
-    {
-        return [
-            'id' => $service->id,
-            'service_category_id' => $service->service_category_id,
-            'is_active' => $service->is_active,
-            'title' => $service->title,
-            'price_type' => $service->price_type->value,
-            'price' => $service->price,
-            'price_min' => $service->price_min,
-            'price_max' => $service->price_max,
-            'currency' => $service->currency->value,
-            'duration' => $service->duration,
-            'technical_break' => $service->technical_break,
-            'service_type' => $service->service_type->value,
-            'delivery_type' => $service->delivery_type->value,
-            'online_meeting_provider' => $service->online_meeting_provider,
-            'capacity' => $service->capacity,
-            'description' => $service->description,
-            'location_ids' => $service->locations->pluck('id')->all(),
-            'user_ids' => $service->specialists->pluck('id')->all(),
-        ];
     }
 }

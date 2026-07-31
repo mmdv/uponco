@@ -12,7 +12,6 @@ import QuickActions from '@/components/dashboard/quick-actions';
 import QuickCreateForms from '@/components/dashboard/quick-create-forms';
 import type { QuickCreateForm } from '@/components/dashboard/quick-create-forms';
 import UpcomingAppointments from '@/components/dashboard/upcoming-appointments';
-import OnboardingWizard from '@/components/onboarding/onboarding-wizard';
 import { useTranslation } from '@/hooks/use-translation';
 import { toDateInputValue } from '@/lib/appointments';
 import { dashboard } from '@/routes';
@@ -21,12 +20,10 @@ import type {
     DashboardFormOptions,
     DashboardStats as Stats,
     DashboardTrendDay,
-    Onboarding,
     UpcomingAppointment,
 } from '@/types';
 
 type Props = {
-    onboarding: Onboarding | null;
     timezone: string;
     stats: Stats | null;
     weeklyTrend: DashboardTrendDay[] | null;
@@ -44,7 +41,6 @@ const EMPTY_STATS: Stats = {
 };
 
 export default function Dashboard({
-    onboarding,
     timezone,
     stats,
     weeklyTrend,
@@ -106,15 +102,6 @@ export default function Dashboard({
             onFinish: () => setSlotsLoading(false),
         });
     };
-
-    if (onboarding) {
-        return (
-            <>
-                <Head title={t('title')} />
-                <OnboardingWizard onboarding={onboarding} />
-            </>
-        );
-    }
 
     const safeStats = stats ?? EMPTY_STATS;
     const trend = weeklyTrend ?? [];

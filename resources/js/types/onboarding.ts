@@ -27,6 +27,8 @@ export type GoogleIntegrationStatus = {
 };
 
 export type Onboarding = {
+    /** Every step is resolved; only the closing screen is left to show. */
+    completed: boolean;
     currentStep: OnboardingStepKey;
     steps: OnboardingStepInfo[];
     services: {
