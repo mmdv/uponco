@@ -13,6 +13,16 @@
         "open": "Open",
         "shareTitle": "Book with"
     },
+    "manageCompany": {
+        "title": "Manage your company",
+        "subtitle": "Everything behind your booking page, in one place.",
+        "facets": {
+            "services": "Services",
+            "locations": "Locations",
+            "team": "Team",
+            "brand": "Brand"
+        }
+    },
     "stats": {
         "customers": "Customers",
         "customersHint": "No customers yet",

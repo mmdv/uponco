@@ -1,6 +1,12 @@
-import { Pencil, Search, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Search, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Table,
     TableBody,
@@ -9,12 +15,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Customer } from '@/types';
 
@@ -47,20 +47,25 @@ export default function CustomersTable({
 
     return (
         <div className="rounded-lg border">
-            <Table>
+            <Table containerClassName="overscroll-x-none">
                 <TableHeader>
                     <TableRow>
                         <TableHead>{t('table.name')}</TableHead>
                         <TableHead>{t('table.email')}</TableHead>
                         <TableHead>{t('table.phone')}</TableHead>
-                        <TableHead className="text-right">
-                            {t('table.actions')}
+                        <TableHead className="sticky right-0 z-20 w-0 border-l bg-background text-right">
+                            <span className="sr-only">{t('table.actions')}</span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {customers.map((customer) => (
-                        <TableRow key={customer.id} data-test="customer-row">
+                        <TableRow
+                            key={customer.id}
+                            data-test="customer-row"
+                            className="group/row cursor-pointer"
+                            onClick={() => onView(customer)}
+                        >
                             <TableCell className="font-medium">
                                 {customer.name}
                             </TableCell>
@@ -70,62 +75,52 @@ export default function CustomersTable({
                             <TableCell className="text-muted-foreground">
                                 {customer.phone ?? '—'}
                             </TableCell>
-                            <TableCell className="text-right">
-                                <TooltipProvider>
-                                    <div className="flex items-center justify-end gap-1">
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    data-test="customer-view-button"
-                                                    onClick={() =>
-                                                        onView(customer)
-                                                    }
-                                                >
-                                                    <Search className="size-4" />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{t('table.view')}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    data-test="customer-edit-button"
-                                                    onClick={() =>
-                                                        onEdit(customer)
-                                                    }
-                                                >
-                                                    <Pencil className="size-4" />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{t('table.edit')}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    data-test="customer-delete-button"
-                                                    onClick={() =>
-                                                        onDelete(customer)
-                                                    }
-                                                >
-                                                    <Trash2 className="size-4 text-destructive" />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{t('table.delete')}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </div>
-                                </TooltipProvider>
+                            <TableCell className="sticky right-0 z-10 border-l bg-background text-right group-hover/row:bg-muted/50">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8"
+                                            data-test="customer-menu-button"
+                                            aria-label={t('table.actions')}
+                                            onClick={(event) =>
+                                                event.stopPropagation()
+                                            }
+                                        >
+                                            <MoreHorizontal className="size-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        onClick={(event) =>
+                                            event.stopPropagation()
+                                        }
+                                    >
+                                        <DropdownMenuItem
+                                            data-test="customer-view-button"
+                                            onSelect={() => onView(customer)}
+                                        >
+                                            <Search className="size-4" />
+                                            {t('table.view')}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            data-test="customer-edit-button"
+                                            onSelect={() => onEdit(customer)}
+                                        >
+                                            <Pencil className="size-4" />
+                                            {t('table.edit')}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            variant="destructive"
+                                            data-test="customer-delete-button"
+                                            onSelect={() => onDelete(customer)}
+                                        >
+                                            <Trash2 className="size-4" />
+                                            {t('table.delete')}
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </TableCell>
                         </TableRow>
                     ))}

@@ -27,9 +27,16 @@ export default function BookingsChart({ trend, mounted }: Props) {
                             {t('chart.subtitle')}
                         </p>
                     </div>
-                    <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">
+                    {/*
+                        Phones only get the count; the "booked" wording would
+                        push the badge into the title beside it.
+                    */}
+                    <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary">
                         <TrendingUp className="size-4" />
-                        {t('chart.booked', { count: total })}
+                        <span className="tabular-nums md:hidden">{total}</span>
+                        <span className="hidden md:inline">
+                            {t('chart.booked', { count: total })}
+                        </span>
                     </div>
                 </div>
 

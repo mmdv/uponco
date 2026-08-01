@@ -100,7 +100,7 @@ test('the dashboard reports booking and customer stats when onboarding is hidden
         );
 });
 
-test('the dashboard exposes the booking options and slots the embedded booking preview needs', function () {
+test('the dashboard exposes the booking options and slots its appointment forms need', function () {
     [$owner, $team] = dashboardOwner();
 
     $service = Service::factory()->create(['team_id' => $team->id, 'duration' => 60]);
@@ -114,8 +114,8 @@ test('the dashboard exposes the booking options and slots the embedded booking p
         'end_time' => '11:00',
     ]);
 
-    // The preview renders the public booking flow with these props, and its
-    // slot picker reloads `availableSlots` from the dashboard route itself.
+    // The quick-create and edit drawers are built from these props, and their
+    // slot pickers reload `availableSlots` from the dashboard route itself.
     $this
         ->actingAs($owner)
         ->get(route('dashboard', [

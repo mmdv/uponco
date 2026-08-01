@@ -4,14 +4,16 @@ import { useEffect, useState } from 'react';
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
 import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
-import BookingPageCard from '@/components/dashboard/booking-page-card';
+import BookingShareCard from '@/components/dashboard/booking-share-card';
 import BookingsChart from '@/components/dashboard/bookings-chart';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
 import DashboardStats from '@/components/dashboard/dashboard-stats';
+import ManageCompanyCard from '@/components/dashboard/manage-company-card';
 import QuickActions from '@/components/dashboard/quick-actions';
 import QuickCreateForms from '@/components/dashboard/quick-create-forms';
 import type { QuickCreateForm } from '@/components/dashboard/quick-create-forms';
 import UpcomingAppointments from '@/components/dashboard/upcoming-appointments';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/use-translation';
 import { toDateInputValue } from '@/lib/appointments';
 import { dashboard } from '@/routes';
@@ -51,7 +53,9 @@ export default function Dashboard({
     const { t } = useTranslation('dashboard');
     const { auth, currentTeam } = usePage().props;
     const teamSlug = currentTeam?.slug ?? '';
+    const companyName = currentTeam?.name ?? '';
     const firstName = auth.user.name.split(' ')[0];
+    const isMobile = useIsMobile();
 
     // Admins and owners may edit any appointment; members only the ones where
     // they are the assigned specialist. Mirrors the backend authorization.
@@ -107,6 +111,21 @@ export default function Dashboard({
     const trend = weeklyTrend ?? [];
     const upcoming = upcomingAppointments ?? [];
 
+    /*
+        Two cards that swap column depending on the viewport: on a phone they
+        follow the appointments list directly, so a freshly onboarded owner
+        immediately sees what to do next. On desktop they head the right rail.
+        Declared once and rendered in exactly one branch below.
+    */
+    const bookingShareCard = (
+        <BookingShareCard
+            teamSlug={teamSlug}
+            companyName={companyName}
+            onAddAppointment={() => setOpenForm('appointment')}
+        />
+    );
+    const manageCompanyCard = <ManageCompanyCard teamSlug={teamSlug} />;
+
     return (
         <>
             <Head title={t('title')} />
@@ -117,8 +136,9 @@ export default function Dashboard({
                 {/*
                     Desktop: a 2/3 left column stacking upcoming appointments,
                     the week ahead and the stats, beside a 1/3 right rail
-                    holding the public booking link. Mobile: a single column
-                    with the booking link card last.
+                    holding the booking link and the company hub. Mobile: a
+                    single column, with those two lifted out of the rail so the
+                    booking link follows the appointments directly.
                 */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="flex min-w-0 flex-col gap-6 lg:col-span-2 lg:col-start-1 lg:row-start-1">
@@ -132,6 +152,8 @@ export default function Dashboard({
                             }}
                         />
 
+                        {isMobile && bookingShareCard}
+
                         {trend.length > 0 && (
                             <BookingsChart trend={trend} mounted={mounted} />
                         )}
@@ -141,21 +163,14 @@ export default function Dashboard({
                             teamSlug={teamSlug}
                             mounted={mounted}
                         />
+
+                        {isMobile && manageCompanyCard}
                     </div>
 
-                    {formOptions && (
-                        <div className="min-w-0 lg:col-start-3 lg:row-start-1 lg:self-start">
-                            <BookingPageCard
-                                teamSlug={teamSlug}
-                                companyName={currentTeam?.name ?? ''}
-                                logoUrl={currentTeam?.logoUrl}
-                                timezone={timezone}
-                                services={formOptions.appointments.services}
-                                locations={formOptions.appointments.locations}
-                                specialists={
-                                    formOptions.appointments.specialists
-                                }
-                            />
+                    {!isMobile && (
+                        <div className="flex min-w-0 flex-col gap-6 lg:col-start-3 lg:row-start-1 lg:self-start">
+                            {bookingShareCard}
+                            {manageCompanyCard}
                         </div>
                     )}
                 </div>

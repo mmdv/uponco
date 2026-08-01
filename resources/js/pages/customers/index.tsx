@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import CustomerFormDialog from '@/components/customers/customer-form-dialog';
@@ -94,10 +94,11 @@ export default function CustomersIndex({ customers, filters }: Props) {
                     />
 
                     <Button
+                        className="hidden sm:inline-flex"
                         data-test="add-customer-button"
                         onClick={openCreate}
                     >
-                        <Plus /> {t('addCustomer')}
+                        <UserPlus /> {t('addCustomer')}
                     </Button>
                 </div>
 
@@ -162,6 +163,19 @@ export default function CustomersIndex({ customers, filters }: Props) {
                     </div>
                 )}
             </div>
+
+            {/* Mobile: create lives in a floating action button, off the header.
+                Matches the dashboard quick-actions FAB — safe-area aware, clears
+                the bottom nav, gradient with a soft shadow. */}
+            <button
+                type="button"
+                className="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] z-50 flex size-14 items-center justify-center rounded-full bg-primary-gradient text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95 sm:hidden"
+                data-test="add-customer-fab"
+                aria-label={t('addCustomer')}
+                onClick={openCreate}
+            >
+                <UserPlus className="size-6" />
+            </button>
 
             <CustomerFormDialog
                 open={formOpen}

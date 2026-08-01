@@ -13,6 +13,16 @@
         "open": "Aç",
         "shareTitle": "Rezervasiya:"
     },
+    "manageCompany": {
+        "title": "Şirkətinizi idarə edin",
+        "subtitle": "Rezervasiya səhifənizin arxasındakı hər şey bir yerdə.",
+        "facets": {
+            "services": "Xidmətlər",
+            "locations": "Filiallar",
+            "team": "Komanda",
+            "brand": "Brend"
+        }
+    },
     "stats": {
         "customers": "Müştərilər",
         "customersHint": "Hələ müştəri yoxdur",

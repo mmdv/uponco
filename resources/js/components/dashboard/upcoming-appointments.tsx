@@ -2,11 +2,18 @@ import { Link } from '@inertiajs/react';
 import { CalendarClock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
 import { dayLabel, formatAppointmentTimeRange } from '@/lib/appointments';
+import { cn } from '@/lib/utils';
 import { index as appointmentsIndex } from '@/routes/appointments';
 import type { UpcomingAppointment } from '@/types';
+
+/**
+ * Card chrome from `md` up only. On a phone the padding and border of a card
+ * cost more width than they earn, so the list runs edge to edge instead.
+ */
+const CARD_FROM_MD =
+    'md:rounded-2xl md:border md:border-[#f1f3f5] md:bg-card md:py-6 md:text-card-foreground md:shadow-soft md:dark:border-border';
 
 type Props = {
     appointments: UpcomingAppointment[];
@@ -24,8 +31,8 @@ export default function UpcomingAppointments({
     const { t } = useTranslation('dashboard');
 
     return (
-        <Card className="max-w-full">
-            <CardContent className="space-y-4">
+        <section className={cn('max-w-full', CARD_FROM_MD)}>
+            <div className="space-y-4 md:px-6">
                 <div className="flex items-center justify-between">
                     <h3 className="text-base font-medium">
                         {t('upcoming.title')}
@@ -107,7 +114,7 @@ export default function UpcomingAppointments({
                         ))}
                     </ul>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </section>
     );
 }
