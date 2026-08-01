@@ -299,6 +299,9 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                     value={locationIds}
                                     onChange={service.setLocationIds}
                                     onNext={goNext}
+                                    specialistIds={
+                                        service.draft.details.specialistIds
+                                    }
                                 />
                             )}
 

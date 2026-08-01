@@ -19,6 +19,8 @@ type Props = {
     countries: SelectOption[];
     /** Off when the surrounding flow owns the service/specialist assignments. */
     showAssignments?: boolean;
+    /** Specialist ids to attach when the assignments UI is hidden. */
+    defaultSpecialistIds?: string[];
 };
 
 export default function LocationFormModal({
@@ -30,6 +32,7 @@ export default function LocationFormModal({
     specialists,
     countries,
     showAssignments = true,
+    defaultSpecialistIds,
 }: Props) {
     const { t } = useTranslation('locations');
     const isEditing = location !== null;
@@ -56,6 +59,7 @@ export default function LocationFormModal({
                     specialists={specialists}
                     countries={countries}
                     showAssignments={showAssignments}
+                    defaultSpecialistIds={defaultSpecialistIds}
                     onSuccess={() => onOpenChange(false)}
                     onCancel={() => onOpenChange(false)}
                 />

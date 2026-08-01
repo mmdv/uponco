@@ -31,6 +31,13 @@ export type LocationFormFieldsProps = {
      */
     showAssignments?: boolean;
     /**
+     * Specialist ids to attach when creating a location. Used when the
+     * assignments UI is hidden (onboarding) but the location must still be
+     * connected to someone — the person setting the business up. Ignored when
+     * editing, which keeps the location's own assignments.
+     */
+    defaultSpecialistIds?: string[];
+    /**
      * Drops the dialog chrome (scroll container and footer bar) so the fields
      * sit straight on the page. The caller then owns the submit button, which
      * it supplies through `footer` so the button stays inside the form.
@@ -69,6 +76,7 @@ export default function LocationFormFields({
     onSuccess,
     onCancel,
     showAssignments = true,
+    defaultSpecialistIds = [],
     inline = false,
     heading,
     footer,
@@ -98,7 +106,7 @@ export default function LocationFormFields({
         location?.service_ids.map((id) => id.toString()) ?? [],
     );
     const [specialistIds, setSpecialistIds] = useState<string[]>(
-        location?.user_ids.map((id) => id.toString()) ?? [],
+        location?.user_ids.map((id) => id.toString()) ?? defaultSpecialistIds,
     );
 
     return (

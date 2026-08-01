@@ -17,6 +17,11 @@ type Props = {
     value: string[];
     onChange: (value: string[]) => void;
     onNext: () => void;
+    /**
+     * The person setting the business up. Every location created here is
+     * attached to them, so they show up as a specialist customers can book.
+     */
+    specialistIds: string[];
 };
 
 /**
@@ -42,7 +47,13 @@ export default function ScreenLocation(props: Props) {
 }
 
 /** The empty state: creating the first location is the whole screen. */
-function FirstLocation({ data, teamSlug, onChange, onNext }: Props) {
+function FirstLocation({
+    data,
+    teamSlug,
+    onChange,
+    onNext,
+    specialistIds,
+}: Props) {
     const { locations } = data;
     const [saved, setSaved] = useState(false);
 
@@ -67,6 +78,7 @@ function FirstLocation({ data, teamSlug, onChange, onNext }: Props) {
                 />
             }
             showAssignments={false}
+            defaultSpecialistIds={specialistIds}
             location={null}
             teamSlug={teamSlug}
             services={data.serviceOptions}
@@ -83,7 +95,14 @@ function FirstLocation({ data, teamSlug, onChange, onNext }: Props) {
 }
 
 /** The team already has locations, so this is a choice rather than a form. */
-function PickLocation({ data, teamSlug, value, onChange, onNext }: Props) {
+function PickLocation({
+    data,
+    teamSlug,
+    value,
+    onChange,
+    onNext,
+    specialistIds,
+}: Props) {
     const { locations } = data;
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -153,6 +172,7 @@ function PickLocation({ data, teamSlug, value, onChange, onNext }: Props) {
                 specialists={data.specialists}
                 countries={data.countries}
                 showAssignments={false}
+                defaultSpecialistIds={specialistIds}
             />
         </OnboardingScreen>
     );
