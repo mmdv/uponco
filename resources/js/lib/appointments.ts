@@ -137,6 +137,31 @@ export function todayDateInputValue(): string {
 }
 
 /**
+ * Format only the start time of an appointment in the location timezone.
+ */
+export function formatAppointmentTime(iso: string, timezone: string): string {
+    return new Intl.DateTimeFormat(undefined, {
+        timeZone: timezone,
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(iso));
+}
+
+/**
+ * The duration of an appointment in whole minutes, derived from its start/end.
+ */
+export function appointmentDurationMinutes(appointment: {
+    start_at: string;
+    end_at: string;
+}): number {
+    return Math.round(
+        (new Date(appointment.end_at).getTime() -
+            new Date(appointment.start_at).getTime()) /
+            60000,
+    );
+}
+
+/**
  * Format the start–end time range of an appointment in the location timezone.
  */
 export function formatAppointmentTimeRange(

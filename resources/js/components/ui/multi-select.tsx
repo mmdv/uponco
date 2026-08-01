@@ -52,7 +52,7 @@ export function MultiSelect({
     // content inside the nearest dialog instead. See searchable-select.tsx.
     const getContainer = () =>
         triggerRef.current?.closest<HTMLElement>(
-            '[data-slot="sheet-content"], [data-slot="dialog-content"]',
+            '[data-slot="sheet-content"], [data-slot="dialog-content"], [data-slot="popover-content"]',
         ) ?? undefined;
 
     const selected = options.filter((option) => value.includes(option.value));

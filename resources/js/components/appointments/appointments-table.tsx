@@ -1,7 +1,13 @@
-import { Pencil, Search, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Search, Trash2 } from 'lucide-react';
 import { Fragment } from 'react';
 
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Table,
     TableBody,
@@ -10,15 +16,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useTranslation } from '@/hooks/use-translation';
 import {
-    formatAppointmentTimeRange,
+    appointmentDurationMinutes,
+    formatAppointmentTime,
+    formatDuration,
     groupAppointmentsByDay,
 } from '@/lib/appointments';
 import type { Appointment } from '@/types';
@@ -28,8 +30,13 @@ type Props = {
     onView: (appointment: Appointment) => void;
     onEdit: (appointment: Appointment) => void;
     onDelete: (appointment: Appointment) => void;
+    onViewCustomer: (appointment: Appointment) => void;
     /** Whether the appointment may be edited/deleted; read-only rows show only View. */
     canModify?: (appointment: Appointment) => boolean;
+    /** Show the "@ location" line under the service — hidden when only one location exists. */
+    showLocation: boolean;
+    /** Show the specialist column — hidden when the team has a single member. */
+    showSpecialist: boolean;
     emptyMessage?: string;
 };
 
@@ -38,7 +45,10 @@ export default function AppointmentsTable({
     onView,
     onEdit,
     onDelete,
+    onViewCustomer,
     canModify = () => true,
+    showLocation,
+    showSpecialist,
     emptyMessage,
 }: Props) {
     const { t } = useTranslation('appointments');
@@ -54,18 +64,22 @@ export default function AppointmentsTable({
     }
 
     const groups = groupAppointmentsByDay(appointments);
+    // Time, Service, Customer, [Specialist], Actions.
+    const columnCount = showSpecialist ? 5 : 4;
 
     return (
         <div className="rounded-lg border">
-            <Table>
+            <Table containerClassName="overscroll-x-none">
                 <TableHeader>
                     <TableRow>
                         <TableHead>{t('table.time')}</TableHead>
                         <TableHead>{t('table.service')}</TableHead>
-                        <TableHead>{t('table.location')}</TableHead>
-                        <TableHead>{t('table.specialist')}</TableHead>
-                        <TableHead className="text-right">
-                            {t('table.actions')}
+                        <TableHead>{t('table.customer')}</TableHead>
+                        {showSpecialist ? (
+                            <TableHead>{t('table.specialist')}</TableHead>
+                        ) : null}
+                        <TableHead className="sticky right-0 z-20 w-0 border-l bg-background text-right">
+                            <span className="sr-only">{t('table.actions')}</span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -74,7 +88,7 @@ export default function AppointmentsTable({
                         <Fragment key={group.key}>
                             <TableRow className="bg-muted/50 hover:bg-muted/50">
                                 <TableCell
-                                    colSpan={5}
+                                    colSpan={columnCount}
                                     className="py-2 text-xs font-medium tracking-wide text-muted-foreground"
                                 >
                                     {group.label}
@@ -85,106 +99,120 @@ export default function AppointmentsTable({
                                 <TableRow
                                     key={appointment.id}
                                     data-test="appointment-row"
+                                    className="group/row cursor-pointer"
+                                    onClick={() => onView(appointment)}
                                 >
-                                    <TableCell className="font-medium">
-                                        {formatAppointmentTimeRange(
-                                            appointment.start_at,
-                                            appointment.end_at,
-                                            appointment.timezone,
-                                        )}
+                                    <TableCell className="align-top">
+                                        <div className="font-medium">
+                                            {formatAppointmentTime(
+                                                appointment.start_at,
+                                                appointment.timezone,
+                                            )}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {formatDuration(
+                                                appointmentDurationMinutes(
+                                                    appointment,
+                                                ),
+                                            )}
+                                        </div>
                                     </TableCell>
-                                    <TableCell>
-                                        {appointment.service.title}
+                                    <TableCell className="align-top">
+                                        <div className="font-medium">
+                                            {appointment.service.title}
+                                        </div>
+                                        {showLocation ? (
+                                            <div className="text-xs text-muted-foreground">
+                                                @{' '}
+                                                {appointment.location?.name ??
+                                                    t('table.online')}
+                                            </div>
+                                        ) : null}
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">
-                                        {appointment.location?.name ??
-                                            t('table.online')}
+                                    <TableCell className="align-top">
+                                        <button
+                                            type="button"
+                                            data-test="appointment-customer-button"
+                                            className="text-left font-medium hover:text-primary hover:underline"
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                onViewCustomer(appointment);
+                                            }}
+                                        >
+                                            {appointment.customer.name}
+                                        </button>
                                     </TableCell>
-                                    <TableCell>
-                                        {appointment.specialist.name}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <TooltipProvider>
-                                            <div className="flex items-center justify-end gap-1">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            data-test="appointment-view-button"
-                                                            onClick={() =>
-                                                                onView(
+                                    {showSpecialist ? (
+                                        <TableCell className="align-top text-muted-foreground">
+                                            {appointment.specialist.name}
+                                        </TableCell>
+                                    ) : null}
+                                    <TableCell className="sticky right-0 z-10 border-l bg-background text-right align-top group-hover/row:bg-muted/50">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8"
+                                                    data-test="appointment-menu-button"
+                                                    aria-label={t(
+                                                        'table.actions',
+                                                    )}
+                                                    onClick={(event) =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent
+                                                align="end"
+                                                onClick={(event) =>
+                                                    event.stopPropagation()
+                                                }
+                                            >
+                                                <DropdownMenuItem
+                                                    data-test="appointment-view-button"
+                                                    onSelect={() =>
+                                                        onView(appointment)
+                                                    }
+                                                >
+                                                    <Search className="size-4" />
+                                                    {t('table.viewDetails')}
+                                                </DropdownMenuItem>
+                                                {canModify(appointment) && (
+                                                    <>
+                                                        <DropdownMenuItem
+                                                            data-test="appointment-edit-button"
+                                                            onSelect={() =>
+                                                                onEdit(
                                                                     appointment,
                                                                 )
                                                             }
                                                         >
-                                                            <Search className="size-4" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>
+                                                            <Pencil className="size-4" />
                                                             {t(
-                                                                'table.viewDetails',
+                                                                'table.editAppointment',
                                                             )}
-                                                        </p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                {canModify(appointment) && (
-                                                    <>
-                                                        <Tooltip>
-                                                            <TooltipTrigger
-                                                                asChild
-                                                            >
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    data-test="appointment-edit-button"
-                                                                    onClick={() =>
-                                                                        onEdit(
-                                                                            appointment,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Pencil className="size-4" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    {t(
-                                                                        'table.editAppointment',
-                                                                    )}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                        <Tooltip>
-                                                            <TooltipTrigger
-                                                                asChild
-                                                            >
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    data-test="appointment-delete-button"
-                                                                    onClick={() =>
-                                                                        onDelete(
-                                                                            appointment,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="size-4 text-destructive" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    {t(
-                                                                        'table.deleteAppointment',
-                                                                    )}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            variant="destructive"
+                                                            data-test="appointment-delete-button"
+                                                            onSelect={() =>
+                                                                onDelete(
+                                                                    appointment,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                            {t(
+                                                                'table.deleteAppointment',
+                                                            )}
+                                                        </DropdownMenuItem>
                                                     </>
                                                 )}
-                                            </div>
-                                        </TooltipProvider>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))}

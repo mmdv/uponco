@@ -1,10 +1,31 @@
-import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import {
+    CalendarDays,
+    CalendarPlus,
+    CalendarRange,
+    ChevronDown,
+    LayoutGrid,
+    List,
+    SlidersHorizontal,
+    X,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { MultiSelect } from '@/components/ui/multi-select';
 import type { MultiSelectOption } from '@/components/ui/multi-select';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
@@ -31,6 +52,13 @@ export type AppointmentView = 'minimal' | 'day' | 'week' | 'month';
 
 const VIEW_OPTIONS: AppointmentView[] = ['minimal', 'day', 'week', 'month'];
 
+const VIEW_ICONS: Record<AppointmentView, typeof List> = {
+    minimal: List,
+    day: CalendarDays,
+    week: CalendarRange,
+    month: LayoutGrid,
+};
+
 type Props = {
     filters: AppointmentFilters;
     onFiltersChange: (filters: AppointmentFilters) => void;
@@ -43,6 +71,12 @@ type Props = {
     pastCount: number;
     view: AppointmentView;
     onViewChange: (view: AppointmentView) => void;
+    onCreate: () => void;
+    canCreate: boolean;
+    /** Whether more than one location exists — hides a redundant location filter. */
+    showLocation: boolean;
+    /** Whether more than one specialist exists — hides a redundant specialist filter. */
+    showSpecialist: boolean;
 };
 
 export default function AppointmentsToolbar({
@@ -57,11 +91,13 @@ export default function AppointmentsToolbar({
     pastCount,
     view,
     onViewChange,
+    onCreate,
+    canCreate,
+    showLocation,
+    showSpecialist,
 }: Props) {
     const { t } = useTranslation('appointments');
-    // Collapsed by default; the trigger only shows on mobile, and on desktop the
-    // filters stay expanded regardless of this state (see `sm:block` below).
-    const [expanded, setExpanded] = useState(false);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     const activeFilterCount =
         filters.locationIds.length +
@@ -95,23 +131,19 @@ export default function AppointmentsToolbar({
 
     const clearFilters = () => onFiltersChange(EMPTY_FILTERS);
 
+    const ViewIcon = VIEW_ICONS[view];
+
     return (
-        <div className="flex flex-col gap-4 rounded-xl border bg-card p-4">
-            {/* Filters */}
-            <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-2">
-                    {/* Mobile: tapping the label toggles the filters. */}
-                    <button
-                        type="button"
-                        onClick={() => setExpanded((open) => !open)}
-                        className="flex items-center gap-2 sm:cursor-default"
+        <div className="flex items-center justify-between gap-2">
+            {/* Filters — timeframe + facets live inside a single popover. */}
+            <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
                         data-test="appointments-filters-toggle"
-                        aria-expanded={expanded}
                     >
-                        <SlidersHorizontal className="size-4 text-muted-foreground sm:hidden" />
-                        <span className="text-sm font-medium text-foreground">
-                            {t('toolbar.filters')}
-                        </span>
+                        <SlidersHorizontal className="size-4" />
+                        {t('toolbar.filters')}
                         {activeFilterCount > 0 ? (
                             <Badge
                                 variant="secondary"
@@ -120,54 +152,92 @@ export default function AppointmentsToolbar({
                                 {activeFilterCount}
                             </Badge>
                         ) : null}
-                        <ChevronDown
-                            className={cn(
-                                'size-4 text-muted-foreground transition-transform sm:hidden',
-                                expanded && 'rotate-180',
-                            )}
-                        />
-                    </button>
-
-                    {activeFilterCount > 0 ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={clearFilters}
-                            data-test="appointments-clear-filters"
-                            className="h-8 px-2 text-muted-foreground"
-                        >
-                            <X className="size-4" /> {t('toolbar.clearAll')}
-                        </Button>
-                    ) : null}
-                </div>
-
-                <div
-                    className={cn(
-                        'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3',
-                        expanded ? 'grid' : 'hidden sm:grid',
-                    )}
+                        <ChevronDown className="size-4 opacity-60" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                    align="start"
+                    className="w-80 max-w-[calc(100vw-2rem)] space-y-4"
                 >
-                    <FilterField
-                        name="location"
-                        label={t('toolbar.location')}
-                        clearLabel={t('toolbar.clear')}
-                        count={filters.locationIds.length}
-                        onClear={() => clearFilter('locationIds')}
-                    >
-                        <MultiSelect
-                            options={locationOptions}
-                            value={filters.locationIds}
-                            onChange={(value) =>
-                                updateFilter('locationIds', value)
-                            }
-                            placeholder={t('toolbar.allLocations')}
-                            className={cn(
-                                filters.locationIds.length > 0 &&
-                                    'border-primary ring-1 ring-primary/30',
-                            )}
-                            data-test="appointments-filter-location"
-                        />
-                    </FilterField>
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium text-foreground">
+                            {t('toolbar.filters')}
+                        </span>
+                        {activeFilterCount > 0 ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearFilters}
+                                data-test="appointments-clear-filters"
+                                className="h-8 px-2 text-muted-foreground"
+                            >
+                                <X className="size-4" /> {t('toolbar.clearAll')}
+                            </Button>
+                        ) : null}
+                    </div>
+
+                    {/* Timeframe comes first inside the filters. */}
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-medium text-muted-foreground">
+                            {t('toolbar.timeframe')}
+                        </span>
+                        <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            value={tab}
+                            onValueChange={(value) => {
+                                if (value) {
+                                    onTabChange(value as AppointmentTab);
+                                }
+                            }}
+                            className="w-full"
+                        >
+                            <ToggleGroupItem
+                                value="upcoming"
+                                className="flex-1 gap-2"
+                                data-test="appointments-tab-upcoming"
+                            >
+                                {t('toolbar.upcoming')}
+                                <CountBadge active={tab === 'upcoming'}>
+                                    {upcomingCount}
+                                </CountBadge>
+                            </ToggleGroupItem>
+                            <ToggleGroupItem
+                                value="past"
+                                className="flex-1 gap-2"
+                                data-test="appointments-tab-past"
+                            >
+                                {t('toolbar.past')}
+                                <CountBadge active={tab === 'past'}>
+                                    {pastCount}
+                                </CountBadge>
+                            </ToggleGroupItem>
+                        </ToggleGroup>
+                    </div>
+
+                    {showLocation ? (
+                        <FilterField
+                            name="location"
+                            label={t('toolbar.location')}
+                            clearLabel={t('toolbar.clear')}
+                            count={filters.locationIds.length}
+                            onClear={() => clearFilter('locationIds')}
+                        >
+                            <MultiSelect
+                                options={locationOptions}
+                                value={filters.locationIds}
+                                onChange={(value) =>
+                                    updateFilter('locationIds', value)
+                                }
+                                placeholder={t('toolbar.allLocations')}
+                                className={cn(
+                                    filters.locationIds.length > 0 &&
+                                        'border-primary ring-1 ring-primary/30',
+                                )}
+                                data-test="appointments-filter-location"
+                            />
+                        </FilterField>
+                    ) : null}
 
                     <FilterField
                         name="service"
@@ -191,90 +261,81 @@ export default function AppointmentsToolbar({
                         />
                     </FilterField>
 
-                    <FilterField
-                        name="specialist"
-                        label={t('toolbar.specialist')}
-                        clearLabel={t('toolbar.clear')}
-                        count={filters.specialistIds.length}
-                        onClear={() => clearFilter('specialistIds')}
-                    >
-                        <MultiSelect
-                            options={specialistOptions}
-                            value={filters.specialistIds}
-                            onChange={(value) =>
-                                updateFilter('specialistIds', value)
-                            }
-                            placeholder={t('toolbar.allSpecialists')}
-                            className={cn(
-                                filters.specialistIds.length > 0 &&
-                                    'border-primary ring-1 ring-primary/30',
-                            )}
-                            data-test="appointments-filter-specialist"
-                        />
-                    </FilterField>
-                </div>
-            </div>
-
-            <div className="h-px bg-border" />
-
-            {/* Timeframe + view */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <ToggleGroup
-                    type="single"
-                    variant="outline"
-                    value={tab}
-                    onValueChange={(value) => {
-                        if (value) {
-                            onTabChange(value as AppointmentTab);
-                        }
-                    }}
-                    className="w-full sm:w-auto"
-                >
-                    <ToggleGroupItem
-                        value="upcoming"
-                        className="flex-1 gap-2 sm:flex-none"
-                        data-test="appointments-tab-upcoming"
-                    >
-                        {t('toolbar.upcoming')}
-                        <CountBadge active={tab === 'upcoming'}>
-                            {upcomingCount}
-                        </CountBadge>
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                        value="past"
-                        className="flex-1 gap-2 sm:flex-none"
-                        data-test="appointments-tab-past"
-                    >
-                        {t('toolbar.past')}
-                        <CountBadge active={tab === 'past'}>
-                            {pastCount}
-                        </CountBadge>
-                    </ToggleGroupItem>
-                </ToggleGroup>
-
-                <ToggleGroup
-                    type="single"
-                    variant="outline"
-                    value={view}
-                    onValueChange={(value) => {
-                        if (value) {
-                            onViewChange(value as AppointmentView);
-                        }
-                    }}
-                    className="w-full sm:w-auto"
-                    data-test="appointment-view-select"
-                >
-                    {VIEW_OPTIONS.map((option) => (
-                        <ToggleGroupItem
-                            key={option}
-                            value={option}
-                            className="flex-1 sm:flex-none"
-                            data-test={`appointment-view-${option}`}
+                    {showSpecialist ? (
+                        <FilterField
+                            name="specialist"
+                            label={t('toolbar.specialist')}
+                            clearLabel={t('toolbar.clear')}
+                            count={filters.specialistIds.length}
+                            onClear={() => clearFilter('specialistIds')}
                         >
-                            {t(`toolbar.views.${option}`)}
-                        </ToggleGroupItem>
-                    ))}
-                </ToggleGroup>
+                            <MultiSelect
+                                options={specialistOptions}
+                                value={filters.specialistIds}
+                                onChange={(value) =>
+                                    updateFilter('specialistIds', value)
+                                }
+                                placeholder={t('toolbar.allSpecialists')}
+                                className={cn(
+                                    filters.specialistIds.length > 0 &&
+                                        'border-primary ring-1 ring-primary/30',
+                                )}
+                                data-test="appointments-filter-specialist"
+                            />
+                        </FilterField>
+                    ) : null}
+                </PopoverContent>
+            </Popover>
+
+            <div className="flex items-center gap-2">
+                {/* New appointment — desktop only; mobile uses a floating action button. */}
+                <Button
+                    className="hidden sm:inline-flex"
+                    data-test="add-appointment-button"
+                    disabled={!canCreate}
+                    onClick={onCreate}
+                >
+                    <CalendarPlus /> {t('newAppointment')}
+                </Button>
+
+                {/* View picker — selected view is the button label. */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="outline"
+                            data-test="appointment-view-select"
+                        >
+                            <ViewIcon className="size-4" />
+                            <span className="hidden sm:inline">
+                                {t(`toolbar.views.${view}`)}
+                            </span>
+                            <ChevronDown className="size-4 opacity-60" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuRadioGroup
+                            value={view}
+                            onValueChange={(value) =>
+                                onViewChange(value as AppointmentView)
+                            }
+                        >
+                            {VIEW_OPTIONS.map((option) => {
+                                const OptionIcon = VIEW_ICONS[option];
+
+                                return (
+                                    <DropdownMenuRadioItem
+                                        key={option}
+                                        value={option}
+                                        data-test={`appointment-view-${option}`}
+                                    >
+                                        <OptionIcon className="size-4" />
+                                        {t(`toolbar.views.${option}`)}
+                                    </DropdownMenuRadioItem>
+                                );
+                            })}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
     );

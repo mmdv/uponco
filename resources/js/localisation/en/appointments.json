@@ -17,6 +17,7 @@
         "allSpecialists": "All specialists",
         "upcoming": "Upcoming",
         "past": "Past",
+        "timeframe": "Timeframe",
         "views": {
             "minimal": "Minimal",
             "day": "Day",
@@ -29,6 +30,7 @@
         "time": "Time",
         "service": "Service",
         "location": "Location",
+        "customer": "Customer",
         "specialist": "Specialist",
         "actions": "Actions",
         "online": "Online",

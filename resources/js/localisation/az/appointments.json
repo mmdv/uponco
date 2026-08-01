@@ -17,6 +17,7 @@
         "allSpecialists": "Bütün mütəxəssislər",
         "upcoming": "Qarşıdan gələn",
         "past": "Keçmiş",
+        "timeframe": "Vaxt aralığı",
         "views": {
             "minimal": "Minimal",
             "day": "Gün",
@@ -29,6 +30,7 @@
         "time": "Vaxt",
         "service": "Xidmət",
         "location": "Filial",
+        "customer": "Müştəri",
         "specialist": "Mütəxəssis",
         "actions": "Əməliyyatlar",
         "online": "Onlayn",

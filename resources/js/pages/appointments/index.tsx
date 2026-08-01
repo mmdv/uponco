@@ -1,5 +1,5 @@
 import { Head, router, usePage, usePoll } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { CalendarPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
@@ -16,8 +16,7 @@ import type {
 } from '@/components/appointments/appointments-toolbar';
 import AppointmentCalendar from '@/components/appointments/calendar/appointment-calendar';
 import DeleteAppointmentModal from '@/components/appointments/delete-appointment-modal';
-import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
+import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useTranslation } from '@/hooks/use-translation';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
@@ -31,6 +30,7 @@ import type {
     AppointmentServiceOption,
     AppointmentSlot,
     AppointmentSpecialistOption,
+    Customer,
 } from '@/types';
 
 type Props = {
@@ -93,6 +93,16 @@ export default function AppointmentsIndex({
 
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [viewing, setViewing] = useState<Appointment | null>(null);
+
+    const [customerOpen, setCustomerOpen] = useState(false);
+    const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(
+        null,
+    );
+
+    // Hide redundant columns/filters: a single location or a single team member
+    // carries no information worth a whole column.
+    const showLocation = locations.length > 1;
+    const showSpecialist = specialists.length > 1;
 
     // Apply the toolbar facet filters (location / service / specialist) before
     // anything else so every view — minimal and calendar — sees the same set.
@@ -194,6 +204,11 @@ export default function AppointmentsIndex({
         setDetailsOpen(true);
     };
 
+    const openCustomer = (appointment: Appointment) => {
+        setViewingCustomer(appointment.customer);
+        setCustomerOpen(true);
+    };
+
     const reschedule = (appointment: Appointment, startIso: string) => {
         if (isPastAppointment(appointment)) {
             return;
@@ -216,20 +231,7 @@ export default function AppointmentsIndex({
         <>
             <Head title={t('title')} />
 
-            <div className="flex flex-col space-y-6 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <Heading variant="small" title={t('title')} />
-
-                    <Button
-                        className="w-full sm:w-auto"
-                        data-test="add-appointment-button"
-                        disabled={!hasBookableResources}
-                        onClick={openCreate}
-                    >
-                        <Plus /> {t('newAppointment')}
-                    </Button>
-                </div>
-
+            <div className="flex flex-col space-y-4 p-4">
                 <AppointmentsToolbar
                     filters={filters}
                     onFiltersChange={setFilters}
@@ -242,6 +244,10 @@ export default function AppointmentsIndex({
                     pastCount={past.length}
                     view={view}
                     onViewChange={setView}
+                    onCreate={openCreate}
+                    canCreate={hasBookableResources}
+                    showLocation={showLocation}
+                    showSpecialist={showSpecialist}
                 />
 
                 {view === 'minimal' ? (
@@ -250,9 +256,12 @@ export default function AppointmentsIndex({
                         onView={openDetails}
                         onEdit={openEdit}
                         onDelete={confirmDelete}
+                        onViewCustomer={openCustomer}
                         canModify={(appointment) =>
                             !isPastAppointment(appointment)
                         }
+                        showLocation={showLocation}
+                        showSpecialist={showSpecialist}
                         emptyMessage={
                             tab === 'upcoming'
                                 ? t('empty.upcoming')
@@ -272,6 +281,20 @@ export default function AppointmentsIndex({
                     />
                 )}
             </div>
+
+            {/* Mobile: create lives in a floating action button, off the toolbar.
+                Matches the dashboard quick-actions FAB — safe-area aware, clears
+                the bottom nav, gradient with a soft shadow. */}
+            <button
+                type="button"
+                className="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] z-50 flex size-14 items-center justify-center rounded-full bg-primary-gradient text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-50 sm:hidden"
+                data-test="add-appointment-fab"
+                aria-label={t('newAppointment')}
+                disabled={!hasBookableResources}
+                onClick={openCreate}
+            >
+                <CalendarPlus className="size-6" />
+            </button>
 
             <AppointmentFormDrawer
                 open={formOpen}
@@ -303,6 +326,12 @@ export default function AppointmentsIndex({
                     setDetailsOpen(false);
                     openEdit(appointment);
                 }}
+            />
+
+            <CustomerPreviewModal
+                customer={viewingCustomer}
+                open={customerOpen}
+                onOpenChange={setCustomerOpen}
             />
         </>
     );
