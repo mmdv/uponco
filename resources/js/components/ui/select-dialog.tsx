@@ -1,15 +1,10 @@
-import { Check, ChevronDown, Search } from 'lucide-react';
-import { useState } from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { ArrowLeft, Check, ChevronDown, Search, XIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 export type SelectOption = {
@@ -33,6 +28,44 @@ type SelectDialogProps = {
     'data-test'?: string;
 };
 
+/**
+ * Tracks the visible viewport so the mobile full-screen picker can size itself
+ * to the area above the on-screen keyboard. Mobile browsers don't shrink the
+ * layout viewport when the keyboard opens, so without this the confirm button
+ * and part of the list end up hidden behind it.
+ */
+function useVisibleViewport(active: boolean) {
+    const [viewport, setViewport] = useState<{ top: number; height: number }>();
+
+    useEffect(() => {
+        if (!active) {
+            setViewport(undefined);
+
+            return;
+        }
+
+        const visualViewport = window.visualViewport;
+
+        const update = () => {
+            setViewport({
+                top: visualViewport?.offsetTop ?? 0,
+                height: visualViewport?.height ?? window.innerHeight,
+            });
+        };
+
+        update();
+        visualViewport?.addEventListener('resize', update);
+        visualViewport?.addEventListener('scroll', update);
+
+        return () => {
+            visualViewport?.removeEventListener('resize', update);
+            visualViewport?.removeEventListener('scroll', update);
+        };
+    }, [active]);
+
+    return viewport;
+}
+
 export function SelectDialog({
     title,
     options,
@@ -48,9 +81,11 @@ export function SelectDialog({
     className,
     ...props
 }: SelectDialogProps) {
+    const isMobile = useIsMobile();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [draft, setDraft] = useState(value);
+    const viewport = useVisibleViewport(open && isMobile);
 
     const selected = options.find((option) => option.value === value);
 
@@ -75,8 +110,8 @@ export function SelectDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={openDialog}>
-            <DialogTrigger asChild>
+        <DialogPrimitive.Root open={open} onOpenChange={openDialog}>
+            <DialogPrimitive.Trigger asChild>
                 <button
                     type="button"
                     id={id}
@@ -98,60 +133,122 @@ export function SelectDialog({
                     </span>
                     <ChevronDown className="size-4 shrink-0 opacity-50" />
                 </button>
-            </DialogTrigger>
-            <DialogContent className="flex max-h-[80vh] flex-col gap-4 p-0 sm:max-w-md">
-                <DialogHeader className="px-6 pt-6">
-                    <DialogTitle>{title}</DialogTitle>
-                </DialogHeader>
+            </DialogPrimitive.Trigger>
 
-                <div className="flex items-center border-b px-4">
-                    <Search className="size-4 shrink-0 opacity-50" />
-                    <Input
-                        autoFocus
-                        value={query}
-                        onChange={(event) => setQuery(event.target.value)}
-                        placeholder={searchPlaceholder}
-                        className="h-11 border-0 shadow-none focus-visible:ring-0 dark:bg-transparent"
-                    />
-                </div>
-
-                <div className="min-h-0 flex-1 overflow-y-auto px-3">
-                    {filtered.length === 0 ? (
-                        <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                            {emptyMessage}
-                        </p>
-                    ) : (
-                        filtered.map((option) => (
-                            <button
-                                type="button"
-                                key={option.value}
-                                onClick={() => setDraft(option.value)}
-                                className={cn(
-                                    'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground',
-                                    option.value === draft &&
-                                        'bg-accent text-accent-foreground',
-                                )}
-                            >
-                                <span className="truncate">{option.label}</span>
-                                {option.value === draft ? (
-                                    <Check className="size-4 shrink-0" />
-                                ) : null}
-                            </button>
-                        ))
+            <DialogPrimitive.Portal>
+                <DialogPrimitive.Overlay
+                    className={cn(
+                        'fixed inset-0 z-50 bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0',
+                        isMobile && 'bg-background',
                     )}
-                </div>
-
-                <div className="border-t px-6 pb-6 pt-4">
-                    <Button
-                        type="button"
-                        className="w-full"
-                        disabled={!draft}
-                        onClick={confirm}
+                />
+                <DialogPrimitive.Content
+                    data-slot="dialog-content"
+                    aria-describedby={undefined}
+                    style={
+                        isMobile
+                            ? {
+                                  top: viewport?.top ?? 0,
+                                  height: viewport?.height ?? '100dvh',
+                              }
+                            : undefined
+                    }
+                    className={cn(
+                        'fixed z-50 flex flex-col bg-background outline-none',
+                        isMobile
+                            ? 'inset-x-0 w-full data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom'
+                            : 'top-[50%] left-[50%] max-h-[80vh] w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 overflow-hidden rounded-lg border shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+                    )}
+                >
+                    <div
+                        className={cn(
+                            'flex shrink-0 items-center gap-2 border-b',
+                            isMobile ? 'h-14 px-2' : 'px-6 pt-6 pb-4',
+                        )}
                     >
-                        {confirmLabel}
-                    </Button>
-                </div>
-            </DialogContent>
-        </Dialog>
+                        {isMobile ? (
+                            <DialogPrimitive.Close asChild>
+                                <button
+                                    type="button"
+                                    aria-label="Back"
+                                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                >
+                                    <ArrowLeft className="size-5" />
+                                </button>
+                            </DialogPrimitive.Close>
+                        ) : null}
+                        <DialogPrimitive.Title
+                            className={cn(
+                                'text-base leading-none font-semibold',
+                                isMobile && 'text-lg',
+                            )}
+                        >
+                            {title}
+                        </DialogPrimitive.Title>
+                        {!isMobile ? (
+                            <DialogPrimitive.Close asChild>
+                                <button
+                                    type="button"
+                                    aria-label="Close"
+                                    className="ml-auto flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-70 transition-opacity hover:bg-accent hover:opacity-100"
+                                >
+                                    <XIcon className="size-4" />
+                                </button>
+                            </DialogPrimitive.Close>
+                        ) : null}
+                    </div>
+
+                    <div className="flex shrink-0 items-center border-b px-4">
+                        <Search className="size-4 shrink-0 opacity-50" />
+                        <Input
+                            autoFocus={!isMobile}
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            placeholder={searchPlaceholder}
+                            className="h-12 border-0 shadow-none focus-visible:ring-0 dark:bg-transparent"
+                        />
+                    </div>
+
+                    <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                        {filtered.length === 0 ? (
+                            <p className="px-2 py-8 text-center text-sm text-muted-foreground">
+                                {emptyMessage}
+                            </p>
+                        ) : (
+                            filtered.map((option) => (
+                                <button
+                                    type="button"
+                                    key={option.value}
+                                    onClick={() => setDraft(option.value)}
+                                    className={cn(
+                                        'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-3 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground',
+                                        option.value === draft &&
+                                            'bg-accent text-accent-foreground',
+                                    )}
+                                >
+                                    <span className="truncate">
+                                        {option.label}
+                                    </span>
+                                    {option.value === draft ? (
+                                        <Check className="size-4 shrink-0 text-primary" />
+                                    ) : null}
+                                </button>
+                            ))
+                        )}
+                    </div>
+
+                    <div className="shrink-0 border-t p-4">
+                        <Button
+                            type="button"
+                            className="w-full"
+                            disabled={!draft}
+                            onClick={confirm}
+                        >
+                            {confirmLabel}
+                        </Button>
+                    </div>
+                </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
     );
 }
