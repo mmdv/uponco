@@ -17,7 +17,7 @@ export function ScreenBody({
     return (
         <div
             className={cn(
-                'flex min-w-0 flex-1 flex-col justify-center-safe gap-6 py-6',
+                'flex min-w-0 flex-1 flex-col justify-center-safe gap-6 py-6 md:py-10',
                 className,
             )}
         >

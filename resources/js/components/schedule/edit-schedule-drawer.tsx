@@ -111,6 +111,10 @@ export default function EditScheduleDrawer() {
         >
             <SheetContent
                 side={isMobile ? 'bottom' : 'right'}
+                // Don't pull focus into the first time input on open — it pops
+                // the keyboard on mobile and starts an edit the user didn't ask
+                // for. They can tap the field they want to change.
+                onOpenAutoFocus={(event) => event.preventDefault()}
                 className={cn(
                     'flex flex-col gap-0 p-0',
                     // On the bottom sheet the width comes from the built-in

@@ -36,6 +36,12 @@ export type LocationFormFieldsProps = {
      * it supplies through `footer` so the button stays inside the form.
      */
     inline?: boolean;
+    /**
+     * Inline only: content rendered at the top of the scroll region, inside the
+     * form. Keeping the screen's heading here means the form can own the full
+     * height, so its sticky footer stays pinned to the bottom while scrolling.
+     */
+    heading?: React.ReactNode;
     footer?: (state: { processing: boolean }) => React.ReactNode;
 };
 
@@ -64,6 +70,7 @@ export default function LocationFormFields({
     onCancel,
     showAssignments = true,
     inline = false,
+    heading,
     footer,
 }: LocationFormFieldsProps) {
     const { t } = useTranslation('locations');
@@ -103,9 +110,21 @@ export default function LocationFormFields({
             // wizard), so the page must not remount and drop that flow's state.
             options={{ preserveScroll: true, preserveState: true }}
             onSuccess={onSuccess}
+            // Enter inside a field must not submit: on mobile the keyboard's
+            // "Go"/"Okay" key would otherwise skip the screen. Only the footer
+            // button submits. Textareas keep their normal newline behaviour.
+            onKeyDown={(event) => {
+                if (
+                    event.key === 'Enter' &&
+                    event.target instanceof HTMLElement &&
+                    event.target.tagName === 'INPUT'
+                ) {
+                    event.preventDefault();
+                }
+            }}
             className={cn(
                 'flex flex-col',
-                inline ? 'flex-1 gap-6' : 'min-h-0 flex-1',
+                inline ? 'min-h-full flex-1' : 'min-h-0 flex-1',
             )}
             disableWhileProcessing
         >
@@ -157,10 +176,13 @@ export default function LocationFormFields({
                     <div
                         className={cn(
                             'space-y-6',
-                            !inline &&
-                                'min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6',
+                            inline
+                                ? 'flex-1 py-6 md:py-10'
+                                : 'min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6',
                         )}
                     >
+                        {inline ? heading : null}
+
                         <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
                             <div className="space-y-0.5">
                                 <Label htmlFor="is_active">
@@ -178,37 +200,11 @@ export default function LocationFormFields({
                             />
                         </div>
 
-                        <FormSection title={t('form.sections.details')}>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="name">
-                                        {t('form.name')}
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        name="name"
-                                        data-test="location-name-input"
-                                        defaultValue={location?.name ?? ''}
-                                        placeholder="Head office"
-                                    />
-                                    <InputError message={errors.name} />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="phone">
-                                        {t('form.phone')}
-                                    </Label>
-                                    <PhoneInput
-                                        id="phone"
-                                        name="phone"
-                                        defaultValue={location?.phone ?? ''}
-                                        placeholder="+1 (555) 123-4567"
-                                    />
-                                    <InputError message={errors.phone} />
-                                </div>
-                            </div>
-                        </FormSection>
-
+                        {/*
+                         * Address first: picking a suggestion auto-fills the
+                         * country, city, street and postal code below, so it is
+                         * the fastest way to complete the whole section.
+                         */}
                         <FormSection title={t('form.sections.address')}>
                             <div className="grid gap-2">
                                 <Label htmlFor="address_search">
@@ -253,7 +249,7 @@ export default function LocationFormFields({
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="country">
                                         {t('form.country')}
@@ -286,6 +282,7 @@ export default function LocationFormFields({
                                             setCity(event.target.value)
                                         }
                                         placeholder="San Francisco"
+                                        aria-invalid={Boolean(errors.city)}
                                     />
                                     <InputError message={errors.city} />
                                 </div>
@@ -302,6 +299,9 @@ export default function LocationFormFields({
                                             setStreetAddress(event.target.value)
                                         }
                                         placeholder="123 Market St"
+                                        aria-invalid={Boolean(
+                                            errors.street_address,
+                                        )}
                                     />
                                     <InputError
                                         message={errors.street_address}
@@ -317,6 +317,7 @@ export default function LocationFormFields({
                                         name="unit"
                                         defaultValue={location?.unit ?? ''}
                                         placeholder="Suite 400"
+                                        aria-invalid={Boolean(errors.unit)}
                                     />
                                     <InputError message={errors.unit} />
                                 </div>
@@ -333,15 +334,49 @@ export default function LocationFormFields({
                                             setPostalCode(event.target.value)
                                         }
                                         placeholder="94103"
+                                        aria-invalid={Boolean(errors.postal_code)}
                                     />
                                     <InputError message={errors.postal_code} />
                                 </div>
                             </div>
                         </FormSection>
 
+                        <FormSection title={t('form.sections.details')}>
+                            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="name">
+                                        {t('form.name')}
+                                    </Label>
+                                    <Input
+                                        id="name"
+                                        name="name"
+                                        data-test="location-name-input"
+                                        defaultValue={location?.name ?? ''}
+                                        placeholder="Head office"
+                                        aria-invalid={Boolean(errors.name)}
+                                    />
+                                    <InputError message={errors.name} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="phone">
+                                        {t('form.phone')}
+                                    </Label>
+                                    <PhoneInput
+                                        id="phone"
+                                        name="phone"
+                                        defaultValue={location?.phone ?? ''}
+                                        placeholder="+1 (555) 123-4567"
+                                        aria-invalid={Boolean(errors.phone)}
+                                    />
+                                    <InputError message={errors.phone} />
+                                </div>
+                            </div>
+                        </FormSection>
+
                         {showAssignments ? (
                             <FormSection title={t('form.sections.assignments')}>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="service_ids">
                                             {t('form.services')}

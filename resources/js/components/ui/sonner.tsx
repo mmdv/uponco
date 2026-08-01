@@ -11,12 +11,20 @@ function Toaster({ ...props }: ToasterProps) {
         <Sonner
             theme={appearance}
             className="toaster group"
-            position="bottom-right"
+            position="top-right"
+            toastOptions={{
+                classNames: {
+                    // A bit rounded to match the inputs and buttons; errors stay
+                    // red so they read as problems rather than confirmations.
+                    toast: 'group !rounded-xl !gap-2',
+                    error: '!bg-destructive !text-white !border-destructive',
+                },
+            }}
             style={
                 {
-                    '--normal-bg': 'var(--popover)',
-                    '--normal-text': 'var(--popover-foreground)',
-                    '--normal-border': 'var(--border)',
+                    '--normal-bg': 'var(--primary)',
+                    '--normal-text': 'var(--primary-foreground)',
+                    '--normal-border': 'var(--primary)',
                 } as React.CSSProperties
             }
             {...props}

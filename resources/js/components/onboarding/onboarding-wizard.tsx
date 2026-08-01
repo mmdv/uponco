@@ -269,7 +269,7 @@ export default function OnboardingWizard({ onboarding }: Props) {
 
                     <main
                         ref={scrollArea}
-                        className="min-h-0 flex-1 overflow-y-auto px-4 md:px-8"
+                        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 md:px-8"
                     >
                         <div
                             key={current}

@@ -8,10 +8,7 @@ import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
 import type { Onboarding } from '@/types';
 
 import OnboardingFooter from './onboarding-footer';
-import OnboardingScreen, {
-    ScreenBody,
-    ScreenFooterBar,
-} from './onboarding-screen';
+import OnboardingScreen, { ScreenFooterBar } from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 type Props = {
@@ -61,30 +58,27 @@ function FirstLocation({ data, teamSlug, onChange, onNext }: Props) {
     }, [saved, locations, onChange, onNext]);
 
     return (
-        <div className="flex min-h-full flex-1 flex-col">
-            <ScreenBody className="pb-0">
+        <LocationFormFields
+            inline
+            heading={
                 <ScreenHeader
                     title="Where do you work?"
                     description="Add the address customers will come to."
                 />
-
-                <LocationFormFields
-                    inline
-                    showAssignments={false}
-                    location={null}
-                    teamSlug={teamSlug}
-                    services={data.serviceOptions}
-                    specialists={data.specialists}
-                    countries={data.countries}
-                    onSuccess={() => setSaved(true)}
-                    footer={({ processing }) => (
-                        <ScreenFooterBar>
-                            <OnboardingFooter saving={processing || saved} />
-                        </ScreenFooterBar>
-                    )}
-                />
-            </ScreenBody>
-        </div>
+            }
+            showAssignments={false}
+            location={null}
+            teamSlug={teamSlug}
+            services={data.serviceOptions}
+            specialists={data.specialists}
+            countries={data.countries}
+            onSuccess={() => setSaved(true)}
+            footer={({ processing }) => (
+                <ScreenFooterBar>
+                    <OnboardingFooter saving={processing || saved} />
+                </ScreenFooterBar>
+            )}
+        />
     );
 }
 

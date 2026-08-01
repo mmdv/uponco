@@ -200,7 +200,7 @@ export default function AddressAutocomplete({
                 </ul>
             )}
 
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
                 {isVerified
                     ? t('form.addressVerified')
                     : t('form.addressSearchHint')}
