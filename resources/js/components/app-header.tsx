@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-    Building2,
     CalendarClock,
     CalendarDays,
     LayoutGrid,
+    SlidersVertical,
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -95,7 +95,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                       ? {
                             title: t('main.company'),
                             href: company(),
-                            icon: Building2,
+                            icon: SlidersVertical,
                         }
                       : {
                             title: t('main.schedule'),

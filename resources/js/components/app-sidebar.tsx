@@ -1,11 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
-    Building2,
     CalendarClock,
     FolderGit2,
     LayoutGrid,
     ShieldCheck,
+    SlidersHorizontal,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -42,9 +42,9 @@ export function AppSidebar() {
             ? [
                   isTeamManager(page.props.currentTeam.role)
                       ? {
-                            title: 'Company',
+                            title: 'Manage',
                             href: company(),
-                            icon: Building2,
+                            icon: SlidersHorizontal,
                         }
                       : {
                             title: 'Schedule',

@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-    Building2,
     CalendarClock,
     CalendarDays,
     LayoutGrid,
+    SlidersVertical,
     Users,
 } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
@@ -49,7 +49,7 @@ export function AppBottomNav() {
             ? {
                   title: t('main.company'),
                   href: company(),
-                  icon: Building2,
+                  icon: SlidersVertical,
               }
             : {
                   title: t('main.schedule'),
