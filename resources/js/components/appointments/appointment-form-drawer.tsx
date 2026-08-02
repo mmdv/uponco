@@ -1,4 +1,5 @@
 import { Form } from '@inertiajs/react';
+import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import AppointmentCustomerFields from '@/components/appointments/appointment-customer-fields';
@@ -49,6 +50,7 @@ type Props = {
     availableSlots: AppointmentSlot[];
     slotsLoading: boolean;
     onRequestSlots: (request: SlotRequest) => void;
+    onCancelAppointment?: (appointment: Appointment) => void;
 };
 
 export default function AppointmentFormDrawer({
@@ -62,6 +64,7 @@ export default function AppointmentFormDrawer({
     availableSlots,
     slotsLoading,
     onRequestSlots,
+    onCancelAppointment,
 }: Props) {
     const { t } = useTranslation('appointments');
     const isEditing = appointment !== null;
@@ -93,6 +96,7 @@ export default function AppointmentFormDrawer({
                     availableSlots={availableSlots}
                     slotsLoading={slotsLoading}
                     onRequestSlots={onRequestSlots}
+                    onCancelAppointment={onCancelAppointment}
                     onSuccess={() => onOpenChange(false)}
                     onCancel={() => onOpenChange(false)}
                 />
@@ -110,6 +114,7 @@ type FieldsProps = {
     availableSlots: AppointmentSlot[];
     slotsLoading: boolean;
     onRequestSlots: (request: SlotRequest) => void;
+    onCancelAppointment?: (appointment: Appointment) => void;
     onSuccess: () => void;
     onCancel: () => void;
 };
@@ -123,6 +128,7 @@ function AppointmentFormFields({
     availableSlots,
     slotsLoading,
     onRequestSlots,
+    onCancelAppointment,
     onSuccess,
     onCancel,
 }: FieldsProps) {
@@ -434,7 +440,21 @@ function AppointmentFormFields({
                         />
                     </div>
 
-                    <SheetFooter className="shrink-0 flex-row justify-end gap-2 border-t">
+                    <SheetFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t">
+                        {isEditing && onCancelAppointment && (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="mr-auto"
+                                data-test="appointment-cancel-appointment-button"
+                                aria-label={t('form.cancelAppointment')}
+                                title={t('form.cancelAppointment')}
+                                onClick={() => onCancelAppointment(appointment)}
+                            >
+                                <Trash2 className="size-4" />
+                            </Button>
+                        )}
                         <Button
                             type="button"
                             variant="secondary"

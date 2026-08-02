@@ -15,7 +15,7 @@ import type {
     AppointmentView,
 } from '@/components/appointments/appointments-toolbar';
 import AppointmentCalendar from '@/components/appointments/calendar/appointment-calendar';
-import DeleteAppointmentModal from '@/components/appointments/delete-appointment-modal';
+import CancelAppointmentModal from '@/components/appointments/cancel-appointment-modal';
 import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useTranslation } from '@/hooks/use-translation';
@@ -58,7 +58,7 @@ export default function AppointmentsIndex({
     const isTeamAdmin =
         currentTeam?.role === 'admin' || currentTeam?.role === 'owner';
     // Past appointments are read-only: they can only be previewed, never edited,
-    // rescheduled or deleted. The backend enforces this too.
+    // rescheduled or cancelled. The backend enforces this too.
     const canEditAppointment = (appointment: Appointment) =>
         !isPastAppointment(appointment) &&
         (isTeamAdmin || appointment.specialist_id === auth.user.id);
@@ -87,8 +87,8 @@ export default function AppointmentsIndex({
     const [editing, setEditing] = useState<Appointment | null>(null);
     const [slotsLoading, setSlotsLoading] = useState(false);
 
-    const [deleteOpen, setDeleteOpen] = useState(false);
-    const [deleting, setDeleting] = useState<Appointment | null>(null);
+    const [cancelOpen, setCancelOpen] = useState(false);
+    const [cancelling, setCancelling] = useState<Appointment | null>(null);
 
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [viewing, setViewing] = useState<Appointment | null>(null);
@@ -193,9 +193,9 @@ export default function AppointmentsIndex({
         });
     };
 
-    const confirmDelete = (appointment: Appointment) => {
-        setDeleting(appointment);
-        setDeleteOpen(true);
+    const confirmCancel = (appointment: Appointment) => {
+        setCancelling(appointment);
+        setCancelOpen(true);
     };
 
     const openDetails = (appointment: Appointment) => {
@@ -254,7 +254,7 @@ export default function AppointmentsIndex({
                         appointments={activeAppointments}
                         onView={openDetails}
                         onEdit={openEdit}
-                        onDelete={confirmDelete}
+                        onCancel={confirmCancel}
                         onViewCustomer={openCustomer}
                         canModify={(appointment) =>
                             !isPastAppointment(appointment)
@@ -306,12 +306,14 @@ export default function AppointmentsIndex({
                 availableSlots={availableSlots}
                 slotsLoading={slotsLoading}
                 onRequestSlots={requestSlots}
+                onCancelAppointment={confirmCancel}
             />
 
-            <DeleteAppointmentModal
-                appointment={deleting}
-                open={deleteOpen}
-                onOpenChange={setDeleteOpen}
+            <CancelAppointmentModal
+                appointment={cancelling}
+                open={cancelOpen}
+                onOpenChange={setCancelOpen}
+                onCancelled={() => setFormOpen(false)}
             />
 
             <AppointmentDetailsModal

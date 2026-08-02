@@ -176,6 +176,8 @@
         "deleteCategoryTooltip": "Kateqoriyanı sil",
         "editServiceTooltip": "Xidməti redaktə et",
         "deleteServiceTooltip": "Xidməti sil",
+        "categoryActionsLabel": "Kateqoriya əməliyyatları",
+        "serviceActionsLabel": "Xidmət əməliyyatları",
         "table": {
             "status": "Status",
             "title": "Başlıq",

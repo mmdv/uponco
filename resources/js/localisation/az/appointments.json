@@ -36,7 +36,7 @@
         "online": "Onlayn",
         "viewDetails": "Təfərrüatlara bax",
         "editAppointment": "Görüşü redaktə et",
-        "deleteAppointment": "Görüşü sil"
+        "cancelAppointment": "Görüşü ləğv et"
     },
     "form": {
         "editTitle": "Görüşü redaktə et",
@@ -55,11 +55,13 @@
         "noSpecialists": "Mövcud mütəxəssis yoxdur.",
         "cancel": "Ləğv et",
         "saveChanges": "Dəyişiklikləri yadda saxla",
-        "bookAppointment": "Görüşü təyin et"
+        "bookAppointment": "Görüşü təyin et",
+        "cancelAppointment": "Görüşü ləğv et"
     },
     "customer": {
         "heading": "Müştəri",
         "autoCreateNote": "Bu məlumatlar mövcud müştəriyə uyğun gəlmirsə, yeni müştəri yaradacağıq.",
+        "readOnlyNote": "Müştəri məlumatları rezervasiyadan sonra dəyişdirilə bilməz.",
         "nameLabel": "Ad soyad",
         "namePlaceholder": "Aygün Əliyeva",
         "emailLabel": "E-poçt",
@@ -76,12 +78,12 @@
         "pickDateHint": "Mövcud vaxtları görmək üçün tarix seçin.",
         "noTimes": "Bu gün üçün mövcud vaxt yoxdur."
     },
-    "delete": {
-        "title": "Görüşü sil",
-        "confirm": "\"{name}\" üçün görüşü silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
-        "confirmWithDate": "\"{name}\" üçün {date} tarixindəki görüşü silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.",
-        "cancel": "Ləğv et",
-        "confirmButton": "Görüşü sil"
+    "cancel": {
+        "title": "Görüşü ləğv et",
+        "confirm": "\"{name}\" üçün görüşü ləğv etmək istədiyinizə əminsiniz? Müştəriyə e-poçt ilə bildiriş göndəriləcək.",
+        "confirmWithDate": "\"{name}\" üçün {date} tarixindəki görüşü ləğv etmək istədiyinizə əminsiniz? Müştəriyə e-poçt ilə bildiriş göndəriləcək.",
+        "dismiss": "Görüşü saxla",
+        "confirmButton": "Görüşü ləğv et"
     },
     "details": {
         "online": "Onlayn",

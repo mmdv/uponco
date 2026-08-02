@@ -36,7 +36,7 @@
         "online": "Online",
         "viewDetails": "View details",
         "editAppointment": "Edit appointment",
-        "deleteAppointment": "Delete appointment"
+        "cancelAppointment": "Cancel appointment"
     },
     "form": {
         "editTitle": "Edit appointment",
@@ -55,11 +55,13 @@
         "noSpecialists": "No specialists available.",
         "cancel": "Cancel",
         "saveChanges": "Save changes",
-        "bookAppointment": "Book appointment"
+        "bookAppointment": "Book appointment",
+        "cancelAppointment": "Cancel appointment"
     },
     "customer": {
         "heading": "Customer",
         "autoCreateNote": "We'll create a new customer if these details don't match an existing one.",
+        "readOnlyNote": "Customer details can't be changed after booking.",
         "nameLabel": "Name surname",
         "namePlaceholder": "Jane Doe",
         "emailLabel": "Email",
@@ -76,12 +78,12 @@
         "pickDateHint": "Pick a date to see available times.",
         "noTimes": "No available times on this day."
     },
-    "delete": {
-        "title": "Delete appointment",
-        "confirm": "Are you sure you want to delete the appointment for \"{name}\"? This action cannot be undone.",
-        "confirmWithDate": "Are you sure you want to delete the appointment for \"{name}\" on {date}? This action cannot be undone.",
-        "cancel": "Cancel",
-        "confirmButton": "Delete appointment"
+    "cancel": {
+        "title": "Cancel appointment",
+        "confirm": "Are you sure you want to cancel the appointment for \"{name}\"? The customer will be notified by email.",
+        "confirmWithDate": "Are you sure you want to cancel the appointment for \"{name}\" on {date}? The customer will be notified by email.",
+        "dismiss": "Keep appointment",
+        "confirmButton": "Cancel appointment"
     },
     "details": {
         "online": "Online",

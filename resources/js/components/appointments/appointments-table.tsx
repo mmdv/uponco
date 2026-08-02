@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Search, Trash2 } from 'lucide-react';
+import { CalendarX, MoreHorizontal, Pencil, Search } from 'lucide-react';
 import { Fragment } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -29,9 +29,9 @@ type Props = {
     appointments: Appointment[];
     onView: (appointment: Appointment) => void;
     onEdit: (appointment: Appointment) => void;
-    onDelete: (appointment: Appointment) => void;
+    onCancel: (appointment: Appointment) => void;
     onViewCustomer: (appointment: Appointment) => void;
-    /** Whether the appointment may be edited/deleted; read-only rows show only View. */
+    /** Whether the appointment may be edited/cancelled; read-only rows show only View. */
     canModify?: (appointment: Appointment) => boolean;
     /** Show the "@ location" line under the service — hidden when only one location exists. */
     showLocation: boolean;
@@ -44,7 +44,7 @@ export default function AppointmentsTable({
     appointments,
     onView,
     onEdit,
-    onDelete,
+    onCancel,
     onViewCustomer,
     canModify = () => true,
     showLocation,
@@ -79,7 +79,9 @@ export default function AppointmentsTable({
                             <TableHead>{t('table.specialist')}</TableHead>
                         ) : null}
                         <TableHead className="sticky right-0 z-20 w-0 border-l bg-background text-right">
-                            <span className="sr-only">{t('table.actions')}</span>
+                            <span className="sr-only">
+                                {t('table.actions')}
+                            </span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -197,16 +199,16 @@ export default function AppointmentsTable({
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             variant="destructive"
-                                                            data-test="appointment-delete-button"
+                                                            data-test="appointment-cancel-button"
                                                             onSelect={() =>
-                                                                onDelete(
+                                                                onCancel(
                                                                     appointment,
                                                                 )
                                                             }
                                                         >
-                                                            <Trash2 className="size-4" />
+                                                            <CalendarX className="size-4" />
                                                             {t(
-                                                                'table.deleteAppointment',
+                                                                'table.cancelAppointment',
                                                             )}
                                                         </DropdownMenuItem>
                                                     </>

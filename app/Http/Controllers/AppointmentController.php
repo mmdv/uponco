@@ -119,15 +119,24 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Delete the specified appointment.
+     * Cancel the specified appointment.
+     *
+     * Appointments are never deleted from the team's schedule; cancelling keeps
+     * the row for reporting, frees the slot, and — mirroring the customer's own
+     * cancellation flow — emails the customer to let them know.
      */
-    public function destroy(Request $request, Appointment $appointment): RedirectResponse
+    public function cancel(Request $request, Appointment $appointment): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment);
 
-        $appointment->delete();
+        if ($appointment->isCancelled()) {
+            return back();
+        }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment deleted.')]);
+        $appointment->cancel();
+        $this->notifyCustomerCancelled($appointment);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment cancelled.')]);
 
         return back();
     }

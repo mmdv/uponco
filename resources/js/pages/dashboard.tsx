@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
 import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
+import CancelAppointmentModal from '@/components/appointments/cancel-appointment-modal';
 import BookingShareCard from '@/components/dashboard/booking-share-card';
 import BookingsChart from '@/components/dashboard/bookings-chart';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
@@ -71,6 +72,9 @@ export default function Dashboard({
     const [editingAppointment, setEditingAppointment] =
         useState<UpcomingAppointment | null>(null);
     const [editOpen, setEditOpen] = useState(false);
+    const [cancellingAppointment, setCancellingAppointment] =
+        useState<UpcomingAppointment | null>(null);
+    const [cancelOpen, setCancelOpen] = useState(false);
 
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
@@ -90,6 +94,11 @@ export default function Dashboard({
             date: toDateInputValue(appointment.start_at, timezone),
             appointmentId: appointment.id,
         });
+    };
+
+    const confirmCancelAppointment = (appointment: UpcomingAppointment) => {
+        setCancellingAppointment(appointment);
+        setCancelOpen(true);
     };
 
     const requestSlots = (request: SlotRequest) => {
@@ -200,8 +209,16 @@ export default function Dashboard({
                     availableSlots={availableSlots}
                     slotsLoading={slotsLoading}
                     onRequestSlots={requestSlots}
+                    onCancelAppointment={confirmCancelAppointment}
                 />
             )}
+
+            <CancelAppointmentModal
+                appointment={cancellingAppointment}
+                open={cancelOpen}
+                onOpenChange={setCancelOpen}
+                onCancelled={() => setEditOpen(false)}
+            />
 
             {formOptions && (
                 <QuickCreateForms

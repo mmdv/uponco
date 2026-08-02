@@ -176,6 +176,8 @@
         "deleteCategoryTooltip": "Delete category",
         "editServiceTooltip": "Edit service",
         "deleteServiceTooltip": "Delete service",
+        "categoryActionsLabel": "Category actions",
+        "serviceActionsLabel": "Service actions",
         "table": {
             "status": "Status",
             "title": "Title",

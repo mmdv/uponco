@@ -8,6 +8,7 @@ import {
     Phone,
     Trash2,
 } from 'lucide-react';
+import type { KeyboardEvent } from 'react';
 
 import {
     DropdownMenu,
@@ -84,10 +85,22 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
         .filter(Boolean)
         .join(', ');
 
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onEdit();
+        }
+    };
+
     return (
         <div
             data-test="location-row"
-            className="group relative flex flex-col rounded-2xl border border-[#f1f3f5] bg-card p-6 shadow-soft transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 dark:border-border"
+            role="button"
+            tabIndex={0}
+            onClick={onEdit}
+            onKeyDown={handleKeyDown}
+            aria-label={t('grid.openLabel', { name: location.name })}
+            className="group relative flex cursor-pointer flex-col rounded-2xl border border-[#f1f3f5] bg-card p-6 shadow-soft transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:border-border"
         >
             <div className="flex items-start justify-between gap-3">
                 <h3 className="min-w-0 truncate text-lg font-semibold tracking-tight">
@@ -112,6 +125,7 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             data-test="location-actions-button"
+                            onClick={(event) => event.stopPropagation()}
                             className="flex size-7 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-accent hover:text-foreground focus-visible:opacity-100"
                         >
                             <MoreVertical className="size-4" />
@@ -173,17 +187,13 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
                     </span>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={onEdit}
+                <span
+                    aria-hidden="true"
                     data-test="location-open-button"
-                    className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+                    className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary"
                 >
                     <ArrowRight className="size-4" />
-                    <span className="sr-only">
-                        {t('grid.openLabel', { name: location.name })}
-                    </span>
-                </button>
+                </span>
             </div>
         </div>
     );

@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentBooked;
+use App\Notifications\Appointments\AppointmentCancelled;
 use App\Support\Appointments\AppointmentCalendar;
 use App\Support\Appointments\SlotGenerator;
 use Carbon\CarbonImmutable;
@@ -162,7 +163,7 @@ test('members only see appointments assigned to them', function () {
         );
 });
 
-test('a member cannot delete an appointment that is not theirs', function () {
+test('a member cannot cancel an appointment that is not theirs', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
     $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
@@ -177,13 +178,13 @@ test('a member cannot delete an appointment that is not theirs', function () {
 
     $this
         ->actingAs($member)
-        ->delete(route('appointments.destroy', ['appointment' => $appointment->id]))
+        ->patch(route('appointments.cancel', ['appointment' => $appointment->id]))
         ->assertForbidden();
 
-    $this->assertDatabaseHas('appointments', ['id' => $appointment->id, 'deleted_at' => null]);
+    $this->assertDatabaseHas('appointments', ['id' => $appointment->id, 'status' => 'booked']);
 });
 
-test('a member can delete their own appointment', function () {
+test('a member can cancel their own appointment', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
     $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
@@ -198,10 +199,16 @@ test('a member can delete their own appointment', function () {
 
     $this
         ->actingAs($member)
-        ->delete(route('appointments.destroy', ['appointment' => $appointment->id]))
+        ->patch(route('appointments.cancel', ['appointment' => $appointment->id]))
         ->assertRedirect();
 
-    $this->assertSoftDeleted('appointments', ['id' => $appointment->id]);
+    // The row is kept for reporting; only its status changes.
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'status' => 'cancelled',
+        'deleted_at' => null,
+    ]);
+    expect($appointment->fresh()->cancelled_at)->not->toBeNull();
 });
 
 test('a service without a category is still bookable', function () {
@@ -729,7 +736,7 @@ test('a past appointment cannot be rescheduled', function () {
         ->assertForbidden();
 });
 
-test('a past appointment cannot be deleted', function () {
+test('a past appointment cannot be cancelled', function () {
     $setup = bookableSetup();
     $appointment = Appointment::factory()->create([
         'team_id' => $setup['team']->id,
@@ -742,12 +749,12 @@ test('a past appointment cannot be deleted', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->delete(route('appointments.destroy', ['appointment' => $appointment]))
+        ->patch(route('appointments.cancel', ['appointment' => $appointment]))
         ->assertForbidden();
 
     $this->assertDatabaseHas('appointments', [
         'id' => $appointment->id,
-        'deleted_at' => null,
+        'status' => 'booked',
     ]);
 });
 
@@ -875,28 +882,41 @@ test('an appointment from another team cannot be rescheduled', function () {
         ->assertForbidden();
 });
 
-test('an appointment can be deleted', function () {
+test('cancelling an appointment keeps the row and emails the customer', function () {
+    Notification::fake();
     $setup = bookableSetup();
+    $customer = Customer::factory()->for($setup['team'])->create(['email' => 'jane@example.com']);
     $appointment = Appointment::factory()->create([
         'team_id' => $setup['team']->id,
         'specialist_id' => $setup['user']->id,
+        'customer_id' => $customer->id,
     ]);
 
     $this
         ->actingAs($setup['user'])
-        ->delete(route('appointments.destroy', ['appointment' => $appointment]))
+        ->patch(route('appointments.cancel', ['appointment' => $appointment]))
         ->assertRedirect();
 
-    $this->assertSoftDeleted($appointment);
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'status' => 'cancelled',
+        'deleted_at' => null,
+    ]);
+    expect($appointment->fresh()->cancelled_at)->not->toBeNull();
+
+    Notification::assertSentOnDemand(
+        AppointmentCancelled::class,
+        fn (AppointmentCancelled $notification, array $channels, object $notifiable): bool => $notifiable->routeNotificationFor('mail') === 'jane@example.com',
+    );
 });
 
-test('an appointment from another team cannot be deleted', function () {
+test('an appointment from another team cannot be cancelled', function () {
     $setup = bookableSetup();
     $otherAppointment = Appointment::factory()->create();
 
     $this
         ->actingAs($setup['user'])
-        ->delete(route('appointments.destroy', ['appointment' => $otherAppointment]))
+        ->patch(route('appointments.cancel', ['appointment' => $otherAppointment]))
         ->assertForbidden();
 });
 
