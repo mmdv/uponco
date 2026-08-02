@@ -317,7 +317,9 @@
                 "required": "required",
                 "requiredLegend": "Fields marked * are required.",
                 "advanced": "More options",
-                "advancedHint": "Category, description, break time and visibility."
+                "advancedHint": "Category, description, break time and visibility.",
+                "moreInfoTitle": "Need more detail?",
+                "moreInfoHint": "You can add a description, category and break time from your dashboard."
             },
             "summary": {
                 "online": "Online",

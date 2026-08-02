@@ -1,4 +1,4 @@
-import { Check, Loader2, MapPin, Search } from 'lucide-react';
+import { Check, Loader2, MapPin, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -155,7 +155,12 @@ export default function AddressAutocomplete({
     return (
         <div ref={containerRef} className="relative">
             <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                {/*
+                 * A sparkle rather than a magnifying glass: this field does the
+                 * work of the whole section, so it should read as something
+                 * automatic, not a plain search box.
+                 */}
+                <Sparkles className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-primary" />
                 <Input
                     id="address_search"
                     type="text"
@@ -164,7 +169,7 @@ export default function AddressAutocomplete({
                     onChange={(event) => handleChange(event.target.value)}
                     onFocus={() => suggestions.length > 0 && setIsOpen(true)}
                     placeholder={t('form.addressSearchPlaceholder')}
-                    className="pr-9 pl-9"
+                    className="border-primary bg-background pr-9 pl-9 focus-visible:border-primary focus-visible:ring-primary/30"
                     data-test="location-address-search"
                 />
                 {isSearching ? (
@@ -198,11 +203,11 @@ export default function AddressAutocomplete({
                 </ul>
             )}
 
-            <p className="mt-2 text-xs text-muted-foreground">
-                {isVerified
-                    ? t('form.addressVerified')
-                    : t('form.addressSearchHint')}
-            </p>
+            {/*<p className="mt-2 text-xs text-muted-foreground">*/}
+            {/*    {isVerified*/}
+            {/*        ? t('form.addressVerified')*/}
+            {/*        : t('form.addressSearchHint')}*/}
+            {/*</p>*/}
         </div>
     );
 }

@@ -317,7 +317,9 @@
                 "required": "vacibdir",
                 "requiredLegend": "* ilə işarələnmiş sahələr vacibdir.",
                 "advanced": "Əlavə seçimlər",
-                "advancedHint": "Kateqoriya, təsvir, fasilə və görünürlük."
+                "advancedHint": "Kateqoriya, təsvir, fasilə və görünürlük.",
+                "moreInfoTitle": "Daha çox məlumat lazımdır?",
+                "moreInfoHint": "Təsvir, kateqoriya və fasilə vaxtını idarə panelindən əlavə edə bilərsiniz."
             },
             "summary": {
                 "online": "Onlayn",

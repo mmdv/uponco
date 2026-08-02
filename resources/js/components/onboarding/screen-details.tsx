@@ -79,10 +79,12 @@ export default function ScreenDetails({ data, service, controls }: Props) {
                     </ScreenBody>
 
                     <ScreenFooterBar>
-                        <OnboardingFooter
-                            saving={processing || controls.saving}
-                            disabled={service.draft.details.title.trim() === ''}
-                        />
+                        {/*
+                         * Always enabled: pressing Continue submits and lets the
+                         * server flag whatever required fields are missing,
+                         * rather than silently blocking on an empty title.
+                         */}
+                        <OnboardingFooter saving={processing || controls.saving} />
                     </ScreenFooterBar>
                 </>
             )}

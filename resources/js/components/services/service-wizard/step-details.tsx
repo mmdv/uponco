@@ -1,15 +1,10 @@
-import { ChevronDown } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 import InputError from '@/components/input-error';
 import { CurrencySelect } from '@/components/services/currency-select';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import CategoryField from '@/components/services/service-wizard/category-field';
 import { Button } from '@/components/ui/button';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
@@ -441,29 +436,22 @@ export default function StepDetails({
             ) : null}
 
             {collapseAdvanced ? (
-                <Collapsible
-                    className="rounded-lg border"
-                    data-test="wizard-advanced"
+                <div
+                    className="flex items-start gap-3 rounded-lg border border-primary/10 bg-primary-gradient-soft p-3 dark:border-primary/20"
+                    data-test="wizard-more-info"
                 >
-                    <CollapsibleTrigger className="flex w-full items-center gap-3 rounded-lg p-3 text-left [&[data-state=open]>svg]:rotate-180">
-                        <span className="flex-1 space-y-0.5">
-                            <span className="block text-sm font-medium">
-                                {t('services.wizard.details.advanced')}
-                            </span>
-                            <span className="block text-sm text-muted-foreground">
-                                {t('services.wizard.details.advancedHint')}
-                            </span>
-                        </span>
-                        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform" />
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent className="space-y-5 border-t p-3">
-                        {categoryField}
-                        {descriptionField}
-                        {technicalBreakField}
-                        {visibilityField}
-                    </CollapsibleContent>
-                </Collapsible>
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Info className="size-4" />
+                    </span>
+                    <div className="space-y-0.5">
+                        <p className="text-sm font-medium">
+                            {t('services.wizard.details.moreInfoTitle')}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            {t('services.wizard.details.moreInfoHint')}
+                        </p>
+                    </div>
+                </div>
             ) : (
                 <>
                     <SectionHeading>

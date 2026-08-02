@@ -1,4 +1,5 @@
 import { Form } from '@inertiajs/react';
+import { Info } from 'lucide-react';
 import { useState } from 'react';
 
 import InputError from '@/components/input-error';
@@ -10,7 +11,13 @@ import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { store, update } from '@/routes/company/locations';
@@ -83,6 +90,7 @@ export default function LocationFormFields({
     const isEditing = location !== null;
 
     const [isActive, setIsActive] = useState(location?.is_active ?? true);
+    const [name, setName] = useState(location?.name ?? '');
     const [country, setCountry] = useState(location?.country ?? '');
     const [city, setCity] = useState(location?.city ?? '');
     const [streetAddress, setStreetAddress] = useState(
@@ -210,10 +218,44 @@ export default function LocationFormFields({
                          * the fastest way to complete the whole section.
                          */}
                         <FormSection title={t('form.sections.address')}>
-                            <div className="grid gap-2">
-                                <Label htmlFor="address_search">
-                                    {t('form.addressSearch')}
-                                </Label>
+                            {/*
+                             * The search sits on a wash of the brand gradient so
+                             * it reads as the automatic, do-it-for-you entry
+                             * point — the rest of the fields below are just what
+                             * it filled in.
+                             */}
+                            <div className="relative isolate grid gap-2 rounded-2xl border border-primary/10 bg-primary-gradient-soft p-5 shadow-soft sm:p-6 dark:border-primary/20">
+                                {/*
+                                 * The glow gets its own clipped layer so the
+                                 * card itself can keep overflow visible — the
+                                 * address dropdown has to be able to escape the
+                                 * card's bottom edge.
+                                 */}
+                                <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-2xl">
+                                    <div className="absolute -top-16 -right-10 size-48 rounded-full bg-primary/10 blur-3xl" />
+                                </div>
+
+                                <div className="flex items-center gap-1.5">
+                                    <Label htmlFor="address_search">
+                                        {t('form.addressSearch')}
+                                    </Label>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <button
+                                                type="button"
+                                                className="text-muted-foreground transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none"
+                                                aria-label={t(
+                                                    'form.addressSearchTooltip',
+                                                )}
+                                            >
+                                                <Info className="size-3.5" />
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            {t('form.addressSearchTooltip')}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </div>
                                 <AddressAutocomplete
                                     country={country}
                                     initialAddress={
@@ -237,6 +279,15 @@ export default function LocationFormFields({
                                         setCity(resolved.city);
                                         setPostalCode(resolved.postal_code);
 
+                                        // Give the location a sensible name out
+                                        // of the box — the street line is the
+                                        // shortest thing that reads well on the
+                                        // booking page. The operator can still
+                                        // rename it.
+                                        if (resolved.street_address) {
+                                            setName(resolved.street_address);
+                                        }
+
                                         if (resolved.country) {
                                             setCountry(resolved.country);
                                         }
@@ -250,6 +301,9 @@ export default function LocationFormFields({
                                         })
                                     }
                                 />
+                                <p className="text-sm text-muted-foreground">
+                                    {t('form.addressSearchDescription')}
+                                </p>
                             </div>
 
                             <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
@@ -346,6 +400,8 @@ export default function LocationFormFields({
                             </div>
                         </FormSection>
 
+                        <Separator />
+
                         <FormSection title={t('form.sections.details')}>
                             <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
@@ -356,10 +412,16 @@ export default function LocationFormFields({
                                         id="name"
                                         name="name"
                                         data-test="location-name-input"
-                                        defaultValue={location?.name ?? ''}
+                                        value={name}
+                                        onChange={(event) =>
+                                            setName(event.target.value)
+                                        }
                                         placeholder="Head office"
                                         aria-invalid={Boolean(errors.name)}
                                     />
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('form.nameHint')}
+                                    </p>
                                     <InputError message={errors.name} />
                                 </div>
 

@@ -41,9 +41,9 @@ export default function ScreenIntro({ onStart }: { onStart: () => void }) {
             />
 
             {/*
-             * A connected timeline rather than a list of cards: the vertical
-             * rule reads as "here's what's ahead" and keeps these items from
-             * looking like tappable buttons.
+             * A connected timeline whose items double as entry points: each row
+             * is a button that starts the flow, while the vertical rule keeps
+             * the "here's what's ahead" reading.
              */}
             <ol className="md:py-2">
                 {checklist.map((item, index) => {
@@ -59,14 +59,21 @@ export default function ScreenIntro({ onStart }: { onStart: () => void }) {
                                     <span className="my-1 w-px flex-1 bg-border" />
                                 ) : null}
                             </div>
-                            <div className={cn('pt-1.5', !isLast && 'pb-6')}>
+                            <button
+                                type="button"
+                                onClick={onStart}
+                                className={cn(
+                                    '-mx-2 flex-1 rounded-lg px-2 pt-1.5 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none',
+                                    !isLast && 'mb-6 pb-1.5',
+                                )}
+                            >
                                 <p className="font-medium text-foreground">
                                     {item.label}
                                 </p>
                                 <p className="mt-0.5 text-sm text-muted-foreground">
                                     {item.description}
                                 </p>
-                            </div>
+                            </button>
                         </li>
                     );
                 })}
