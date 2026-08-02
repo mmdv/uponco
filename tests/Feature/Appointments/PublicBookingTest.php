@@ -39,6 +39,33 @@ test('the public booking page can be rendered', function () {
         ->assertOk();
 });
 
+test('a guest cannot manage the public booking page', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('canManage', false)
+            ->etc(),
+        );
+});
+
+test('a member managing the company sees the dashboard shortcut', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->actingAs($setup['user'])
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('canManage', true)
+            ->etc(),
+        );
+});
+
 test('the public booking page exposes a service without a category', function () {
     $setup = bookableSetup();
     $setup['service']->update(['service_category_id' => null]);

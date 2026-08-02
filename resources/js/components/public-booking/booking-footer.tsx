@@ -30,7 +30,7 @@ export default function BookingFooter({
     return (
         <footer
             className={cn(
-                'flex w-full items-center gap-3 border-t bg-background/95 px-5 py-3.5 backdrop-blur',
+                'flex w-full items-center gap-3 px-5 py-3.5',
                 embedded
                     ? 'sticky bottom-0'
                     : 'fixed inset-x-0 bottom-0 mx-auto max-w-[460px]',

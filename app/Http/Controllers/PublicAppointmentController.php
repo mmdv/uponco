@@ -29,12 +29,19 @@ class PublicAppointmentController extends Controller
 
         $timezone = $company->timezone ?: config('app.timezone');
 
+        // A signed-in member viewing their own booking page gets a shortcut back
+        // to the dashboard; visitors never see it.
+        $user = $request->user();
+        $canManage = $user !== null
+            && $company->members()->whereKey($user->getKey())->exists();
+
         return Inertia::render('public/appointments/book', [
             'company' => [
                 'name' => $company->name,
                 'slug' => $company->slug,
                 'logo' => $company->logoUrl(),
             ],
+            'canManage' => $canManage,
             'timezone' => $timezone,
             'services' => AppointmentOptions::services($company),
             'locations' => AppointmentOptions::locations($company),

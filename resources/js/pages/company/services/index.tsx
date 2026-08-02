@@ -117,22 +117,30 @@ export default function ServicesIndex({
             <Head title={t('services.title')} />
 
             <div className="flex flex-col space-y-6 p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <Heading
                         variant="small"
                         title={t('services.title')}
                         description={t('services.description')}
                     />
 
+                    {/*
+                     * On a phone the two actions sit in their own full-width row
+                     * under the title, splitting the space evenly so neither
+                     * label gets clipped; from sm up they shrink to their labels
+                     * and move beside the heading.
+                     */}
                     <div className="flex items-center gap-2">
                         <Button
                             variant="outline"
+                            className="flex-1 sm:flex-none"
                             data-test="add-category-button"
                             onClick={openCreateCategory}
                         >
                             <FolderPlus /> {t('services.addCategory')}
                         </Button>
                         <Button
+                            className="flex-1 sm:flex-none"
                             data-test="add-service-button"
                             onClick={() => openCreateService()}
                         >
