@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 export type SelectOption = {
     value: string;
     label: string;
+    /** Section the option is listed under; options without one render flat. */
+    group?: string;
 };
 
 type SelectDialogProps = {
@@ -25,6 +28,15 @@ type SelectDialogProps = {
     disabled?: boolean;
     invalid?: boolean;
     className?: string;
+    /**
+     * The option that, once picked, asks for a free-text answer instead of
+     * standing on its own — an "Other" catch-all, in practice.
+     */
+    customTriggerValue?: string;
+    customValue?: string;
+    onCustomChange?: (value: string) => void;
+    customLabel?: string;
+    customPlaceholder?: string;
     'data-test'?: string;
 };
 
@@ -79,15 +91,23 @@ export function SelectDialog({
     disabled,
     invalid,
     className,
+    customTriggerValue,
+    customValue = '',
+    onCustomChange,
+    customLabel = 'Tell us what you do',
+    customPlaceholder = 'Type your answer',
     ...props
 }: SelectDialogProps) {
     const isMobile = useIsMobile();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [draft, setDraft] = useState(value);
+    const [customDraft, setCustomDraft] = useState(customValue);
     const viewport = useVisibleViewport(open && isMobile);
 
     const selected = options.find((option) => option.value === value);
+    const needsCustom =
+        customTriggerValue !== undefined && draft === customTriggerValue;
 
     const filtered = query.trim()
         ? options.filter((option) =>
@@ -100,14 +120,25 @@ export function SelectDialog({
 
         if (next) {
             setDraft(value);
+            setCustomDraft(customValue);
             setQuery('');
         }
     };
 
     const confirm = () => {
         onChange(draft);
+        onCustomChange?.(needsCustom ? customDraft.trim() : '');
         setOpen(false);
     };
+
+    /**
+     * The trigger reads back what was actually chosen, so an "Other" answer
+     * shows the words the user typed rather than the word "Other".
+     */
+    const triggerLabel =
+        selected && value === customTriggerValue && customValue.trim()
+            ? customValue
+            : selected?.label;
 
     return (
         <DialogPrimitive.Root open={open} onOpenChange={openDialog}>
@@ -129,7 +160,7 @@ export function SelectDialog({
                             !selected && 'text-muted-foreground',
                         )}
                     >
-                        {selected ? selected.label : placeholder}
+                        {triggerLabel ?? placeholder}
                     </span>
                     <ChevronDown className="size-4 shrink-0 opacity-50" />
                 </button>
@@ -215,33 +246,60 @@ export function SelectDialog({
                                 {emptyMessage}
                             </p>
                         ) : (
-                            filtered.map((option) => (
-                                <button
-                                    type="button"
-                                    key={option.value}
-                                    onClick={() => setDraft(option.value)}
-                                    className={cn(
-                                        'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-3 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground',
-                                        option.value === draft &&
-                                            'bg-accent text-accent-foreground',
-                                    )}
-                                >
-                                    <span className="truncate">
-                                        {option.label}
-                                    </span>
-                                    {option.value === draft ? (
-                                        <Check className="size-4 shrink-0 text-primary" />
+                            filtered.map((option, index) => (
+                                <div key={option.value}>
+                                    {option.group &&
+                                    option.group !==
+                                        filtered[index - 1]?.group ? (
+                                        <p className="sticky top-0 z-10 bg-background px-3 pt-3 pb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                            {option.group}
+                                        </p>
                                     ) : null}
-                                </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDraft(option.value)}
+                                        className={cn(
+                                            'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-3 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground',
+                                            option.value === draft &&
+                                                'bg-accent text-accent-foreground',
+                                        )}
+                                    >
+                                        <span className="truncate">
+                                            {option.label}
+                                        </span>
+                                        {option.value === draft ? (
+                                            <Check className="size-4 shrink-0 text-primary" />
+                                        ) : null}
+                                    </button>
+                                </div>
                             ))
                         )}
                     </div>
 
-                    <div className="shrink-0 border-t p-4">
+                    <div className="shrink-0 space-y-3 border-t p-4">
+                        {needsCustom ? (
+                            <div className="grid gap-2">
+                                <Label htmlFor={`${id ?? 'select'}-custom`}>
+                                    {customLabel}
+                                </Label>
+                                <Input
+                                    id={`${id ?? 'select'}-custom`}
+                                    autoFocus
+                                    maxLength={100}
+                                    value={customDraft}
+                                    onChange={(event) =>
+                                        setCustomDraft(event.target.value)
+                                    }
+                                    placeholder={customPlaceholder}
+                                />
+                            </div>
+                        ) : null}
                         <Button
                             type="button"
                             className="w-full"
-                            disabled={!draft}
+                            disabled={
+                                !draft || (needsCustom && !customDraft.trim())
+                            }
                             onClick={confirm}
                         >
                             {confirmLabel}

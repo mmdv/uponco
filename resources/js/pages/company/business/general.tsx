@@ -127,6 +127,34 @@ export default function BusinessGeneral({
                                             />
                                         </div>
 
+                                        {businessCategory === 'other' ? (
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="business_category_other">
+                                                    {t(
+                                                        'business.general.businessCategoryOther',
+                                                    )}
+                                                </Label>
+                                                <Input
+                                                    id="business_category_other"
+                                                    name="business_category_other"
+                                                    maxLength={100}
+                                                    data-test="team-category-other-input"
+                                                    defaultValue={
+                                                        team.businessCategoryOther ??
+                                                        ''
+                                                    }
+                                                    placeholder={t(
+                                                        'business.general.businessCategoryOtherPlaceholder',
+                                                    )}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.business_category_other
+                                                    }
+                                                />
+                                            </div>
+                                        ) : null}
+
                                         <div className="grid gap-2">
                                             <Label htmlFor="timezone">
                                                 {t('business.general.timezone')}

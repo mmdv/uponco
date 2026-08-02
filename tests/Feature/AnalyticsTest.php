@@ -4,6 +4,7 @@ use App\Enums\BusinessCategory;
 use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
+use App\Enums\TeamType;
 use App\Models\OnboardingProgress;
 use App\Models\ScheduleSlot;
 use App\Models\Service;
@@ -35,6 +36,7 @@ function analyticsGateOwner(): array
     $user = User::factory()->create();
     $team = Team::factory()->create([
         'name' => null,
+        'type' => null,
         'timezone' => null,
         'business_category' => null,
         'is_personal' => true,
@@ -112,6 +114,7 @@ test('completing the onboarding gate queues an event carrying the category', fun
         ->actingAs($user)
         ->patch(route('onboard.update'), [
             'name' => 'Acme Salon',
+            'type' => TeamType::Organisation->value,
             'business_category' => BusinessCategory::values()[0],
             'timezone' => 'Europe/Berlin',
         ]);
@@ -119,6 +122,7 @@ test('completing the onboarding gate queues an event carrying the category', fun
     expect(queuedEventNames())->toContain('onboarding_gate_completed');
     expect(session('analytics_events')[0]['properties'])
         ->toMatchArray([
+            'type' => TeamType::Organisation->value,
             'business_category' => BusinessCategory::values()[0],
             'timezone' => 'Europe/Berlin',
         ]);

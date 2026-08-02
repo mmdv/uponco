@@ -32,6 +32,8 @@
             "businessCategoryPlaceholder": "Kateqoriya seçin",
             "businessCategorySearchPlaceholder": "Kateqoriyaları axtar…",
             "businessCategoryEmpty": "Kateqoriya tapılmadı.",
+            "businessCategoryOther": "Nə ilə məşğulsunuz?",
+            "businessCategoryOtherPlaceholder": "məsələn, Səs terapevti",
             "timezone": "Saat qurşağı",
             "timezonePlaceholder": "Saat qurşağı seçin",
             "timezoneSearchPlaceholder": "Saat qurşaqlarını axtar…",

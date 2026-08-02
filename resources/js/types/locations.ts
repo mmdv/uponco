@@ -20,4 +20,6 @@ export type Location = {
 export type SelectOption = {
     value: string;
     label: string;
+    /** Section the option is listed under, for pickers that group their list. */
+    group?: string;
 };

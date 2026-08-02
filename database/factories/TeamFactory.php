@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\BusinessCategory;
+use App\Enums\TeamType;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -25,8 +26,11 @@ class TeamFactory extends Factory
             'name' => $name,
             'slug' => Str::slug($name),
             'is_personal' => false,
+            'type' => TeamType::Organisation,
             'timezone' => fake()->timezone(),
-            'business_category' => fake()->randomElement(BusinessCategory::cases()),
+            'business_category' => fake()->randomElement(
+                array_values(array_filter(BusinessCategory::cases(), fn (BusinessCategory $category): bool => $category !== BusinessCategory::Other))
+            ),
         ];
     }
 

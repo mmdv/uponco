@@ -32,6 +32,8 @@
             "businessCategoryPlaceholder": "Select a category",
             "businessCategorySearchPlaceholder": "Search categories…",
             "businessCategoryEmpty": "No categories found.",
+            "businessCategoryOther": "What do you do?",
+            "businessCategoryOtherPlaceholder": "e.g. Sound therapist",
             "timezone": "Timezone",
             "timezonePlaceholder": "Select a timezone",
             "timezoneSearchPlaceholder": "Search timezones…",

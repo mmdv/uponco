@@ -2,6 +2,7 @@
 
 use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
+use App\Enums\TeamType;
 use App\Models\Team;
 use App\Models\User;
 
@@ -15,6 +16,7 @@ function incompleteTeamOwner(): array
     $user = User::factory()->create();
     $team = Team::factory()->create([
         'name' => null,
+        'type' => null,
         'timezone' => null,
         'business_category' => null,
         'is_personal' => true,
@@ -45,6 +47,7 @@ test('the onboard gate renders for an incomplete team', function () {
             ->component('onboard')
             ->has('timezones')
             ->has('businessCategories')
+            ->where('userName', $user->name)
         );
 });
 
@@ -55,6 +58,7 @@ test('completing onboarding updates the team and redirects to the dashboard', fu
         ->actingAs($user)
         ->patch(route('onboard.update'), [
             'name' => 'Acme Studio',
+            'type' => TeamType::Organisation->value,
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',
         ]);
@@ -62,11 +66,101 @@ test('completing onboarding updates the team and redirects to the dashboard', fu
     $team->refresh();
 
     expect($team->name)->toBe('Acme Studio');
+    expect($team->type)->toBe(TeamType::Organisation);
     expect($team->business_category)->toBe(BusinessCategory::Hairdresser);
     expect($team->timezone)->toBe('America/New_York');
     expect($team->slug)->toBe('acme-studio');
 
     $response->assertRedirect(route('dashboard'));
+});
+
+test('an individual can complete onboarding under their own name', function () {
+    [$user, $team] = incompleteTeamOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(route('onboard.update'), [
+            'name' => 'Dr Jane Doe',
+            'type' => TeamType::Individual->value,
+            'business_category' => BusinessCategory::Psychotherapist->value,
+            'timezone' => 'Europe/Berlin',
+        ])
+        ->assertRedirect(route('dashboard'));
+
+    $team->refresh();
+
+    expect($team->type)->toBe(TeamType::Individual);
+    expect($team->business_category)->toBe(BusinessCategory::Psychotherapist);
+});
+
+test('onboarding rejects an unknown team type', function () {
+    [$user, $team] = incompleteTeamOwner();
+
+    $this
+        ->actingAs($user)
+        ->from(route('onboard.show'))
+        ->patch(route('onboard.update'), [
+            'name' => 'Acme Studio',
+            'type' => 'sole_trader',
+            'business_category' => BusinessCategory::Hairdresser->value,
+            'timezone' => 'America/New_York',
+        ])
+        ->assertSessionHasErrors('type');
+});
+
+test('the other category requires its own description', function () {
+    [$user, $team] = incompleteTeamOwner();
+
+    $this
+        ->actingAs($user)
+        ->from(route('onboard.show'))
+        ->patch(route('onboard.update'), [
+            'name' => 'Acme Studio',
+            'type' => TeamType::Individual->value,
+            'business_category' => BusinessCategory::Other->value,
+            'timezone' => 'America/New_York',
+        ])
+        ->assertSessionHasErrors('business_category_other');
+
+    expect($team->fresh()->business_category)->toBeNull();
+});
+
+test('the other category is stored alongside its description', function () {
+    [$user, $team] = incompleteTeamOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(route('onboard.update'), [
+            'name' => 'Acme Studio',
+            'type' => TeamType::Individual->value,
+            'business_category' => BusinessCategory::Other->value,
+            'business_category_other' => 'Sound therapist',
+            'timezone' => 'America/New_York',
+        ])
+        ->assertRedirect(route('dashboard'));
+
+    $team->refresh();
+
+    expect($team->business_category)->toBe(BusinessCategory::Other);
+    expect($team->business_category_other)->toBe('Sound therapist');
+});
+
+test('a listed category clears any description sent with it', function () {
+    [$user, $team] = incompleteTeamOwner();
+    $team->update(['business_category_other' => 'Sound therapist']);
+
+    $this
+        ->actingAs($user)
+        ->patch(route('onboard.update'), [
+            'name' => 'Acme Studio',
+            'type' => TeamType::Organisation->value,
+            'business_category' => BusinessCategory::Spa->value,
+            'business_category_other' => 'Sound therapist',
+            'timezone' => 'America/New_York',
+        ])
+        ->assertRedirect(route('dashboard'));
+
+    expect($team->fresh()->business_category_other)->toBeNull();
 });
 
 test('a completed team can no longer access the onboard gate', function () {
@@ -79,14 +173,14 @@ test('a completed team can no longer access the onboard gate', function () {
         ->assertRedirect(route('dashboard'));
 });
 
-test('onboarding requires a name, category and timezone', function () {
+test('onboarding requires a name, type, category and timezone', function () {
     [$user, $team] = incompleteTeamOwner();
 
     $this
         ->actingAs($user)
         ->from(route('onboard.show'))
         ->patch(route('onboard.update'), [])
-        ->assertSessionHasErrors(['name', 'business_category', 'timezone']);
+        ->assertSessionHasErrors(['name', 'type', 'business_category', 'timezone']);
 });
 
 test('onboarding rejects a company name that is already taken', function () {
@@ -98,6 +192,7 @@ test('onboarding rejects a company name that is already taken', function () {
         ->from(route('onboard.show'))
         ->patch(route('onboard.update'), [
             'name' => 'Taken Name',
+            'type' => TeamType::Organisation->value,
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',
         ])
@@ -116,6 +211,7 @@ test('members without update permission cannot complete onboarding', function ()
         ->actingAs($member)
         ->patch(route('onboard.update'), [
             'name' => 'Member Co',
+            'type' => TeamType::Organisation->value,
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',
         ])

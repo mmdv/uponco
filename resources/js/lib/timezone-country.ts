@@ -370,18 +370,54 @@ const TIMEZONE_TO_COUNTRY: Record<string, string> = {
 };
 
 /**
- * Resolve the visitor's most likely country from their browser timezone.
+ * Read the visitor's timezone from the browser.
+ *
+ * Kept at module scope rather than called from a component body: the resolved
+ * options are an ambient read the React Compiler treats as impure.
  */
-export function countryFromTimezone(): string | undefined {
+export function detectTimezone(): string | undefined {
     if (typeof Intl === 'undefined') {
         return undefined;
     }
 
     try {
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-        return timeZone ? TIMEZONE_TO_COUNTRY[timeZone] : undefined;
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
     } catch {
         return undefined;
     }
+}
+
+/**
+ * Format an instant in the given timezone, with its UTC offset, so a picked
+ * identifier can be sanity-checked at a glance. The instant is passed in rather
+ * than read here so that callers stay pure.
+ */
+export function timeInTimezone(timezone: string, at: Date): string | undefined {
+    if (typeof Intl === 'undefined' || !timezone) {
+        return undefined;
+    }
+
+    try {
+        /**
+         * Spelled out field by field: `timeStyle` cannot be combined with
+         * `timeZoneName`, and the offset is the half that makes it legible.
+         */
+        return new Intl.DateTimeFormat(undefined, {
+            timeZone: timezone,
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'shortOffset',
+        }).format(at);
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * Resolve the visitor's most likely country from their browser timezone.
+ */
+export function countryFromTimezone(): string | undefined {
+    const timeZone = detectTimezone();
+
+    return timeZone ? TIMEZONE_TO_COUNTRY[timeZone] : undefined;
 }

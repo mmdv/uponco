@@ -32,9 +32,12 @@ class OnboardController extends Controller
         return Inertia::render('onboard', [
             'team' => [
                 'name' => $team->name,
+                'type' => $team->type?->value,
                 'timezone' => $team->timezone,
                 'businessCategory' => $team->business_category?->value,
+                'businessCategoryOther' => $team->business_category_other,
             ],
+            'userName' => $request->user()->name,
             'timezones' => LocationOptions::timezones(),
             'businessCategories' => BusinessCategory::options(),
         ]);
@@ -56,6 +59,7 @@ class OnboardController extends Controller
         $team->refresh();
 
         Analytics::record('onboarding_gate_completed', [
+            'type' => $team->type?->value,
             'business_category' => $team->business_category?->value,
             'timezone' => $team->timezone,
         ]);

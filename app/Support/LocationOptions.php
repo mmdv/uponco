@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Str;
 use Locale;
 
 class LocationOptions
@@ -71,15 +72,17 @@ class LocationOptions
     }
 
     /**
-     * Get the list of selectable timezones.
+     * Get the list of selectable timezones, grouped by their region so the
+     * picker can section a list that is otherwise 400 entries long.
      *
-     * @return list<array{value: string, label: string}>
+     * @return list<array{value: string, label: string, group: string}>
      */
     public static function timezones(): array
     {
         return array_map(fn (string $timezone): array => [
             'value' => $timezone,
             'label' => str_replace('_', ' ', $timezone),
+            'group' => str_replace('_', ' ', Str::before($timezone, '/')),
         ], timezone_identifiers_list());
     }
 }

@@ -180,7 +180,7 @@ class BusinessController extends Controller
     /**
      * Transform a team into its array representation for the frontend.
      *
-     * @return array{id: int, name: string, slug: string, isPersonal: bool, timezone: ?string, businessCategory: ?string, logoUrl: ?string}
+     * @return array{id: int, name: string, slug: string, isPersonal: bool, timezone: ?string, businessCategory: ?string, businessCategoryOther: ?string, logoUrl: ?string}
      */
     protected function toTeamArray(Team $team): array
     {
@@ -191,6 +191,7 @@ class BusinessController extends Controller
             'isPersonal' => $team->is_personal,
             'timezone' => $team->timezone,
             'businessCategory' => $team->business_category?->value,
+            'businessCategoryOther' => $team->business_category_other,
             'logoUrl' => $team->logoUrl(),
         ];
     }
