@@ -294,3 +294,38 @@ test('the dashboard sends owners to the setup flow until onboarding is finished'
         ->get(route('dashboard'))
         ->assertRedirect(route('onboarding.show'));
 });
+
+test('members get their own availability summary in place of the company card', function () {
+    [$member, $team] = dashboardMember();
+
+    $timezone = $team->timezone ?: config('app.timezone');
+    $today = \Carbon\CarbonImmutable::now($timezone)->toDateString();
+
+    ScheduleSlot::create([
+        'team_id' => $team->id,
+        'user_id' => $member->id,
+        'date' => $today,
+        'start_time' => '09:00',
+        'end_time' => '13:00',
+    ]);
+
+    $this
+        ->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('schedule.days', 7)
+            ->where('schedule.totalMinutes', 240)
+            ->where('schedule.days.0.isToday', true)
+        );
+});
+
+test('admins do not receive the schedule summary on the dashboard', function () {
+    [$owner] = dashboardOwner();
+
+    $this
+        ->actingAs($owner)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('schedule', null));
+});

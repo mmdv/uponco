@@ -13,6 +13,7 @@ import ManageCompanyCard from '@/components/dashboard/manage-company-card';
 import QuickActions from '@/components/dashboard/quick-actions';
 import QuickCreateForms from '@/components/dashboard/quick-create-forms';
 import type { QuickCreateForm } from '@/components/dashboard/quick-create-forms';
+import ScheduleCard from '@/components/dashboard/schedule-card';
 import UpcomingAppointments from '@/components/dashboard/upcoming-appointments';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/use-translation';
@@ -23,6 +24,7 @@ import type {
     DashboardFormOptions,
     DashboardStats as Stats,
     DashboardTrendDay,
+    ScheduleSummary,
     UpcomingAppointment,
 } from '@/types';
 
@@ -32,6 +34,7 @@ type Props = {
     weeklyTrend: DashboardTrendDay[] | null;
     upcomingAppointments: UpcomingAppointment[] | null;
     formOptions: DashboardFormOptions | null;
+    schedule: ScheduleSummary | null;
     availableSlots?: AppointmentSlot[];
 };
 
@@ -49,6 +52,7 @@ export default function Dashboard({
     weeklyTrend,
     upcomingAppointments,
     formOptions,
+    schedule,
     availableSlots = [],
 }: Props) {
     const { t } = useTranslation('dashboard');
@@ -131,7 +135,16 @@ export default function Dashboard({
             onAddAppointment={() => setOpenForm('appointment')}
         />
     );
-    const manageCompanyCard = <ManageCompanyCard />;
+    /*
+        Admins and owners manage the whole company from here; members instead
+        get a preview of their own availability that links to their schedule.
+    */
+    const companyCard =
+        isTeamAdmin || !schedule ? (
+            <ManageCompanyCard />
+        ) : (
+            <ScheduleCard schedule={schedule} />
+        );
 
     return (
         <>
@@ -166,13 +179,13 @@ export default function Dashboard({
 
                         <DashboardStats stats={safeStats} mounted={mounted} />
 
-                        {isMobile && manageCompanyCard}
+                        {isMobile && companyCard}
                     </div>
 
                     {!isMobile && (
                         <div className="flex min-w-0 flex-col gap-6 lg:col-start-3 lg:row-start-1 lg:self-start">
                             {bookingShareCard}
-                            {manageCompanyCard}
+                            {companyCard}
                         </div>
                     )}
                 </div>

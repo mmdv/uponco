@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\LocationOptions;
 use App\Support\OnboardingPayload;
+use App\Support\ScheduleSummary;
 use App\Support\ServiceOptions;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
@@ -50,6 +51,8 @@ class DashboardController extends Controller
             'weeklyTrend' => $this->weeklyTrend($team, $timezone, $specialistId),
             'upcomingAppointments' => $this->upcomingAppointments($team, $timezone, $specialistId),
             'formOptions' => $this->formOptions($team, $user),
+            // Members swap the company hub for their own availability summary.
+            'schedule' => $isTeamAdmin ? null : ScheduleSummary::forUser($user, $team),
             'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $team)),
         ]);
     }

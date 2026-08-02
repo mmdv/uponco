@@ -2,10 +2,10 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     Building2,
+    CalendarClock,
     FolderGit2,
     LayoutGrid,
     ShieldCheck,
-    UserCog,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -25,7 +25,7 @@ import { isTeamManager } from '@/lib/teams';
 import { dashboard } from '@/routes';
 import { index as backoffice } from '@/routes/backoffice';
 import { index as company } from '@/routes/company';
-import { edit as profile } from '@/routes/profile';
+import { index as schedule } from '@/routes/schedule';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -47,9 +47,9 @@ export function AppSidebar() {
                             icon: Building2,
                         }
                       : {
-                            title: 'Profile',
-                            href: profile(),
-                            icon: UserCog,
+                            title: 'Schedule',
+                            href: schedule(),
+                            icon: CalendarClock,
                         },
               ]
             : []),

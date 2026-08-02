@@ -56,3 +56,27 @@ export type ScheduleSlot = { start: string; end: string };
  * Persisted slots keyed by {@link CellId} (`${memberId}:${dateKey}`).
  */
 export type ScheduleSlotMap = Record<CellId, ScheduleSlot[]>;
+
+/**
+ * A single day in the 7-day availability summary shown on the company and
+ * dashboard cards.
+ */
+export type ScheduleSummaryDay = {
+    /** `YYYY-MM-DD`. */
+    key: string;
+    /** Single-letter weekday label, e.g. `M`. */
+    label: string;
+    /** Total scheduled minutes for the day. */
+    minutes: number;
+    isToday: boolean;
+};
+
+/**
+ * Availability summary for the next 7 days, mirroring `ScheduleSummary` on the
+ * backend.
+ */
+export type ScheduleSummary = {
+    days: ScheduleSummaryDay[];
+    totalMinutes: number;
+    openNow: boolean;
+};

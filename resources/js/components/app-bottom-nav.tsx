@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Building2,
+    CalendarClock,
     CalendarDays,
     LayoutGrid,
-    UserCog,
     Users,
 } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
@@ -14,7 +14,7 @@ import { dashboard } from '@/routes';
 import { index as appointments } from '@/routes/appointments';
 import { index as company } from '@/routes/company';
 import { index as customers } from '@/routes/customers';
-import { edit as profile } from '@/routes/profile';
+import { index as schedule } from '@/routes/schedule';
 import type { NavItem } from '@/types';
 
 export function AppBottomNav() {
@@ -52,9 +52,9 @@ export function AppBottomNav() {
                   icon: Building2,
               }
             : {
-                  title: t('main.profile'),
-                  href: profile(),
-                  icon: UserCog,
+                  title: t('main.schedule'),
+                  href: schedule(),
+                  icon: CalendarClock,
               },
     ];
 

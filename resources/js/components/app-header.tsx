@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Building2,
+    CalendarClock,
     CalendarDays,
     LayoutGrid,
-    UserCog,
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -41,7 +41,7 @@ import { dashboard } from '@/routes';
 import { index as appointments } from '@/routes/appointments';
 import { index as company } from '@/routes/company';
 import { index as customers } from '@/routes/customers';
-import { edit as profile } from '@/routes/profile';
+import { index as schedule } from '@/routes/schedule';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -62,7 +62,7 @@ const rightNavItems: NavItem[] = [
 ];
 
 const activeItemStyles =
-    'bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary dark:bg-primary/15 dark:text-primary';
+    'bg-primary-gradient text-primary-foreground hover:text-primary-foreground focus:text-primary-foreground hover:opacity-90';
 
 export function AppHeader({ breadcrumbs = [] }: Props) {
     const { t } = useTranslation('nav');
@@ -98,9 +98,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             icon: Building2,
                         }
                       : {
-                            title: t('main.profile'),
-                            href: profile(),
-                            icon: UserCog,
+                            title: t('main.schedule'),
+                            href: schedule(),
+                            icon: CalendarClock,
                         },
               ]
             : []),
@@ -131,6 +131,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             href={item.href}
                                             className={cn(
                                                 navigationMenuTriggerStyle(),
+                                                'bg-transparent',
                                                 whenCurrentUrl(
                                                     item.href,
                                                     activeItemStyles,

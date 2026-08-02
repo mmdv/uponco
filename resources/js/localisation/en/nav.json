@@ -4,7 +4,8 @@
         "appointments": "Appointments",
         "customers": "Customers",
         "company": "Company",
-        "profile": "Profile"
+        "profile": "Profile",
+        "schedule": "Schedule"
     },
     "toggleTheme": "Toggle theme",
     "changeLanguage": "Change language",
