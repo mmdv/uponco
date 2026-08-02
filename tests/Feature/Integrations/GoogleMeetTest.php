@@ -110,7 +110,7 @@ test('a service can no longer be created with a removed provider', function () {
 
     $this
         ->actingAs($user)
-        ->post(route('company.services.store', ['current_team' => $team->slug]), [
+        ->post(route('company.services.store'), [
             'title' => 'Consultation',
             'service_category_id' => $category->id,
             'price_type' => 'fixed',
@@ -206,7 +206,7 @@ test('booking an online appointment generates a google meet link', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), onlineBookingPayload($setup))
+        ->post(route('appointments.store'), onlineBookingPayload($setup))
         ->assertRedirect();
 
     $this->assertDatabaseHas('appointments', [
@@ -226,7 +226,7 @@ test('booking succeeds without a link when the specialist has not connected goog
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), onlineBookingPayload($setup))
+        ->post(route('appointments.store'), onlineBookingPayload($setup))
         ->assertRedirect();
 
     $appointment = Appointment::first();

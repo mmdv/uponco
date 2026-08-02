@@ -1,4 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Search, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -22,8 +22,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 export default function CustomersIndex({ customers, filters }: Props) {
     const { t } = useTranslation('customers');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
 
     const [search, setSearch] = useState(filters.search);
 
@@ -181,12 +179,10 @@ export default function CustomersIndex({ customers, filters }: Props) {
                 open={formOpen}
                 onOpenChange={setFormOpen}
                 customer={editing}
-                teamSlug={teamSlug}
             />
 
             <DeleteCustomerModal
                 customer={deleting}
-                teamSlug={teamSlug}
                 open={deleteOpen}
                 onOpenChange={setDeleteOpen}
             />
@@ -200,13 +196,11 @@ export default function CustomersIndex({ customers, filters }: Props) {
     );
 }
 
-CustomersIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+CustomersIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Customers',
-            href: props.currentTeam
-                ? customersIndex(props.currentTeam.slug)
-                : '/',
+            href: customersIndex(),
         },
     ],
 });

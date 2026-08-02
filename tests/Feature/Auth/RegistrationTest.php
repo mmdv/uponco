@@ -31,7 +31,7 @@ test('unverified users are redirected to the verification notice', function () {
     $team = $user->personalTeam();
 
     $this->actingAs($user)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertRedirect(route('verification.notice'));
 });
 
@@ -58,7 +58,7 @@ test('new users can register without company details', function () {
     $user = User::where('email', 'test@example.com')->first();
     $team = $user->currentTeam;
 
-    $response->assertRedirect(route('onboard.show', ['current_team' => $team->slug]));
+    $response->assertRedirect(route('onboard.show'));
 
     expect($team->is_personal)->toBeTrue();
     expect($team->name)->toBeNull();

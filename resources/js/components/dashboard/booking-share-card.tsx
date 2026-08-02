@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import {
     ArrowUpRight,
     CalendarPlus,
@@ -13,7 +14,6 @@ import { useTranslation } from '@/hooks/use-translation';
 import { show as bookingPage } from '@/routes/public/appointments';
 
 type Props = {
-    teamSlug: string;
     companyName: string;
     onAddAppointment: () => void;
 };
@@ -44,12 +44,14 @@ function supportsNativeShare(): boolean {
  * competing with the solid primary button standing above it.
  */
 export default function BookingShareCard({
-    teamSlug,
     companyName,
     onAddAppointment,
 }: Props) {
     const { t } = useTranslation('dashboard');
-    const path = bookingPage.url(teamSlug);
+    const { currentTeam } = usePage().props;
+    // The public booking page is addressed by the company slug, which stays in
+    // the URL even though app routes no longer carry a team segment.
+    const path = bookingPage.url(currentTeam?.slug ?? '');
     const [shareUrl] = useState(() => absoluteUrl(path));
     const [canNativeShare] = useState(supportsNativeShare);
     const [copied, setCopied] = useState(false);

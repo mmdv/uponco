@@ -19,7 +19,7 @@ class EnsureTeamOnboarded
         $team = $request->user()?->currentTeam;
 
         if ($team !== null && $team->needsOnboarding()) {
-            return to_route('onboard.show', ['current_team' => $team->slug]);
+            return to_route('onboard.show');
         }
 
         return $next($request);

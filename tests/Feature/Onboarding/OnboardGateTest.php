@@ -30,8 +30,8 @@ test('an incomplete team is redirected from the dashboard to the onboard gate', 
 
     $this
         ->actingAs($user)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
-        ->assertRedirect(route('onboard.show', ['current_team' => $team->slug]));
+        ->get(route('dashboard'))
+        ->assertRedirect(route('onboard.show'));
 });
 
 test('the onboard gate renders for an incomplete team', function () {
@@ -39,7 +39,7 @@ test('the onboard gate renders for an incomplete team', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('onboard.show', ['current_team' => $team->slug]))
+        ->get(route('onboard.show'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('onboard')
@@ -53,7 +53,7 @@ test('completing onboarding updates the team and redirects to the dashboard', fu
 
     $response = $this
         ->actingAs($user)
-        ->patch(route('onboard.update', ['current_team' => $team->slug]), [
+        ->patch(route('onboard.update'), [
             'name' => 'Acme Studio',
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',
@@ -66,7 +66,7 @@ test('completing onboarding updates the team and redirects to the dashboard', fu
     expect($team->timezone)->toBe('America/New_York');
     expect($team->slug)->toBe('acme-studio');
 
-    $response->assertRedirect(route('dashboard', ['current_team' => $team->slug]));
+    $response->assertRedirect(route('dashboard'));
 });
 
 test('a completed team can no longer access the onboard gate', function () {
@@ -75,8 +75,8 @@ test('a completed team can no longer access the onboard gate', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('onboard.show', ['current_team' => $team->slug]))
-        ->assertRedirect(route('dashboard', ['current_team' => $team->slug]));
+        ->get(route('onboard.show'))
+        ->assertRedirect(route('dashboard'));
 });
 
 test('onboarding requires a name, category and timezone', function () {
@@ -84,8 +84,8 @@ test('onboarding requires a name, category and timezone', function () {
 
     $this
         ->actingAs($user)
-        ->from(route('onboard.show', ['current_team' => $team->slug]))
-        ->patch(route('onboard.update', ['current_team' => $team->slug]), [])
+        ->from(route('onboard.show'))
+        ->patch(route('onboard.update'), [])
         ->assertSessionHasErrors(['name', 'business_category', 'timezone']);
 });
 
@@ -95,8 +95,8 @@ test('onboarding rejects a company name that is already taken', function () {
 
     $this
         ->actingAs($user)
-        ->from(route('onboard.show', ['current_team' => $team->slug]))
-        ->patch(route('onboard.update', ['current_team' => $team->slug]), [
+        ->from(route('onboard.show'))
+        ->patch(route('onboard.update'), [
             'name' => 'Taken Name',
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',
@@ -114,7 +114,7 @@ test('members without update permission cannot complete onboarding', function ()
 
     $this
         ->actingAs($member)
-        ->patch(route('onboard.update', ['current_team' => $team->slug]), [
+        ->patch(route('onboard.update'), [
             'name' => 'Member Co',
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',

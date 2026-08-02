@@ -14,18 +14,12 @@ import { destroy } from '@/routes/backoffice/users';
 import type { BackofficeMember } from './index';
 
 type Props = {
-    currentTeamSlug: string;
     user: BackofficeMember | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
-export default function DeleteUserModal({
-    currentTeamSlug,
-    user,
-    open,
-    onOpenChange,
-}: Props) {
+export default function DeleteUserModal({ user, open, onOpenChange }: Props) {
     const [processing, setProcessing] = useState(false);
 
     const deleteUser = () => {
@@ -33,7 +27,7 @@ export default function DeleteUserModal({
             return;
         }
 
-        router.visit(destroy([currentTeamSlug, user.id]), {
+        router.visit(destroy([user.id]), {
             method: 'delete',
             preserveScroll: true,
             onStart: () => setProcessing(true),

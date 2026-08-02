@@ -17,18 +17,12 @@ import { destroy } from '@/routes/backoffice/teams';
 import type { BackofficeTeam } from './index';
 
 type Props = {
-    currentTeamSlug: string;
     team: BackofficeTeam | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
-export default function DeleteTeamModal({
-    currentTeamSlug,
-    team,
-    open,
-    onOpenChange,
-}: Props) {
+export default function DeleteTeamModal({ team, open, onOpenChange }: Props) {
     const [confirmationName, setConfirmationName] = useState('');
 
     const canDeleteTeam = team !== null && confirmationName === team.name;
@@ -50,7 +44,7 @@ export default function DeleteTeamModal({
             <DialogContent>
                 <Form
                     key={String(open)}
-                    {...destroy.form([currentTeamSlug, team.slug])}
+                    {...destroy.form([team.slug])}
                     className="space-y-6"
                     onSuccess={() => handleOpenChange(false)}
                 >

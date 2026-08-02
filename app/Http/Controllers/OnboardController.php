@@ -26,7 +26,7 @@ class OnboardController extends Controller
         $team = $request->user()->currentTeam;
 
         if (! $team->needsOnboarding()) {
-            return to_route('dashboard', ['current_team' => $team->slug]);
+            return to_route('dashboard');
         }
 
         return Inertia::render('onboard', [
@@ -60,6 +60,6 @@ class OnboardController extends Controller
             'timezone' => $team->timezone,
         ]);
 
-        return to_route('dashboard', ['current_team' => $team->slug]);
+        return to_route('dashboard');
     }
 }

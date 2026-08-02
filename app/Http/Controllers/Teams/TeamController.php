@@ -21,7 +21,7 @@ class TeamController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team created.')]);
 
-        return to_route('company.business.edit', ['current_team' => $team->slug]);
+        return to_route('company.business.edit');
     }
 
     /**
@@ -33,6 +33,8 @@ class TeamController extends Controller
 
         $request->user()->switchTeam($team);
 
-        return back();
+        // Detail pages reference records owned by the previous team, so a
+        // switch always lands somewhere safe.
+        return to_route('dashboard');
     }
 }

@@ -18,7 +18,6 @@ import type { Location, SelectOption } from '@/types';
 
 export type LocationFormFieldsProps = {
     location: Location | null;
-    teamSlug: string;
     services: SelectOption[];
     specialists: SelectOption[];
     countries: SelectOption[];
@@ -69,7 +68,6 @@ function FormSection({
 
 export default function LocationFormFields({
     location,
-    teamSlug,
     services,
     specialists,
     countries,
@@ -111,9 +109,7 @@ export default function LocationFormFields({
 
     return (
         <Form
-            {...(isEditing
-                ? update.form([teamSlug, location.id])
-                : store.form(teamSlug))}
+            {...(isEditing ? update.form([location.id]) : store.form())}
             // The modal can be opened from inside another flow (the service
             // wizard), so the page must not remount and drop that flow's state.
             options={{ preserveScroll: true, preserveState: true }}
@@ -219,7 +215,6 @@ export default function LocationFormFields({
                                     {t('form.addressSearch')}
                                 </Label>
                                 <AddressAutocomplete
-                                    teamSlug={teamSlug}
                                     country={country}
                                     initialAddress={
                                         location?.formatted_address ?? null
@@ -342,7 +337,9 @@ export default function LocationFormFields({
                                             setPostalCode(event.target.value)
                                         }
                                         placeholder="94103"
-                                        aria-invalid={Boolean(errors.postal_code)}
+                                        aria-invalid={Boolean(
+                                            errors.postal_code,
+                                        )}
                                     />
                                     <InputError message={errors.postal_code} />
                                 </div>

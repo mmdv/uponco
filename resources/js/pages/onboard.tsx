@@ -1,4 +1,4 @@
-import { Form, Head, usePage } from '@inertiajs/react';
+import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 import OnboardController from '@/actions/App/Http/Controllers/OnboardController';
 import InputError from '@/components/input-error';
@@ -24,9 +24,6 @@ export default function Onboard({
     timezones,
     businessCategories,
 }: Props) {
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
-
     const [businessCategory, setBusinessCategory] = useState(
         team.businessCategory ?? '',
     );
@@ -37,7 +34,7 @@ export default function Onboard({
             <Head title="Set up your business" />
 
             <Form
-                {...OnboardController.update.form(teamSlug)}
+                {...OnboardController.update.form()}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
             >

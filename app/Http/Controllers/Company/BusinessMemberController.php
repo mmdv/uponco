@@ -70,7 +70,7 @@ class BusinessMemberController extends Controller
     /**
      * Update the specified current team member's role.
      */
-    public function update(UpdateTeamMemberRequest $request, string $current_team, User $user): RedirectResponse
+    public function update(UpdateTeamMemberRequest $request, User $user): RedirectResponse
     {
         $team = $this->authorizeMember($request, $user);
 
@@ -89,7 +89,7 @@ class BusinessMemberController extends Controller
     /**
      * Show the member edit page (account, profile, access, assignments).
      */
-    public function edit(Request $request, string $current_team, User $user): Response
+    public function edit(Request $request, User $user): Response
     {
         $team = $this->authorizeMember($request, $user);
 
@@ -139,7 +139,7 @@ class BusinessMemberController extends Controller
     /**
      * Update the member's login account information (name and email).
      */
-    public function updateAccount(UpdateBusinessMemberAccountRequest $request, string $current_team, User $user): RedirectResponse
+    public function updateAccount(UpdateBusinessMemberAccountRequest $request, User $user): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
@@ -159,7 +159,7 @@ class BusinessMemberController extends Controller
     /**
      * Update the member's public booking profile.
      */
-    public function updateProfile(UpdateBusinessMemberProfileRequest $request, string $current_team, User $user): RedirectResponse
+    public function updateProfile(UpdateBusinessMemberProfileRequest $request, User $user): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
@@ -173,7 +173,7 @@ class BusinessMemberController extends Controller
     /**
      * Sync the locations this member works at within the current team.
      */
-    public function updateLocations(SyncMemberLocationsRequest $request, string $current_team, User $user): RedirectResponse
+    public function updateLocations(SyncMemberLocationsRequest $request, User $user): RedirectResponse
     {
         $team = $this->authorizeMember($request, $user);
 
@@ -188,7 +188,7 @@ class BusinessMemberController extends Controller
     /**
      * Sync the services this member provides within the current team.
      */
-    public function updateServices(SyncMemberServicesRequest $request, string $current_team, User $user): RedirectResponse
+    public function updateServices(SyncMemberServicesRequest $request, User $user): RedirectResponse
     {
         $team = $this->authorizeMember($request, $user);
 
@@ -203,7 +203,7 @@ class BusinessMemberController extends Controller
     /**
      * Store or replace the member's profile picture.
      */
-    public function updateAvatar(AvatarUpdateRequest $request, string $current_team, User $user): RedirectResponse
+    public function updateAvatar(AvatarUpdateRequest $request, User $user): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
@@ -225,7 +225,7 @@ class BusinessMemberController extends Controller
     /**
      * Remove the member's profile picture.
      */
-    public function destroyAvatar(Request $request, string $current_team, User $user): RedirectResponse
+    public function destroyAvatar(Request $request, User $user): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
@@ -245,7 +245,7 @@ class BusinessMemberController extends Controller
     /**
      * Remove the specified member from the current team.
      */
-    public function destroy(Request $request, string $current_team, User $user): RedirectResponse
+    public function destroy(Request $request, User $user): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 

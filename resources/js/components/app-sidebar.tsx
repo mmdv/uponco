@@ -30,9 +30,7 @@ import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const page = usePage();
-    const dashboardUrl = page.props.currentTeam
-        ? dashboard(page.props.currentTeam.slug)
-        : '/';
+    const dashboardUrl = page.props.currentTeam ? dashboard() : '/';
 
     const mainNavItems: NavItem[] = [
         {
@@ -45,7 +43,7 @@ export function AppSidebar() {
                   isTeamManager(page.props.currentTeam.role)
                       ? {
                             title: 'Company',
-                            href: company(page.props.currentTeam.slug),
+                            href: company(),
                             icon: Building2,
                         }
                       : {
@@ -59,7 +57,7 @@ export function AppSidebar() {
             ? [
                   {
                       title: 'Backoffice',
-                      href: backoffice(page.props.currentTeam.slug),
+                      href: backoffice(),
                       icon: ShieldCheck,
                   },
               ]

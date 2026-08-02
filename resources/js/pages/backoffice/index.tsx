@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { MapPin, Trash2, Users } from 'lucide-react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
@@ -48,8 +48,6 @@ type Props = {
 
 export default function BackofficeIndex({ teams }: Props) {
     const getInitials = useInitials();
-    const { currentTeam } = usePage().props;
-    const currentTeamSlug = currentTeam?.slug ?? '';
 
     const [teamToDelete, setTeamToDelete] = useState<BackofficeTeam | null>(
         null,
@@ -237,14 +235,12 @@ export default function BackofficeIndex({ teams }: Props) {
             </div>
 
             <DeleteTeamModal
-                currentTeamSlug={currentTeamSlug}
                 team={teamToDelete}
                 open={teamDialogOpen}
                 onOpenChange={setTeamDialogOpen}
             />
 
             <DeleteUserModal
-                currentTeamSlug={currentTeamSlug}
                 user={userToDelete}
                 open={userDialogOpen}
                 onOpenChange={setUserDialogOpen}
@@ -253,15 +249,11 @@ export default function BackofficeIndex({ teams }: Props) {
     );
 }
 
-BackofficeIndex.layout = (props: {
-    currentTeam?: { slug: string } | null;
-}) => ({
+BackofficeIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Backoffice',
-            href: props.currentTeam
-                ? backofficeIndex(props.currentTeam.slug)
-                : '/',
+            href: backofficeIndex(),
         },
     ],
 });

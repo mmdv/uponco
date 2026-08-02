@@ -23,13 +23,11 @@ export default function CategoryField({
     value,
     onChange,
     options,
-    teamSlug,
     error,
 }: {
     value: string;
     onChange: (value: string) => void;
     options: SelectOption[];
-    teamSlug: string;
     error?: string;
 }) {
     const { t } = useTranslation('company');
@@ -71,7 +69,7 @@ export default function CategoryField({
         setNameError(undefined);
 
         router.post(
-            store.url(teamSlug),
+            store.url(),
             { name },
             {
                 preserveScroll: true,

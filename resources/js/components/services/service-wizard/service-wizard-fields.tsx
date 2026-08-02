@@ -23,7 +23,6 @@ export type StepId = 'delivery' | 'online-method' | 'locations' | 'details';
 
 export type ServiceWizardFieldsProps = {
     defaultCategoryId: number | null;
-    teamSlug: string;
     categories: ServiceCategory[];
     locations: SelectOption[];
     serviceOptions: SelectOption[];
@@ -61,7 +60,6 @@ export function stepForField(field: string): StepId {
  */
 export default function ServiceWizardFields({
     defaultCategoryId,
-    teamSlug,
     categories,
     locations,
     serviceOptions,
@@ -147,7 +145,7 @@ export default function ServiceWizardFields({
 
     return (
         <Form
-            {...store.form(teamSlug)}
+            {...store.form()}
             options={{ preserveScroll: true }}
             onBefore={() => setSubmitted(true)}
             onSuccess={onSuccess}
@@ -259,7 +257,6 @@ export default function ServiceWizardFields({
                             )}
                             {step === 'locations' && (
                                 <StepLocations
-                                    teamSlug={teamSlug}
                                     locations={locations}
                                     services={serviceOptions}
                                     specialists={specialists}
@@ -275,7 +272,6 @@ export default function ServiceWizardFields({
                                     summary={summary}
                                     onEditDelivery={() => setStep('delivery')}
                                     categoryOptions={categoryOptions}
-                                    teamSlug={teamSlug}
                                     specialists={specialists}
                                     priceTypes={priceTypes}
                                     currencies={currencies}

@@ -20,14 +20,12 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     customer: Customer | null;
-    teamSlug: string;
 };
 
 export default function CustomerFormDialog({
     open,
     onOpenChange,
     customer,
-    teamSlug,
 }: Props) {
     const { t } = useTranslation('customers');
     const isEditing = customer !== null;
@@ -48,9 +46,7 @@ export default function CustomerFormDialog({
 
                 <Form
                     key={customer?.id ?? 'new'}
-                    {...(isEditing
-                        ? update.form([teamSlug, customer.id])
-                        : store.form(teamSlug))}
+                    {...(isEditing ? update.form([customer.id]) : store.form())}
                     options={{ preserveScroll: true }}
                     onSuccess={() => onOpenChange(false)}
                 >

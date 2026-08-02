@@ -18,7 +18,6 @@ import type { ServiceCategory } from '@/types';
 type Props = {
     category: ServiceCategory | null;
     serviceCount: number;
-    teamSlug: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
@@ -26,7 +25,6 @@ type Props = {
 export default function DeleteCategoryModal({
     category,
     serviceCount,
-    teamSlug,
     open,
     onOpenChange,
 }: Props) {
@@ -38,7 +36,7 @@ export default function DeleteCategoryModal({
             return;
         }
 
-        router.visit(destroy([teamSlug, category.id]), {
+        router.visit(destroy([category.id]), {
             preserveScroll: true,
             onStart: () => setProcessing(true),
             onFinish: () => setProcessing(false),

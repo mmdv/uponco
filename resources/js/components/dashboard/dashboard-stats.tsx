@@ -8,11 +8,10 @@ import type { DashboardStats as Stats } from '@/types';
 
 type Props = {
     stats: Stats;
-    teamSlug: string;
     mounted: boolean;
 };
 
-export default function DashboardStats({ stats, teamSlug, mounted }: Props) {
+export default function DashboardStats({ stats, mounted }: Props) {
     const { t } = useTranslation('dashboard');
 
     const cards = [
@@ -20,7 +19,7 @@ export default function DashboardStats({ stats, teamSlug, mounted }: Props) {
             icon: Users,
             label: t('stats.customers'),
             value: stats.customers,
-            href: customersIndex.url(teamSlug),
+            href: customersIndex.url(),
             accent: 'indigo' as const,
             hint: t('stats.customersHint'),
         },
@@ -28,7 +27,7 @@ export default function DashboardStats({ stats, teamSlug, mounted }: Props) {
             icon: CalendarCheck,
             label: t('stats.totalBookings'),
             value: stats.totalBookings,
-            href: appointmentsIndex.url(teamSlug),
+            href: appointmentsIndex.url(),
             accent: 'emerald' as const,
             hint: t('stats.totalBookingsHint'),
         },
@@ -36,7 +35,7 @@ export default function DashboardStats({ stats, teamSlug, mounted }: Props) {
             icon: CalendarClock,
             label: t('stats.upcoming'),
             value: stats.upcoming,
-            href: appointmentsIndex.url(teamSlug),
+            href: appointmentsIndex.url(),
             accent: 'amber' as const,
             hint: t('stats.upcomingHint'),
         },

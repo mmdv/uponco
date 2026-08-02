@@ -83,7 +83,7 @@ class ServiceController extends Controller
     /**
      * Update the specified service.
      */
-    public function update(SaveServiceRequest $request, string $current_team, Service $service): RedirectResponse
+    public function update(SaveServiceRequest $request, Service $service): RedirectResponse
     {
         $this->authorizeService($request, $service);
 
@@ -100,7 +100,7 @@ class ServiceController extends Controller
     /**
      * Delete the specified service.
      */
-    public function destroy(Request $request, string $current_team, Service $service): RedirectResponse
+    public function destroy(Request $request, Service $service): RedirectResponse
     {
         $this->authorizeService($request, $service);
 

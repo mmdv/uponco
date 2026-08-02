@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { FolderPlus, Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -48,8 +48,6 @@ export default function ServicesIndex({
     google,
 }: Props) {
     const { t } = useTranslation('company');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
 
     const [serviceWizardOpen, setServiceWizardOpen] = useState(false);
     const [serviceFormOpen, setServiceFormOpen] = useState(false);
@@ -159,7 +157,6 @@ export default function ServicesIndex({
                 open={serviceWizardOpen}
                 onOpenChange={setServiceWizardOpen}
                 defaultCategoryId={defaultCategoryId}
-                teamSlug={teamSlug}
                 categories={categories}
                 locations={locations}
                 serviceOptions={serviceOptions}
@@ -176,7 +173,6 @@ export default function ServicesIndex({
                 onOpenChange={setServiceFormOpen}
                 service={editingService}
                 defaultCategoryId={defaultCategoryId}
-                teamSlug={teamSlug}
                 categories={categories}
                 locations={locations}
                 specialists={specialists}
@@ -189,7 +185,6 @@ export default function ServicesIndex({
 
             <DeleteServiceModal
                 service={deletingService}
-                teamSlug={teamSlug}
                 open={deleteServiceOpen}
                 onOpenChange={setDeleteServiceOpen}
             />
@@ -198,13 +193,11 @@ export default function ServicesIndex({
                 open={categoryFormOpen}
                 onOpenChange={setCategoryFormOpen}
                 category={editingCategory}
-                teamSlug={teamSlug}
             />
 
             <DeleteCategoryModal
                 category={deletingCategory}
                 serviceCount={deletingCategoryServiceCount}
-                teamSlug={teamSlug}
                 open={deleteCategoryOpen}
                 onOpenChange={setDeleteCategoryOpen}
             />
@@ -212,19 +205,15 @@ export default function ServicesIndex({
     );
 }
 
-ServicesIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+ServicesIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
         {
             title: 'Services',
-            href: props.currentTeam
-                ? servicesIndex(props.currentTeam.slug)
-                : '/',
+            href: servicesIndex(),
         },
     ],
 });

@@ -40,7 +40,7 @@ const growthPlanFeatures = [
 export default function Pricing() {
     const { t } = useTranslation('pricing');
     const { auth, currentTeam } = usePage().props;
-    const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
+    const dashboardUrl = currentTeam ? dashboard() : '/';
 
     return (
         <>

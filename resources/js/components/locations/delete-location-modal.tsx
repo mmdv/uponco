@@ -17,14 +17,12 @@ import type { Location } from '@/types';
 
 type Props = {
     location: Location | null;
-    teamSlug: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
 export default function DeleteLocationModal({
     location,
-    teamSlug,
     open,
     onOpenChange,
 }: Props) {
@@ -36,7 +34,7 @@ export default function DeleteLocationModal({
             return;
         }
 
-        router.visit(destroy([teamSlug, location.id]), {
+        router.visit(destroy([location.id]), {
             preserveScroll: true,
             onStart: () => setProcessing(true),
             onFinish: () => setProcessing(false),

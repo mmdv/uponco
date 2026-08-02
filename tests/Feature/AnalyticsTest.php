@@ -86,7 +86,7 @@ test('an authenticated page shares the user and their current team', function ()
 
     $this
         ->actingAs($user)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('analytics.identity.id', $user->id)
@@ -110,7 +110,7 @@ test('completing the onboarding gate queues an event carrying the category', fun
 
     $this
         ->actingAs($user)
-        ->patch(route('onboard.update', ['current_team' => $team->slug]), [
+        ->patch(route('onboard.update'), [
             'name' => 'Acme Salon',
             'business_category' => BusinessCategory::values()[0],
             'timezone' => 'Europe/Berlin',
@@ -131,7 +131,6 @@ test('resolving an onboarding step queues the step and its status', function () 
     $this
         ->actingAs($user)
         ->patch(route('onboarding.steps.update', [
-            'current_team' => $team->slug,
             'step' => OnboardingStep::Services->value,
         ]), ['status' => OnboardingStepStatus::Completed->value]);
 
@@ -161,7 +160,6 @@ test('the booking page going live is queued when the last step resolves', functi
     $this
         ->actingAs($user)
         ->patch(route('onboarding.steps.update', [
-            'current_team' => $team->slug,
             'step' => OnboardingStep::Schedule->value,
         ]), ['status' => OnboardingStepStatus::Completed->value]);
 
@@ -187,7 +185,6 @@ test('an already live booking page does not queue the event again', function () 
     $this
         ->actingAs($user)
         ->patch(route('onboarding.steps.update', [
-            'current_team' => $team->slug,
             'step' => OnboardingStep::Schedule->value,
         ]), ['status' => OnboardingStepStatus::Completed->value]);
 
@@ -207,13 +204,13 @@ test('a queued event reaches the next page and is then cleared', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertInertia(fn ($page) => $page
             ->where('analytics.events.0.name', 'signup_completed')
         );
 
     $this
         ->actingAs($user)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertInertia(fn ($page) => $page->where('analytics.events', []));
 });

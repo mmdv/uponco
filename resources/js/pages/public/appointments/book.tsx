@@ -20,9 +20,9 @@ function readStoredTheme(): PublicTheme {
         return stored;
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
+    // Light is the default look everywhere, regardless of the OS preference;
+    // the visitor can still switch the page to dark.
+    return 'light';
 }
 
 export default function PublicAppointmentBooking(props: PublicBookingProps) {

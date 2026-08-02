@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import {
     Building2,
     CalendarClock,
@@ -83,8 +83,6 @@ export default function CompanyIndex({
     services,
 }: Props) {
     const { t } = useTranslation('company');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
     const getInitials = useInitials();
 
     const [mounted, setMounted] = useState(false);
@@ -110,7 +108,7 @@ export default function CompanyIndex({
                 <div className="grid auto-rows-auto grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Business — portrait tile (left, 1/4) */}
                     <BentoCard
-                        href={editBusiness(teamSlug)}
+                        href={editBusiness()}
                         mounted={mounted}
                         delay={0}
                         className="lg:col-span-1 lg:row-span-2"
@@ -197,7 +195,7 @@ export default function CompanyIndex({
 
                     {/* Services — portrait tile (left, 1/4) */}
                     <BentoCard
-                        href={servicesIndex(teamSlug)}
+                        href={servicesIndex()}
                         mounted={mounted}
                         delay={60}
                         className="lg:col-span-1 lg:row-span-2"
@@ -263,7 +261,7 @@ export default function CompanyIndex({
 
                     {/* Schedule — availability for the next 7 days */}
                     <BentoCard
-                        href={scheduleIndex(teamSlug)}
+                        href={scheduleIndex()}
                         mounted={mounted}
                         delay={120}
                         className="sm:col-span-2 lg:col-span-2"
@@ -346,7 +344,7 @@ export default function CompanyIndex({
 
                     {/* Locations */}
                     <BentoCard
-                        href={locationsIndex(teamSlug)}
+                        href={locationsIndex()}
                         mounted={mounted}
                         delay={180}
                         className="lg:col-span-1"
@@ -375,7 +373,7 @@ export default function CompanyIndex({
 
                     {/* Brand */}
                     <BentoCard
-                        href={brandIndex(teamSlug)}
+                        href={brandIndex()}
                         mounted={mounted}
                         delay={240}
                         className="lg:col-span-1"
@@ -472,13 +470,11 @@ function BentoCard({
     );
 }
 
-CompanyIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+CompanyIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
     ],
 });

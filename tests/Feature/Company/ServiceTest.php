@@ -38,7 +38,7 @@ test('the services page can be rendered', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->get(route('company.services.index'))
         ->assertOk();
 });
 
@@ -48,7 +48,7 @@ test('the services page ships the options the location drawer needs', function (
 
     $this
         ->actingAs($user)
-        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->get(route('company.services.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('company/services/index')
             ->has('countries.0', fn (Assert $country) => $country
@@ -64,7 +64,7 @@ test('a category can be created', function () {
 
     $response = $this
         ->actingAs($user)
-        ->post(route('company.service-categories.store', ['current_team' => $team->slug]), [
+        ->post(route('company.service-categories.store'), [
             'name' => 'Hair',
         ]);
 
@@ -84,7 +84,6 @@ test('a category can be updated', function () {
     $response = $this
         ->actingAs($user)
         ->patch(route('company.service-categories.update', [
-            'current_team' => $team->slug,
             'serviceCategory' => $category->id,
         ]), ['name' => 'New']);
 
@@ -101,7 +100,6 @@ test('a category can be deleted', function () {
     $response = $this
         ->actingAs($user)
         ->delete(route('company.service-categories.destroy', [
-            'current_team' => $team->slug,
             'serviceCategory' => $category->id,
         ]));
 
@@ -118,7 +116,7 @@ test('a fixed price service can be created', function () {
     $response = $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team, $category->id),
         );
 
@@ -142,7 +140,7 @@ test('a free service clears price columns', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team, $category->id, ['price_type' => 'free', 'price' => null]),
         )
         ->assertRedirect();
@@ -163,7 +161,7 @@ test('a range service stores min and max', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team, $category->id, [
                 'price_type' => 'range',
                 'price' => null,
@@ -189,7 +187,7 @@ test('a group online service stores capacity and provider', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, [
                 'service_type' => 'group',
                 'capacity' => 12,
@@ -215,7 +213,7 @@ test('capacity is required for group services', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, ['service_type' => 'group', 'capacity' => null]),
         )
         ->assertSessionHasErrors(['capacity']);
@@ -229,7 +227,7 @@ test('an online service accepts the custom meeting provider', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, [
                 'delivery_type' => 'online',
                 'online_meeting_provider' => 'custom',
@@ -252,7 +250,7 @@ test('online meeting provider is required for online services', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, ['delivery_type' => 'online', 'online_meeting_provider' => null]),
         )
         ->assertSessionHasErrors(['online_meeting_provider']);
@@ -265,7 +263,7 @@ test('a service can be created without a category', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team),
         )
         ->assertRedirect()
@@ -288,7 +286,7 @@ test('an uncategorized service is listed on the services page', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->get(route('company.services.index'))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -306,7 +304,7 @@ test('a service can have its category removed', function () {
     $this
         ->actingAs($user)
         ->patch(
-            route('company.services.update', ['current_team' => $team->slug, 'service' => $service->id]),
+            route('company.services.update', ['service' => $service->id]),
             onsiteServicePayload($team, null),
         )
         ->assertRedirect()
@@ -327,7 +325,6 @@ test('deleting a category keeps its services and uncategorizes them', function (
     $this
         ->actingAs($user)
         ->delete(route('company.service-categories.destroy', [
-            'current_team' => $team->slug,
             'serviceCategory' => $category->id,
         ]))
         ->assertRedirect();
@@ -352,7 +349,7 @@ test('a service cannot be created in another team category', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($foreignCategory->id),
         )
         ->assertSessionHasErrors(['service_category_id']);
@@ -367,7 +364,7 @@ test('a service can be updated', function () {
     $this
         ->actingAs($user)
         ->patch(
-            route('company.services.update', ['current_team' => $team->slug, 'service' => $service->id]),
+            route('company.services.update', ['service' => $service->id]),
             onsiteServicePayload($team, $category->id, ['title' => 'New']),
         )
         ->assertRedirect();
@@ -386,7 +383,7 @@ test('a service can be created with assigned locations and specialists', functio
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, [
                 'location_ids' => [$location->id],
                 'user_ids' => [$specialist->id],
@@ -413,7 +410,7 @@ test('updating a service re-syncs locations and specialists', function () {
     $this
         ->actingAs($user)
         ->patch(
-            route('company.services.update', ['current_team' => $team->slug, 'service' => $service->id]),
+            route('company.services.update', ['service' => $service->id]),
             servicePayload($category->id, ['location_ids' => [$newLocation->id]]),
         )
         ->assertRedirect();
@@ -430,7 +427,7 @@ test('a service cannot be assigned a location from another team', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, ['location_ids' => [$foreignLocation->id]]),
         )
         ->assertSessionHasErrors(['location_ids.0']);
@@ -445,7 +442,7 @@ test('a service cannot be assigned a specialist who is not a team member', funct
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, ['user_ids' => [$stranger->id]]),
         )
         ->assertSessionHasErrors(['user_ids.0']);
@@ -459,7 +456,7 @@ test('a service can be deleted', function () {
 
     $this
         ->actingAs($user)
-        ->delete(route('company.services.destroy', ['current_team' => $team->slug, 'service' => $service->id]))
+        ->delete(route('company.services.destroy', ['service' => $service->id]))
         ->assertRedirect();
 
     $this->assertSoftDeleted('services', ['id' => $service->id]);
@@ -477,7 +474,7 @@ test('a service cannot be updated from another team', function () {
     $this
         ->actingAs($user)
         ->patch(
-            route('company.services.update', ['current_team' => $team->slug, 'service' => $foreignService->id]),
+            route('company.services.update', ['service' => $foreignService->id]),
             servicePayload($foreignCategory->id),
         )
         ->assertForbidden();
@@ -491,7 +488,7 @@ test('an onsite service requires at least one location', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id),
         )
         ->assertSessionHasErrors(['location_ids']);
@@ -505,7 +502,7 @@ test('an online service does not require a location', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             servicePayload($category->id, [
                 'delivery_type' => 'online',
                 'online_meeting_provider' => 'custom',
@@ -521,7 +518,7 @@ test('the services page shares the google connection status', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->get(route('company.services.index'))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -534,7 +531,7 @@ test('guests cannot access services', function () {
     $team = Team::factory()->create();
 
     $this
-        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->get(route('company.services.index'))
         ->assertRedirect(route('login'));
 });
 
@@ -546,7 +543,7 @@ test('a service stores the chosen currency', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team, $category->id, ['currency' => 'AZN']),
         )
         ->assertRedirect();
@@ -565,7 +562,7 @@ test('an unsupported currency is rejected', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team, $category->id, ['currency' => 'GBP']),
         )
         ->assertSessionHasErrors('currency');
@@ -580,7 +577,7 @@ test('a missing currency falls back to the one matching the UI language', functi
         ->actingAs($user)
         ->withUnencryptedCookie('locale', 'az')
         ->post(
-            route('company.services.store', ['current_team' => $team->slug]),
+            route('company.services.store'),
             onsiteServicePayload($team, $category->id, ['currency' => null]),
         )
         ->assertRedirect();
@@ -597,7 +594,7 @@ test('the services page ships the currency options', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('company.services.index', ['current_team' => $team->slug]))
+        ->get(route('company.services.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('company/services/index')
             ->where('currencies', [

@@ -42,7 +42,7 @@ class BusinessInvitationController extends Controller
     /**
      * Cancel a pending invitation for the current team.
      */
-    public function destroy(Request $request, string $current_team, TeamInvitation $invitation): RedirectResponse
+    public function destroy(Request $request, TeamInvitation $invitation): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 

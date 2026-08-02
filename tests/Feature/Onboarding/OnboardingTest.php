@@ -20,24 +20,24 @@ function onboardingOwner(array $teamAttributes = []): array
     $user = User::factory()->create();
     $team = Team::factory()->create($teamAttributes);
     $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
 
     return [$user, $team];
 }
 
 function dashboardRoute(Team $team): string
 {
-    return route('dashboard', ['current_team' => $team->slug]);
+    return route('dashboard');
 }
 
 function onboardingRoute(Team $team): string
 {
-    return route('onboarding.show', ['current_team' => $team->slug]);
+    return route('onboarding.show');
 }
 
 function onboardingStepRoute(Team $team, OnboardingStep $step): string
 {
     return route('onboarding.steps.update', [
-        'current_team' => $team->slug,
         'step' => $step->value,
     ]);
 }
@@ -79,6 +79,7 @@ test('regular members go straight to the dashboard', function () {
     [, $team] = onboardingOwner();
     $member = User::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)
@@ -91,6 +92,7 @@ test('regular members cannot open the setup flow', function () {
     [, $team] = onboardingOwner();
     $member = User::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)
@@ -241,6 +243,7 @@ test('regular members cannot update onboarding steps', function () {
     [, $team] = onboardingOwner();
     $member = User::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)

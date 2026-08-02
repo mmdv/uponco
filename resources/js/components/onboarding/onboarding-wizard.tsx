@@ -3,6 +3,7 @@ import { Check, ChevronLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import OnboardingController from '@/actions/App/Http/Controllers/OnboardingController';
+import AppBackground from '@/components/app-background';
 import { useServiceDraft } from '@/components/services/service-wizard/service-draft';
 import StepOnlineMethod from '@/components/services/service-wizard/step-online-method';
 import { Button } from '@/components/ui/button';
@@ -72,8 +73,7 @@ const isCounted = (screen: ScreenId): boolean =>
     screen !== 'intro' && screen !== 'done';
 
 export default function OnboardingWizard({ onboarding }: Props) {
-    const { auth, currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
+    const { auth } = usePage().props;
 
     const service = useServiceDraft({
         categoryId: null,
@@ -126,7 +126,7 @@ export default function OnboardingWizard({ onboarding }: Props) {
 
         setSaving(true);
         router.patch(
-            OnboardingController.update([teamSlug, step]).url,
+            OnboardingController.update([step]).url,
             { status: 'completed' },
             {
                 preserveScroll: true,
@@ -157,7 +157,7 @@ export default function OnboardingWizard({ onboarding }: Props) {
     }, [current]);
 
     return (
-        <div className="bg-background md:flex md:min-h-svh md:items-center md:justify-center md:bg-muted/40 md:p-6 lg:p-10">
+        <AppBackground className="md:flex md:min-h-svh md:items-center md:justify-center md:p-6 lg:p-10">
             <div
                 className={cn(
                     'flex h-svh w-full flex-col overflow-hidden md:h-auto md:rounded-2xl md:border md:bg-background md:shadow-xl',
@@ -295,7 +295,6 @@ export default function OnboardingWizard({ onboarding }: Props) {
                             {current === 'location' && (
                                 <ScreenLocation
                                     data={onboarding.services}
-                                    teamSlug={teamSlug}
                                     value={locationIds}
                                     onChange={service.setLocationIds}
                                     onNext={goNext}
@@ -333,7 +332,6 @@ export default function OnboardingWizard({ onboarding }: Props) {
                             {current === 'details' && (
                                 <ScreenDetails
                                     data={onboarding.services}
-                                    teamSlug={teamSlug}
                                     service={service}
                                     controls={controls}
                                 />
@@ -353,14 +351,12 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                 />
                             )}
 
-                            {current === 'done' && (
-                                <ScreenDone teamSlug={teamSlug} />
-                            )}
+                            {current === 'done' && <ScreenDone />}
                         </div>
                     </main>
                 </div>
             </div>
-        </div>
+        </AppBackground>
     );
 }
 

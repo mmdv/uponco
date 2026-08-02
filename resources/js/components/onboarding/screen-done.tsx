@@ -6,7 +6,7 @@ import { dashboard } from '@/routes';
 
 import { ScreenBody, ScreenFooterBar } from './onboarding-screen';
 
-export default function ScreenDone({ teamSlug }: { teamSlug: string }) {
+export default function ScreenDone() {
     return (
         <div className="flex min-h-full flex-1 flex-col">
             <ScreenBody className="items-center text-center">
@@ -30,10 +30,7 @@ export default function ScreenDone({ teamSlug }: { teamSlug: string }) {
                         size="lg"
                         className="w-full sm:w-auto sm:min-w-40"
                     >
-                        <Link
-                            href={dashboard(teamSlug)}
-                            data-test="onboarding-done"
-                        >
+                        <Link href={dashboard()} data-test="onboarding-done">
                             Go to dashboard
                         </Link>
                     </Button>

@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
@@ -12,19 +12,17 @@ import type { NavItem } from '@/types';
 
 export default function BusinessLayout({ children }: PropsWithChildren) {
     const { t } = useTranslation('company');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
     const { isCurrentOrParentUrl } = useCurrentUrl();
 
     const sidebarNavItems: NavItem[] = [
         {
             title: t('business.nav.general'),
-            href: editBusiness(teamSlug),
+            href: editBusiness(),
             icon: null,
         },
         {
             title: t('business.nav.teamMembers'),
-            href: businessMembers(teamSlug),
+            href: businessMembers(),
             icon: null,
         },
     ];

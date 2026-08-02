@@ -31,7 +31,6 @@ test('address suggestions are returned for a typed query', function () {
     $this
         ->actingAs($user)
         ->getJson(route('company.locations.address.suggest', [
-            'current_team' => $user->currentTeam->slug,
             'query' => 'Stephansplatz',
             'country' => 'AT',
         ]))
@@ -61,7 +60,6 @@ test('a selected suggestion resolves to storable address fields and coordinates'
     $this
         ->actingAs($user)
         ->getJson(route('company.locations.address.resolve', [
-            'current_team' => $user->currentTeam->slug,
             'place_id' => 'ChIJabc',
         ]))
         ->assertOk()
@@ -83,7 +81,6 @@ test('an unresolvable place id is reported rather than silently saved', function
     $this
         ->actingAs($user)
         ->getJson(route('company.locations.address.resolve', [
-            'current_team' => $user->currentTeam->slug,
             'place_id' => 'nonsense',
         ]))
         ->assertStatus(422);
@@ -101,7 +98,6 @@ test('repeated lookups for the same query are only billed once', function () {
         $this
             ->actingAs($user)
             ->getJson(route('company.locations.address.suggest', [
-                'current_team' => $team->slug,
                 'query' => 'Stephansplatz',
             ]))
             ->assertOk();
@@ -121,7 +117,6 @@ test('members cannot reach the address lookup endpoints', function () {
     $this
         ->actingAs($member)
         ->getJson(route('company.locations.address.suggest', [
-            'current_team' => $team->slug,
             'query' => 'Stephansplatz',
         ]))
         ->assertForbidden();
@@ -136,7 +131,6 @@ test('the lookup degrades quietly when no places key is configured', function ()
     $this
         ->actingAs($user)
         ->getJson(route('company.locations.address.suggest', [
-            'current_team' => $user->currentTeam->slug,
             'query' => 'Stephansplatz',
         ]))
         ->assertOk()

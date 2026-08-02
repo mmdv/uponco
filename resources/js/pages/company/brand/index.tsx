@@ -189,13 +189,11 @@ BrandIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
         {
             title: 'Brand',
-            href: props.currentTeam ? brandIndex(props.currentTeam.slug) : '/',
+            href: props.currentTeam ? brandIndex() : '/',
         },
     ],
 });

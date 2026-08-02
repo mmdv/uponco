@@ -17,14 +17,12 @@ import type { Customer } from '@/types';
 
 type Props = {
     customer: Customer | null;
-    teamSlug: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
 export default function DeleteCustomerModal({
     customer,
-    teamSlug,
     open,
     onOpenChange,
 }: Props) {
@@ -36,7 +34,7 @@ export default function DeleteCustomerModal({
             return;
         }
 
-        router.visit(destroy([teamSlug, customer.id]), {
+        router.visit(destroy([customer.id]), {
             preserveScroll: true,
             onStart: () => setProcessing(true),
             onFinish: () => setProcessing(false),

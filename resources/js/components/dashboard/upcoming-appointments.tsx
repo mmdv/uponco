@@ -17,14 +17,12 @@ const CARD_FROM_MD =
 
 type Props = {
     appointments: UpcomingAppointment[];
-    teamSlug: string;
     onAddAppointment: () => void;
     onView: (appointment: UpcomingAppointment) => void;
 };
 
 export default function UpcomingAppointments({
     appointments,
-    teamSlug,
     onAddAppointment,
     onView,
 }: Props) {
@@ -39,7 +37,7 @@ export default function UpcomingAppointments({
                     </h3>
                     {appointments.length > 0 && (
                         <Link
-                            href={appointmentsIndex.url(teamSlug)}
+                            href={appointmentsIndex.url()}
                             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                         >
                             {t('upcoming.viewAll')}

@@ -13,7 +13,6 @@ import ScreenHeader from './screen-header';
 
 type Props = {
     data: Onboarding['services'];
-    teamSlug: string;
     value: string[];
     onChange: (value: string[]) => void;
     onNext: () => void;
@@ -47,13 +46,7 @@ export default function ScreenLocation(props: Props) {
 }
 
 /** The empty state: creating the first location is the whole screen. */
-function FirstLocation({
-    data,
-    teamSlug,
-    onChange,
-    onNext,
-    specialistIds,
-}: Props) {
+function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
     const { locations } = data;
     const [saved, setSaved] = useState(false);
 
@@ -80,7 +73,6 @@ function FirstLocation({
             showAssignments={false}
             defaultSpecialistIds={specialistIds}
             location={null}
-            teamSlug={teamSlug}
             services={data.serviceOptions}
             specialists={data.specialists}
             countries={data.countries}
@@ -95,14 +87,7 @@ function FirstLocation({
 }
 
 /** The team already has locations, so this is a choice rather than a form. */
-function PickLocation({
-    data,
-    teamSlug,
-    value,
-    onChange,
-    onNext,
-    specialistIds,
-}: Props) {
+function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
     const { locations } = data;
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -167,7 +152,6 @@ function PickLocation({
                 open={modalOpen}
                 onOpenChange={setModalOpen}
                 location={null}
-                teamSlug={teamSlug}
                 services={data.serviceOptions}
                 specialists={data.specialists}
                 countries={data.countries}

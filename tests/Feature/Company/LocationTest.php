@@ -27,7 +27,7 @@ test('the locations page can be rendered', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('company.locations.index', ['current_team' => $team->slug]))
+        ->get(route('company.locations.index'))
         ->assertOk();
 });
 
@@ -37,7 +37,7 @@ test('the company page can be rendered', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('company.index', ['current_team' => $team->slug]))
+        ->get(route('company.index'))
         ->assertOk();
 });
 
@@ -47,7 +47,7 @@ test('a location can be created', function () {
 
     $response = $this
         ->actingAs($user)
-        ->post(route('company.locations.store', ['current_team' => $team->slug]), locationPayload());
+        ->post(route('company.locations.store'), locationPayload());
 
     $response->assertRedirect();
 
@@ -66,7 +66,7 @@ test('creating a location requires valid fields', function () {
 
     $response = $this
         ->actingAs($user)
-        ->post(route('company.locations.store', ['current_team' => $team->slug]), locationPayload([
+        ->post(route('company.locations.store'), locationPayload([
             'name' => '',
             'country' => 'ZZ',
         ]));
@@ -82,7 +82,7 @@ test('a location can be updated', function () {
     $response = $this
         ->actingAs($user)
         ->patch(
-            route('company.locations.update', ['current_team' => $team->slug, 'location' => $location->id]),
+            route('company.locations.update', ['location' => $location->id]),
             locationPayload(['name' => 'New Name', 'is_active' => false]),
         );
 
@@ -102,11 +102,12 @@ test('a location can be created with assigned services and specialists', functio
     $service = Service::factory()->for($category, 'category')->create();
     $specialist = User::factory()->create();
     $team->members()->attach($specialist, ['role' => TeamRole::Member->value]);
+    $specialist->switchTeam($team);
 
     $this
         ->actingAs($user)
         ->post(
-            route('company.locations.store', ['current_team' => $team->slug]),
+            route('company.locations.store'),
             locationPayload([
                 'service_ids' => [$service->id],
                 'user_ids' => [$specialist->id],
@@ -132,7 +133,7 @@ test('updating a location re-syncs services and specialists', function () {
     $this
         ->actingAs($user)
         ->patch(
-            route('company.locations.update', ['current_team' => $team->slug, 'location' => $location->id]),
+            route('company.locations.update', ['location' => $location->id]),
             locationPayload(['service_ids' => [$newService->id]]),
         )
         ->assertRedirect();
@@ -149,7 +150,7 @@ test('a location cannot be assigned a service from another team', function () {
     $this
         ->actingAs($user)
         ->post(
-            route('company.locations.store', ['current_team' => $team->slug]),
+            route('company.locations.store'),
             locationPayload(['service_ids' => [$foreignService->id]]),
         )
         ->assertSessionHasErrors(['service_ids.0']);
@@ -163,7 +164,7 @@ test('a location cannot be assigned a specialist who is not a team member', func
     $this
         ->actingAs($user)
         ->post(
-            route('company.locations.store', ['current_team' => $team->slug]),
+            route('company.locations.store'),
             locationPayload(['user_ids' => [$stranger->id]]),
         )
         ->assertSessionHasErrors(['user_ids.0']);
@@ -176,7 +177,7 @@ test('a location can be deleted', function () {
 
     $response = $this
         ->actingAs($user)
-        ->delete(route('company.locations.destroy', ['current_team' => $team->slug, 'location' => $location->id]));
+        ->delete(route('company.locations.destroy', ['location' => $location->id]));
 
     $response->assertRedirect();
 
@@ -191,10 +192,14 @@ test('a location cannot be updated from another team', function () {
     $otherTeam->members()->attach($user, ['role' => TeamRole::Owner->value]);
     $foreignLocation = Location::factory()->for($otherTeam)->create();
 
+    // The user belongs to both teams but only one is current, so the other
+    // team's records stay out of reach until they switch.
+    $user->switchTeam($team);
+
     $response = $this
         ->actingAs($user)
         ->patch(
-            route('company.locations.update', ['current_team' => $team->slug, 'location' => $foreignLocation->id]),
+            route('company.locations.update', ['location' => $foreignLocation->id]),
             locationPayload(),
         );
 
@@ -205,18 +210,26 @@ test('guests cannot access locations', function () {
     $team = Team::factory()->create();
 
     $this
-        ->get(route('company.locations.index', ['current_team' => $team->slug]))
+        ->get(route('company.locations.index'))
         ->assertRedirect(route('login'));
 });
 
-test('users cannot access locations for teams they do not belong to', function () {
+test('the locations page only lists the current team', function () {
     $user = User::factory()->create();
+    $location = Location::factory()->for($user->currentTeam)->create();
+
     $otherTeam = Team::factory()->create();
+    $otherTeam->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    Location::factory()->for($otherTeam)->create();
 
     $this
         ->actingAs($user)
-        ->get(route('company.locations.index', ['current_team' => $otherTeam->slug]))
-        ->assertForbidden();
+        ->get(route('company.locations.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('locations', 1)
+            ->where('locations.0.id', $location->id)
+        );
 });
 
 test('a location stores the coordinates returned by address autocomplete', function () {
@@ -225,7 +238,7 @@ test('a location stores the coordinates returned by address autocomplete', funct
 
     $this
         ->actingAs($user)
-        ->post(route('company.locations.store', ['current_team' => $team->slug]), locationPayload([
+        ->post(route('company.locations.store'), locationPayload([
             'place_id' => 'ChIJn8o2UZ4HbUcRRluiUYrlwv0',
             'formatted_address' => 'Stephansplatz 1, 1010 Wien, Austria',
             'latitude' => 48.2085,
@@ -273,7 +286,7 @@ test('coordinates are rejected unless both are supplied', function () {
 
     $this
         ->actingAs($user)
-        ->post(route('company.locations.store', ['current_team' => $team->slug]), locationPayload([
+        ->post(route('company.locations.store'), locationPayload([
             'latitude' => 48.2085,
         ]))
         ->assertSessionHasErrors('longitude');

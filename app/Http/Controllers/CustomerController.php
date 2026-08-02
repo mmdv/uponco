@@ -54,7 +54,7 @@ class CustomerController extends Controller
     /**
      * Update the specified customer.
      */
-    public function update(SaveCustomerRequest $request, string $current_team, Customer $customer): RedirectResponse
+    public function update(SaveCustomerRequest $request, Customer $customer): RedirectResponse
     {
         $this->authorizeCustomer($request, $customer);
 
@@ -68,7 +68,7 @@ class CustomerController extends Controller
     /**
      * Delete the specified customer.
      */
-    public function destroy(Request $request, string $current_team, Customer $customer): RedirectResponse
+    public function destroy(Request $request, Customer $customer): RedirectResponse
     {
         $this->authorizeCustomer($request, $customer);
 

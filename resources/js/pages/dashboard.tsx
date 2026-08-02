@@ -52,7 +52,6 @@ export default function Dashboard({
 }: Props) {
     const { t } = useTranslation('dashboard');
     const { auth, currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
     const companyName = currentTeam?.name ?? '';
     const firstName = auth.user.name.split(' ')[0];
     const isMobile = useIsMobile();
@@ -119,12 +118,11 @@ export default function Dashboard({
     */
     const bookingShareCard = (
         <BookingShareCard
-            teamSlug={teamSlug}
             companyName={companyName}
             onAddAppointment={() => setOpenForm('appointment')}
         />
     );
-    const manageCompanyCard = <ManageCompanyCard teamSlug={teamSlug} />;
+    const manageCompanyCard = <ManageCompanyCard />;
 
     return (
         <>
@@ -144,7 +142,6 @@ export default function Dashboard({
                     <div className="flex min-w-0 flex-col gap-6 lg:col-span-2 lg:col-start-1 lg:row-start-1">
                         <UpcomingAppointments
                             appointments={upcoming}
-                            teamSlug={teamSlug}
                             onAddAppointment={() => setOpenForm('appointment')}
                             onView={(appointment) => {
                                 setViewingAppointment(appointment);
@@ -158,11 +155,7 @@ export default function Dashboard({
                             <BookingsChart trend={trend} mounted={mounted} />
                         )}
 
-                        <DashboardStats
-                            stats={safeStats}
-                            teamSlug={teamSlug}
-                            mounted={mounted}
-                        />
+                        <DashboardStats stats={safeStats} mounted={mounted} />
 
                         {isMobile && manageCompanyCard}
                     </div>
@@ -200,7 +193,6 @@ export default function Dashboard({
                     open={editOpen}
                     onOpenChange={setEditOpen}
                     appointment={editingAppointment}
-                    teamSlug={teamSlug}
                     timezone={timezone}
                     services={formOptions.appointments.services}
                     locations={formOptions.appointments.locations}
@@ -218,7 +210,6 @@ export default function Dashboard({
                         setOpenForm(open ? form : null)
                     }
                     options={formOptions}
-                    teamSlug={teamSlug}
                     timezone={timezone}
                     availableSlots={availableSlots}
                     slotsLoading={slotsLoading}
@@ -233,7 +224,7 @@ Dashboard.layout = (props: { currentTeam?: { slug: string } | null }) => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? dashboard(props.currentTeam.slug) : '/',
+            href: props.currentTeam ? dashboard() : '/',
         },
     ],
 });

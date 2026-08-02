@@ -11,6 +11,7 @@ function teamMemberWithRole(Team $team, TeamRole $role): User
 {
     $user = User::factory()->create();
     $team->members()->attach($user, ['role' => $role->value]);
+    $user->switchTeam($team);
 
     return $user;
 }
@@ -35,7 +36,7 @@ test('members are forbidden from company management pages', function (string $ro
 
     $this
         ->actingAs($member)
-        ->get(route($routeName, ['current_team' => $team->slug]))
+        ->get(route($routeName))
         ->assertForbidden();
 })->with('admin only company pages');
 
@@ -45,7 +46,7 @@ test('admins can view company management pages', function (string $routeName) {
 
     $this
         ->actingAs($admin)
-        ->get(route($routeName, ['current_team' => $team->slug]))
+        ->get(route($routeName))
         ->assertOk();
 })->with('admin only company pages');
 
@@ -55,11 +56,11 @@ test('members cannot create services or locations', function () {
 
     $this
         ->actingAs($member)
-        ->post(route('company.services.store', ['current_team' => $team->slug]), [])
+        ->post(route('company.services.store'), [])
         ->assertForbidden();
 
     $this
         ->actingAs($member)
-        ->post(route('company.locations.store', ['current_team' => $team->slug]), [])
+        ->post(route('company.locations.store'), [])
         ->assertForbidden();
 });

@@ -18,15 +18,11 @@ class EnsureTeamMembership
      */
     public function handle(Request $request, Closure $next, ?string $minimumRole = null): Response
     {
-        [$user, $team] = [$request->user(), $this->team($request)];
+        [$user, $team] = [$request->user(), $request->user()?->currentTeam];
 
         abort_if(! $user || ! $team || ! $user->belongsToTeam($team), 403);
 
         $this->ensureTeamMemberHasRequiredRole($user, $team, $minimumRole);
-
-        if ($request->route('current_team') && ! $user->isCurrentTeam($team)) {
-            $user->switchTeam($team);
-        }
 
         return $next($request);
     }
@@ -50,19 +46,5 @@ class EnsureTeamMembership
             ! $role->isAtLeast($requiredRole),
             403,
         );
-    }
-
-    /**
-     * Get the team associated with the request.
-     */
-    protected function team(Request $request): ?Team
-    {
-        $team = $request->route('current_team') ?? $request->route('team');
-
-        if (is_string($team)) {
-            $team = Team::where('slug', $team)->first();
-        }
-
-        return $team;
     }
 }

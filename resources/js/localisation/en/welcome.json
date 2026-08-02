@@ -1,10 +1,12 @@
 {
     "nav": {
+        "home": "Home",
         "signIn": "Sign in",
         "getStarted": "Get started",
         "dashboard": "Dashboard",
         "features": "Features",
-        "pricing": "Pricing"
+        "pricing": "Pricing",
+        "menu": "Menu"
     },
     "hero": {
         "badge": "First 100 appointments free — no card required",

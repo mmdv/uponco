@@ -22,6 +22,7 @@ function dashboardMember(): array
     $member = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     return [$member, $team];
 }
@@ -37,6 +38,7 @@ function dashboardOwner(): array
     $owner = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
 
     OnboardingProgress::create([
         'team_id' => $team->id,
@@ -63,7 +65,7 @@ test('authenticated users can visit the dashboard', function () {
 
     $this
         ->actingAs($owner)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk();
 });
 
@@ -86,7 +88,7 @@ test('the dashboard reports booking and customer stats when onboarding is hidden
 
     $this
         ->actingAs($member)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard')
@@ -119,7 +121,6 @@ test('the dashboard exposes the booking options and slots its appointment forms 
     $this
         ->actingAs($owner)
         ->get(route('dashboard', [
-            'current_team' => $team->slug,
             'service_id' => $service->id,
             'specialist_id' => $owner->id,
             'date' => now()->addDay()->toDateString(),
@@ -134,7 +135,7 @@ test('the dashboard exposes the booking options and slots its appointment forms 
 
     $this
         ->actingAs($owner)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('timezone')
@@ -148,6 +149,7 @@ test('members only see their own bookings in the dashboard stats and upcoming li
     [$member, $team] = dashboardMember();
     $other = User::factory()->create();
     $team->members()->attach($other, ['role' => TeamRole::Member->value]);
+    $other->switchTeam($team);
 
     // The member's own bookings: one upcoming, one past.
     Appointment::factory()->create([
@@ -173,7 +175,7 @@ test('members only see their own bookings in the dashboard stats and upcoming li
 
     $this
         ->actingAs($member)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('stats.totalBookings', 2)
@@ -186,6 +188,7 @@ test('admins see every specialist booking in the dashboard stats and upcoming li
     [$owner, $team] = dashboardOwner();
     $member = User::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     Appointment::factory()->create([
         'team_id' => $team->id,
@@ -202,7 +205,7 @@ test('admins see every specialist booking in the dashboard stats and upcoming li
 
     $this
         ->actingAs($owner)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('stats.totalBookings', 3)
@@ -235,7 +238,7 @@ test('the dashboard reports a seven day booking trend with today counted', funct
 
     $this
         ->actingAs($member)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('weeklyTrend', 7)
@@ -253,6 +256,7 @@ test('members only see their own bookings in the week ahead trend', function () 
 
     $other = User::factory()->create();
     $team->members()->attach($other, ['role' => TeamRole::Member->value]);
+    $other->switchTeam($team);
 
     // The member's own booking today.
     Appointment::factory()->create([
@@ -272,7 +276,7 @@ test('members only see their own bookings in the week ahead trend', function () 
 
     $this
         ->actingAs($member)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('weeklyTrend.0.count', 1)
@@ -283,9 +287,10 @@ test('the dashboard sends owners to the setup flow until onboarding is finished'
     $owner = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->get(route('dashboard', ['current_team' => $team->slug]))
-        ->assertRedirect(route('onboarding.show', ['current_team' => $team->slug]));
+        ->get(route('dashboard'))
+        ->assertRedirect(route('onboarding.show'));
 });

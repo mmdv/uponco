@@ -19,7 +19,7 @@ test('the customers page can be rendered', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('customers.index', ['current_team' => $team->slug]))
+        ->get(route('customers.index'))
         ->assertOk();
 });
 
@@ -30,7 +30,7 @@ test('the customers list is paginated at 50 per page', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('customers.index', ['current_team' => $team->slug]))
+        ->get(route('customers.index'))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('customers/index')
             ->where('customers.total', 60)
@@ -48,7 +48,7 @@ test('the customers list can navigate to a second page', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('customers.index', ['current_team' => $team->slug, 'page' => 2]))
+        ->get(route('customers.index', ['page' => 2]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('customers.current_page', 2)
             ->has('customers.data', 10)
@@ -70,10 +70,10 @@ test('the customers list can be searched by name, email, or phone', function () 
         'phone' => '+1 555 333 4444',
     ]);
 
-    $assertMatchesAlice = function (string $search) use ($user, $team) {
+    $assertMatchesAlice = function (string $search) use ($user) {
         $this
             ->actingAs($user)
-            ->get(route('customers.index', ['current_team' => $team->slug, 'search' => $search]))
+            ->get(route('customers.index', ['search' => $search]))
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('filters.search', $search)
                 ->has('customers.data', 1)
@@ -95,7 +95,7 @@ test('search results are scoped to the current team', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('customers.index', ['current_team' => $team->slug, 'search' => 'Shared Name']))
+        ->get(route('customers.index', ['search' => 'Shared Name']))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->has('customers.data', 1)
         );
@@ -107,7 +107,7 @@ test('a customer can be created', function () {
 
     $response = $this
         ->actingAs($user)
-        ->post(route('customers.store', ['current_team' => $team->slug]), customerPayload());
+        ->post(route('customers.store'), customerPayload());
 
     $response->assertRedirect();
 
@@ -124,7 +124,7 @@ test('a customer can be created with only an email', function () {
 
     $this
         ->actingAs($user)
-        ->post(route('customers.store', ['current_team' => $team->slug]), customerPayload([
+        ->post(route('customers.store'), customerPayload([
             'phone' => '',
         ]))
         ->assertRedirect();
@@ -142,7 +142,7 @@ test('a customer can be created with only a phone', function () {
 
     $this
         ->actingAs($user)
-        ->post(route('customers.store', ['current_team' => $team->slug]), customerPayload([
+        ->post(route('customers.store'), customerPayload([
             'email' => '',
         ]))
         ->assertRedirect();
@@ -160,7 +160,7 @@ test('creating a customer requires a name', function () {
 
     $this
         ->actingAs($user)
-        ->post(route('customers.store', ['current_team' => $team->slug]), customerPayload([
+        ->post(route('customers.store'), customerPayload([
             'name' => '',
         ]))
         ->assertSessionHasErrors('name');
@@ -172,7 +172,7 @@ test('creating a customer requires at least an email or a phone', function () {
 
     $this
         ->actingAs($user)
-        ->post(route('customers.store', ['current_team' => $team->slug]), customerPayload([
+        ->post(route('customers.store'), customerPayload([
             'email' => '',
             'phone' => '',
         ]))
@@ -186,7 +186,7 @@ test('a customer can be updated', function () {
 
     $this
         ->actingAs($user)
-        ->patch(route('customers.update', ['current_team' => $team->slug, 'customer' => $customer]), customerPayload([
+        ->patch(route('customers.update', ['customer' => $customer]), customerPayload([
             'name' => 'Updated Name',
         ]))
         ->assertRedirect();
@@ -204,7 +204,7 @@ test('a customer can be deleted', function () {
 
     $this
         ->actingAs($user)
-        ->delete(route('customers.destroy', ['current_team' => $team->slug, 'customer' => $customer]))
+        ->delete(route('customers.destroy', ['customer' => $customer]))
         ->assertRedirect();
 
     $this->assertSoftDeleted($customer);
@@ -217,7 +217,7 @@ test('a customer from another team cannot be updated', function () {
 
     $this
         ->actingAs($user)
-        ->patch(route('customers.update', ['current_team' => $team->slug, 'customer' => $otherCustomer]), customerPayload())
+        ->patch(route('customers.update', ['customer' => $otherCustomer]), customerPayload())
         ->assertForbidden();
 });
 
@@ -228,6 +228,6 @@ test('a customer from another team cannot be deleted', function () {
 
     $this
         ->actingAs($user)
-        ->delete(route('customers.destroy', ['current_team' => $team->slug, 'customer' => $otherCustomer]))
+        ->delete(route('customers.destroy', ['customer' => $otherCustomer]))
         ->assertForbidden();
 });

@@ -33,11 +33,11 @@ test('REPRO double POST same slot', function () {
     ];
 
     $this->actingAs($user)
-        ->post(route('appointments.store', ['current_team' => $team->slug]), $payload)
+        ->post(route('appointments.store'), $payload)
         ->assertSessionHasNoErrors();
 
     $this->actingAs($user)
-        ->post(route('appointments.store', ['current_team' => $team->slug]), $payload)
+        ->post(route('appointments.store'), $payload)
         ->assertSessionHasErrors('start_at');
 
     expect(Appointment::count())->toBe(1);

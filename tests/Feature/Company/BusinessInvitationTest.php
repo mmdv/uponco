@@ -12,10 +12,11 @@ test('team invitations can be created', function () {
     $owner = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->post(route('company.business.invitations.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.invitations.store'), [
             'email' => 'invited@example.com',
             'role' => TeamRole::Member->value,
         ])
@@ -37,11 +38,14 @@ test('team invitations can be created by admins', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->post(route('company.business.invitations.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.invitations.store'), [
             'email' => 'invited@example.com',
             'role' => TeamRole::Member->value,
         ])
@@ -57,11 +61,14 @@ test('existing team members cannot be invited', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->post(route('company.business.invitations.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.invitations.store'), [
             'email' => 'member@example.com',
             'role' => TeamRole::Member->value,
         ])
@@ -74,6 +81,7 @@ test('duplicate invitations cannot be created', function () {
     $owner = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
 
     TeamInvitation::factory()->create([
         'team_id' => $team->id,
@@ -83,7 +91,7 @@ test('duplicate invitations cannot be created', function () {
 
     $this
         ->actingAs($owner)
-        ->post(route('company.business.invitations.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.invitations.store'), [
             'email' => 'invited@example.com',
             'role' => TeamRole::Member->value,
         ])
@@ -96,11 +104,14 @@ test('team invitations cannot be created by members', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)
-        ->post(route('company.business.invitations.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.invitations.store'), [
             'email' => 'invited@example.com',
             'role' => TeamRole::Member->value,
         ])
@@ -113,6 +124,8 @@ test('team invitations can be cancelled by owners', function () {
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
 
+    $owner->switchTeam($team);
+
     $invitation = TeamInvitation::factory()->create([
         'team_id' => $team->id,
         'invited_by' => $owner->id,
@@ -120,7 +133,7 @@ test('team invitations can be cancelled by owners', function () {
 
     $this
         ->actingAs($owner)
-        ->delete(route('company.business.invitations.destroy', ['current_team' => $team->slug, 'invitation' => $invitation->code]))
+        ->delete(route('company.business.invitations.destroy', ['invitation' => $invitation->code]))
         ->assertRedirect();
 
     $this->assertDatabaseMissing('team_invitations', [

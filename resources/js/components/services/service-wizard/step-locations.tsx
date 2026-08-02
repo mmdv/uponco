@@ -12,7 +12,6 @@ import type { SelectOption } from '@/types';
  * branch, so the location choice comes before the rest of the details.
  */
 export default function StepLocations({
-    teamSlug,
     locations,
     services,
     specialists,
@@ -20,7 +19,6 @@ export default function StepLocations({
     value,
     onChange,
 }: {
-    teamSlug: string;
     locations: SelectOption[];
     services: SelectOption[];
     specialists: SelectOption[];
@@ -111,7 +109,6 @@ export default function StepLocations({
                 open={drawerOpen}
                 onOpenChange={setDrawerOpen}
                 location={null}
-                teamSlug={teamSlug}
                 services={services}
                 specialists={specialists}
                 countries={countries}

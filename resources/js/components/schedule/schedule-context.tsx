@@ -1,4 +1,4 @@
-import { router, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
@@ -68,8 +68,6 @@ export function ScheduleProvider({
     children,
 }: ScheduleProviderProps) {
     const { t } = useTranslation('schedule');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
 
     const [activeMonthKey, setActiveMonthKey] = React.useState(defaultMonthKey);
     const [selectedCells, setSelectedCells] = React.useState<Set<CellId>>(
@@ -127,7 +125,7 @@ export function ScheduleProvider({
             }
 
             router.post(
-                scheduleStore(teamSlug).url,
+                scheduleStore().url,
                 { assignments, slots: nextSlots },
                 {
                     preserveScroll: true,
@@ -142,7 +140,7 @@ export function ScheduleProvider({
                 },
             );
         },
-        [selectedCells, teamSlug, t],
+        [selectedCells, t],
     );
 
     const selectedDayCount = React.useMemo(() => {

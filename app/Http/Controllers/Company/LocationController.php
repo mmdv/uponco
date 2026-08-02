@@ -65,7 +65,7 @@ class LocationController extends Controller
     /**
      * Update the specified location.
      */
-    public function update(SaveLocationRequest $request, string $current_team, Location $location): RedirectResponse
+    public function update(SaveLocationRequest $request, Location $location): RedirectResponse
     {
         $this->authorizeLocation($request, $location);
 
@@ -82,7 +82,7 @@ class LocationController extends Controller
     /**
      * Delete the specified location.
      */
-    public function destroy(Request $request, string $current_team, Location $location): RedirectResponse
+    public function destroy(Request $request, Location $location): RedirectResponse
     {
         $this->authorizeLocation($request, $location);
 

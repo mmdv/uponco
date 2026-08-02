@@ -77,6 +77,16 @@
         #f6f9ff 55%,
         #fbfcff
     );
+    /*
+     * The page backdrop, painted by AppBackground: a near-white base with
+     * soft blooms of the brand blue floating over it. Light on purpose —
+     * enough colour to lift the page off flat white, never enough to
+     * compete with the content sitting on top.
+     */
+    --app-base: #fdfeff;
+    --app-tint-strong: rgba(0, 99, 255, 0.13);
+    --app-tint-soft: rgba(56, 132, 254, 0.09);
+    --app-tint-faint: rgba(0, 99, 255, 0.05);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
@@ -120,6 +130,10 @@
         #131a29 55%,
         #101215
     );
+    --app-base: #0d0f12;
+    --app-tint-strong: rgba(56, 132, 254, 0.22);
+    --app-tint-soft: rgba(56, 132, 254, 0.13);
+    --app-tint-faint: rgba(56, 132, 254, 0.07);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
@@ -160,6 +174,44 @@
         }
     }
 
+    /*
+     * Backdrop motion. Deliberately measured — a full cycle takes the best
+     * part of a minute, so the page never looks like it is doing something.
+     */
+    --animate-app-drift-a: app-drift-a 48s ease-in-out infinite;
+    --animate-app-drift-b: app-drift-b 64s ease-in-out infinite;
+    --animate-app-breathe: app-breathe 26s ease-in-out infinite;
+
+    @keyframes app-drift-a {
+        0%,
+        100% {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+            transform: translate3d(-6%, -8%, 0) scale(1.12);
+        }
+    }
+
+    @keyframes app-drift-b {
+        0%,
+        100% {
+            transform: translate3d(0, 0, 0) scale(1.05);
+        }
+        50% {
+            transform: translate3d(8%, 5%, 0) scale(0.92);
+        }
+    }
+
+    @keyframes app-breathe {
+        0%,
+        100% {
+            opacity: 0.55;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
     /* Light travelling down the centre rail of the About timeline. */
     --animate-rail-flow: rail-flow 5s ease-in-out infinite;
 
@@ -191,6 +243,38 @@
  */
 @utility bg-primary-gradient-soft {
     background-image: var(--primary-gradient-soft);
+}
+
+/*
+ * The layers behind every page, driven by AppBackground. Kept as tokens so the
+ * whole app's backdrop can be re-tuned from one place.
+ */
+@utility bg-app-base {
+    background-color: var(--app-base);
+}
+
+@utility bg-app-bloom {
+    background-image: radial-gradient(
+        closest-side,
+        var(--app-tint-strong),
+        transparent
+    );
+}
+
+@utility bg-app-bloom-soft {
+    background-image: radial-gradient(
+        closest-side,
+        var(--app-tint-soft),
+        transparent
+    );
+}
+
+@utility bg-app-bloom-faint {
+    background-image: radial-gradient(
+        closest-side,
+        var(--app-tint-faint),
+        transparent
+    );
 }
 
 /* Soft, layered card shadow used across the app for a lighter, airier feel. */

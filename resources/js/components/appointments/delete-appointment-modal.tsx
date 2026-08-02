@@ -18,14 +18,12 @@ import type { Appointment } from '@/types';
 
 type Props = {
     appointment: Appointment | null;
-    teamSlug: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
 export default function DeleteAppointmentModal({
     appointment,
-    teamSlug,
     open,
     onOpenChange,
 }: Props) {
@@ -37,7 +35,7 @@ export default function DeleteAppointmentModal({
             return;
         }
 
-        router.visit(destroy([teamSlug, appointment.id]), {
+        router.visit(destroy([appointment.id]), {
             preserveScroll: true,
             onStart: () => setProcessing(true),
             onFinish: () => setProcessing(false),

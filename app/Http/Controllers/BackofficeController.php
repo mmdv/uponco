@@ -50,7 +50,7 @@ class BackofficeController extends Controller
     /**
      * Delete a team and detach any users currently pointed at it.
      */
-    public function destroyTeam(DeleteBackofficeTeamRequest $request, string $current_team, Team $team): RedirectResponse
+    public function destroyTeam(DeleteBackofficeTeamRequest $request, Team $team): RedirectResponse
     {
         DB::transaction(function () use ($team): void {
             User::where('current_team_id', $team->id)
@@ -78,7 +78,7 @@ class BackofficeController extends Controller
      * Delete a user. Their memberships (and cascaded data) are removed by the
      * database foreign keys.
      */
-    public function destroyUser(Request $request, string $current_team, User $user): RedirectResponse
+    public function destroyUser(Request $request, User $user): RedirectResponse
     {
         $user->delete();
 

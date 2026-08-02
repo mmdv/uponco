@@ -1,10 +1,12 @@
 {
     "nav": {
+        "home": "Əsas",
         "signIn": "Daxil ol",
         "getStarted": "Başla",
         "dashboard": "İdarə paneli",
         "features": "İmkanlar",
-        "pricing": "Qiymətlər"
+        "pricing": "Qiymətlər",
+        "menu": "Menyu"
     },
     "hero": {
         "badge": "İlk 100 görüş pulsuz — kart tələb olunmur",

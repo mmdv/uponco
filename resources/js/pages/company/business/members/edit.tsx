@@ -1,4 +1,4 @@
-import { Form, Head, usePage } from '@inertiajs/react';
+import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 
 import {
@@ -73,8 +73,7 @@ export default function EditMember({
 }: Props) {
     const { t } = useTranslation('company');
     const [section, setSection] = useState<SectionKey>('account');
-    const { currentTeam } = usePage().props;
-    const memberArg: SectionArg = [currentTeam?.slug ?? '', member.id];
+    const memberArg: SectionArg = [member.id];
 
     const sections: { key: SectionKey; title: string }[] = [
         { key: 'account', title: t('business.memberEdit.sections.account') },
@@ -167,7 +166,7 @@ export default function EditMember({
     );
 }
 
-type SectionArg = [string, number];
+type SectionArg = [number];
 
 function AccountSection({
     member,
@@ -645,21 +644,15 @@ EditMember.layout = (props: {
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
         {
             title: 'Business',
-            href: props.currentTeam
-                ? editBusiness(props.currentTeam.slug)
-                : '/',
+            href: editBusiness(),
         },
         {
             title: 'Team Members',
-            href: props.currentTeam
-                ? businessMembers(props.currentTeam.slug)
-                : '/',
+            href: businessMembers(),
         },
         {
             title: props.member?.name ?? 'Member',

@@ -5,7 +5,6 @@ use App\Http\Controllers\Settings\GoogleIntegrationController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Teams\TeamController;
-use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
@@ -42,7 +41,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('teams', [TeamController::class, 'store'])->name('teams.store');
 
-    Route::post('teams/{team}/switch', [TeamController::class, 'switch'])
-        ->middleware(EnsureTeamMembership::class)
-        ->name('teams.switch');
+    Route::post('teams/{team}/switch', [TeamController::class, 'switch'])->name('teams.switch');
 });

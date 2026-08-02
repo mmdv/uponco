@@ -28,7 +28,7 @@ class ServiceCategoryController extends Controller
     /**
      * Update the specified service category.
      */
-    public function update(SaveServiceCategoryRequest $request, string $current_team, ServiceCategory $serviceCategory): RedirectResponse
+    public function update(SaveServiceCategoryRequest $request, ServiceCategory $serviceCategory): RedirectResponse
     {
         $this->authorizeCategory($request, $serviceCategory);
 
@@ -46,7 +46,7 @@ class ServiceCategoryController extends Controller
      * with it. The foreign key nulls on delete, but categories soft-delete and
      * never trigger it, so the services are detached explicitly.
      */
-    public function destroy(Request $request, string $current_team, ServiceCategory $serviceCategory): RedirectResponse
+    public function destroy(Request $request, ServiceCategory $serviceCategory): RedirectResponse
     {
         $this->authorizeCategory($request, $serviceCategory);
 

@@ -13,7 +13,6 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     location: Location | null;
-    teamSlug: string;
     services: SelectOption[];
     specialists: SelectOption[];
     countries: SelectOption[];
@@ -27,7 +26,6 @@ export default function LocationFormModal({
     open,
     onOpenChange,
     location,
-    teamSlug,
     services,
     specialists,
     countries,
@@ -54,7 +52,6 @@ export default function LocationFormModal({
                 <LocationFormFields
                     key={location?.id ?? 'new'}
                     location={location}
-                    teamSlug={teamSlug}
                     services={services}
                     specialists={specialists}
                     countries={countries}

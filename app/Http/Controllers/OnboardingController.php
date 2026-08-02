@@ -24,7 +24,7 @@ class OnboardingController extends Controller
      * last step redirects back here, and the payload's `completed` flag is what
      * tells the flow to show its closing screen.
      */
-    public function show(Request $request, string $current_team): Response
+    public function show(Request $request): Response
     {
         $user = $request->user();
         $team = $user->currentTeam;
@@ -38,7 +38,7 @@ class OnboardingController extends Controller
     /**
      * Record the status of a single onboarding step for the current user.
      */
-    public function update(Request $request, string $current_team, OnboardingStep $step): RedirectResponse
+    public function update(Request $request, OnboardingStep $step): RedirectResponse
     {
         $user = $request->user();
         $team = $user->currentTeam;

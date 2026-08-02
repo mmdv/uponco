@@ -61,7 +61,7 @@ class AppointmentController extends Controller
     /**
      * Update the specified appointment.
      */
-    public function update(SaveAppointmentRequest $request, string $current_team, Appointment $appointment): RedirectResponse
+    public function update(SaveAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment);
 
@@ -81,7 +81,7 @@ class AppointmentController extends Controller
      * bookings so the appointment can never land on an unavailable time, even if
      * the client allowed the drop.
      */
-    public function reschedule(Request $request, string $current_team, Appointment $appointment): RedirectResponse
+    public function reschedule(Request $request, Appointment $appointment): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment);
 
@@ -121,7 +121,7 @@ class AppointmentController extends Controller
     /**
      * Delete the specified appointment.
      */
-    public function destroy(Request $request, string $current_team, Appointment $appointment): RedirectResponse
+    public function destroy(Request $request, Appointment $appointment): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment);
 

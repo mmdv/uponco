@@ -26,7 +26,7 @@ export function AppBottomNav() {
         return null;
     }
 
-    const dashboardUrl = dashboard(currentTeam.slug);
+    const dashboardUrl = dashboard();
 
     const items: (NavItem & { isDashboard?: boolean })[] = [
         {
@@ -37,18 +37,18 @@ export function AppBottomNav() {
         },
         {
             title: t('main.appointments'),
-            href: appointments(currentTeam.slug),
+            href: appointments(),
             icon: CalendarDays,
         },
         {
             title: t('main.customers'),
-            href: customers(currentTeam.slug),
+            href: customers(),
             icon: Users,
         },
         isTeamManager(currentTeam.role)
             ? {
                   title: t('main.company'),
-                  href: company(currentTeam.slug),
+                  href: company(),
                   icon: Building2,
               }
             : {

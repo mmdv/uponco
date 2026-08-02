@@ -42,7 +42,6 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     appointment: Appointment | null;
-    teamSlug: string;
     timezone: string;
     services: AppointmentServiceOption[];
     locations: AppointmentLocationOption[];
@@ -56,7 +55,6 @@ export default function AppointmentFormDrawer({
     open,
     onOpenChange,
     appointment,
-    teamSlug,
     timezone,
     services,
     locations,
@@ -88,7 +86,6 @@ export default function AppointmentFormDrawer({
                 <AppointmentFormFields
                     key={appointment?.id ?? 'new'}
                     appointment={appointment}
-                    teamSlug={teamSlug}
                     timezone={timezone}
                     services={services}
                     locations={locations}
@@ -106,7 +103,6 @@ export default function AppointmentFormDrawer({
 
 type FieldsProps = {
     appointment: Appointment | null;
-    teamSlug: string;
     timezone: string;
     services: AppointmentServiceOption[];
     locations: AppointmentLocationOption[];
@@ -120,7 +116,6 @@ type FieldsProps = {
 
 function AppointmentFormFields({
     appointment,
-    teamSlug,
     timezone,
     services,
     locations,
@@ -337,9 +332,7 @@ function AppointmentFormFields({
 
     return (
         <Form
-            {...(isEditing
-                ? update.form([teamSlug, appointment.id])
-                : store.form(teamSlug))}
+            {...(isEditing ? update.form([appointment.id]) : store.form())}
             options={{ preserveScroll: true }}
             onSuccess={onSuccess}
             className="flex min-h-0 flex-1 flex-col"

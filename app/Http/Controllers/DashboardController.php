@@ -36,7 +36,7 @@ class DashboardController extends Controller
         // The dashboard is not much use before there is anything to show, so
         // whoever can set the team up is taken through onboarding instead.
         if ($isTeamAdmin && OnboardingPayload::progress($user, $team)->completed_at === null) {
-            return to_route('onboarding.show', $team);
+            return to_route('onboarding.show');
         }
 
         $timezone = $team->timezone ?: config('app.timezone');

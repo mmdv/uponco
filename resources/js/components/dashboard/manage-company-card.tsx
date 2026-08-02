@@ -4,10 +4,6 @@ import { Building2, ChevronRight, MapPin, Palette, Wrench } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as companyIndex } from '@/routes/company';
 
-type Props = {
-    teamSlug: string;
-};
-
 /** The facets of the company hub, surfaced so the destination is obvious. */
 const FACETS = [
     { icon: Wrench, key: 'services' },
@@ -20,12 +16,12 @@ const FACETS = [
  * Points at the company hub, where the details behind the booking page —
  * services, locations, people and branding — are managed.
  */
-export default function ManageCompanyCard({ teamSlug }: Props) {
+export default function ManageCompanyCard() {
     const { t } = useTranslation('dashboard');
 
     return (
         <Link
-            href={companyIndex.url(teamSlug)}
+            href={companyIndex.url()}
             data-test="dashboard-manage-company"
             className="group flex max-w-full flex-col gap-4 rounded-2xl border border-[#f1f3f5] bg-card p-5 text-card-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/30 sm:p-6 dark:border-border"
         >

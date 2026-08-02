@@ -78,7 +78,7 @@ test('the appointments page can be rendered', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('appointments.index', ['current_team' => $team->slug]))
+        ->get(route('appointments.index'))
         ->assertOk();
 });
 
@@ -98,7 +98,7 @@ test('the appointments page still renders after the booked service is deleted', 
 
     $this
         ->actingAs($setup['user'])
-        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->get(route('appointments.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('appointments', 1)
@@ -111,6 +111,7 @@ test('admins see every appointment in the team', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
     $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($setup['team']);
 
     Appointment::factory()->create([
         'team_id' => $setup['team']->id,
@@ -127,7 +128,7 @@ test('admins see every appointment in the team', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->get(route('appointments.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->has('appointments', 2));
 });
@@ -136,6 +137,7 @@ test('members only see appointments assigned to them', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
     $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($setup['team']);
 
     $mine = Appointment::factory()->create([
         'team_id' => $setup['team']->id,
@@ -152,7 +154,7 @@ test('members only see appointments assigned to them', function () {
 
     $this
         ->actingAs($member)
-        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->get(route('appointments.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('appointments', 1)
@@ -164,6 +166,7 @@ test('a member cannot delete an appointment that is not theirs', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
     $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($setup['team']);
 
     $appointment = Appointment::factory()->create([
         'team_id' => $setup['team']->id,
@@ -174,7 +177,7 @@ test('a member cannot delete an appointment that is not theirs', function () {
 
     $this
         ->actingAs($member)
-        ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $appointment->id]))
+        ->delete(route('appointments.destroy', ['appointment' => $appointment->id]))
         ->assertForbidden();
 
     $this->assertDatabaseHas('appointments', ['id' => $appointment->id, 'deleted_at' => null]);
@@ -184,6 +187,7 @@ test('a member can delete their own appointment', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();
     $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($setup['team']);
 
     $appointment = Appointment::factory()->create([
         'team_id' => $setup['team']->id,
@@ -194,7 +198,7 @@ test('a member can delete their own appointment', function () {
 
     $this
         ->actingAs($member)
-        ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $appointment->id]))
+        ->delete(route('appointments.destroy', ['appointment' => $appointment->id]))
         ->assertRedirect();
 
     $this->assertSoftDeleted('appointments', ['id' => $appointment->id]);
@@ -206,7 +210,7 @@ test('a service without a category is still bookable', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
+        ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertRedirect()
         ->assertSessionHasNoErrors();
 
@@ -222,7 +226,7 @@ test('the appointments page renders a service without a category', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->get(route('appointments.index'))
         ->assertOk();
 });
 
@@ -231,7 +235,7 @@ test('an appointment can be created and creates a customer', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
+        ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertRedirect();
 
     $this->assertDatabaseHas('customers', [
@@ -259,7 +263,7 @@ test('creating an appointment emails the booking details to the customer', funct
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
+        ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertRedirect();
 
     Notification::assertSentOnDemand(
@@ -337,7 +341,7 @@ test('no confirmation email is sent when the customer only provided a phone', fu
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup, [
+        ->post(route('appointments.store'), appointmentPayload($setup, [
             'customer_email' => null,
             'customer_phone' => '+1 555 010 2030',
         ]))
@@ -352,7 +356,7 @@ test('an appointment reuses an existing customer with the same email', function 
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
+        ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertRedirect();
 
     expect(Customer::count())->toBe(1);
@@ -406,7 +410,7 @@ test('booking is rejected on a date the specialist has not scheduled', function 
     $this
         ->actingAs($setup['user'])
         ->post(
-            route('appointments.store', ['current_team' => $setup['team']->slug]),
+            route('appointments.store'),
             appointmentPayload($setup, ['start_at' => $start->toIso8601String()]),
         )
         ->assertSessionHasErrors('start_at');
@@ -452,7 +456,7 @@ test('a booked slot cannot be double booked for the specialist', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup))
+        ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertSessionHasErrors('start_at');
 });
 
@@ -606,7 +610,7 @@ test('an appointment requires a service, specialist and start time', function ()
 
     $this
         ->actingAs($user)
-        ->post(route('appointments.store', ['current_team' => $team->slug]), [
+        ->post(route('appointments.store'), [
             'customer_name' => 'Jane Doe',
             'customer_email' => 'jane@example.com',
         ])
@@ -618,7 +622,7 @@ test('an onsite appointment requires a location', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup, [
+        ->post(route('appointments.store'), appointmentPayload($setup, [
             'location_id' => null,
         ]))
         ->assertSessionHasErrors('location_id');
@@ -629,7 +633,7 @@ test('an online appointment can be created without a location', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup, [
+        ->post(route('appointments.store'), appointmentPayload($setup, [
             'location_id' => null,
         ]))
         ->assertSessionHasNoErrors()
@@ -647,10 +651,11 @@ test('an appointment rejects a specialist who does not provide the service', fun
     $setup = bookableSetup();
     $other = User::factory()->create();
     $setup['team']->members()->attach($other, ['role' => TeamRole::Member->value]);
+    $other->switchTeam($setup['team']);
 
     $this
         ->actingAs($setup['user'])
-        ->post(route('appointments.store', ['current_team' => $setup['team']->slug]), appointmentPayload($setup, [
+        ->post(route('appointments.store'), appointmentPayload($setup, [
             'specialist_id' => $other->id,
         ]))
         ->assertSessionHasErrors('specialist_id');
@@ -669,7 +674,7 @@ test('an appointment can be updated', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.update', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), appointmentPayload($setup, [
+        ->patch(route('appointments.update', ['appointment' => $appointment]), appointmentPayload($setup, [
             'notes' => 'Updated note',
         ]))
         ->assertRedirect();
@@ -694,7 +699,7 @@ test('a past appointment cannot be updated', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.update', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), appointmentPayload($setup, [
+        ->patch(route('appointments.update', ['appointment' => $appointment]), appointmentPayload($setup, [
             'notes' => 'Updated note',
         ]))
         ->assertForbidden();
@@ -718,7 +723,7 @@ test('a past appointment cannot be rescheduled', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.reschedule', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), [
+        ->patch(route('appointments.reschedule', ['appointment' => $appointment]), [
             'start_at' => $setup['startAt']->toIso8601String(),
         ])
         ->assertForbidden();
@@ -737,7 +742,7 @@ test('a past appointment cannot be deleted', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]))
+        ->delete(route('appointments.destroy', ['appointment' => $appointment]))
         ->assertForbidden();
 
     $this->assertDatabaseHas('appointments', [
@@ -760,7 +765,7 @@ test('updating an appointment emails the customer that it changed', function () 
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.update', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), appointmentPayload($setup))
+        ->patch(route('appointments.update', ['appointment' => $appointment]), appointmentPayload($setup))
         ->assertRedirect();
 
     Notification::assertSentOnDemand(
@@ -809,7 +814,7 @@ test('an appointment can be rescheduled to an available slot', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.reschedule', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), [
+        ->patch(route('appointments.reschedule', ['appointment' => $appointment]), [
             'start_at' => $newStart->toIso8601String(),
         ])
         ->assertRedirect();
@@ -846,7 +851,7 @@ test('an appointment cannot be rescheduled onto an unavailable slot', function (
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.reschedule', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]), [
+        ->patch(route('appointments.reschedule', ['appointment' => $appointment]), [
             'start_at' => $blocker->toIso8601String(),
         ])
         ->assertRedirect();
@@ -864,7 +869,7 @@ test('an appointment from another team cannot be rescheduled', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->patch(route('appointments.reschedule', ['current_team' => $setup['team']->slug, 'appointment' => $otherAppointment]), [
+        ->patch(route('appointments.reschedule', ['appointment' => $otherAppointment]), [
             'start_at' => $setup['startAt']->toIso8601String(),
         ])
         ->assertForbidden();
@@ -879,7 +884,7 @@ test('an appointment can be deleted', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $appointment]))
+        ->delete(route('appointments.destroy', ['appointment' => $appointment]))
         ->assertRedirect();
 
     $this->assertSoftDeleted($appointment);
@@ -891,7 +896,7 @@ test('an appointment from another team cannot be deleted', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->delete(route('appointments.destroy', ['current_team' => $setup['team']->slug, 'appointment' => $otherAppointment]))
+        ->delete(route('appointments.destroy', ['appointment' => $otherAppointment]))
         ->assertForbidden();
 });
 

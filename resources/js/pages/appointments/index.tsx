@@ -52,7 +52,6 @@ export default function AppointmentsIndex({
 }: Props) {
     const { t } = useTranslation('appointments');
     const { auth, currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
 
     // Admins and owners may edit any appointment; members only the ones where
     // they are the assigned specialist. Mirrors the backend authorization.
@@ -215,7 +214,7 @@ export default function AppointmentsIndex({
         }
 
         router.patch(
-            rescheduleRoute.url([teamSlug, appointment.id]),
+            rescheduleRoute.url([appointment.id]),
             { start_at: startIso },
             {
                 only: ['appointments'],
@@ -300,7 +299,6 @@ export default function AppointmentsIndex({
                 open={formOpen}
                 onOpenChange={setFormOpen}
                 appointment={editing}
-                teamSlug={teamSlug}
                 timezone={timezone}
                 services={services}
                 locations={locations}
@@ -312,7 +310,6 @@ export default function AppointmentsIndex({
 
             <DeleteAppointmentModal
                 appointment={deleting}
-                teamSlug={teamSlug}
                 open={deleteOpen}
                 onOpenChange={setDeleteOpen}
             />
@@ -337,15 +334,11 @@ export default function AppointmentsIndex({
     );
 }
 
-AppointmentsIndex.layout = (props: {
-    currentTeam?: { slug: string } | null;
-}) => ({
+AppointmentsIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Appointments',
-            href: props.currentTeam
-                ? appointmentsIndex(props.currentTeam.slug)
-                : '/',
+            href: appointmentsIndex(),
         },
     ],
 });

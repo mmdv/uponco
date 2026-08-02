@@ -285,7 +285,7 @@ const bentoOnboardingTaskKeys = [
 export default function Features() {
     const { t } = useTranslation('features');
     const { auth, currentTeam } = usePage().props;
-    const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
+    const dashboardUrl = currentTeam ? dashboard() : '/';
 
     return (
         <>

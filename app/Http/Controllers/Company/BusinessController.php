@@ -56,7 +56,7 @@ class BusinessController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team updated.')]);
 
-        return to_route('company.business.edit', ['current_team' => $team->slug]);
+        return to_route('company.business.edit');
     }
 
     /**
@@ -82,7 +82,7 @@ class BusinessController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Logo updated.')]);
 
-        return to_route('company.business.edit', ['current_team' => $team->slug]);
+        return to_route('company.business.edit');
     }
 
     /**
@@ -108,7 +108,7 @@ class BusinessController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Logo removed.')]);
 
-        return to_route('company.business.edit', ['current_team' => $team->slug]);
+        return to_route('company.business.edit');
     }
 
     /**
@@ -141,7 +141,7 @@ class BusinessController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team deleted.')]);
 
-        return to_route('dashboard', ['current_team' => $fallbackTeam->slug]);
+        return to_route('dashboard');
     }
 
     /**

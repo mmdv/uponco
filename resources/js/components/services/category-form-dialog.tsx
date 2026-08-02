@@ -20,14 +20,12 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     category: ServiceCategory | null;
-    teamSlug: string;
 };
 
 export default function CategoryFormDialog({
     open,
     onOpenChange,
     category,
-    teamSlug,
 }: Props) {
     const { t } = useTranslation('company');
     const isEditing = category !== null;
@@ -50,9 +48,7 @@ export default function CategoryFormDialog({
 
                 <Form
                     key={category?.id ?? 'new'}
-                    {...(isEditing
-                        ? update.form([teamSlug, category.id])
-                        : store.form(teamSlug))}
+                    {...(isEditing ? update.form([category.id]) : store.form())}
                     options={{ preserveScroll: true }}
                     onSuccess={() => onOpenChange(false)}
                 >

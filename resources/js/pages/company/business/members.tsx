@@ -40,7 +40,6 @@ type Props = {
 };
 
 export default function BusinessMembers({
-    team,
     members,
     invitations,
     permissions,
@@ -122,7 +121,7 @@ export default function BusinessMembers({
                                 className="relative flex items-center justify-between gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
                             >
                                 <Link
-                                    href={editMember([team.slug, member.id])}
+                                    href={editMember([member.id])}
                                     className="absolute inset-0 rounded-lg"
                                     aria-label={t(
                                         'business.members.editAriaLabel',
@@ -259,7 +258,6 @@ export default function BusinessMembers({
 
             {permissions.canAddMember ? (
                 <AddMemberModal
-                    team={team}
                     open={addDialogOpen}
                     onOpenChange={setAddDialogOpen}
                 />
@@ -267,7 +265,6 @@ export default function BusinessMembers({
 
             {permissions.canCreateInvitation ? (
                 <InviteMemberModal
-                    team={team}
                     availableRoles={availableRoles}
                     open={inviteDialogOpen}
                     onOpenChange={setInviteDialogOpen}
@@ -275,14 +272,12 @@ export default function BusinessMembers({
             ) : null}
 
             <RemoveMemberModal
-                team={team}
                 member={memberToRemove}
                 open={removeMemberDialogOpen}
                 onOpenChange={setRemoveMemberDialogOpen}
             />
 
             <CancelInvitationModal
-                team={team}
                 invitation={invitationToCancel}
                 open={cancelInvitationDialogOpen}
                 onOpenChange={setCancelInvitationDialogOpen}
@@ -291,27 +286,19 @@ export default function BusinessMembers({
     );
 }
 
-BusinessMembers.layout = (props: {
-    currentTeam?: { slug: string } | null;
-}) => ({
+BusinessMembers.layout = () => ({
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
         {
             title: 'Business',
-            href: props.currentTeam
-                ? editBusiness(props.currentTeam.slug)
-                : '/',
+            href: editBusiness(),
         },
         {
             title: 'Team Members',
-            href: props.currentTeam
-                ? businessMembers(props.currentTeam.slug)
-                : '/',
+            href: businessMembers(),
         },
     ],
 });

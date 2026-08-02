@@ -12,12 +12,16 @@ test('managers schedule the whole team', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->get(route('schedule.index', ['current_team' => $team->slug]))
+        ->get(route('schedule.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('schedule/index')
@@ -31,11 +35,14 @@ test('plain members only schedule themselves', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)
-        ->get(route('schedule.index', ['current_team' => $team->slug]))
+        ->get(route('schedule.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('schedule/index')
@@ -49,6 +56,7 @@ test('existing slots are returned keyed by member and date', function () {
     $member = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     ScheduleSlot::factory()->for($member)->create([
         'team_id' => $team->id,
@@ -67,7 +75,7 @@ test('existing slots are returned keyed by member and date', function () {
 
     $this
         ->actingAs($member)
-        ->get(route('schedule.index', ['current_team' => $team->slug]))
+        ->get(route('schedule.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has("slots.{$key}", 2)
@@ -81,11 +89,13 @@ test('managers can save slots for multiple members and days at once', function (
     $member = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->post(route('schedule.store', ['current_team' => $team->slug]), [
+        ->post(route('schedule.store'), [
             'assignments' => [
                 ['user_id' => $owner->id, 'date' => '2026-07-20'],
                 ['user_id' => $member->id, 'date' => '2026-07-21'],
@@ -106,6 +116,7 @@ test('saving a day replaces its existing slots', function () {
     $member = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     ScheduleSlot::factory()->for($member)->count(2)->create([
         'team_id' => $team->id,
@@ -114,7 +125,7 @@ test('saving a day replaces its existing slots', function () {
 
     $this
         ->actingAs($member)
-        ->post(route('schedule.store', ['current_team' => $team->slug]), [
+        ->post(route('schedule.store'), [
             'assignments' => [
                 ['user_id' => $member->id, 'date' => '2026-07-20'],
             ],
@@ -136,11 +147,13 @@ test('members cannot save slots for another member', function () {
     $member = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)
-        ->post(route('schedule.store', ['current_team' => $team->slug]), [
+        ->post(route('schedule.store'), [
             'assignments' => [
                 ['user_id' => $owner->id, 'date' => '2026-07-20'],
             ],
@@ -157,10 +170,11 @@ test('a slot end time must be after its start time', function () {
     $member = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($member)
-        ->post(route('schedule.store', ['current_team' => $team->slug]), [
+        ->post(route('schedule.store'), [
             'assignments' => [
                 ['user_id' => $member->id, 'date' => '2026-07-20'],
             ],

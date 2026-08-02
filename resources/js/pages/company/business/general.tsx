@@ -1,4 +1,4 @@
-import { Form, Head, usePage } from '@inertiajs/react';
+import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 import BusinessController from '@/actions/App/Http/Controllers/Company/BusinessController';
 import DeleteTeamModal from '@/components/delete-team-modal';
@@ -28,8 +28,6 @@ export default function BusinessGeneral({
     businessCategories,
 }: Props) {
     const { t } = useTranslation('company');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
 
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [timezone, setTimezone] = useState(team.timezone ?? '');
@@ -52,7 +50,7 @@ export default function BusinessGeneral({
                             description={t('business.logo.description')}
                         />
 
-                        <TeamLogoUploader team={team} teamSlug={teamSlug} />
+                        <TeamLogoUploader team={team} />
                     </div>
                 ) : null}
 
@@ -66,7 +64,7 @@ export default function BusinessGeneral({
                             />
 
                             <Form
-                                {...BusinessController.update.form(teamSlug)}
+                                {...BusinessController.update.form()}
                                 options={{ preserveScroll: true }}
                                 className="space-y-6"
                             >
@@ -216,21 +214,15 @@ export default function BusinessGeneral({
     );
 }
 
-BusinessGeneral.layout = (props: {
-    currentTeam?: { slug: string } | null;
-}) => ({
+BusinessGeneral.layout = () => ({
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
         {
             title: 'Business',
-            href: props.currentTeam
-                ? editBusiness(props.currentTeam.slug)
-                : '/',
+            href: editBusiness(),
         },
     ],
 });

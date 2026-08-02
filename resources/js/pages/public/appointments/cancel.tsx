@@ -149,7 +149,8 @@ export default function PublicAppointmentCancel({
                                 </h1>
                                 <p className="mt-1.5 text-sm text-muted-foreground">
                                     Please review the details below. Cancelling
-                                    is permanent and will free up your time slot.
+                                    is permanent and will free up your time
+                                    slot.
                                 </p>
                             </div>
 

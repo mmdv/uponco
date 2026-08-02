@@ -37,7 +37,6 @@ type Props = {
     onOpenChange: (open: boolean) => void;
     service: Service | null;
     defaultCategoryId: number | null;
-    teamSlug: string;
     categories: ServiceCategory[];
     locations: SelectOption[];
     specialists: SelectOption[];
@@ -53,7 +52,6 @@ export default function ServiceFormDrawer({
     onOpenChange,
     service,
     defaultCategoryId,
-    teamSlug,
     categories,
     locations,
     specialists,
@@ -89,7 +87,6 @@ export default function ServiceFormDrawer({
                     key={service?.id ?? 'new'}
                     service={service}
                     defaultCategoryId={defaultCategoryId}
-                    teamSlug={teamSlug}
                     categories={categories}
                     locations={locations}
                     specialists={specialists}
@@ -109,7 +106,6 @@ export default function ServiceFormDrawer({
 type FieldsProps = {
     service: Service | null;
     defaultCategoryId: number | null;
-    teamSlug: string;
     categories: ServiceCategory[];
     locations: SelectOption[];
     specialists: SelectOption[];
@@ -125,7 +121,6 @@ type FieldsProps = {
 function ServiceFormFields({
     service,
     defaultCategoryId,
-    teamSlug,
     categories,
     locations,
     specialists,
@@ -181,9 +176,7 @@ function ServiceFormFields({
 
     return (
         <Form
-            {...(isEditing
-                ? update.form([teamSlug, service.id])
-                : store.form(teamSlug))}
+            {...(isEditing ? update.form([service.id]) : store.form())}
             options={{ preserveScroll: true }}
             onSuccess={onSuccess}
             className="flex min-h-0 flex-1 flex-col"

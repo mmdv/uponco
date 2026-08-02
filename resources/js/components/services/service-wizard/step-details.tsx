@@ -71,7 +71,6 @@ export default function StepDetails({
     summary,
     onEditDelivery,
     categoryOptions,
-    teamSlug,
     specialists,
     priceTypes,
     currencies,
@@ -86,7 +85,6 @@ export default function StepDetails({
     summary: string | null;
     onEditDelivery: () => void;
     categoryOptions: SelectOption[];
-    teamSlug: string;
     specialists: SelectOption[];
     priceTypes: SelectOption[];
     currencies: SelectOption[];
@@ -108,7 +106,6 @@ export default function StepDetails({
             value={details.categoryId}
             onChange={(categoryId) => onPatch({ categoryId })}
             options={categoryOptions}
-            teamSlug={teamSlug}
             error={errors.service_category_id}
         />
     );

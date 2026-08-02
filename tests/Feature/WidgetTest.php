@@ -42,7 +42,7 @@ test('the brand page exposes the widget snippet urls to admins', function () {
 
     $this
         ->actingAs($admin)
-        ->get(route('company.brand.index', ['current_team' => $team->slug]))
+        ->get(route('company.brand.index'))
         ->assertInertia(fn ($page) => $page
             ->component('company/brand/index')
             ->where('widget.scriptUrl', route('public.widget.script', ['company' => $team->slug]))

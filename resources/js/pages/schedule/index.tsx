@@ -71,13 +71,11 @@ export default function SchedulePage({ members, slots }: Props) {
     );
 }
 
-SchedulePage.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+SchedulePage.layout = () => ({
     breadcrumbs: [
         {
             title: 'Schedule',
-            href: props.currentTeam
-                ? scheduleIndex(props.currentTeam.slug)
-                : '/',
+            href: scheduleIndex(),
         },
     ],
 });

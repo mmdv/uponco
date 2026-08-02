@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import AppBackground from '@/components/app-background';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { SiteHeader } from '@/components/marketing/site-header';
@@ -127,11 +128,11 @@ function BookingDemo() {
                         <p className="text-sm font-medium">
                             {t('demo.chooseDay')}
                         </p>
-                        <div className="mt-2 flex gap-2">
+                        <div className="mt-2 flex gap-1.5 sm:gap-2">
                             {demoDays.map((day, i) => (
                                 <div
                                     key={day.day}
-                                    className={`flex w-14 flex-col items-center rounded-xl border py-2.5 transition-colors ${
+                                    className={`flex flex-1 basis-0 flex-col items-center rounded-xl border py-2.5 transition-colors ${
                                         i === 2
                                             ? 'border-primary bg-primary text-primary-foreground'
                                             : 'border-border bg-card'
@@ -225,13 +226,13 @@ const setupSteps: { icon: ReactNode; i18nKey: string }[] = [
 export default function Welcome() {
     const { t } = useTranslation('welcome');
     const { auth, currentTeam } = usePage().props;
-    const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
+    const dashboardUrl = currentTeam ? dashboard() : '/';
 
     return (
         <>
             <Head title="Your digital bridge to your customers" />
 
-            <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
+            <AppBackground className="min-h-screen w-full max-w-full overflow-x-hidden text-foreground">
                 <SiteHeader />
 
                 {/* Hero */}
@@ -477,7 +478,7 @@ export default function Welcome() {
                 </section>
 
                 <SiteFooter />
-            </div>
+            </AppBackground>
         </>
     );
 }

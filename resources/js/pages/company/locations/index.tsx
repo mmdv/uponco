@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -26,8 +26,6 @@ export default function LocationsIndex({
     countries,
 }: Props) {
     const { t } = useTranslation('locations');
-    const { currentTeam } = usePage().props;
-    const teamSlug = currentTeam?.slug ?? '';
 
     const [formOpen, setFormOpen] = useState(false);
     const [editing, setEditing] = useState<Location | null>(null);
@@ -82,7 +80,6 @@ export default function LocationsIndex({
                 open={formOpen}
                 onOpenChange={setFormOpen}
                 location={editing}
-                teamSlug={teamSlug}
                 services={services}
                 specialists={specialists}
                 countries={countries}
@@ -90,7 +87,6 @@ export default function LocationsIndex({
 
             <DeleteLocationModal
                 location={deleting}
-                teamSlug={teamSlug}
                 open={deleteOpen}
                 onOpenChange={setDeleteOpen}
             />
@@ -98,19 +94,15 @@ export default function LocationsIndex({
     );
 }
 
-LocationsIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+LocationsIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Company',
-            href: props.currentTeam
-                ? companyIndex(props.currentTeam.slug)
-                : '/',
+            href: companyIndex(),
         },
         {
             title: 'Locations',
-            href: props.currentTeam
-                ? locationsIndex(props.currentTeam.slug)
-                : '/',
+            href: locationsIndex(),
         },
     ],
 });

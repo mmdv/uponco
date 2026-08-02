@@ -15,7 +15,6 @@ import ScreenHeader from './screen-header';
 
 type Props = {
     data: Onboarding['services'];
-    teamSlug: string;
     service: ServiceDraftControls;
     controls: StepControls;
 };
@@ -27,12 +26,7 @@ type Props = {
  * The specialist is the person setting the team up, so that picker is hidden;
  * extra specialists are assigned later from the services page.
  */
-export default function ScreenDetails({
-    data,
-    teamSlug,
-    service,
-    controls,
-}: Props) {
+export default function ScreenDetails({ data, service, controls }: Props) {
     const { t } = useTranslation('company');
 
     // Nothing is flagged until the user asks to create the service, so the
@@ -51,7 +45,7 @@ export default function ScreenDetails({
 
     return (
         <Form
-            {...store.form(teamSlug)}
+            {...store.form()}
             options={{ preserveScroll: true }}
             onBefore={() => setSubmitted(true)}
             onSuccess={controls.onComplete}
@@ -74,7 +68,6 @@ export default function ScreenDetails({
                             summary={null}
                             onEditDelivery={() => undefined}
                             categoryOptions={categoryOptions}
-                            teamSlug={teamSlug}
                             specialists={data.specialists}
                             priceTypes={data.priceTypes}
                             currencies={data.currencies}

@@ -504,7 +504,7 @@ test('cancelled appointments are excluded from the team listing', function () {
 
     $this
         ->actingAs($setup['user'])
-        ->get(route('appointments.index', ['current_team' => $setup['team']->slug]))
+        ->get(route('appointments.index'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->has('appointments', 1));
 });

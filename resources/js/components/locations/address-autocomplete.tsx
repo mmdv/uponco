@@ -23,7 +23,6 @@ type Suggestion = {
 };
 
 type Props = {
-    teamSlug: string;
     country: string;
     /** The address already saved on the location, if any. */
     initialAddress: string | null;
@@ -42,7 +41,6 @@ type Props = {
  * exact spot rather than re-guessing a typed address.
  */
 export default function AddressAutocomplete({
-    teamSlug,
     country,
     initialAddress,
     initialVerified,
@@ -76,7 +74,7 @@ export default function AddressAutocomplete({
             setIsSearching(true);
 
             fetch(
-                suggest.url(teamSlug, {
+                suggest.url({
                     query: { query, ...(country ? { country } : {}) },
                 }),
                 { headers: { Accept: 'application/json' } },
@@ -105,7 +103,7 @@ export default function AddressAutocomplete({
         }, 300);
 
         return () => window.clearTimeout(timer);
-    }, [query, country, teamSlug, shouldSearch]);
+    }, [query, country, shouldSearch]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -135,7 +133,7 @@ export default function AddressAutocomplete({
         setIsSearching(true);
 
         fetch(
-            resolve.url(teamSlug, {
+            resolve.url({
                 query: { place_id: suggestion.place_id },
             }),
             { headers: { Accept: 'application/json' } },

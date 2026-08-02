@@ -15,7 +15,6 @@ type Props = {
     open: QuickCreateForm | null;
     onOpenChange: (form: QuickCreateForm, open: boolean) => void;
     options: DashboardFormOptions;
-    teamSlug: string;
     timezone: string;
     availableSlots: AppointmentSlot[];
     slotsLoading: boolean;
@@ -30,7 +29,6 @@ export default function QuickCreateForms({
     open,
     onOpenChange,
     options,
-    teamSlug,
     timezone,
     availableSlots,
     slotsLoading,
@@ -42,7 +40,6 @@ export default function QuickCreateForms({
                 open={open === 'appointment'}
                 onOpenChange={(next) => onOpenChange('appointment', next)}
                 appointment={null}
-                teamSlug={teamSlug}
                 timezone={timezone}
                 services={options.appointments.services}
                 locations={options.appointments.locations}
@@ -56,14 +53,12 @@ export default function QuickCreateForms({
                 open={open === 'customer'}
                 onOpenChange={(next) => onOpenChange('customer', next)}
                 customer={null}
-                teamSlug={teamSlug}
             />
 
             <ServiceWizardDialog
                 open={open === 'service'}
                 onOpenChange={(next) => onOpenChange('service', next)}
                 defaultCategoryId={null}
-                teamSlug={teamSlug}
                 categories={options.services.categories}
                 locations={options.services.locations}
                 serviceOptions={options.services.services}
@@ -79,7 +74,6 @@ export default function QuickCreateForms({
                 open={open === 'location'}
                 onOpenChange={(next) => onOpenChange('location', next)}
                 location={null}
-                teamSlug={teamSlug}
                 services={options.locations.services}
                 specialists={options.locations.specialists}
                 countries={options.locations.countries}

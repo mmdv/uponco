@@ -14,15 +14,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 import { store as storeMember } from '@/routes/company/business/members';
-import type { Team } from '@/types';
 
 type Props = {
-    team: Team;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
-export default function AddMemberModal({ team, open, onOpenChange }: Props) {
+export default function AddMemberModal({ open, onOpenChange }: Props) {
     const { t } = useTranslation('company');
 
     return (
@@ -30,7 +28,7 @@ export default function AddMemberModal({ team, open, onOpenChange }: Props) {
             <DialogContent>
                 <Form
                     key={String(open)}
-                    {...storeMember.form(team.slug)}
+                    {...storeMember.form()}
                     className="space-y-6"
                     onSuccess={() => onOpenChange(false)}
                 >

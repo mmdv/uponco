@@ -42,7 +42,7 @@ export default function DeleteTeamModal({ team, open, onOpenChange }: Props) {
             <DialogContent>
                 <Form
                     key={String(open)}
-                    {...destroy.form(team.slug)}
+                    {...destroy.form()}
                     className="space-y-6"
                     onSuccess={() => handleOpenChange(false)}
                 >

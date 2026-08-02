@@ -13,9 +13,11 @@ test('owners can add a team member directly', function () {
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
 
+    $owner->switchTeam($team);
+
     $this
         ->actingAs($owner)
-        ->post(route('company.business.members.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.members.store'), [
             'name' => 'Jane',
             'surname' => 'Doe',
             'job_title' => 'Stylist',
@@ -45,9 +47,11 @@ test('admins can add a team member directly', function () {
 
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
 
+    $admin->switchTeam($team);
+
     $this
         ->actingAs($admin)
-        ->post(route('company.business.members.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.members.store'), [
             'name' => 'John',
             'surname' => 'Smith',
             'email' => 'john@example.com',
@@ -65,9 +69,11 @@ test('members cannot add a team member directly', function () {
 
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
 
+    $member->switchTeam($team);
+
     $this
         ->actingAs($member)
-        ->post(route('company.business.members.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.members.store'), [
             'name' => 'Jane',
             'email' => 'jane@example.com',
             'password' => 'password123',
@@ -84,9 +90,11 @@ test('a member cannot be added with an existing email', function () {
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
 
+    $owner->switchTeam($team);
+
     $this
         ->actingAs($owner)
-        ->post(route('company.business.members.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.members.store'), [
             'name' => 'Jane',
             'email' => 'taken@example.com',
             'password' => 'password123',
@@ -100,11 +108,14 @@ test('team member roles can be updated by owners', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->patch(route('company.business.members.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->patch(route('company.business.members.update', ['user' => $member]), [
             'role' => TeamRole::Admin->value,
         ])
         ->assertRedirect()
@@ -120,12 +131,16 @@ test('team member roles can be updated by admins', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->patch(route('company.business.members.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->patch(route('company.business.members.update', ['user' => $member]), [
             'role' => TeamRole::Admin->value,
         ])
         ->assertRedirect()
@@ -140,11 +155,14 @@ test('admins cannot change the team owner role', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->patch(route('company.business.members.update', ['current_team' => $team->slug, 'user' => $owner]), [
+        ->patch(route('company.business.members.update', ['user' => $owner]), [
             'role' => TeamRole::Member->value,
         ])
         ->assertForbidden();
@@ -158,11 +176,14 @@ test('team members can be removed by owners', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $member]))
+        ->delete(route('company.business.members.destroy', ['user' => $member]))
         ->assertRedirect();
 
     expect($member->fresh()->belongsToTeam($team))->toBeFalse();
@@ -175,12 +196,16 @@ test('team members cannot be removed by non owners', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $member]))
+        ->delete(route('company.business.members.destroy', ['user' => $member]))
         ->assertForbidden();
 });
 
@@ -190,9 +215,11 @@ test('team owner cannot be removed', function () {
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
 
+    $owner->switchTeam($team);
+
     $this
         ->actingAs($owner)
-        ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $owner]))
+        ->delete(route('company.business.members.destroy', ['user' => $owner]))
         ->assertForbidden();
 
     expect($owner->fresh()->belongsToTeam($team))->toBeTrue();
@@ -204,11 +231,14 @@ test('team member role cannot be set to owner', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->patch(route('company.business.members.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->patch(route('company.business.members.update', ['user' => $member]), [
             'role' => TeamRole::Owner->value,
         ])
         ->assertSessionHasErrors('role');
@@ -223,13 +253,16 @@ test('removed member current team is set to personal team', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $member->update(['current_team_id' => $team->id]);
 
     $this
         ->actingAs($owner)
-        ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $member]));
+        ->delete(route('company.business.members.destroy', ['user' => $member]));
 
     expect($member->fresh()->current_team_id)->toEqual($personalTeam->id);
 });
@@ -240,11 +273,14 @@ test('owners can view a member edit page', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->get(route('company.business.members.edit', ['current_team' => $team->slug, 'user' => $member]))
+        ->get(route('company.business.members.edit', ['user' => $member]))
         ->assertOk();
 });
 
@@ -254,11 +290,14 @@ test('plain members cannot view a member edit page', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($viewer, ['role' => TeamRole::Member->value]);
+
+    $viewer->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($viewer)
-        ->get(route('company.business.members.edit', ['current_team' => $team->slug, 'user' => $member]))
+        ->get(route('company.business.members.edit', ['user' => $member]))
         ->assertForbidden();
 });
 
@@ -269,11 +308,14 @@ test('owners can update a member account and an email change resets verification
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->patch(route('company.business.members.account.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->patch(route('company.business.members.account.update', ['user' => $member]), [
             'name' => 'Updated Name',
             'email' => 'new@example.com',
         ])
@@ -293,11 +335,14 @@ test('admins can update a member account', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+
+    $admin->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->patch(route('company.business.members.account.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->patch(route('company.business.members.account.update', ['user' => $member]), [
             'name' => 'Updated Name',
             'email' => 'new@example.com',
         ])
@@ -313,11 +358,14 @@ test('admins cannot edit the team owner account', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
 
     $this
         ->actingAs($admin)
-        ->patch(route('company.business.members.account.update', ['current_team' => $team->slug, 'user' => $owner]), [
+        ->patch(route('company.business.members.account.update', ['user' => $owner]), [
             'name' => 'Hijacked',
             'email' => 'hijack@example.com',
         ])
@@ -332,11 +380,14 @@ test('owners can update a member public profile', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $this
         ->actingAs($owner)
-        ->patch(route('company.business.members.profile.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->patch(route('company.business.members.profile.update', ['user' => $member]), [
             'name' => 'Public Name',
             'job_title' => 'Senior Stylist',
             'description' => 'Ten years of experience.',
@@ -354,13 +405,16 @@ test('owners can sync a member locations within the team', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $location = Location::factory()->create(['team_id' => $team->id]);
 
     $this
         ->actingAs($owner)
-        ->put(route('company.business.members.locations.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->put(route('company.business.members.locations.update', ['user' => $member]), [
             'ids' => [$location->id],
         ])
         ->assertRedirect()
@@ -375,13 +429,16 @@ test('a member cannot be assigned to a location from another team', function () 
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $foreignLocation = Location::factory()->create();
 
     $this
         ->actingAs($owner)
-        ->put(route('company.business.members.locations.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->put(route('company.business.members.locations.update', ['user' => $member]), [
             'ids' => [$foreignLocation->id],
         ])
         ->assertSessionHasErrors('ids.0');
@@ -395,14 +452,17 @@ test('owners can sync a member services within the team', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $category = ServiceCategory::factory()->create(['team_id' => $team->id]);
     $service = Service::factory()->create(['service_category_id' => $category->id]);
 
     $this
         ->actingAs($owner)
-        ->put(route('company.business.members.services.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->put(route('company.business.members.services.update', ['user' => $member]), [
             'ids' => [$service->id],
         ])
         ->assertRedirect()
@@ -417,13 +477,16 @@ test('a member cannot be assigned to a service from another team', function () {
     $team = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $foreignService = Service::factory()->create();
 
     $this
         ->actingAs($owner)
-        ->put(route('company.business.members.services.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->put(route('company.business.members.services.update', ['user' => $member]), [
             'ids' => [$foreignService->id],
         ])
         ->assertSessionHasErrors('ids.0');
@@ -438,7 +501,10 @@ test('syncing member locations only affects the current team assignments', funct
     $otherTeam = Team::factory()->create();
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    $owner->switchTeam($team);
     $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
 
     $otherLocation = Location::factory()->create(['team_id' => $otherTeam->id]);
     $member->locations()->attach($otherLocation);
@@ -447,7 +513,7 @@ test('syncing member locations only affects the current team assignments', funct
 
     $this
         ->actingAs($owner)
-        ->put(route('company.business.members.locations.update', ['current_team' => $team->slug, 'user' => $member]), [
+        ->put(route('company.business.members.locations.update', ['user' => $member]), [
             'ids' => [$teamLocation->id],
         ])
         ->assertSessionHasNoErrors();
@@ -462,9 +528,11 @@ test('a member added directly can be removed without a personal team', function 
 
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
 
+    $owner->switchTeam($team);
+
     $this
         ->actingAs($owner)
-        ->post(route('company.business.members.store', ['current_team' => $team->slug]), [
+        ->post(route('company.business.members.store'), [
             'name' => 'Jane',
             'email' => 'jane@example.com',
             'password' => 'password123',
@@ -478,7 +546,7 @@ test('a member added directly can be removed without a personal team', function 
 
     $this
         ->actingAs($owner)
-        ->delete(route('company.business.members.destroy', ['current_team' => $team->slug, 'user' => $member]))
+        ->delete(route('company.business.members.destroy', ['user' => $member]))
         ->assertRedirect();
 
     expect($member->fresh()->belongsToTeam($team))->toBeFalse();

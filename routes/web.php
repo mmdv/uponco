@@ -59,24 +59,21 @@ Route::get('widget/{company}.js', [WidgetController::class, 'script'])
     ->middleware('throttle:60,1')
     ->name('public.widget.script');
 
-Route::prefix('{current_team}')
-    ->middleware(['auth', 'verified', EnsureTeamMembership::class])
+Route::middleware(['auth', 'verified', EnsureTeamMembership::class])
     ->group(function () {
         Route::get('onboard', [OnboardController::class, 'show'])->name('onboard.show');
         Route::patch('onboard', [OnboardController::class, 'update'])->name('onboard.update');
     });
 
 // Operator backoffice, restricted to members of the "Uponco" team.
-Route::prefix('{current_team}')
-    ->middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureUponcoTeam::class])
+Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureUponcoTeam::class])
     ->group(function () {
         Route::get('backoffice', [BackofficeController::class, 'index'])->name('backoffice.index');
         Route::delete('backoffice/teams/{team}', [BackofficeController::class, 'destroyTeam'])->name('backoffice.teams.destroy');
         Route::delete('backoffice/users/{user}', [BackofficeController::class, 'destroyUser'])->name('backoffice.users.destroy');
     });
 
-Route::prefix('{current_team}')
-    ->middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOnboarded::class])
+Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOnboarded::class])
     ->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

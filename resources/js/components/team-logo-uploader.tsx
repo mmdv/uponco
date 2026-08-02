@@ -10,10 +10,9 @@ const ACCEPTED_TYPES = 'image/svg+xml,image/png,image/jpeg';
 
 type Props = {
     team: Team;
-    teamSlug: string;
 };
 
-export default function TeamLogoUploader({ team, teamSlug }: Props) {
+export default function TeamLogoUploader({ team }: Props) {
     const { t } = useTranslation('company');
     const fileInput = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -32,7 +31,7 @@ export default function TeamLogoUploader({ team, teamSlug }: Props) {
     };
 
     const handleUpload = () => {
-        post(BusinessController.updateLogo.url(teamSlug), {
+        post(BusinessController.updateLogo.url(), {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -47,7 +46,7 @@ export default function TeamLogoUploader({ team, teamSlug }: Props) {
     };
 
     const handleRemove = () => {
-        router.delete(BusinessController.destroyLogo.url(teamSlug), {
+        router.delete(BusinessController.destroyLogo.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
