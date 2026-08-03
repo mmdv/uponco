@@ -10,13 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-} from '@/components/ui/sheet';
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     getAvailableOptions,
@@ -70,21 +70,18 @@ export default function AppointmentFormDrawer({
     const isEditing = appointment !== null;
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent
-                side="right"
-                className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
-            >
-                <SheetHeader className="shrink-0 border-b">
-                    <SheetTitle>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-md md:max-w-3xl">
+                <DialogHeader className="shrink-0 border-b px-4 py-4 sm:px-6">
+                    <DialogTitle>
                         {isEditing ? t('form.editTitle') : t('form.newTitle')}
-                    </SheetTitle>
-                    <SheetDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         {isEditing
                             ? t('form.editDescription')
                             : t('form.newDescription')}
-                    </SheetDescription>
-                </SheetHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <AppointmentFormFields
                     key={appointment?.id ?? 'new'}
@@ -100,8 +97,8 @@ export default function AppointmentFormDrawer({
                     onSuccess={() => onOpenChange(false)}
                     onCancel={() => onOpenChange(false)}
                 />
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -367,80 +364,97 @@ function AppointmentFormFields({
                         value={selectedStart}
                     />
 
-                    <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="service_id">
-                                {t('form.service')}
-                            </Label>
-                            <AppointmentServiceSelect
-                                id="service_id"
-                                groups={serviceGroups}
-                                value={serviceId?.toString() ?? ''}
-                                onChange={handleServiceChange}
-                                invalid={Boolean(errors.service_id)}
-                                data-test="appointment-service-select"
-                            />
-                            <InputError message={errors.service_id} />
-                        </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                        {/*
+                            Mobile keeps everything in one stacked column. From
+                            md up the booking selectors sit in a left column and
+                            the customer details in a right one, so the wider
+                            dialog fills its horizontal space instead of running
+                            as one long scroll.
+                        */}
+                        <div className="grid gap-5 md:grid-cols-2 md:items-start md:gap-6">
+                            <div className="space-y-5">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="service_id">
+                                        {t('form.service')}
+                                    </Label>
+                                    <AppointmentServiceSelect
+                                        id="service_id"
+                                        groups={serviceGroups}
+                                        value={serviceId?.toString() ?? ''}
+                                        onChange={handleServiceChange}
+                                        invalid={Boolean(errors.service_id)}
+                                        data-test="appointment-service-select"
+                                    />
+                                    <InputError message={errors.service_id} />
+                                </div>
 
-                        {showLocation && (
-                            <div className="grid gap-2">
-                                <Label htmlFor="location_id">
-                                    {t('form.location')}
-                                </Label>
-                                <SearchableSelect
-                                    id="location_id"
-                                    options={locationOptions}
-                                    value={locationId?.toString() ?? ''}
-                                    onChange={handleLocationChange}
-                                    placeholder={t('form.selectLocation')}
-                                    searchPlaceholder={t(
-                                        'form.searchLocations',
-                                    )}
-                                    emptyMessage={t('form.noLocations')}
-                                    invalid={Boolean(errors.location_id)}
-                                    data-test="appointment-location-select"
+                                {showLocation && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="location_id">
+                                            {t('form.location')}
+                                        </Label>
+                                        <SearchableSelect
+                                            id="location_id"
+                                            options={locationOptions}
+                                            value={locationId?.toString() ?? ''}
+                                            onChange={handleLocationChange}
+                                            placeholder={t('form.selectLocation')}
+                                            searchPlaceholder={t(
+                                                'form.searchLocations',
+                                            )}
+                                            emptyMessage={t('form.noLocations')}
+                                            invalid={Boolean(errors.location_id)}
+                                            data-test="appointment-location-select"
+                                        />
+                                        <InputError
+                                            message={errors.location_id}
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="specialist_id">
+                                        {t('form.specialist')}
+                                    </Label>
+                                    <SearchableSelect
+                                        id="specialist_id"
+                                        options={specialistOptions}
+                                        value={specialistId?.toString() ?? ''}
+                                        onChange={handleSpecialistChange}
+                                        placeholder={t('form.selectSpecialist')}
+                                        searchPlaceholder={t(
+                                            'form.searchSpecialists',
+                                        )}
+                                        emptyMessage={t('form.noSpecialists')}
+                                        invalid={Boolean(errors.specialist_id)}
+                                        data-test="appointment-specialist-select"
+                                    />
+                                    <InputError
+                                        message={errors.specialist_id}
+                                    />
+                                </div>
+
+                                <AppointmentSlotPicker
+                                    date={date}
+                                    onDateChange={handleDateChange}
+                                    slots={availableSlots}
+                                    loading={slotsLoading}
+                                    selectedStart={selectedStart}
+                                    onSelectSlot={setSelectedStart}
+                                    selectionIncomplete={selectionIncomplete}
+                                    error={errors.start_at}
                                 />
-                                <InputError message={errors.location_id} />
                             </div>
-                        )}
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="specialist_id">
-                                {t('form.specialist')}
-                            </Label>
-                            <SearchableSelect
-                                id="specialist_id"
-                                options={specialistOptions}
-                                value={specialistId?.toString() ?? ''}
-                                onChange={handleSpecialistChange}
-                                placeholder={t('form.selectSpecialist')}
-                                searchPlaceholder={t('form.searchSpecialists')}
-                                emptyMessage={t('form.noSpecialists')}
-                                invalid={Boolean(errors.specialist_id)}
-                                data-test="appointment-specialist-select"
+                            <AppointmentCustomerFields
+                                appointment={appointment}
+                                errors={errors}
                             />
-                            <InputError message={errors.specialist_id} />
                         </div>
-
-                        <AppointmentSlotPicker
-                            date={date}
-                            onDateChange={handleDateChange}
-                            slots={availableSlots}
-                            loading={slotsLoading}
-                            selectedStart={selectedStart}
-                            onSelectSlot={setSelectedStart}
-                            selectionIncomplete={selectionIncomplete}
-                            error={errors.start_at}
-                        />
-
-                        <AppointmentCustomerFields
-                            appointment={appointment}
-                            errors={errors}
-                        />
                     </div>
 
-                    <SheetFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t">
+                    <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t px-4 py-4 sm:px-6">
                         {isEditing && onCancelAppointment && (
                             <Button
                                 type="button"
@@ -471,7 +485,7 @@ function AppointmentFormFields({
                                 ? t('form.saveChanges')
                                 : t('form.bookAppointment')}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </>
             )}
         </Form>

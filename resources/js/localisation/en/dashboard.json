@@ -44,7 +44,7 @@
         "title": "Upcoming appointments",
         "viewAll": "View all",
         "empty": "No upcoming appointments yet.",
-        "bookAppointment": "Book an appointment"
+        "bookAppointment": "Create first appointment"
     },
     "chart": {
         "title": "The week ahead",
