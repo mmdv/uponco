@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +21,6 @@ class ProfileController extends Controller
 
         return Inertia::render('settings/profile', [
             'profile' => [
-                'name' => $profile?->name ?? $request->user()->name,
                 'email' => $profile?->email,
                 'phone' => $profile?->phone,
                 'job_title' => $profile?->job_title,
@@ -34,9 +34,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+
+        $request->user()->update(['name' => $validated['name']]);
+
         $request->user()->profile()->updateOrCreate(
             [],
-            $request->validated(),
+            Arr::except($validated, ['name']),
         );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);

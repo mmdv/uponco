@@ -45,7 +45,7 @@ function onboardingStepRoute(Team $team, OnboardingStep $step): string
 /** Satisfy every step's underlying data so onboarding can complete. */
 function completeOnboardingData(User $user, Team $team): void
 {
-    $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
+    $user->profile()->create(['job_title' => 'Stylist']);
     ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
     Service::factory()->create(['team_id' => $team->id]);
 }
@@ -102,7 +102,7 @@ test('regular members cannot open the setup flow', function () {
 
 test('steps auto-complete when their data already exists', function () {
     [$user, $team] = onboardingOwner();
-    $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
+    $user->profile()->create(['job_title' => 'Stylist']);
 
     $this
         ->actingAs($user)

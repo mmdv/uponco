@@ -27,7 +27,7 @@
     },
     "account": {
         "title": "Hesab",
-        "description": "Adınızı və giriş e-poçt ünvanınızı yeniləyin",
+        "description": "Giriş e-poçt ünvanınızı yeniləyin",
         "name": "Ad",
         "namePlaceholder": "Tam ad",
         "email": "E-poçt ünvanı",

@@ -17,6 +17,7 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -54,7 +55,6 @@ class BusinessMemberController extends Controller
             ]);
 
             $member->profile()->create([
-                'name' => $name,
                 'email' => $validated['email'],
                 'job_title' => $validated['job_title'] ?? null,
             ]);
@@ -100,7 +100,6 @@ class BusinessMemberController extends Controller
         return Inertia::render('company/business/members/edit', [
             'member' => $this->toMemberArray($team, $user),
             'profile' => [
-                'name' => $profile?->name ?? $user->name,
                 'email' => $profile?->email,
                 'phone' => $profile?->phone,
                 'job_title' => $profile?->job_title,
@@ -163,7 +162,11 @@ class BusinessMemberController extends Controller
     {
         $this->authorizeMember($request, $user);
 
-        $user->profile()->updateOrCreate([], $request->validated());
+        $validated = $request->validated();
+
+        $user->update(['name' => $validated['name']]);
+
+        $user->profile()->updateOrCreate([], Arr::except($validated, ['name']));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 

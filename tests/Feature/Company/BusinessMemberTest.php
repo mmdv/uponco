@@ -316,7 +316,6 @@ test('owners can update a member account and an email change resets verification
     $this
         ->actingAs($owner)
         ->patch(route('company.business.members.account.update', ['user' => $member]), [
-            'name' => 'Updated Name',
             'email' => 'new@example.com',
         ])
         ->assertRedirect()
@@ -324,7 +323,6 @@ test('owners can update a member account and an email change resets verification
 
     $member->refresh();
 
-    expect($member->name)->toEqual('Updated Name');
     expect($member->email)->toEqual('new@example.com');
     expect($member->email_verified_at)->toBeNull();
 });
@@ -343,13 +341,12 @@ test('admins can update a member account', function () {
     $this
         ->actingAs($admin)
         ->patch(route('company.business.members.account.update', ['user' => $member]), [
-            'name' => 'Updated Name',
             'email' => 'new@example.com',
         ])
         ->assertRedirect()
         ->assertSessionHasNoErrors();
 
-    expect($member->fresh()->name)->toEqual('Updated Name');
+    expect($member->fresh()->email)->toEqual('new@example.com');
 });
 
 test('admins cannot edit the team owner account', function () {
@@ -366,7 +363,6 @@ test('admins cannot edit the team owner account', function () {
     $this
         ->actingAs($admin)
         ->patch(route('company.business.members.account.update', ['user' => $owner]), [
-            'name' => 'Hijacked',
             'email' => 'hijack@example.com',
         ])
         ->assertForbidden();
@@ -395,7 +391,7 @@ test('owners can update a member public profile', function () {
         ->assertRedirect()
         ->assertSessionHasNoErrors();
 
-    expect($member->profile->name)->toEqual('Public Name');
+    expect($member->refresh()->name)->toEqual('Public Name');
     expect($member->profile->job_title)->toEqual('Senior Stylist');
 });
 

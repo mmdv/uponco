@@ -12,15 +12,14 @@ test('profile page is displayed', function () {
         ->assertOk();
 });
 
-test('profile page prefills the name from the account when no profile exists', function () {
-    $user = User::factory()->create(['name' => 'Jane Doe']);
+test('profile page loads when no profile exists', function () {
+    $user = User::factory()->create();
 
     $this
         ->actingAs($user)
         ->get(route('profile.edit'))
         ->assertInertia(fn ($page) => $page
             ->component('settings/profile')
-            ->where('profile.name', 'Jane Doe')
             ->where('profile.email', null)
         );
 });
@@ -31,7 +30,7 @@ test('profile information can be created', function () {
     $this
         ->actingAs($user)
         ->patch(route('profile.update'), [
-            'name' => 'Public Name',
+            'name' => 'Updated Name',
             'email' => 'public@example.com',
             'phone' => '+1 555 000 1111',
             'job_title' => 'Senior Stylist',
@@ -40,26 +39,27 @@ test('profile information can be created', function () {
         ->assertSessionHasNoErrors()
         ->assertRedirect();
 
-    $profile = $user->refresh()->profile;
+    $user->refresh();
 
-    expect($profile)->not->toBeNull();
-    expect($profile->name)->toBe('Public Name');
-    expect($profile->email)->toBe('public@example.com');
-    expect($profile->job_title)->toBe('Senior Stylist');
+    expect($user->name)->toBe('Updated Name');
+    expect($user->profile)->not->toBeNull();
+    expect($user->profile->email)->toBe('public@example.com');
+    expect($user->profile->job_title)->toBe('Senior Stylist');
 });
 
 test('profile information can be updated', function () {
     $user = User::factory()->create();
-    Profile::factory()->for($user)->create(['name' => 'Old Name']);
+    Profile::factory()->for($user)->create(['job_title' => 'Old Title']);
 
     $this
         ->actingAs($user)
         ->patch(route('profile.update'), [
-            'name' => 'New Name',
+            'name' => $user->name,
+            'job_title' => 'New Title',
         ])
         ->assertSessionHasNoErrors();
 
-    expect($user->refresh()->profile->name)->toBe('New Name');
+    expect($user->refresh()->profile->job_title)->toBe('New Title');
     expect(Profile::where('user_id', $user->id)->count())->toBe(1);
 });
 
@@ -69,11 +69,24 @@ test('public email is not required', function () {
     $this
         ->actingAs($user)
         ->patch(route('profile.update'), [
-            'name' => 'Public Name',
+            'name' => $user->name,
+            'job_title' => 'Stylist',
         ])
         ->assertSessionHasNoErrors();
 
     expect($user->refresh()->profile->email)->toBeNull();
+});
+
+test('public email must be valid', function () {
+    $user = User::factory()->create();
+
+    $this
+        ->actingAs($user)
+        ->patch(route('profile.update'), [
+            'name' => $user->name,
+            'email' => 'not-an-email',
+        ])
+        ->assertSessionHasErrors('email');
 });
 
 test('name is required', function () {

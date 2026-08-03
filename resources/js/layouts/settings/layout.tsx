@@ -6,7 +6,6 @@ import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn, toUrl } from '@/lib/utils';
-import { edit as editAccount } from '@/routes/account';
 import { edit as editIntegrations } from '@/routes/integrations';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
@@ -20,11 +19,6 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
         {
             title: t('nav.profile'),
             href: editProfile(),
-            icon: null,
-        },
-        {
-            title: t('nav.account'),
-            href: editAccount(),
             icon: null,
         },
         {

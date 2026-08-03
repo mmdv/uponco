@@ -13,7 +13,6 @@ import { edit as editProfile } from '@/routes/profile';
 import type { Auth } from '@/types';
 
 type ProfileData = {
-    name: string;
     email: string | null;
     phone: string | null;
     job_title: string | null;
@@ -62,7 +61,7 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                                 <Input
                                     id="name"
                                     className="mt-1 block w-full"
-                                    defaultValue={profile.name}
+                                    defaultValue={auth.user.name}
                                     name="name"
                                     required
                                     autoComplete="name"

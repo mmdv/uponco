@@ -21,6 +21,8 @@ class UpdateBusinessMemberAccountRequest extends FormRequest
         /** @var User $user */
         $user = $this->route('user');
 
-        return $this->accountRules($user->id);
+        return [
+            'email' => $this->emailRules($user->id),
+        ];
     }
 }

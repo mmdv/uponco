@@ -2,33 +2,30 @@
 
 use App\Models\User;
 
-test('account page is displayed', function () {
+test('the settings index redirects to the profile page', function () {
     $user = User::factory()->create();
 
-    $response = $this
+    $this
         ->actingAs($user)
-        ->get(route('account.edit'));
-
-    $response->assertOk();
+        ->get('/settings')
+        ->assertRedirect(route('profile.edit'));
 });
 
-test('account information can be updated', function () {
+test('the login email can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this
         ->actingAs($user)
         ->patch(route('account.update'), [
-            'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('account.edit'));
+        ->assertRedirect(route('security.edit'));
 
     $user->refresh();
 
-    expect($user->name)->toBe('Test User');
     expect($user->email)->toBe('test@example.com');
     expect($user->email_verified_at)->toBeNull();
 });
@@ -39,13 +36,12 @@ test('email verification status is unchanged when the email address is unchanged
     $response = $this
         ->actingAs($user)
         ->patch(route('account.update'), [
-            'name' => 'Test User',
             'email' => $user->email,
         ]);
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('account.edit'));
+        ->assertRedirect(route('security.edit'));
 
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
@@ -72,14 +68,14 @@ test('correct password must be provided to delete account', function () {
 
     $response = $this
         ->actingAs($user)
-        ->from(route('account.edit'))
+        ->from(route('security.edit'))
         ->delete(route('account.destroy'), [
             'password' => 'wrong-password',
         ]);
 
     $response
         ->assertSessionHasErrors('password')
-        ->assertRedirect(route('account.edit'));
+        ->assertRedirect(route('security.edit'));
 
     expect($user->fresh())->not->toBeNull();
 });

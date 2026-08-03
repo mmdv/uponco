@@ -17,6 +17,8 @@ class AccountUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->accountRules($this->user()->id);
+        return [
+            'email' => $this->emailRules($this->user()->id),
+        ];
     }
 }

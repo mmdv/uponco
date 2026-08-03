@@ -27,7 +27,7 @@
     },
     "account": {
         "title": "Account",
-        "description": "Update your name and login email address",
+        "description": "Update your login email address",
         "name": "Name",
         "namePlaceholder": "Full name",
         "email": "Email address",

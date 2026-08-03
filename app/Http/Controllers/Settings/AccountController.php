@@ -6,29 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\AccountDeleteRequest;
 use App\Http\Requests\Settings\AccountUpdateRequest;
 use App\Http\Requests\Settings\AvatarUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class AccountController extends Controller
 {
     /**
-     * Show the user's account settings page.
-     */
-    public function edit(Request $request): Response
-    {
-        return Inertia::render('settings/account', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => $request->session()->get('status'),
-        ]);
-    }
-
-    /**
-     * Update the user's account information.
+     * Update the user's login email address.
      */
     public function update(AccountUpdateRequest $request): RedirectResponse
     {
@@ -42,7 +29,7 @@ class AccountController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Account updated.')]);
 
-        return to_route('account.edit');
+        return to_route('security.edit');
     }
 
     /**
@@ -64,7 +51,7 @@ class AccountController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile picture updated.')]);
 
-        return to_route('account.edit');
+        return to_route('profile.edit');
     }
 
     /**
@@ -84,7 +71,7 @@ class AccountController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile picture removed.')]);
 
-        return to_route('account.edit');
+        return to_route('profile.edit');
     }
 
     /**

@@ -40,7 +40,6 @@ type MemberAccount = {
 };
 
 type MemberProfile = {
-    name: string;
     email: string | null;
     phone: string | null;
     job_title: string | null;
@@ -60,7 +59,7 @@ type Props = {
     assignedServiceIds: number[];
 };
 
-type SectionKey = 'account' | 'profile' | 'access' | 'locations' | 'services';
+type SectionKey = 'profile' | 'access' | 'locations' | 'services';
 
 export default function EditMember({
     member,
@@ -72,11 +71,10 @@ export default function EditMember({
     assignedServiceIds,
 }: Props) {
     const { t } = useTranslation('company');
-    const [section, setSection] = useState<SectionKey>('account');
+    const [section, setSection] = useState<SectionKey>('profile');
     const memberArg: SectionArg = [member.id];
 
     const sections: { key: SectionKey; title: string }[] = [
-        { key: 'account', title: t('business.memberEdit.sections.account') },
         { key: 'profile', title: t('business.memberEdit.sections.profile') },
         { key: 'access', title: t('business.memberEdit.sections.access') },
         {
@@ -128,9 +126,6 @@ export default function EditMember({
 
                 <div className="flex-1 md:max-w-2xl">
                     <section className="max-w-xl">
-                        {section === 'account' ? (
-                            <AccountSection member={member} arg={memberArg} />
-                        ) : null}
                         {section === 'profile' ? (
                             <ProfileSection
                                 member={member}
@@ -167,88 +162,6 @@ export default function EditMember({
 }
 
 type SectionArg = [number];
-
-function AccountSection({
-    member,
-    arg,
-}: {
-    member: MemberAccount;
-    arg: SectionArg;
-}) {
-    const { t } = useTranslation('company');
-
-    return (
-        <div className="space-y-6">
-            <Heading
-                variant="small"
-                title={t('business.memberEdit.account.title')}
-                description={t('business.memberEdit.account.description')}
-            />
-
-            <Form
-                {...updateAccount.form(arg)}
-                options={{ preserveScroll: true }}
-                className="space-y-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">
-                                {t('business.memberEdit.account.name')}
-                            </Label>
-                            <Input
-                                id="name"
-                                className="mt-1 block w-full"
-                                defaultValue={member.name}
-                                name="name"
-                                required
-                                autoComplete="name"
-                                placeholder={t(
-                                    'business.memberEdit.account.name',
-                                )}
-                            />
-                            <InputError
-                                className="mt-2"
-                                message={errors.name}
-                            />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">
-                                {t('business.memberEdit.account.email')}
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                className="mt-1 block w-full"
-                                defaultValue={member.email}
-                                name="email"
-                                required
-                                autoComplete="username"
-                                placeholder={t(
-                                    'business.memberEdit.account.email',
-                                )}
-                            />
-                            <InputError
-                                className="mt-2"
-                                message={errors.email}
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <Button
-                                disabled={processing}
-                                data-test="update-member-account-button"
-                            >
-                                {t('business.memberEdit.account.save')}
-                            </Button>
-                        </div>
-                    </>
-                )}
-            </Form>
-        </div>
-    );
-}
 
 function ProfileSection({
     member,
@@ -297,7 +210,7 @@ function ProfileSection({
                             <Input
                                 id="profile_name"
                                 className="mt-1 block w-full"
-                                defaultValue={profile.name}
+                                defaultValue={member.name}
                                 name="name"
                                 required
                                 autoComplete="name"
@@ -422,23 +335,6 @@ function AccessSection({
         member.role ?? availableRoles[0]?.value ?? '',
     );
 
-    if (member.role === 'owner') {
-        return (
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title={t('business.memberEdit.access.title')}
-                    description={t('business.memberEdit.access.description')}
-                />
-                <p className="text-sm text-muted-foreground">
-                    {t('business.memberEdit.access.ownerNotice')}{' '}
-                    <Badge variant="secondary">{member.role_label}</Badge>{' '}
-                    {t('business.memberEdit.access.ownerCannotChange')}
-                </p>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             <Heading
@@ -448,53 +344,104 @@ function AccessSection({
             />
 
             <Form
-                {...updateRole.form(arg)}
+                {...updateAccount.form(arg)}
                 options={{ preserveScroll: true }}
                 className="space-y-6"
             >
-                {({ processing }) => (
+                {({ processing, errors }) => (
                     <>
-                        <input type="hidden" name="role" value={role} />
-
                         <div className="grid gap-2">
-                            <Label>
-                                {t('business.memberEdit.access.role')}
+                            <Label htmlFor="email">
+                                {t('business.memberEdit.account.email')}
                             </Label>
-                            <ToggleGroup
-                                type="single"
-                                value={role}
-                                onValueChange={(next) => {
-                                    if (next) {
-                                        setRole(next);
-                                    }
-                                }}
-                                variant="outline"
-                                className="w-full"
-                                data-test="member-role-toggle"
-                            >
-                                {availableRoles.map((option) => (
-                                    <ToggleGroupItem
-                                        key={option.value}
-                                        value={option.value}
-                                        className="h-9 flex-1 px-3"
-                                    >
-                                        {option.label}
-                                    </ToggleGroupItem>
-                                ))}
-                            </ToggleGroup>
+                            <Input
+                                id="email"
+                                type="email"
+                                className="mt-1 block w-full"
+                                defaultValue={member.email}
+                                name="email"
+                                required
+                                autoComplete="username"
+                                placeholder={t(
+                                    'business.memberEdit.account.email',
+                                )}
+                            />
+                            <InputError
+                                className="mt-2"
+                                message={errors.email}
+                            />
                         </div>
 
                         <div className="flex items-center gap-4">
                             <Button
                                 disabled={processing}
-                                data-test="update-member-role-button"
+                                data-test="update-member-account-button"
                             >
-                                {t('business.memberEdit.access.save')}
+                                {t('business.memberEdit.account.save')}
                             </Button>
                         </div>
                     </>
                 )}
             </Form>
+
+            <Separator />
+
+            {member.role === 'owner' ? (
+                <p className="text-sm text-muted-foreground">
+                    {t('business.memberEdit.access.ownerNotice')}{' '}
+                    <Badge variant="secondary">{member.role_label}</Badge>{' '}
+                    {t('business.memberEdit.access.ownerCannotChange')}
+                </p>
+            ) : (
+                <Form
+                    {...updateRole.form(arg)}
+                    options={{ preserveScroll: true }}
+                    className="space-y-6"
+                >
+                    {({ processing }) => (
+                        <>
+                            <input type="hidden" name="role" value={role} />
+
+                            <div className="grid gap-2">
+                                <Label>
+                                    {t('business.memberEdit.access.role')}
+                                </Label>
+                                <ToggleGroup
+                                    type="single"
+                                    value={role}
+                                    onValueChange={(next) => {
+                                        if (next) {
+                                            setRole(next);
+                                        }
+                                    }}
+                                    variant="outline"
+                                    className="w-full"
+                                    data-test="member-role-toggle"
+                                >
+                                    {availableRoles.map((option) => (
+                                        <ToggleGroupItem
+                                            key={option.value}
+                                            value={option.value}
+                                            className="h-9 flex-1 px-3"
+                                        >
+                                            {option.label}
+                                        </ToggleGroupItem>
+                                    ))}
+                                </ToggleGroup>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <Button
+                                    disabled={processing}
+                                    data-test="update-member-role-button"
+                                >
+                                    {t('business.memberEdit.access.save')}
+                                </Button>
+                            </div>
+                        </>
+                    )}
+                </Form>
+            )}
         </div>
     );
 }

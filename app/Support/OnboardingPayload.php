@@ -65,7 +65,7 @@ class OnboardingPayload
                 ],
             ],
             'profile' => [
-                'name' => $user->profile?->name ?? $user->name,
+                'name' => $user->name,
                 'email' => $user->profile?->email,
                 'phone' => $user->profile?->phone,
                 'job_title' => $user->profile?->job_title,

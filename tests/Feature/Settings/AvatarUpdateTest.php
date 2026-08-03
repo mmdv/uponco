@@ -14,7 +14,7 @@ test('a user can upload a profile picture', function () {
         ->post(route('account.avatar.update'), [
             'avatar' => UploadedFile::fake()->image('me.png', 200, 200),
         ])
-        ->assertRedirect(route('account.edit'))
+        ->assertRedirect(route('profile.edit'))
         ->assertSessionHasNoErrors();
 
     $path = $user->fresh()->avatar_path;
@@ -118,7 +118,7 @@ test('a user can remove their profile picture', function () {
     $this
         ->actingAs($user)
         ->delete(route('account.avatar.destroy'))
-        ->assertRedirect(route('account.edit'))
+        ->assertRedirect(route('profile.edit'))
         ->assertSessionHasNoErrors();
 
     expect($user->fresh()->avatar_path)->toBeNull();

@@ -14,7 +14,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::get('settings/account', [AccountController::class, 'edit'])->name('account.edit');
     Route::patch('settings/account', [AccountController::class, 'update'])->name('account.update');
 
     Route::post('settings/account/avatar', [AccountController::class, 'updateAvatar'])->name('account.avatar.update');

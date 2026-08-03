@@ -20,7 +20,6 @@ class ProfileFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),
             'job_title' => $this->faker->jobTitle(),

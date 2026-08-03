@@ -150,7 +150,7 @@ test('resolving an onboarding step queues the step and its status', function () 
 
 test('the booking page going live is queued when the last step resolves', function () {
     [$user, $team] = analyticsOwner();
-    $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
+    $user->profile()->create(['job_title' => 'Stylist']);
     ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
     Service::factory()->create(['team_id' => $team->id]);
 
@@ -172,7 +172,7 @@ test('the booking page going live is queued when the last step resolves', functi
 
 test('an already live booking page does not queue the event again', function () {
     [$user, $team] = analyticsOwner();
-    $user->profile()->create(['name' => $user->name, 'job_title' => 'Stylist']);
+    $user->profile()->create(['job_title' => 'Stylist']);
     ScheduleSlot::factory()->create(['team_id' => $team->id, 'user_id' => $user->id]);
 
     Service::factory()->create(['team_id' => $team->id]);
