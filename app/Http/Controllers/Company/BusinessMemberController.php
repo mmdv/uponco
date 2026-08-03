@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Enums\OnboardingStep;
+use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateBusinessMemberRequest;
@@ -12,6 +14,7 @@ use App\Http\Requests\Company\UpdateBusinessMemberProfileRequest;
 use App\Http\Requests\Settings\AvatarUpdateRequest;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
 use App\Models\Location;
+use App\Models\OnboardingProgress;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
@@ -57,6 +60,17 @@ class BusinessMemberController extends Controller
             $member->profile()->create([
                 'email' => $validated['email'],
                 'job_title' => $validated['job_title'] ?? null,
+            ]);
+
+            // The team is already set up, so the member has nothing to onboard.
+            OnboardingProgress::create([
+                'team_id' => $team->id,
+                'user_id' => $member->id,
+                'services_status' => OnboardingStepStatus::Completed,
+                'profile_status' => OnboardingStepStatus::Completed,
+                'schedule_status' => OnboardingStepStatus::Completed,
+                'current_step' => OnboardingStep::Schedule,
+                'completed_at' => now(),
             ]);
 
             $member->switchTeam($team);

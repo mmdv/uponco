@@ -9,6 +9,7 @@ use App\Http\Responses\PasskeyLoginResponse;
 use App\Http\Responses\RegisterResponse;
 use App\Http\Responses\TwoFactorLoginResponse;
 use App\Http\Responses\VerifyEmailResponse;
+use App\Models\TeamInvitation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -65,6 +66,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
+            ...$this->invitationProps($request),
         ]));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
@@ -80,11 +82,37 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn () => Inertia::render('auth/register'));
+        Fortify::registerView(fn (Request $request) => Inertia::render('auth/register', $this->invitationProps($request)));
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
 
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
+    }
+
+    /**
+     * Resolve the pending invitation (from the session) so auth screens can
+     * prefill and lock the invited email.
+     *
+     * @return array{invitationEmail?: string, invitationTeam?: ?string}
+     */
+    private function invitationProps(Request $request): array
+    {
+        $code = $request->session()->get('team_invitation');
+
+        if (! is_string($code) || $code === '') {
+            return [];
+        }
+
+        $invitation = TeamInvitation::with('team')->where('code', $code)->first();
+
+        if ($invitation === null || ! $invitation->isPending()) {
+            return [];
+        }
+
+        return [
+            'invitationEmail' => $invitation->email,
+            'invitationTeam' => $invitation->team?->name,
+        ];
     }
 
     /**

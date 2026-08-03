@@ -2,34 +2,55 @@
 
 namespace App\Http\Controllers\Teams;
 
+use App\Actions\Teams\AcceptTeamInvitation;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Teams\AcceptTeamInvitationRequest;
 use App\Models\TeamInvitation;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class TeamInvitationController extends Controller
 {
-    /**
-     * Accept the invitation.
-     */
-    public function accept(AcceptTeamInvitationRequest $request, TeamInvitation $invitation): RedirectResponse
+    public function __construct(private AcceptTeamInvitation $acceptTeamInvitation)
     {
+        //
+    }
+
+    /**
+     * Handle the invitation link.
+     *
+     * The link is public: guests are routed to signup (or login if they already
+     * have an account), while an authenticated recipient with a matching email
+     * is added to the team straight away.
+     */
+    public function accept(Request $request, TeamInvitation $invitation): RedirectResponse
+    {
+        if (! $invitation->isPending()) {
+            return to_route('login')->with('status', __('This invitation is no longer valid.'));
+        }
+
         $user = $request->user();
 
-        DB::transaction(function () use ($user, $invitation) {
-            $team = $invitation->team;
+        if ($user instanceof User) {
+            if (strtolower($user->email) !== strtolower($invitation->email)) {
+                return to_route('dashboard')->with('status', __('This invitation was sent to a different email address.'));
+            }
 
-            $team->memberships()->firstOrCreate(
-                ['user_id' => $user->id],
-                ['role' => $invitation->role],
-            );
+            if (! $user->hasVerifiedEmail()) {
+                $user->markEmailAsVerified();
+            }
 
-            $invitation->update(['accepted_at' => now()]);
+            $this->acceptTeamInvitation->handle($user, $invitation);
 
-            $user->switchTeam($team);
-        });
+            return to_route('dashboard');
+        }
 
-        return to_route('dashboard');
+        $request->session()->put('team_invitation', $invitation->code);
+
+        if (User::where('email', $invitation->email)->exists()) {
+            return to_route('login');
+        }
+
+        return to_route('register');
     }
 }

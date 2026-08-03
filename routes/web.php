@@ -143,8 +143,8 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
         });
     });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
-});
+// Public so an invited guest can be routed to signup/login; the controller
+// resolves the authenticated, guest and account states itself.
+Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
 
 require __DIR__.'/settings.php';

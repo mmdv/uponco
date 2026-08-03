@@ -12,9 +12,15 @@ import { store } from '@/routes/register';
 
 type Props = {
     passwordRules: string;
+    invitationEmail?: string;
+    invitationTeam?: string | null;
 };
 
-export default function Register({ passwordRules }: Props) {
+export default function Register({
+    passwordRules,
+    invitationEmail,
+    invitationTeam,
+}: Props) {
     // Autofocusing on a phone pops the keyboard open before the page has
     // settled, which scrolls the form out from under the user on arrival.
     const isMobile = useIsMobile();
@@ -31,6 +37,13 @@ export default function Register({ passwordRules }: Props) {
                 {({ processing, errors }) => (
                     <>
                         <div className="grid gap-6">
+                            {invitationTeam && (
+                                <p className="text-sm text-muted-foreground">
+                                    You've been invited to join {invitationTeam}.
+                                    Create your account to get started.
+                                </p>
+                            )}
+
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>
                                 <Input
@@ -66,6 +79,8 @@ export default function Register({ passwordRules }: Props) {
                                     enterKeyHint="next"
                                     name="email"
                                     placeholder="email@example.com"
+                                    defaultValue={invitationEmail}
+                                    readOnly={Boolean(invitationEmail)}
                                 />
                                 <InputError message={errors.email} />
                             </div>

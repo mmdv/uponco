@@ -10,8 +10,14 @@ class RegisterResponse implements RegisterResponseContract
 {
     public function toResponse($request): Response
     {
-        return $request->wantsJson()
-            ? new JsonResponse(['two_factor' => false], 201)
-            : redirect('/onboard');
+        if ($request->wantsJson()) {
+            return new JsonResponse(['two_factor' => false], 201);
+        }
+
+        // Users who registered via an invitation already sit on an onboarded team,
+        // so send them straight to the dashboard; everyone else onboards first.
+        $team = $request->user()?->currentTeam;
+
+        return redirect($team !== null && ! $team->needsOnboarding() ? '/dashboard' : '/onboard');
     }
 }

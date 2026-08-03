@@ -2,6 +2,7 @@
 
 use App\Enums\TeamRole;
 use App\Models\Location;
+use App\Models\OnboardingProgress;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
@@ -39,6 +40,38 @@ test('owners can add a team member directly', function () {
 
     expect($member->personalTeam())->toBeNull();
     expect($member->teams()->count())->toBe(1);
+
+    $progress = OnboardingProgress::where('team_id', $team->id)
+        ->where('user_id', $member->id)
+        ->first();
+
+    expect($progress)->not->toBeNull();
+    expect($progress->isComplete())->toBeTrue();
+    expect($progress->completed_at)->not->toBeNull();
+});
+
+test('a directly added member lands on the dashboard on login', function () {
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
+
+    $this
+        ->actingAs($owner)
+        ->post(route('company.business.members.store'), [
+            'name' => 'Jane',
+            'email' => 'jane@example.com',
+            'password' => 'password123',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $member = User::where('email', 'jane@example.com')->firstOrFail();
+
+    $this
+        ->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk();
 });
 
 test('admins can add a team member directly', function () {
