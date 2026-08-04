@@ -6,10 +6,12 @@ import {
     SlidersVertical,
     Users,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { usePendingVisit } from '@/hooks/use-pending-visit';
 import { useTranslation } from '@/hooks/use-translation';
 import { isTeamManager } from '@/lib/teams';
-import { cn } from '@/lib/utils';
+import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as appointments } from '@/routes/appointments';
 import { index as company } from '@/routes/company';
@@ -21,6 +23,7 @@ export function AppBottomNav() {
     const { t } = useTranslation('nav');
     const { currentTeam } = usePage().props;
     const { isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
+    const pendingPath = usePendingVisit();
 
     if (!currentTeam) {
         return null;
@@ -66,24 +69,33 @@ export function AppBottomNav() {
                         ? isCurrentUrl(item.href)
                         : isCurrentOrParentUrl(item.href);
 
+                    const pending =
+                        pendingPath !== null &&
+                        pendingPath === toUrl(item.href) &&
+                        !active;
+
                     return (
                         <Link
                             key={item.title}
                             href={item.href}
                             className={cn(
-                                'flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors',
-                                active
+                                'flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors active:scale-95',
+                                active || pending
                                     ? 'text-foreground'
                                     : 'text-muted-foreground hover:text-foreground',
                             )}
                         >
-                            {item.icon && (
-                                <item.icon
-                                    className={cn(
-                                        'h-5 w-5',
-                                        active && 'text-primary',
-                                    )}
-                                />
+                            {pending ? (
+                                <Spinner className="h-5 w-5 text-primary" />
+                            ) : (
+                                item.icon && (
+                                    <item.icon
+                                        className={cn(
+                                            'h-5 w-5',
+                                            active && 'text-primary',
+                                        )}
+                                    />
+                                )
                             )}
                             <span>{item.title}</span>
                         </Link>

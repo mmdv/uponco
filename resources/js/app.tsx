@@ -76,6 +76,9 @@ createInertiaApp({
     },
     progress: {
         color: '#4B5563',
+        // Default is 250ms, which leaves a "dead" pause after a tap before any
+        // feedback shows. Surface the bar almost immediately instead.
+        delay: 50,
     },
 });
 
