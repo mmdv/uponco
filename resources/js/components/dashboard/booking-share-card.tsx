@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { ShareGraphic } from '@/components/card-graphics';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import { show as bookingPage } from '@/routes/public/appointments';
@@ -99,15 +100,20 @@ export default function BookingShareCard({
                 {/* Decorative glow, purely to give the wash some depth. */}
                 <div className="pointer-events-none absolute -top-16 -right-10 -z-10 size-48 rounded-full bg-primary/10 blur-3xl" />
 
+                {/* Broadcast arcs — the link going out into the world. */}
+                <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden text-primary">
+                    <ShareGraphic />
+                </div>
+
                 <div className="flex items-start gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-gradient text-white shadow-sm">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-gradient text-white shadow-[0_8px_18px_-8px_rgba(0,99,255,0.75)]">
                         <Link2 className="size-5" />
                     </span>
                     <div className="min-w-0 space-y-1">
-                        <h3 className="text-base font-medium">
+                        <h3 className="text-base font-semibold">
                             {t('bookingPage.title')}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm font-medium text-foreground/75">
                             {t('bookingPage.subtitle')}
                         </p>
                     </div>
@@ -119,10 +125,10 @@ export default function BookingShareCard({
                     rel="noopener noreferrer"
                     className="mt-4 flex items-center gap-2 rounded-xl border border-primary/15 bg-background/70 px-3 py-2.5 transition-colors hover:border-primary/30 hover:bg-background"
                 >
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">
                         {displayUrl(shareUrl)}
                     </span>
-                    <ArrowUpRight className="size-4 shrink-0 text-muted-foreground" />
+                    <ArrowUpRight className="size-4 shrink-0 text-foreground/50" />
                 </a>
 
                 {/*

@@ -1,5 +1,10 @@
 import { CalendarCheck, CalendarClock, Users } from 'lucide-react';
 
+import {
+    BookingsGraphic,
+    CustomersGraphic,
+    UpcomingGraphic,
+} from '@/components/card-graphics';
 import StatCard from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as appointmentsIndex } from '@/routes/appointments';
@@ -20,7 +25,8 @@ export default function DashboardStats({ stats, mounted }: Props) {
             label: t('stats.customers'),
             value: stats.customers,
             href: customersIndex.url(),
-            accent: 'indigo' as const,
+            accent: 'brand' as const,
+            graphic: <CustomersGraphic />,
             hint: t('stats.customersHint'),
         },
         {
@@ -28,7 +34,8 @@ export default function DashboardStats({ stats, mounted }: Props) {
             label: t('stats.totalBookings'),
             value: stats.totalBookings,
             href: appointmentsIndex.url(),
-            accent: 'emerald' as const,
+            accent: 'deep' as const,
+            graphic: <BookingsGraphic />,
             hint: t('stats.totalBookingsHint'),
         },
         {
@@ -36,7 +43,8 @@ export default function DashboardStats({ stats, mounted }: Props) {
             label: t('stats.upcoming'),
             value: stats.upcoming,
             href: appointmentsIndex.url(),
-            accent: 'amber' as const,
+            accent: 'bright' as const,
+            graphic: <UpcomingGraphic />,
             hint: t('stats.upcomingHint'),
         },
     ];
@@ -51,6 +59,7 @@ export default function DashboardStats({ stats, mounted }: Props) {
                     value={card.value}
                     href={card.href}
                     accent={card.accent}
+                    graphic={card.graphic}
                     hint={card.hint}
                     mounted={mounted}
                     delay={index * 60}

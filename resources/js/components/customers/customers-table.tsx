@@ -54,7 +54,9 @@ export default function CustomersTable({
                         <TableHead>{t('table.email')}</TableHead>
                         <TableHead>{t('table.phone')}</TableHead>
                         <TableHead className="sticky right-0 z-20 w-0 border-l bg-background text-right">
-                            <span className="sr-only">{t('table.actions')}</span>
+                            <span className="sr-only">
+                                {t('table.actions')}
+                            </span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>

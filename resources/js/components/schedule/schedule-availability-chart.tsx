@@ -18,13 +18,16 @@ type Props = {
  * "open now / hours this week" status line. Shared by the company overview
  * card and the member dashboard so both stay in sync.
  */
-export default function ScheduleAvailabilityChart({ schedule, mounted }: Props) {
+export default function ScheduleAvailabilityChart({
+    schedule,
+    mounted,
+}: Props) {
     const { t } = useTranslation('company');
     const maxMinutes = Math.max(...schedule.days.map((day) => day.minutes), 1);
 
     return (
         <>
-            <div className="mt-6 flex items-end gap-2 sm:gap-3">
+            <div className="flex items-end gap-2 sm:gap-3">
                 {schedule.days.map((day, index) => {
                     const ratio =
                         day.minutes > 0
@@ -59,7 +62,7 @@ export default function ScheduleAvailabilityChart({ schedule, mounted }: Props) 
                                     'text-[11px] font-medium',
                                     day.isToday
                                         ? 'text-foreground'
-                                        : 'text-muted-foreground',
+                                        : 'text-foreground/65',
                                 )}
                             >
                                 {day.label}
@@ -82,7 +85,7 @@ export default function ScheduleAvailabilityChart({ schedule, mounted }: Props) 
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                     )}
                 </span>
-                <span className="text-muted-foreground">
+                <span className="font-medium text-foreground/75">
                     {schedule.openNow
                         ? t('schedule.openNow')
                         : t('schedule.closedNow')}{' '}

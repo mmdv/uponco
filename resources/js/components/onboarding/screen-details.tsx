@@ -84,7 +84,9 @@ export default function ScreenDetails({ data, service, controls }: Props) {
                          * server flag whatever required fields are missing,
                          * rather than silently blocking on an empty title.
                          */}
-                        <OnboardingFooter saving={processing || controls.saving} />
+                        <OnboardingFooter
+                            saving={processing || controls.saving}
+                        />
                     </ScreenFooterBar>
                 </>
             )}

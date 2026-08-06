@@ -10,6 +10,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { ACCENTS } from '@/components/accents';
+import type { AccentStyles } from '@/components/accents';
+import {
+    BrandGraphic,
+    BusinessGraphic,
+    LocationsGraphic,
+    ScheduleGraphic,
+    ServicesGraphic,
+} from '@/components/card-graphics';
 import Heading from '@/components/heading';
 import ScheduleAvailabilityChart from '@/components/schedule/schedule-availability-chart';
 import { useInitials } from '@/hooks/use-initials';
@@ -47,8 +56,23 @@ type Props = {
     };
 };
 
-/** Brand-primary gradient used for every avatar / icon tile across the page. */
+/** Brand-primary gradient used for the team avatars and brand swatches. */
 const PRIMARY_GRADIENT = 'from-[#0063ff] to-[#3884fe]';
+
+/**
+ * Per-card personality, drawn from the shared palette. Every tile keeps the
+ * same shell — radius, border, lift-on-hover — but carries its own hue, icon
+ * tile and background graphic so the grid reads as five distinct places to
+ * manage rather than five clones. The hues match their counterparts on the
+ * dashboard, so a card means the same thing wherever you meet it.
+ */
+const CARD_ACCENTS = {
+    business: ACCENTS.brand,
+    services: ACCENTS.deep,
+    schedule: ACCENTS.bright,
+    locations: ACCENTS.ink,
+    brand: ACCENTS.soft,
+};
 
 function formatPrice(price: string | null): string | null {
     if (price === null) {
@@ -98,11 +122,12 @@ export default function CompanyIndex({
                         delay={0}
                         className="lg:col-span-1 lg:row-span-2"
                         icon={Building2}
-                        iconClassName="bg-primary-gradient text-white"
+                        accent={CARD_ACCENTS.business}
+                        graphic={<BusinessGraphic />}
                         title={t('business.title')}
                         description={t('business.description')}
                     >
-                        <div className="mt-auto flex flex-col gap-5 pt-8">
+                        <div className="mt-auto flex flex-col gap-5">
                             <div className="flex items-center -space-x-2">
                                 {business.people.map((person, index) => (
                                     <div
@@ -122,7 +147,7 @@ export default function CompanyIndex({
                                     </div>
                                 ))}
                                 {business.total > business.people.length && (
-                                    <div className="flex size-11 items-center justify-center rounded-xl border border-dashed bg-muted/40 text-xs font-medium text-muted-foreground ring-2 ring-card">
+                                    <div className="flex size-11 items-center justify-center rounded-xl border border-dashed bg-muted/50 text-xs font-semibold text-foreground/70 ring-2 ring-card">
                                         +
                                         {business.total -
                                             business.people.length}
@@ -135,7 +160,7 @@ export default function CompanyIndex({
                                     <span className="text-3xl font-bold tracking-tight tabular-nums">
                                         {business.total}
                                     </span>
-                                    <span className="text-sm text-muted-foreground">
+                                    <span className="text-sm font-medium text-foreground/70">
                                         {t('business.stats', {
                                             member:
                                                 business.total === 1
@@ -162,7 +187,7 @@ export default function CompanyIndex({
                                                 'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium',
                                                 role.role === 'owner'
                                                     ? 'border-primary/20 bg-primary/10 text-primary'
-                                                    : 'text-muted-foreground',
+                                                    : 'border-black/10 text-foreground/80 dark:border-border',
                                             )}
                                         >
                                             {role.label}
@@ -185,26 +210,28 @@ export default function CompanyIndex({
                         delay={60}
                         className="lg:col-span-1 lg:row-span-2"
                         icon={Wrench}
+                        accent={CARD_ACCENTS.services}
+                        graphic={<ServicesGraphic />}
                         title={t('services.title')}
                         description={t('services.description')}
                     >
-                        <div className="mt-auto flex flex-col gap-4 pt-6">
+                        <div className="mt-auto flex flex-col gap-4">
                             <div>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-3xl font-bold tracking-tight tabular-nums">
-                                        {services.categories}
+                                        {services.count}
                                     </span>
-                                    <span className="text-sm text-muted-foreground">
-                                        {services.categories === 1
-                                            ? t('services.categorySingular')
-                                            : t('services.categoryPlural')}
+                                    <span className="text-sm font-medium text-foreground/70">
+                                        {services.count === 1
+                                            ? t('services.serviceSingular')
+                                            : t('services.servicePlural')}
                                     </span>
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                    {services.count}{' '}
-                                    {services.count === 1
-                                        ? t('services.serviceSingular')
-                                        : t('services.servicePlural')}
+                                <p className="mt-0.5 text-xs font-medium text-foreground/65">
+                                    {services.categories}{' '}
+                                    {services.categories === 1
+                                        ? t('services.categorySingular')
+                                        : t('services.categoryPlural')}
                                 </p>
                             </div>
 
@@ -212,21 +239,16 @@ export default function CompanyIndex({
                                 {services.items.map((service, index) => (
                                     <div
                                         key={service.title + index}
-                                        className="flex items-center gap-2.5 rounded-xl border bg-muted/30 px-3 py-2 transition-colors group-hover:border-primary/30"
+                                        className="flex items-center gap-2.5 rounded-xl border border-black/[0.07] bg-card/70 px-3 py-2 backdrop-blur-[2px] transition-colors group-hover:border-primary/25 dark:border-border dark:bg-card/50"
                                     >
-                                        <div
-                                            className={cn(
-                                                'flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white',
-                                                PRIMARY_GRADIENT,
-                                            )}
-                                        >
+                                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#0047b8] to-[#0063ff] text-white">
                                             <Sparkles className="size-4" />
                                         </div>
                                         <div className="min-w-0">
-                                            <div className="truncate text-sm font-medium">
+                                            <div className="truncate text-sm font-semibold text-foreground">
                                                 {service.title}
                                             </div>
-                                            <div className="text-xs text-muted-foreground">
+                                            <div className="text-xs font-medium text-foreground/65">
                                                 {service.duration} min
                                                 {formatPrice(service.price)
                                                     ? ` · ${formatPrice(service.price)}`
@@ -236,7 +258,7 @@ export default function CompanyIndex({
                                     </div>
                                 ))}
                                 {services.count === 0 && (
-                                    <span className="text-sm text-muted-foreground">
+                                    <span className="text-sm font-medium text-foreground/70">
                                         {t('services.empty')}
                                     </span>
                                 )}
@@ -251,6 +273,8 @@ export default function CompanyIndex({
                         delay={120}
                         className="sm:col-span-2 lg:col-span-2"
                         icon={CalendarClock}
+                        accent={CARD_ACCENTS.schedule}
+                        graphic={<ScheduleGraphic />}
                         title={t('schedule.title')}
                         description={t('schedule.description')}
                     >
@@ -267,22 +291,24 @@ export default function CompanyIndex({
                         delay={180}
                         className="lg:col-span-1"
                         icon={MapPin}
+                        accent={CARD_ACCENTS.locations}
+                        graphic={<LocationsGraphic />}
                         title={t('locations.title')}
                         compact
                     >
-                        <div className="mt-auto pt-6">
+                        <div className="mt-auto">
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-bold tracking-tight tabular-nums">
                                     {locations.count}
                                 </span>
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-sm font-medium text-foreground/70">
                                     {locations.count === 1
                                         ? t('locations.locationSingular')
                                         : t('locations.locationPlural')}
                                 </span>
                             </div>
                             {locations.cities.length > 0 && (
-                                <p className="mt-1 truncate text-xs text-muted-foreground">
+                                <p className="mt-1 truncate text-xs font-medium text-foreground/65">
                                     {locations.cities.join(' · ')}
                                 </p>
                             )}
@@ -296,10 +322,12 @@ export default function CompanyIndex({
                         delay={240}
                         className="lg:col-span-1"
                         icon={Palette}
+                        accent={CARD_ACCENTS.brand}
+                        graphic={<BrandGraphic />}
                         title={t('brand.title')}
                         compact
                     >
-                        <div className="mt-auto flex items-center gap-2 pt-6">
+                        <div className="mt-auto flex items-center gap-2">
                             <div
                                 className={cn(
                                     'flex size-10 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold text-white shadow-sm',
@@ -325,7 +353,9 @@ type BentoCardProps = {
     delay: number;
     className?: string;
     icon: React.ComponentType<{ className?: string }>;
-    iconClassName?: string;
+    accent: AccentStyles;
+    /** Decorative SVG painted behind the content; inherits the accent colour. */
+    graphic?: React.ReactNode;
     title: string;
     description?: string;
     compact?: boolean;
@@ -338,7 +368,8 @@ function BentoCard({
     delay,
     className,
     icon: Icon,
-    iconClassName,
+    accent,
+    graphic,
     title,
     description,
     compact,
@@ -349,7 +380,8 @@ function BentoCard({
             href={href}
             data-test="company-card"
             className={cn(
-                'group relative flex flex-col overflow-hidden rounded-2xl border border-[#f1f3f5] bg-card p-6 shadow-soft transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-primary/40 dark:border-border',
+                'group relative flex flex-col overflow-hidden rounded-2xl border border-black/[0.08] bg-card shadow-soft transition-all duration-500 ease-out hover:-translate-y-0.5 hover:shadow-lg dark:border-border',
+                accent.ring,
                 mounted
                     ? 'translate-y-0 opacity-100'
                     : 'translate-y-3 opacity-0',
@@ -357,33 +389,57 @@ function BentoCard({
             )}
             style={{ transitionDelay: `${delay}ms` }}
         >
-            {/* subtle hover glow */}
-            <div className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-primary/5 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+            {/* Accent wash — a whisper of the card's hue in the top corner. */}
+            <div
+                className={cn(
+                    'pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent to-transparent',
+                    accent.wash,
+                )}
+            />
 
-            <div className="flex items-start gap-3">
+            {/* The card's own illustration, brightening slightly on hover. */}
+            {graphic && (
                 <div
                     className={cn(
-                        'flex shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105',
-                        compact ? 'size-9' : 'size-11',
-                        iconClassName ?? 'bg-muted text-muted-foreground',
+                        'pointer-events-none absolute inset-0 overflow-hidden transition-opacity duration-500 group-hover:opacity-80',
+                        accent.graphic,
                     )}
                 >
-                    <Icon className={compact ? 'size-4' : 'size-5'} />
+                    {graphic}
                 </div>
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                        <h3 className="leading-tight font-semibold">{title}</h3>
-                        <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                    </div>
-                    {description && (
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                            {description}
-                        </p>
-                    )}
-                </div>
-            </div>
+            )}
 
-            {children}
+            <div className="relative flex flex-1 flex-col p-5">
+                <div className="flex items-start gap-3">
+                    <div
+                        className={cn(
+                            'flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white transition-transform duration-300 group-hover:scale-105',
+                            compact ? 'size-9' : 'size-11',
+                            accent.gradient,
+                            accent.shadow,
+                        )}
+                    >
+                        <Icon className={compact ? 'size-4' : 'size-5'} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                            <h3 className="leading-tight font-semibold text-foreground">
+                                {title}
+                            </h3>
+                            <ChevronRight className="size-4 shrink-0 text-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-foreground/80" />
+                        </div>
+                        {description && (
+                            <p className="mt-1 text-sm leading-snug font-medium text-foreground/75">
+                                {description}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {children && (
+                    <div className="mt-5 flex flex-1 flex-col">{children}</div>
+                )}
+            </div>
         </Link>
     );
 }

@@ -78,19 +78,25 @@
         #fbfcff
     );
     /*
-     * The page backdrop, painted by AppBackground: a near-white base with
-     * soft blooms of the brand blue floating over it. Light on purpose —
-     * enough colour to lift the page off flat white, never enough to
-     * compete with the content sitting on top.
+     * The page backdrop, painted by AppBackground. The work is done by the
+     * base: a soft neutral grey that reads as "not white" on its own, so the
+     * white cards sitting on it gain their edge from tone rather than from
+     * colour. The blooms over it are barely-there brand blue — present if you
+     * look for them, never enough to tint the page.
      */
-    --app-base: #fdfeff;
-    --app-tint-strong: rgba(0, 99, 255, 0.13);
-    --app-tint-soft: rgba(56, 132, 254, 0.09);
-    --app-tint-faint: rgba(0, 99, 255, 0.05);
+    --app-base: #f6f7f9;
+    --app-tint-strong: rgba(0, 99, 255, 0.024);
+    --app-tint-soft: rgba(56, 132, 254, 0.016);
+    --app-tint-faint: rgba(0, 99, 255, 0.009);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+    /*
+     * Secondary text. Deliberately much darker than the stock shadcn grey —
+     * descriptions and labels should read as near-black with a step down from
+     * the heading, not as washed-out grey.
+     */
+    --muted-foreground: oklch(0.42 0 0);
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
@@ -135,13 +141,14 @@
         #101215
     );
     --app-base: #1b1a18;
-    --app-tint-strong: rgba(56, 132, 254, 0.22);
-    --app-tint-soft: rgba(56, 132, 254, 0.13);
-    --app-tint-faint: rgba(56, 132, 254, 0.07);
+    --app-tint-strong: rgba(56, 132, 254, 0.04);
+    --app-tint-soft: rgba(56, 132, 254, 0.026);
+    --app-tint-faint: rgba(56, 132, 254, 0.014);
     --secondary: oklch(0.3 0.004 75);
     --secondary-foreground: oklch(0.97 0.004 80);
     --muted: oklch(0.3 0.004 75);
-    --muted-foreground: oklch(0.715 0.006 75);
+    /* Mirror of the light theme: secondary text sits close to the foreground. */
+    --muted-foreground: oklch(0.82 0.005 78);
     --accent: oklch(0.3 0.004 75);
     --accent-foreground: oklch(0.97 0.004 80);
     --destructive: oklch(0.396 0.141 25.723);

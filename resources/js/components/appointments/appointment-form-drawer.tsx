@@ -399,12 +399,16 @@ function AppointmentFormFields({
                                             options={locationOptions}
                                             value={locationId?.toString() ?? ''}
                                             onChange={handleLocationChange}
-                                            placeholder={t('form.selectLocation')}
+                                            placeholder={t(
+                                                'form.selectLocation',
+                                            )}
                                             searchPlaceholder={t(
                                                 'form.searchLocations',
                                             )}
                                             emptyMessage={t('form.noLocations')}
-                                            invalid={Boolean(errors.location_id)}
+                                            invalid={Boolean(
+                                                errors.location_id,
+                                            )}
                                             data-test="appointment-location-select"
                                         />
                                         <InputError

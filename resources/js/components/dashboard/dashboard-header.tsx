@@ -15,7 +15,7 @@ export default function DashboardHeader({ firstName }: Props) {
                     {firstName}
                 </span>
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-medium text-foreground/70">
                 {t('header.subtitle')}
             </p>
         </div>

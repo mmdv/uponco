@@ -9,8 +9,8 @@ import {
 import type { ComponentType } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-import { ACCENTS } from '@/components/dashboard/accents';
-import type { Accent } from '@/components/dashboard/accents';
+import { ACCENTS } from '@/components/accents';
+import type { Accent } from '@/components/accents';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
@@ -69,25 +69,25 @@ export default function QuickActions({
         {
             icon: CalendarPlus,
             label: t('quickActions.newAppointment'),
-            accent: 'indigo',
+            accent: 'brand',
             onClick: onAddAppointment,
         },
         {
             icon: UserPlus,
             label: t('quickActions.addCustomer'),
-            accent: 'emerald',
+            accent: 'deep',
             onClick: onAddCustomer,
         },
         {
             icon: Briefcase,
             label: t('quickActions.addService'),
-            accent: 'sky',
+            accent: 'bright',
             onClick: onAddService,
         },
         {
             icon: MapPin,
             label: t('quickActions.addLocation'),
-            accent: 'rose',
+            accent: 'soft',
             onClick: onAddLocation,
         },
     ];
@@ -104,7 +104,7 @@ export default function QuickActions({
         >
             {open && (
                 <div className="flex w-60 origin-bottom-right animate-in flex-col gap-1 rounded-2xl border bg-popover p-2 text-popover-foreground shadow-xl duration-200 zoom-in-95 fade-in slide-in-from-bottom-2">
-                    <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                    <p className="px-2 py-1.5 text-xs font-semibold text-foreground/60">
                         {t('quickActions.label')}
                     </p>
                     {actions.map((action) => (
@@ -169,8 +169,9 @@ function QuickAction({
         >
             <span
                 className={cn(
-                    'flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-sm transition-transform duration-300 group-hover:scale-105',
+                    'flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white transition-transform duration-300 group-hover:scale-105',
                     styles.gradient,
+                    styles.shadow,
                 )}
             >
                 <Icon className="size-4" />
