@@ -1,5 +1,7 @@
-import { CalendarClock, MapPin, Scissors, User } from 'lucide-react';
+import { CalendarClock, MapPin, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+
+import { GENERIC_SERVICE_ICON } from '@/lib/business-category-icons';
 
 type Row = {
     icon: LucideIcon;
@@ -13,6 +15,8 @@ type Props = {
     specialistName?: string;
     locationName?: string | null;
     dateTimeLabel?: string;
+    /** Stands for what the business does; defaults to the generic service icon. */
+    serviceIcon?: LucideIcon;
 };
 
 /**
@@ -25,12 +29,13 @@ export default function BookingSummary({
     specialistName,
     locationName,
     dateTimeLabel,
+    serviceIcon = GENERIC_SERVICE_ICON,
 }: Props) {
     const rows: Row[] = [];
 
     if (serviceTitle) {
         rows.push({
-            icon: Scissors,
+            icon: serviceIcon,
             label: 'Service',
             value: metaLabel ? `${serviceTitle} · ${metaLabel}` : serviceTitle,
         });

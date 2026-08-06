@@ -1,5 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ArrowLeft, Check, ChevronDown, Search, XIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ export type SelectOption = {
     label: string;
     /** Section the option is listed under; options without one render flat. */
     group?: string;
+    /** Shown before the label, in the list and on the trigger once chosen. */
+    icon?: LucideIcon;
 };
 
 type SelectDialogProps = {
@@ -154,13 +157,18 @@ export function SelectDialog({
                     )}
                     {...props}
                 >
-                    <span
-                        className={cn(
-                            'truncate',
-                            !selected && 'text-muted-foreground',
-                        )}
-                    >
-                        {triggerLabel ?? placeholder}
+                    <span className="flex min-w-0 items-center gap-2">
+                        {selected?.icon ? (
+                            <selected.icon className="size-4 shrink-0 text-muted-foreground" />
+                        ) : null}
+                        <span
+                            className={cn(
+                                'truncate',
+                                !selected && 'text-muted-foreground',
+                            )}
+                        >
+                            {triggerLabel ?? placeholder}
+                        </span>
                     </span>
                     <ChevronDown className="size-4 shrink-0 opacity-50" />
                 </button>
@@ -264,8 +272,13 @@ export function SelectDialog({
                                                 'bg-accent text-accent-foreground',
                                         )}
                                     >
-                                        <span className="truncate">
-                                            {option.label}
+                                        <span className="flex min-w-0 items-center gap-3">
+                                            {option.icon ? (
+                                                <option.icon className="size-4 shrink-0 text-muted-foreground" />
+                                            ) : null}
+                                            <span className="truncate">
+                                                {option.label}
+                                            </span>
                                         </span>
                                         {option.value === draft ? (
                                             <Check className="size-4 shrink-0 text-primary" />

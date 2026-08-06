@@ -1,6 +1,7 @@
 <?php
 
 use App\Concerns\InteractsWithAppointmentBooking;
+use App\Enums\BusinessCategory;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
@@ -108,6 +109,30 @@ test('the platform team is not publicly bookable and redirects home', function (
     $this
         ->get(route('public.appointments.show', ['company' => 'uponco']))
         ->assertRedirect(route('home'));
+});
+
+test('the booking page exposes the business category behind the service icon', function () {
+    $setup = bookableSetup();
+    $setup['team']->update(['business_category' => BusinessCategory::VeterinaryClinic]);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('company.category', 'veterinary_clinic')
+            ->etc(),
+        );
+});
+
+test('the booking page reports no business category when the team has none', function () {
+    $setup = bookableSetup();
+    $setup['team']->update(['business_category' => null]);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('company.category', null)
+            ->etc(),
+        );
 });
 
 test('the booking page exposes service pricing and specialist availability', function () {

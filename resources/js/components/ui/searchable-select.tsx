@@ -1,4 +1,5 @@
 import { Check, ChevronDown, Search } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,10 @@ import { cn } from '@/lib/utils';
 export type SelectOption = {
     value: string;
     label: string;
+    /** Section the option is listed under; options without one render flat. */
+    group?: string;
+    /** Shown before the label, in the list and on the trigger once chosen. */
+    icon?: LucideIcon;
 };
 
 type SearchableSelectProps = {
@@ -136,13 +141,18 @@ export function SearchableSelect({
                     )}
                     {...props}
                 >
-                    <span
-                        className={cn(
-                            'truncate',
-                            !selected && 'text-muted-foreground',
-                        )}
-                    >
-                        {selected ? selected.label : placeholder}
+                    <span className="flex min-w-0 items-center gap-2">
+                        {selected?.icon ? (
+                            <selected.icon className="size-4 shrink-0 text-muted-foreground" />
+                        ) : null}
+                        <span
+                            className={cn(
+                                'truncate',
+                                !selected && 'text-muted-foreground',
+                            )}
+                        >
+                            {selected ? selected.label : placeholder}
+                        </span>
                     </span>
                     <ChevronDown className="size-4 shrink-0 opacity-50" />
                 </button>
@@ -170,18 +180,32 @@ export function SearchableSelect({
                             {emptyMessage}
                         </p>
                     ) : (
-                        filtered.map((option) => (
-                            <button
-                                type="button"
-                                key={option.value}
-                                onClick={() => select(option.value)}
-                                className="flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                            >
-                                <span className="truncate">{option.label}</span>
-                                {option.value === value ? (
-                                    <Check className="size-4 shrink-0" />
+                        filtered.map((option, index) => (
+                            <div key={option.value}>
+                                {option.group &&
+                                option.group !== filtered[index - 1]?.group ? (
+                                    <p className="px-2 pt-3 pb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                        {option.group}
+                                    </p>
                                 ) : null}
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() => select(option.value)}
+                                    className="flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                                >
+                                    <span className="flex min-w-0 items-center gap-2.5">
+                                        {option.icon ? (
+                                            <option.icon className="size-4 shrink-0 text-muted-foreground" />
+                                        ) : null}
+                                        <span className="truncate">
+                                            {option.label}
+                                        </span>
+                                    </span>
+                                    {option.value === value ? (
+                                        <Check className="size-4 shrink-0" />
+                                    ) : null}
+                                </button>
+                            </div>
                         ))
                     )}
                 </div>

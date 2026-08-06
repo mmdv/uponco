@@ -1,5 +1,7 @@
-import { CalendarClock, MapPin, Scissors, Sparkles, User } from 'lucide-react';
+import { CalendarClock, MapPin, Sparkles, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+
+import { GENERIC_SERVICE_ICON } from '@/lib/business-category-icons';
 
 type Chip = {
     icon: LucideIcon;
@@ -12,6 +14,8 @@ type Props = {
     specialistName?: string;
     locationName?: string | null;
     dateTimeLabel?: string;
+    /** Stands for what the business does; defaults to the generic service icon. */
+    serviceIcon?: LucideIcon;
 };
 
 /**
@@ -24,11 +28,12 @@ export default function SummaryBar({
     specialistName,
     locationName,
     dateTimeLabel,
+    serviceIcon = GENERIC_SERVICE_ICON,
 }: Props) {
     const chips: Chip[] = [];
 
     if (serviceTitle) {
-        chips.push({ icon: Scissors, value: serviceTitle });
+        chips.push({ icon: serviceIcon, value: serviceTitle });
     }
 
     if (specialistName) {

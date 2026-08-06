@@ -1,4 +1,5 @@
 import { Apple, Calendar, Check } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import BookingSummary from '@/components/public-booking/booking-summary';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,8 @@ type Props = {
         dateTimeLabel?: string;
     };
     calendar: CalendarEvent | null;
+    /** The business category's icon, passed straight through to the summary. */
+    serviceIcon?: LucideIcon;
     onBookAnother: () => void;
 };
 
@@ -27,6 +30,7 @@ export default function SuccessScreen({
     customerName,
     summary,
     calendar,
+    serviceIcon,
     onBookAnother,
 }: Props) {
     return (
@@ -44,7 +48,7 @@ export default function SuccessScreen({
             </p>
 
             <div className="mt-6 w-full text-left">
-                <BookingSummary {...summary} />
+                <BookingSummary {...summary} serviceIcon={serviceIcon} />
             </div>
 
             {calendar && (

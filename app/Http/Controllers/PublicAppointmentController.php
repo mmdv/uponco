@@ -40,6 +40,8 @@ class PublicAppointmentController extends Controller
                 'name' => $company->name,
                 'slug' => $company->slug,
                 'logo' => $company->logoUrl(),
+                // Drives the icon the service picker is introduced with.
+                'category' => $company->business_category?->value,
             ],
             'canManage' => $canManage,
             'timezone' => $timezone,
@@ -118,6 +120,7 @@ class PublicAppointmentController extends Controller
             'name' => $team->name,
             'slug' => $team->slug,
             'logo' => $team->logoUrl(),
+            'category' => $team->business_category?->value,
         ];
     }
 

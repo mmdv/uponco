@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SelectDialog } from '@/components/ui/select-dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { businessCategoryIcon } from '@/lib/business-category-icons';
 import { detectTimezone, timeInTimezone } from '@/lib/timezone-country';
 import type { SelectOption } from '@/types';
 
@@ -48,7 +49,8 @@ const COPY: Record<
         description: 'This is what your customers will see when they book.',
         nameLabel: 'Your name',
         namePlaceholder: 'Name Surname',
-        nameHint: "This is how you'll appear on your booking page — use your own name, or a brand name if you have one.",
+        nameHint:
+            "This is how you'll appear on your booking page — use your own name, or a brand name if you have one.",
     },
     organisation: {
         title: 'Tell us about your business',
@@ -74,7 +76,10 @@ function clockTick(): number {
  * Pick the timezone to start on: whatever the team already saved, otherwise the
  * browser's own zone as long as the server offers it as a choice.
  */
-function initialTimezone(saved: string | null, options: SelectOption[]): string {
+function initialTimezone(
+    saved: string | null,
+    options: SelectOption[],
+): string {
     if (saved) {
         return saved;
     }
@@ -113,11 +118,19 @@ export default function Onboard({
 
     const copy = type === '' ? COPY.organisation : COPY[type];
 
+    // The same icon the customer meets on the booking page, so picking a
+    // category here shows what it will look like there.
+    const categoryOptions = businessCategories.map((option) => ({
+        ...option,
+        icon: businessCategoryIcon(option.value),
+    }));
+
     setLayoutProps(
         step === 'type'
             ? {
                   title: 'How will you take bookings?',
-                  description: 'This decides how your booking page introduces you.',
+                  description:
+                      'This decides how your booking page introduces you.',
               }
             : { title: copy.title, description: copy.description },
     );
@@ -248,12 +261,14 @@ export default function Onboard({
                                     <SelectDialog
                                         id="business_category"
                                         title="Choose Category"
-                                        options={businessCategories}
+                                        options={categoryOptions}
                                         value={businessCategory}
                                         onChange={setBusinessCategory}
                                         customTriggerValue={OTHER_CATEGORY}
                                         customValue={businessCategoryOther}
-                                        onCustomChange={setBusinessCategoryOther}
+                                        onCustomChange={
+                                            setBusinessCategoryOther
+                                        }
                                         customLabel="What do you do?"
                                         customPlaceholder="e.g. Sound therapist"
                                         placeholder="Select a category"
@@ -261,7 +276,7 @@ export default function Onboard({
                                         emptyMessage="No categories found. Pick “Other” to write your own."
                                         invalid={Boolean(
                                             errors.business_category ||
-                                                errors.business_category_other,
+                                            errors.business_category_other,
                                         )}
                                     />
                                     <InputError

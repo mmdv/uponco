@@ -1,4 +1,5 @@
-import { MapPin, Scissors, User } from 'lucide-react';
+import { MapPin, User } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import ExpandableCard from '@/components/public-booking/expandable-card';
 import LocationPicker from '@/components/public-booking/location-picker';
@@ -28,6 +29,8 @@ type Props = {
     onServiceChange: (value: number) => void;
     onLocationChange: (value: number) => void;
     onSpecialistChange: (value: number) => void;
+    /** The business category's icon, so a vet clinic isn't fronted by scissors. */
+    serviceIcon: LucideIcon;
 };
 
 /**
@@ -49,11 +52,12 @@ export default function StepSelection({
     onServiceChange,
     onLocationChange,
     onSpecialistChange,
+    serviceIcon,
 }: Props) {
     return (
         <div className="space-y-3">
             <ExpandableCard
-                icon={Scissors}
+                icon={serviceIcon}
                 title="Service"
                 hint="Choose a treatment"
                 selectedLabel={selectedService?.title}

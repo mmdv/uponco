@@ -7,6 +7,7 @@ import StepSelection from '@/components/public-booking/step-selection';
 import SuccessScreen from '@/components/public-booking/success-screen';
 import SummaryBar from '@/components/public-booking/summary-bar';
 import { useAppointmentBooking } from '@/hooks/use-appointment-booking';
+import { businessCategoryIcon } from '@/lib/business-category-icons';
 import type {
     AppointmentLocationOption,
     AppointmentServiceOption,
@@ -15,7 +16,13 @@ import type {
 } from '@/types';
 
 export type PublicBookingProps = {
-    company: { name: string; slug: string; logo?: string | null };
+    company: {
+        name: string;
+        slug: string;
+        logo?: string | null;
+        /** The team's business category, from `App\Enums\BusinessCategory`. */
+        category?: string | null;
+    };
     timezone: string;
     services: AppointmentServiceOption[];
     locations: AppointmentLocationOption[];
@@ -70,6 +77,10 @@ export function PublicBookingFlow({
 
     const { step, confirmed } = booking;
 
+    // What the business does decides how a service is pictured, everywhere the
+    // chosen service is shown back to the customer.
+    const serviceIcon = businessCategoryIcon(company.category);
+
     return (
         <>
             <header className="space-y-4 px-5 pt-4 pb-3">
@@ -81,7 +92,12 @@ export function PublicBookingFlow({
                     showMenu={!embedded}
                 />
 
-                {confirmed === null && <SummaryBar {...booking.summary} />}
+                {confirmed === null && (
+                    <SummaryBar
+                        {...booking.summary}
+                        serviceIcon={serviceIcon}
+                    />
+                )}
             </header>
 
             <main
@@ -93,6 +109,7 @@ export function PublicBookingFlow({
                         customerName={confirmed.customerName}
                         summary={confirmed}
                         calendar={confirmed.calendar}
+                        serviceIcon={serviceIcon}
                         onBookAnother={booking.resetFlow}
                     />
                 ) : (
@@ -120,6 +137,7 @@ export function PublicBookingFlow({
                                 onSpecialistChange={
                                     booking.handleSpecialistChange
                                 }
+                                serviceIcon={serviceIcon}
                             />
                         )}
 

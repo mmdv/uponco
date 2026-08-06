@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useTranslation } from '@/hooks/use-translation';
+import { businessCategoryIcon } from '@/lib/business-category-icons';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
 import type { SelectOption, Team, TeamPermissions } from '@/types';
@@ -34,6 +35,13 @@ export default function BusinessGeneral({
     const [businessCategory, setBusinessCategory] = useState(
         team.businessCategory ?? '',
     );
+
+    // The same icon the customer meets on the booking page, so picking a
+    // category here shows what it will look like there.
+    const categoryOptions = businessCategories.map((option) => ({
+        ...option,
+        icon: businessCategoryIcon(option.value),
+    }));
 
     return (
         <>
@@ -103,7 +111,7 @@ export default function BusinessGeneral({
                                             </Label>
                                             <SearchableSelect
                                                 id="business_category"
-                                                options={businessCategories}
+                                                options={categoryOptions}
                                                 value={businessCategory}
                                                 onChange={setBusinessCategory}
                                                 placeholder={t(

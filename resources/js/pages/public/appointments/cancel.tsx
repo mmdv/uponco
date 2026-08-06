@@ -17,11 +17,14 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { buildDateTimeLabel } from '@/lib/booking';
+import { businessCategoryIcon } from '@/lib/business-category-icons';
 
 type CancelCompany = {
     name: string;
     slug: string;
     logo: string | null;
+    /** The team's business category, from `App\Enums\BusinessCategory`. */
+    category: string | null;
 };
 
 type CancelAppointment = {
@@ -155,7 +158,12 @@ export default function PublicAppointmentCancel({
                             </div>
 
                             <div className="mt-6">
-                                <BookingSummary {...summary} />
+                                <BookingSummary
+                                    {...summary}
+                                    serviceIcon={businessCategoryIcon(
+                                        company.category,
+                                    )}
+                                />
                             </div>
 
                             <Button
