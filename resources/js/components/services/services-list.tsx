@@ -7,6 +7,7 @@ import {
     Plus,
     Tag,
     Trash2,
+    TriangleAlert,
     Users,
     Video,
 } from 'lucide-react';
@@ -23,12 +24,19 @@ import { useTranslation } from '@/hooks/use-translation';
 import type { TranslateFn } from '@/hooks/use-translation';
 import { currencySymbol } from '@/lib/currency';
 import { cn } from '@/lib/utils';
-import type { SelectOption, Service, ServiceCategory } from '@/types';
+import { connect } from '@/routes/integrations/google';
+import type {
+    GoogleIntegrationStatus,
+    SelectOption,
+    Service,
+    ServiceCategory,
+} from '@/types';
 
 type Props = {
     categories: ServiceCategory[];
     services: Service[];
     meetingProviders: SelectOption[];
+    google: GoogleIntegrationStatus;
     onAddService: (categoryId: number) => void;
     onEditService: (service: Service) => void;
     onDeleteService: (service: Service) => void;
@@ -53,6 +61,7 @@ function formatPrice(service: Service, t: TranslateFn): string {
 type ServiceCardProps = {
     service: Service;
     providerLabels: Map<string, string>;
+    google: GoogleIntegrationStatus;
     onEdit: () => void;
     onDelete: () => void;
 };
@@ -60,6 +69,7 @@ type ServiceCardProps = {
 function ServiceCard({
     service,
     providerLabels,
+    google,
     onEdit,
     onDelete,
 }: ServiceCardProps) {
@@ -76,6 +86,13 @@ function ServiceCard({
         service.delivery_type === 'online' && service.online_meeting_provider
             ? `${service.delivery_type} · ${providerLabels.get(service.online_meeting_provider) ?? service.online_meeting_provider}`
             : service.delivery_type;
+
+    // Automatic links come from the specialist's Google account, so the service
+    // cannot generate any until that account is connected.
+    const needsGoogle =
+        service.delivery_type === 'online' &&
+        service.online_meeting_provider === 'google_meet' &&
+        !google.connected;
 
     return (
         <div
@@ -156,6 +173,33 @@ function ServiceCard({
                 </div>
             </div>
 
+            {needsGoogle && (
+                <div
+                    data-test="service-google-warning"
+                    className="mt-4 flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3"
+                >
+                    <p className="flex items-start gap-2 text-sm text-destructive">
+                        <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+                        {t('services.google.notConnected')}
+                    </p>
+
+                    <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="self-start"
+                        data-test="service-connect-google-button"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        {/* External OAuth redirect — must be a full-page
+                            navigation, not an Inertia visit. */}
+                        <a href={connect.url()}>
+                            {t('services.google.connect')}
+                        </a>
+                    </Button>
+                </div>
+            )}
+
             <div className="mt-6 flex items-center justify-between pt-2">
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5 capitalize">
@@ -189,6 +233,7 @@ function ServiceCard({
 type ServiceGridProps = {
     services: Service[];
     providerLabels: Map<string, string>;
+    google: GoogleIntegrationStatus;
     onEditService: (service: Service) => void;
     onDeleteService: (service: Service) => void;
 };
@@ -196,6 +241,7 @@ type ServiceGridProps = {
 function ServiceGrid({
     services,
     providerLabels,
+    google,
     onEditService,
     onDeleteService,
 }: ServiceGridProps) {
@@ -206,6 +252,7 @@ function ServiceGrid({
                     key={service.id}
                     service={service}
                     providerLabels={providerLabels}
+                    google={google}
                     onEdit={() => onEditService(service)}
                     onDelete={() => onDeleteService(service)}
                 />
@@ -218,6 +265,7 @@ export default function ServicesList({
     categories,
     services,
     meetingProviders,
+    google,
     onAddService,
     onEditService,
     onDeleteService,
@@ -250,6 +298,7 @@ export default function ServicesList({
                     <ServiceGrid
                         services={uncategorizedServices}
                         providerLabels={providerLabels}
+                        google={google}
                         onEditService={onEditService}
                         onDeleteService={onDeleteService}
                     />
@@ -307,7 +356,9 @@ export default function ServicesList({
                                             }
                                         >
                                             <Trash2 className="size-4" />{' '}
-                                            {t('services.deleteCategoryTooltip')}
+                                            {t(
+                                                'services.deleteCategoryTooltip',
+                                            )}
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -324,6 +375,7 @@ export default function ServicesList({
                             <ServiceGrid
                                 services={categoryServices}
                                 providerLabels={providerLabels}
+                                google={google}
                                 onEditService={onEditService}
                                 onDeleteService={onDeleteService}
                             />

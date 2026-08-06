@@ -153,6 +153,7 @@ export default function ServicesIndex({
                     categories={categories}
                     services={services}
                     meetingProviders={meetingProviders}
+                    google={google}
                     onAddService={openCreateService}
                     onEditService={openEditService}
                     onDeleteService={confirmDeleteService}

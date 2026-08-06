@@ -277,6 +277,10 @@ export default function ServiceWizardFields({
                                     currencies={currencies}
                                     serviceTypes={serviceTypes}
                                     errors={submitted ? errors : {}}
+                                    collapseAdvanced
+                                    moreInfoHint={t(
+                                        'services.wizard.details.moreInfoEditHint',
+                                    )}
                                 />
                             )}
                         </div>

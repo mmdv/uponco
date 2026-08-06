@@ -19,6 +19,7 @@
     if (window.__uponcoWidgetLoaded) {
         return;
     }
+
     window.__uponcoWidgetLoaded = true;
 
     var PRIMARY = '#0063ff';
@@ -104,6 +105,7 @@
         if (iframeLoaded) {
             return;
         }
+
         var iframe = document.createElement('iframe');
         iframe.setAttribute('src', config.url);
         iframe.setAttribute('title', label);

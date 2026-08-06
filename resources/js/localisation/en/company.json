@@ -295,12 +295,10 @@
                 "connectedAs": "Google is connected as {email} — meeting links will be created automatically.",
                 "manualNoteTitle": "You handle the meeting link",
                 "manualNote": "No link will be generated automatically. You are responsible for sending the meeting link to the customer before each appointment.",
-                "providersHeading": "Set up providers for automatic meeting generation",
-                "providersDescription": "Links are created from the assigned specialist’s account. You can set this up later — the service saves either way, but no links are generated until a provider is connected.",
-                "setupGoogle": "Set up Google",
-                "setupTeams": "Set up Teams",
-                "setupZoom": "Set up Zoom",
-                "googleConnected": "Google connected"
+                "providersHeading": "Automatic meeting links",
+                "providersDescription": "Links are created with Google Meet from the assigned specialist’s account.",
+                "notConnectedTitle": "Google is not connected yet",
+                "notConnectedNote": "The service saves either way, but no meeting links are generated until Google is connected. You can connect it from the service list once the service is created."
             },
             "locations": {
                 "heading": "Where is this service offered?",
@@ -321,7 +319,8 @@
                 "advanced": "More options",
                 "advancedHint": "Category, description, break time and visibility.",
                 "moreInfoTitle": "Need more detail?",
-                "moreInfoHint": "You can add a description, category and break time from your dashboard."
+                "moreInfoHint": "You can add a description, category and break time from your dashboard.",
+                "moreInfoEditHint": "You can add a description, category and break time by editing the service after it is created."
             },
             "summary": {
                 "online": "Online",
@@ -331,6 +330,10 @@
                 "locations": "{count} location(s)",
                 "edit": "Change"
             }
+        },
+        "google": {
+            "notConnected": "Google is not connected, so no meeting links are generated for this service.",
+            "connect": "Connect Google"
         }
     },
     "schedule": {

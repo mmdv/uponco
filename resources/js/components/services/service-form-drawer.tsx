@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 
 import InputError from '@/components/input-error';
+import NumericInput from '@/components/numeric-input';
 import { CurrencySelect } from '@/components/services/currency-select';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import { Button } from '@/components/ui/button';
@@ -308,12 +309,10 @@ function ServiceFormFields({
                                     {t('services.form.price')}
                                 </Label>
                                 <div className="flex items-start gap-2">
-                                    <Input
+                                    <NumericInput
                                         id="price"
                                         name="price"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
+                                        decimal
                                         defaultValue={service?.price ?? ''}
                                         placeholder="50.00"
                                         className="flex-1"
@@ -340,12 +339,10 @@ function ServiceFormFields({
                                         <Label htmlFor="price_min">
                                             {t('services.form.minPrice')}
                                         </Label>
-                                        <Input
+                                        <NumericInput
                                             id="price_min"
                                             name="price_min"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
+                                            decimal
                                             defaultValue={
                                                 service?.price_min ?? ''
                                             }
@@ -359,12 +356,10 @@ function ServiceFormFields({
                                         <Label htmlFor="price_max">
                                             {t('services.form.maxPrice')}
                                         </Label>
-                                        <Input
+                                        <NumericInput
                                             id="price_max"
                                             name="price_max"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
+                                            decimal
                                             defaultValue={
                                                 service?.price_max ?? ''
                                             }
@@ -406,11 +401,9 @@ function ServiceFormFields({
                                 <Label htmlFor="duration">
                                     {t('services.form.duration')}
                                 </Label>
-                                <Input
+                                <NumericInput
                                     id="duration"
                                     name="duration"
-                                    type="number"
-                                    min="1"
                                     defaultValue={service?.duration ?? ''}
                                     placeholder="60"
                                 />
@@ -420,11 +413,9 @@ function ServiceFormFields({
                                 <Label htmlFor="technical_break">
                                     {t('services.form.break')}
                                 </Label>
-                                <Input
+                                <NumericInput
                                     id="technical_break"
                                     name="technical_break"
-                                    type="number"
-                                    min="0"
                                     defaultValue={service?.technical_break ?? 0}
                                     placeholder="0"
                                 />
@@ -454,11 +445,9 @@ function ServiceFormFields({
                                 <Label htmlFor="capacity">
                                     {t('services.form.capacity')}
                                 </Label>
-                                <Input
+                                <NumericInput
                                     id="capacity"
                                     name="capacity"
-                                    type="number"
-                                    min="1"
                                     defaultValue={service?.capacity ?? ''}
                                     placeholder="10"
                                 />

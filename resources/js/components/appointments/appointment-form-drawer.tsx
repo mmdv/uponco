@@ -7,8 +7,6 @@ import AppointmentServiceSelect from '@/components/appointments/appointment-serv
 import AppointmentSlotPicker from '@/components/appointments/appointment-slot-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { SearchableSelect } from '@/components/ui/searchable-select';
 import {
     Dialog,
     DialogContent,
@@ -17,6 +15,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     getAvailableOptions,

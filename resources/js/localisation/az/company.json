@@ -295,12 +295,10 @@
                 "connectedAs": "Google {email} olaraq qoşulub — görüş linkləri avtomatik yaradılacaq.",
                 "manualNoteTitle": "Görüş linkini siz göndərirsiniz",
                 "manualNote": "Link avtomatik yaradılmayacaq. Hər görüşdən əvvəl linki müştəriyə göndərmək sizin məsuliyyətinizdədir.",
-                "providersHeading": "Avtomatik görüş yaratmaq üçün provayderləri quraşdırın",
-                "providersDescription": "Linklər təyin olunmuş mütəxəssisin hesabından yaradılır. Bunu sonra da quraşdıra bilərsiniz — xidmət hər halda saxlanılır, lakin provayder qoşulana qədər link yaradılmayacaq.",
-                "setupGoogle": "Google quraşdır",
-                "setupTeams": "Teams quraşdır",
-                "setupZoom": "Zoom quraşdır",
-                "googleConnected": "Google qoşulub"
+                "providersHeading": "Avtomatik görüş linkləri",
+                "providersDescription": "Linklər təyin olunmuş mütəxəssisin hesabından Google Meet vasitəsilə yaradılır.",
+                "notConnectedTitle": "Google hələ qoşulmayıb",
+                "notConnectedNote": "Xidmət hər halda yadda saxlanılır, lakin Google qoşulana qədər görüş linkləri yaradılmayacaq. Xidməti yaratdıqdan sonra onu xidmətlər siyahısından qoşa bilərsiniz."
             },
             "locations": {
                 "heading": "Bu xidmət harada təklif olunur?",
@@ -321,7 +319,8 @@
                 "advanced": "Əlavə seçimlər",
                 "advancedHint": "Kateqoriya, təsvir, fasilə və görünürlük.",
                 "moreInfoTitle": "Daha çox məlumat lazımdır?",
-                "moreInfoHint": "Təsvir, kateqoriya və fasilə vaxtını idarə panelindən əlavə edə bilərsiniz."
+                "moreInfoHint": "Təsvir, kateqoriya və fasilə vaxtını idarə panelindən əlavə edə bilərsiniz.",
+                "moreInfoEditHint": "Təsviri, kateqoriyanı və fasilə vaxtını xidmət yaradıldıqdan sonra onu redaktə edərək əlavə edə bilərsiniz."
             },
             "summary": {
                 "online": "Onlayn",
@@ -331,6 +330,10 @@
                 "locations": "{count} filial",
                 "edit": "Dəyiş"
             }
+        },
+        "google": {
+            "notConnected": "Google qoşulmayıb, ona görə bu xidmət üçün görüş linkləri yaradılmır.",
+            "connect": "Google-u qoşun"
         }
     },
     "schedule": {

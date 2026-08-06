@@ -1,6 +1,7 @@
 import { Info } from 'lucide-react';
 
 import InputError from '@/components/input-error';
+import NumericInput from '@/components/numeric-input';
 import { CurrencySelect } from '@/components/services/currency-select';
 import { OptionToggleGroup } from '@/components/services/option-toggle-group';
 import CategoryField from '@/components/services/service-wizard/category-field';
@@ -73,6 +74,7 @@ export default function StepDetails({
     errors,
     showSpecialists = true,
     collapseAdvanced = false,
+    moreInfoHint,
 }: {
     details: WizardDetails;
     onPatch: (patch: Partial<WizardDetails>) => void;
@@ -92,6 +94,8 @@ export default function StepDetails({
      * behind a disclosure, so the step is a short list of what must be filled in.
      */
     collapseAdvanced?: boolean;
+    /** Replaces the callout's body when the hidden fields live somewhere else. */
+    moreInfoHint?: string;
 }) {
     const { t } = useTranslation('company');
     const requiredLabel = t('services.wizard.details.required');
@@ -128,10 +132,8 @@ export default function StepDetails({
             <Label htmlFor="wizard_technical_break">
                 {t('services.form.break')}
             </Label>
-            <Input
+            <NumericInput
                 id="wizard_technical_break"
-                type="number"
-                min="0"
                 value={details.technicalBreak}
                 onChange={(event) =>
                     onPatch({ technicalBreak: event.target.value })
@@ -240,12 +242,10 @@ export default function StepDetails({
                         <RequiredMark label={requiredLabel} />
                     </Label>
                     <div className="flex items-start gap-2">
-                        <Input
+                        <NumericInput
                             id="wizard_price"
                             aria-required="true"
-                            type="number"
-                            step="0.01"
-                            min="0"
+                            decimal
                             value={details.price}
                             onChange={(event) =>
                                 onPatch({ price: event.target.value })
@@ -275,12 +275,10 @@ export default function StepDetails({
                             {t('services.form.minPrice')}{' '}
                             <RequiredMark label={requiredLabel} />
                         </Label>
-                        <Input
+                        <NumericInput
                             id="wizard_price_min"
                             aria-required="true"
-                            type="number"
-                            step="0.01"
-                            min="0"
+                            decimal
                             value={details.priceMin}
                             onChange={(event) =>
                                 onPatch({ priceMin: event.target.value })
@@ -295,12 +293,10 @@ export default function StepDetails({
                             {t('services.form.maxPrice')}{' '}
                             <RequiredMark label={requiredLabel} />
                         </Label>
-                        <Input
+                        <NumericInput
                             id="wizard_price_max"
                             aria-required="true"
-                            type="number"
-                            step="0.01"
-                            min="0"
+                            decimal
                             value={details.priceMax}
                             onChange={(event) =>
                                 onPatch({ priceMax: event.target.value })
@@ -339,11 +335,9 @@ export default function StepDetails({
                         {t('services.form.duration')}{' '}
                         <RequiredMark label={requiredLabel} />
                     </Label>
-                    <Input
+                    <NumericInput
                         id="wizard_duration"
                         aria-required="true"
-                        type="number"
-                        min="1"
                         value={details.duration}
                         onChange={(event) =>
                             onPatch({ duration: event.target.value })
@@ -384,11 +378,9 @@ export default function StepDetails({
                         {t('services.form.capacity')}{' '}
                         <RequiredMark label={requiredLabel} />
                     </Label>
-                    <Input
+                    <NumericInput
                         id="wizard_capacity"
                         aria-required="true"
-                        type="number"
-                        min="1"
                         value={details.capacity}
                         onChange={(event) =>
                             onPatch({ capacity: event.target.value })
@@ -448,7 +440,8 @@ export default function StepDetails({
                             {t('services.wizard.details.moreInfoTitle')}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            {t('services.wizard.details.moreInfoHint')}
+                            {moreInfoHint ??
+                                t('services.wizard.details.moreInfoHint')}
                         </p>
                     </div>
                 </div>

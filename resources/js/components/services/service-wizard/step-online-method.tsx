@@ -1,10 +1,7 @@
-import { CheckCircle2, Link2, Sparkles } from 'lucide-react';
+import { Link2, Sparkles, TriangleAlert } from 'lucide-react';
 
 import ChoiceCard from '@/components/services/service-wizard/choice-card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { connect } from '@/routes/integrations/google';
 import type { GoogleIntegrationStatus } from '@/types';
 
 /**
@@ -40,6 +37,10 @@ function MethodPanel({
 /**
  * Online branch step: does the meeting link get generated automatically
  * (`google_meet`) or does the business send one themselves (`custom`)?
+ *
+ * Connecting Google is deliberately not offered here: it is a full-page OAuth
+ * redirect that would throw the in-progress draft away. The step only says what
+ * is missing; the service list offers the connection once the service exists.
  */
 export default function StepOnlineMethod({
     value,
@@ -90,71 +91,34 @@ export default function StepOnlineMethod({
                             )}
                             data-test="wizard-online-providers"
                         >
-                            <div className="flex flex-wrap gap-2">
-                                {google.connected ? (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        disabled
-                                        data-test="wizard-google-connected"
-                                    >
-                                        <CheckCircle2 className="text-primary" />
-                                        {t(
-                                            'services.wizard.online.googleConnected',
-                                        )}
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        asChild
-                                        variant="outline"
-                                        size="sm"
-                                        data-test="wizard-setup-google"
-                                    >
-                                        {/* External OAuth redirect — must be a
-                                            full-page navigation, not an Inertia
-                                            visit. */}
-                                        <a href={connect.url()}>
-                                            {t(
-                                                'services.wizard.online.setupGoogle',
-                                            )}
-                                        </a>
-                                    </Button>
-                                )}
-
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    disabled
-                                    data-test="wizard-setup-teams"
+                            {google.connected ? (
+                                <p
+                                    className="text-sm text-muted-foreground"
+                                    data-test="wizard-google-connected"
                                 >
-                                    {t('services.wizard.online.setupTeams')}
-                                    <Badge variant="secondary">
-                                        {t('services.wizard.online.comingSoon')}
-                                    </Badge>
-                                </Button>
-
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    disabled
-                                    data-test="wizard-setup-zoom"
-                                >
-                                    {t('services.wizard.online.setupZoom')}
-                                    <Badge variant="secondary">
-                                        {t('services.wizard.online.comingSoon')}
-                                    </Badge>
-                                </Button>
-                            </div>
-
-                            {google.connected && (
-                                <p className="text-sm text-muted-foreground">
                                     {t('services.wizard.online.connectedAs', {
                                         email: google.email ?? '',
                                     })}
                                 </p>
+                            ) : (
+                                <div
+                                    className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3"
+                                    data-test="wizard-google-missing"
+                                >
+                                    <TriangleAlert className="size-4 shrink-0 text-destructive" />
+                                    <div className="space-y-0.5">
+                                        <p className="text-sm font-medium text-destructive">
+                                            {t(
+                                                'services.wizard.online.notConnectedTitle',
+                                            )}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {t(
+                                                'services.wizard.online.notConnectedNote',
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
                             )}
                         </MethodPanel>
                     )}
