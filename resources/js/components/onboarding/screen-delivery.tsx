@@ -6,11 +6,9 @@ import OnboardingScreen from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
 /**
- * Online services are built but not launched, so the choice is presented in
- * full and the online branch is marked as coming soon.
+ * The first real decision of the flow: it picks the screen that follows —
+ * an address for onsite, meeting links for online.
  */
-const COMING_SOON: DeliveryType[] = ['online'];
-
 export default function ScreenDelivery({
     value,
     onChange,
@@ -34,7 +32,6 @@ export default function ScreenDelivery({
             <StepDelivery
                 value={value}
                 onChange={onChange}
-                disabled={COMING_SOON}
                 showHeading={false}
             />
         </OnboardingScreen>

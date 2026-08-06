@@ -63,7 +63,7 @@ function appointmentPayload(array $setup, array $overrides = []): array
 {
     return array_merge([
         'service_id' => $setup['service']->id,
-        'location_id' => $setup['location']->id,
+        'location_id' => $setup['location']?->id,
         'specialist_id' => $setup['user']->id,
         'start_at' => $setup['startAt']->toIso8601String(),
         'customer_name' => 'Jane Doe',

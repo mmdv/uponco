@@ -89,8 +89,8 @@ export default function OnboardingWizard({ onboarding }: Props) {
     const [direction, setDirection] = useState<'forward' | 'back'>('forward');
     const [saving, setSaving] = useState(false);
 
-    // The middle screen depends on the delivery branch. Online is not live yet,
-    // but keeping the branch here means turning it on is a one-line change.
+    // The middle screen depends on the delivery branch: an onsite service needs
+    // an address, an online one needs to say where the meeting link comes from.
     const screens: ScreenId[] = [
         'intro',
         'delivery',

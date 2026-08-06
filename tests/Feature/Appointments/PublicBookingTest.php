@@ -31,6 +31,24 @@ function bookedAppointment(array $setup, array $overrides = []): Appointment
     ], $overrides));
 }
 
+/**
+ * A team that onboarded on the online branch: it has a bookable service but
+ * never created a location, so `location` is null throughout.
+ */
+function onlineOnlySetup(): array
+{
+    $setup = bookableSetup([
+        'delivery_type' => 'online',
+        'online_meeting_provider' => 'custom',
+    ]);
+
+    $setup['service']->locations()->detach();
+    $setup['location']->specialists()->detach();
+    $setup['location']->forceDelete();
+
+    return [...$setup, 'location' => null];
+}
+
 test('the public booking page can be rendered', function () {
     $setup = bookableSetup();
 
@@ -230,6 +248,35 @@ test('a guest can book an appointment and a customer is created', function () {
         'service_id' => $setup['service']->id,
         'specialist_id' => $setup['user']->id,
         'delivery_type' => 'onsite',
+    ]);
+});
+
+test('the public booking page renders for an online team with no locations', function () {
+    $setup = onlineOnlySetup();
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('locations', 0)
+            ->has('services', 1)
+            ->etc(),
+        );
+});
+
+test('a guest can book an online service on a team with no locations', function () {
+    $setup = onlineOnlySetup();
+
+    $this
+        ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('appointments', [
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => null,
+        'delivery_type' => 'online',
     ]);
 });
 

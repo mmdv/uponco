@@ -157,6 +157,27 @@ test('completing the services step requires a saved service', function () {
         ->toBe(OnboardingStepStatus::Completed);
 });
 
+test('the services step completes for an online service with no locations', function () {
+    [$user, $team] = onboardingOwner();
+
+    Service::factory()->create([
+        'team_id' => $team->id,
+        'delivery_type' => 'online',
+        'online_meeting_provider' => 'google_meet',
+    ]);
+
+    $this
+        ->actingAs($user)
+        ->patch(onboardingStepRoute($team, OnboardingStep::Services), [
+            'status' => OnboardingStepStatus::Completed->value,
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($team->locations()->count())->toBe(0);
+    expect(OnboardingProgress::firstWhere('user_id', $user->id)->statusFor(OnboardingStep::Services))
+        ->toBe(OnboardingStepStatus::Completed);
+});
+
 test('completing the schedule step requires saved work hours', function () {
     [$user, $team] = onboardingOwner();
 
