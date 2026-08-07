@@ -1,10 +1,11 @@
-import { Plug, ShieldCheck, User } from 'lucide-react';
+import { Bell, Plug, ShieldCheck, User } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { SectionNavLayout } from '@/components/section-nav';
 import type { SectionNavItem } from '@/components/section-nav';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { edit as editIntegrations } from '@/routes/integrations';
+import { edit as editNotifications } from '@/routes/notifications';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 
@@ -26,6 +27,13 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             href: editSecurity(),
             icon: ShieldCheck,
             isActive: isCurrentOrParentUrl(editSecurity()),
+        },
+        {
+            key: 'notifications',
+            title: t('nav.notifications'),
+            href: editNotifications(),
+            icon: Bell,
+            isActive: isCurrentOrParentUrl(editNotifications()),
         },
         {
             key: 'integrations',

@@ -1,12 +1,14 @@
 <?php
 
 use App\Concerns\InteractsWithAppointmentBooking;
+use App\Enums\AppointmentAlert;
 use App\Enums\BusinessCategory;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
+use App\Notifications\Appointments\SpecialistAppointmentAlert;
 use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia as Assert;
+use NotificationChannels\WebPush\WebPushChannel;
 
 /**
  * Create a booked appointment for the given setup at its bookable start time.
@@ -316,6 +319,38 @@ test('a guest booking emails the confirmation to the customer', function () {
     Notification::assertSentOnDemand(
         AppointmentBooked::class,
         fn (AppointmentBooked $notification, array $channels, object $notifiable): bool => $notifiable->routeNotificationFor('mail') === 'jane@example.com',
+    );
+});
+
+test('a guest booking pushes an alert to the assigned specialist', function () {
+    Notification::fake();
+    $setup = bookableSetup();
+
+    $this
+        ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
+        ->assertRedirect();
+
+    Notification::assertSentTo(
+        $setup['user'],
+        SpecialistAppointmentAlert::class,
+        fn (SpecialistAppointmentAlert $notification, array $channels): bool => $notification->alert === AppointmentAlert::Booked
+            && $channels === [WebPushChannel::class],
+    );
+});
+
+test('a customer cancelling from the signed link pushes an alert to the specialist', function () {
+    Notification::fake();
+    $setup = bookableSetup();
+    $appointment = bookedAppointment($setup);
+
+    $this
+        ->post(URL::signedRoute('public.appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertRedirect();
+
+    Notification::assertSentTo(
+        $setup['user'],
+        SpecialistAppointmentAlert::class,
+        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
     );
 });
 

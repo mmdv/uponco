@@ -5,7 +5,8 @@
         "profile": "Profile",
         "account": "Account",
         "security": "Security",
-        "integrations": "Integrations"
+        "integrations": "Integrations",
+        "notifications": "Notifications"
     },
     "profile": {
         "pictureTitle": "Profile picture",
@@ -43,6 +44,25 @@
         "light": "Light",
         "dark": "Dark",
         "system": "System"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "pushTitle": "Push notifications",
+        "pushDescription": "Get notified on your phone when someone books an appointment with you.",
+        "enabled": "Notifications on",
+        "disabled": "Notifications off",
+        "enabledHint": "This device is set up. You will be notified about bookings, changes and cancellations assigned to you.",
+        "disabledHint": "Turn this on to be notified about bookings assigned to you.",
+        "deviceCountOne": "Set up on 1 device.",
+        "deviceCountOther": "Set up on {count} devices.",
+        "installTitle": "Add Uponco to your Home Screen",
+        "installIos": "On iPhone, open Uponco in Safari, tap the Share button, then \"Add to Home Screen\". Open it from there to turn on notifications.",
+        "installOther": "Install Uponco from your browser's menu, then open it from your Home Screen or app list to turn on notifications.",
+        "unsupportedTitle": "Not available in this browser",
+        "unsupportedDescription": "This browser does not support push notifications. Try Safari on iPhone, or Chrome on Android and desktop.",
+        "deniedTitle": "Notifications are blocked",
+        "deniedDescription": "You previously blocked notifications for Uponco. Allow them again in your device settings, then reload this page.",
+        "failed": "Could not change the notification setting. Please try again."
     },
     "integrations": {
         "title": "Integrations",

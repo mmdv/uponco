@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
+use App\Enums\AppointmentAlert;
 use App\Http\Requests\Appointments\BookPublicAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
@@ -101,6 +102,7 @@ class PublicAppointmentController extends Controller
 
         $appointment->cancel();
         $this->notifyCustomerCancelled($appointment);
+        $this->notifySpecialist($appointment, AppointmentAlert::Cancelled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your appointment has been cancelled.')]);
 

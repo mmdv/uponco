@@ -5,7 +5,8 @@
         "profile": "Profil",
         "account": "Hesab",
         "security": "Təhlükəsizlik",
-        "integrations": "İnteqrasiyalar"
+        "integrations": "İnteqrasiyalar",
+        "notifications": "Bildirişlər"
     },
     "profile": {
         "pictureTitle": "Profil şəkli",
@@ -43,6 +44,25 @@
         "light": "Açıq",
         "dark": "Tünd",
         "system": "Sistem"
+    },
+    "notifications": {
+        "title": "Bildirişlər",
+        "pushTitle": "Push bildirişləri",
+        "pushDescription": "Kimsə sizinlə görüş rezerv etdikdə telefonunuza bildiriş alın.",
+        "enabled": "Bildirişlər aktivdir",
+        "disabled": "Bildirişlər deaktivdir",
+        "enabledHint": "Bu cihaz quraşdırılıb. Sizə təyin edilmiş rezervasiyalar, dəyişikliklər və ləğvlər barədə bildiriş alacaqsınız.",
+        "disabledHint": "Sizə təyin edilmiş rezervasiyalar barədə bildiriş almaq üçün aktivləşdirin.",
+        "deviceCountOne": "1 cihazda quraşdırılıb.",
+        "deviceCountOther": "{count} cihazda quraşdırılıb.",
+        "installTitle": "Uponco-nu Ana Ekrana əlavə edin",
+        "installIos": "iPhone-da Uponco-nu Safari-də açın, Paylaş düyməsinə toxunun və \"Ana ekrana əlavə et\" seçin. Bildirişləri aktivləşdirmək üçün onu oradan açın.",
+        "installOther": "Uponco-nu brauzerinizin menyusundan quraşdırın, sonra bildirişləri aktivləşdirmək üçün onu ana ekrandan və ya tətbiq siyahısından açın.",
+        "unsupportedTitle": "Bu brauzerdə mövcud deyil",
+        "unsupportedDescription": "Bu brauzer push bildirişlərini dəstəkləmir. iPhone-da Safari, Android və masaüstündə Chrome sınayın.",
+        "deniedTitle": "Bildirişlər bloklanıb",
+        "deniedDescription": "Əvvəllər Uponco üçün bildirişləri bloklamısınız. Cihaz parametrlərində yenidən icazə verin, sonra bu səhifəni yeniləyin.",
+        "failed": "Bildiriş parametri dəyişdirilə bilmədi. Yenidən cəhd edin."
     },
     "integrations": {
         "title": "İnteqrasiyalar",

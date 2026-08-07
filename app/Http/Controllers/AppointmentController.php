@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
+use App\Enums\AppointmentAlert;
 use App\Enums\TeamRole;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Models\Appointment;
@@ -113,6 +114,8 @@ class AppointmentController extends Controller
             'end_at' => $start->addMinutes($appointment->service->duration),
         ]);
 
+        $this->notifySpecialist($appointment, AppointmentAlert::Rescheduled);
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment rescheduled.')]);
 
         return back();
@@ -135,6 +138,7 @@ class AppointmentController extends Controller
 
         $appointment->cancel();
         $this->notifyCustomerCancelled($appointment);
+        $this->notifySpecialist($appointment, AppointmentAlert::Cancelled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment cancelled.')]);
 

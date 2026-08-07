@@ -8,6 +8,7 @@ import AuthLayout from '@/layouts/auth-layout';
 import BusinessLayout from '@/layouts/business/layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { startAnalytics, trackPageVisit } from '@/lib/analytics';
+import { registerServiceWorker } from '@/lib/push';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -65,6 +66,11 @@ createInertiaApp({
         // Inertia's `navigate` event covers later visits but not this first
         // one, so the initial pageview is captured from the page we boot with.
         startAnalytics(page);
+
+        // The service worker only handles push notifications — it caches
+        // nothing — so registering it on every load is cheap and keeps an
+        // installed PWA able to receive notifications while it is closed.
+        registerServiceWorker();
 
         return (
             <TooltipProvider delayDuration={0}>
