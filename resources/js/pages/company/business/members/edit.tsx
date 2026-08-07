@@ -1,4 +1,12 @@
 import { Form, Head, router } from '@inertiajs/react';
+import {
+    CalendarDays,
+    MapPin,
+    ShieldCheck,
+    Sparkles,
+    User,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import {
@@ -14,6 +22,8 @@ import AvatarUploader from '@/components/avatar-uploader';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import MemberSchedule from '@/components/schedule/member/member-schedule';
+import { SectionNavLayout } from '@/components/section-nav';
+import type { SectionNavItem } from '@/components/section-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
@@ -25,7 +35,6 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
-import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
 import {
@@ -101,112 +110,105 @@ export default function EditMember({
     const [section, setSection] = useState<SectionKey>(sectionFromUrl);
     const memberArg: SectionArg = [member.id];
 
-    const sections: { key: SectionKey; title: string }[] = [
-        { key: 'profile', title: t('business.memberEdit.sections.profile') },
-        { key: 'access', title: t('business.memberEdit.sections.access') },
+    const sectionDefinitions: {
+        key: SectionKey;
+        title: string;
+        icon: LucideIcon;
+    }[] = [
+        {
+            key: 'profile',
+            title: t('business.memberEdit.sections.profile'),
+            icon: User,
+        },
+        {
+            key: 'access',
+            title: t('business.memberEdit.sections.access'),
+            icon: ShieldCheck,
+        },
         {
             key: 'locations',
             title: t('business.memberEdit.sections.locations'),
+            icon: MapPin,
         },
         {
             key: 'services',
             title: t('business.memberEdit.sections.services'),
+            icon: Sparkles,
         },
         {
             key: 'schedule',
             title: t('business.memberEdit.sections.schedule'),
+            icon: CalendarDays,
         },
     ];
 
+    const sectionNavItems: SectionNavItem[] = sectionDefinitions.map(
+        (definition) => ({
+            key: definition.key,
+            title: definition.title,
+            icon: definition.icon,
+            isActive: section === definition.key,
+            onSelect: () => setSection(definition.key),
+            testId: `member-section-${definition.key}`,
+        }),
+    );
+
     return (
-        <div className="px-4 py-6">
+        <>
             <Head title={member.name} />
 
-            <Heading
+            {/* The seven-column week grid needs the full width; the form
+                sections stay narrow so their fields don't stretch. */}
+            <SectionNavLayout
                 title={member.name}
                 description={t('business.memberEdit.description')}
-            />
-
-            <div className="flex flex-col lg:flex-row lg:space-x-12">
-                <aside className="w-full lg:w-48">
-                    <nav
-                        className="-mx-1 flex flex-row gap-1 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:space-y-1 lg:overflow-visible lg:px-0 lg:pb-0"
-                        aria-label={t('business.memberEdit.sectionsNav')}
-                    >
-                        {sections.map((item) => (
-                            <Button
-                                key={item.key}
-                                size="sm"
-                                variant="ghost"
-                                data-test={`member-section-${item.key}`}
-                                onClick={() => setSection(item.key)}
-                                className={cn(
-                                    'shrink-0 justify-center lg:w-full lg:justify-start',
-                                    {
-                                        'bg-muted': section === item.key,
-                                    },
-                                )}
-                            >
-                                {item.title}
-                            </Button>
-                        ))}
-                    </nav>
-                </aside>
-
-                <Separator className="my-6 lg:hidden" />
-
-                {/* The seven-column week grid needs the full width; the form
-                    sections stay narrow so their fields don't stretch. */}
-                <div
-                    className={cn(
-                        'flex-1',
-                        section === 'schedule' ? 'min-w-0' : 'md:max-w-2xl',
-                    )}
+                items={sectionNavItems}
+                navLabel={t('business.memberEdit.sectionsNav')}
+                contentClassName={
+                    section === 'schedule' ? undefined : 'md:max-w-2xl'
+                }
+            >
+                <section
+                    className={section === 'schedule' ? 'min-w-0' : 'max-w-xl'}
                 >
-                    <section
-                        className={
-                            section === 'schedule' ? 'min-w-0' : 'max-w-xl'
-                        }
-                    >
-                        {section === 'profile' ? (
-                            <ProfileSection
-                                member={member}
-                                profile={profile}
-                                arg={memberArg}
-                            />
-                        ) : null}
-                        {section === 'access' ? (
-                            <AccessSection
-                                member={member}
-                                availableRoles={availableRoles}
-                                arg={memberArg}
-                            />
-                        ) : null}
-                        {section === 'locations' ? (
-                            <LocationsSection
-                                locations={locations}
-                                assignedLocationIds={assignedLocationIds}
-                                arg={memberArg}
-                            />
-                        ) : null}
-                        {section === 'services' ? (
-                            <ServicesSection
-                                services={services}
-                                assignedServiceIds={assignedServiceIds}
-                                arg={memberArg}
-                            />
-                        ) : null}
-                        {section === 'schedule' ? (
-                            <ScheduleSection
-                                member={member}
-                                schedule={schedule}
-                                scheduleMembers={scheduleMembers}
-                            />
-                        ) : null}
-                    </section>
-                </div>
-            </div>
-        </div>
+                    {section === 'profile' ? (
+                        <ProfileSection
+                            member={member}
+                            profile={profile}
+                            arg={memberArg}
+                        />
+                    ) : null}
+                    {section === 'access' ? (
+                        <AccessSection
+                            member={member}
+                            availableRoles={availableRoles}
+                            arg={memberArg}
+                        />
+                    ) : null}
+                    {section === 'locations' ? (
+                        <LocationsSection
+                            locations={locations}
+                            assignedLocationIds={assignedLocationIds}
+                            arg={memberArg}
+                        />
+                    ) : null}
+                    {section === 'services' ? (
+                        <ServicesSection
+                            services={services}
+                            assignedServiceIds={assignedServiceIds}
+                            arg={memberArg}
+                        />
+                    ) : null}
+                    {section === 'schedule' ? (
+                        <ScheduleSection
+                            member={member}
+                            schedule={schedule}
+                            scheduleMembers={scheduleMembers}
+                        />
+                    ) : null}
+                </section>
+            </SectionNavLayout>
+        </>
     );
 }
 
@@ -584,16 +586,16 @@ function ScheduleSection({
 
     return (
         <div className="space-y-6">
-            <Heading
-                variant="small"
-                title={t('business.memberEdit.sections.schedule')}
-                description={t('business.memberEdit.scheduleDescription')}
-            />
-
             <MemberSchedule
-                member={{ id: member.id, name: member.name, avatar: member.avatar }}
+                member={{
+                    id: member.id,
+                    name: member.name,
+                    avatar: member.avatar,
+                }}
                 slots={schedule}
                 reloadProps={['schedule', 'scheduleMembers']}
+                title={t('business.memberEdit.sections.schedule')}
+                description={t('business.memberEdit.scheduleDescription')}
                 members={scheduleMembers}
                 onSelectMember={(memberId) =>
                     router.visit(

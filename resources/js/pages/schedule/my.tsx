@@ -1,6 +1,5 @@
 import { Head } from '@inertiajs/react';
 
-import Heading from '@/components/heading';
 import MemberSchedule from '@/components/schedule/member/member-schedule';
 import { useTranslation } from '@/hooks/use-translation';
 import { my as myScheduleRoute } from '@/routes/schedule';
@@ -24,16 +23,12 @@ export default function MySchedulePage({ member, schedule }: Props) {
             <Head title={t('member.myTitle')} />
 
             <div className="flex flex-col gap-6 p-4">
-                <Heading
-                    variant="small"
-                    title={t('member.myTitle')}
-                    description={t('member.myDescription')}
-                />
-
                 <MemberSchedule
                     member={member}
                     slots={schedule}
                     reloadProps={['schedule']}
+                    title={t('member.myTitle')}
+                    description={t('member.myDescription')}
                 />
             </div>
         </>

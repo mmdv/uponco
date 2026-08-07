@@ -25,6 +25,12 @@ type UseMemberScheduleOptions = {
      * anything else the section needs, which is fetched on the first load only.
      */
     reloadProps: string[];
+    /**
+     * View to open on. Hosts that own a wider set of views (the team page adds
+     * "Team") pass their current one so returning from it lands where the user
+     * left off rather than snapping back to Week.
+     */
+    initialView?: MemberScheduleView;
 };
 
 export type MemberScheduleController = {
@@ -58,10 +64,11 @@ export function useMemberSchedule({
     memberId,
     slots,
     reloadProps,
+    initialView = 'week',
 }: UseMemberScheduleOptions): MemberScheduleController {
     const { t } = useTranslation('schedule');
 
-    const [view, setViewState] = React.useState<MemberScheduleView>('week');
+    const [view, setViewState] = React.useState<MemberScheduleView>(initialView);
     const [anchor, setAnchor] = React.useState(() => new Date());
     const [selectedDays, setSelectedDays] = React.useState<Set<string>>(
         () => new Set(),

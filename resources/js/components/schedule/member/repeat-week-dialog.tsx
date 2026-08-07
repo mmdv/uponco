@@ -13,11 +13,13 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { dateKey } from '@/lib/calendar-grid';
 import {
+    formatHours,
     REPEAT_WEEK_OPTIONS,
     repeatWeekPayload,
+    SELECTED_TOGGLE_CLASS,
     totalSlotMinutes,
-    formatHours,
 } from '@/lib/member-schedule';
+import { cn } from '@/lib/utils';
 import type { DayScheduleMap, ScheduleDayPayload } from '@/types/schedule';
 
 const weekdayFormatter = new Intl.DateTimeFormat(undefined, {
@@ -118,9 +120,11 @@ export default function RepeatWeekDialog({
                             <ToggleGroupItem
                                 key={option}
                                 value={String(option)}
-                                className="flex-1"
+                                className={cn('flex-1', SELECTED_TOGGLE_CLASS)}
                             >
-                                {t('member.weekCount', { count: option })}
+                                {option === 1
+                                    ? t('member.weekCountOne')
+                                    : t('member.weekCount', { count: option })}
                             </ToggleGroupItem>
                         ))}
                     </ToggleGroup>
@@ -146,7 +150,9 @@ export default function RepeatWeekDialog({
                     >
                         {isSaving
                             ? t('drawer.saving')
-                            : t('member.repeatConfirm', { count: weeks })}
+                            : weeks === 1
+                              ? t('member.repeatConfirmOne')
+                              : t('member.repeatConfirm', { count: weeks })}
                     </Button>
                 </DialogFooter>
             </DialogContent>

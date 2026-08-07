@@ -12,7 +12,7 @@ export function BusinessGraphic() {
             viewBox="0 0 120 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -top-4 -right-6 size-36 opacity-[0.14]"
+            className="absolute -top-4 -right-6 size-36 opacity-[0.08]"
         >
             <path
                 d="M60 22v26M26 82V58h68v24"
@@ -34,7 +34,7 @@ export function ServicesGraphic() {
             viewBox="0 0 120 120"
             fill="currentColor"
             aria-hidden="true"
-            className="absolute -top-5 -right-7 size-36 opacity-[0.16]"
+            className="absolute -top-5 -right-7 size-36 opacity-[0.09]"
         >
             {[0, 1, 2, 3].map((row) =>
                 [0, 1, 2, 3].map((col) => (
@@ -60,7 +60,7 @@ export function LocationsGraphic() {
             viewBox="0 0 120 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -right-8 -bottom-10 size-40 opacity-[0.16]"
+            className="absolute -right-8 -bottom-10 size-40 opacity-[0.09]"
         >
             <circle
                 cx="60"
@@ -97,7 +97,7 @@ export function BrandGraphic() {
             viewBox="0 0 120 120"
             fill="currentColor"
             aria-hidden="true"
-            className="absolute -top-8 -right-8 size-40 opacity-[0.15]"
+            className="absolute -top-8 -right-8 size-40 opacity-[0.085]"
         >
             <circle cx="46" cy="52" r="34" opacity="0.75" />
             <circle cx="82" cy="72" r="28" opacity="0.5" />
@@ -113,7 +113,7 @@ export function CustomersGraphic() {
             viewBox="0 0 120 120"
             fill="currentColor"
             aria-hidden="true"
-            className="absolute -right-5 -bottom-7 size-28 opacity-[0.14]"
+            className="absolute -right-5 -bottom-7 size-28 opacity-[0.08]"
         >
             <circle cx="42" cy="42" r="18" />
             <path d="M10 100a32 32 0 0 1 64 0z" />
@@ -130,7 +130,7 @@ export function BookingsGraphic() {
             viewBox="0 0 120 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -right-6 -bottom-8 size-28 opacity-[0.16]"
+            className="absolute -right-6 -bottom-8 size-28 opacity-[0.09]"
         >
             <rect
                 x="12"
@@ -169,7 +169,7 @@ export function UpcomingGraphic() {
             viewBox="0 0 120 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -right-7 -bottom-9 size-28 opacity-[0.16]"
+            className="absolute -right-7 -bottom-9 size-28 opacity-[0.09]"
         >
             <circle
                 cx="60"
@@ -196,7 +196,7 @@ export function TrendGraphic() {
             viewBox="0 0 200 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -top-6 -right-8 h-40 w-64 opacity-[0.13]"
+            className="absolute -top-6 -right-8 h-40 w-64 opacity-[0.075]"
         >
             <path
                 d="M8 96 54 62l34 22 40-46 56-24"
@@ -224,7 +224,7 @@ export function AgendaGraphic() {
             viewBox="0 0 120 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -top-8 -right-8 size-44 opacity-[0.1]"
+            className="absolute -top-8 -right-8 size-44 opacity-[0.06]"
         >
             <rect
                 x="14"
@@ -259,7 +259,7 @@ export function CompanyGraphic() {
             viewBox="0 0 120 120"
             fill="currentColor"
             aria-hidden="true"
-            className="absolute -top-6 -right-6 size-36 opacity-[0.13]"
+            className="absolute -top-6 -right-6 size-36 opacity-[0.075]"
         >
             <rect x="8" y="60" width="44" height="44" rx="12" opacity="0.55" />
             <rect x="60" y="60" width="44" height="44" rx="12" opacity="0.8" />
@@ -276,7 +276,7 @@ export function ScheduleGraphic() {
             fill="none"
             preserveAspectRatio="none"
             aria-hidden="true"
-            className="absolute inset-x-0 bottom-0 h-32 w-full opacity-[0.13]"
+            className="absolute inset-x-0 bottom-0 h-32 w-full opacity-[0.075]"
         >
             {[0, 1, 2, 3].map((line) => (
                 <line
@@ -301,7 +301,7 @@ export function ShareGraphic() {
             viewBox="0 0 120 120"
             fill="none"
             aria-hidden="true"
-            className="absolute -right-6 -bottom-8 size-40 opacity-[0.16]"
+            className="absolute -right-6 -bottom-8 size-40 opacity-[0.09]"
         >
             <circle cx="60" cy="60" r="6" fill="currentColor" />
             <circle

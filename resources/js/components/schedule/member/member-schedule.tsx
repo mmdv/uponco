@@ -1,10 +1,10 @@
 import { CalendarDays, ChevronLeft, ChevronRight, Repeat } from 'lucide-react';
 import { useState } from 'react';
 
+import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     formatHours,
@@ -14,12 +14,15 @@ import {
 import type {
     DayScheduleMap,
     MemberScheduleMember,
+    MemberScheduleView,
     ScheduleDayPayload,
 } from '@/types/schedule';
 import DayEditorSheet from './day-editor-sheet';
 import MemberMonthView from './member-month-view';
 import MemberWeekView from './member-week-view';
 import RepeatWeekDialog from './repeat-week-dialog';
+import ScheduleViewSwitcher from './schedule-view-switcher';
+import type { ScheduleViewOption } from './schedule-view-switcher';
 import { useMemberSchedule } from './use-member-schedule';
 
 const weekRangeFormatter = new Intl.DateTimeFormat(undefined, {
@@ -36,9 +39,25 @@ type MemberScheduleProps = {
     member: MemberScheduleMember;
     slots?: DayScheduleMap;
     reloadProps: string[];
+    /**
+     * Section heading. Owned here rather than by the host page so the view
+     * switcher can sit opposite it on the title row.
+     */
+    title: string;
+    description?: string;
     /** Other members to offer in the picker; omit to hide it. */
     members?: MemberScheduleMember[];
     onSelectMember?: (memberId: number) => void;
+    /** View to open on, for hosts that own a wider set of views. */
+    initialView?: MemberScheduleView;
+    /**
+     * Extra switcher options beyond Week and Month — the team page appends
+     * "Team". Selecting one is reported through `onSelectView`, since this
+     * component cannot render it.
+     */
+    extraViews?: ScheduleViewOption[];
+    /** Called for every switcher choice, including Week and Month. */
+    onSelectView?: (value: string) => void;
 };
 
 /**
@@ -52,14 +71,20 @@ export default function MemberSchedule({
     member,
     slots,
     reloadProps,
+    title,
+    description,
     members,
     onSelectMember,
+    initialView,
+    extraViews = [],
+    onSelectView,
 }: MemberScheduleProps) {
     const { t } = useTranslation('schedule');
     const schedule = useMemberSchedule({
         memberId: member.id,
         slots,
         reloadProps,
+        initialView,
     });
 
     const [editingDays, setEditingDays] = useState<string[] | null>(null);
@@ -82,6 +107,15 @@ export default function MemberSchedule({
               );
     const totalMinutes = totalMinutesForDays(schedule.slots, totalDays);
 
+    // The button is always on screen now, so a bare "Edit 0 days" would sit
+    // there whenever nothing is picked.
+    const editDaysLabel =
+        selectedDays.size === 0
+            ? t('member.editDaysEmpty')
+            : selectedDays.size === 1
+              ? t('member.editDaysOne')
+              : t('member.editDays', { count: selectedDays.size });
+
     const save = (payload: ScheduleDayPayload[]): void => {
         saveDays(payload, () => {
             setEditingDays(null);
@@ -91,6 +125,32 @@ export default function MemberSchedule({
 
     return (
         <div className="space-y-4">
+            {/* Title row: heading left, view switcher hard right on desktop.
+                They stack on mobile, where the switcher goes full width. */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <Heading
+                    variant="small"
+                    title={title}
+                    description={description}
+                />
+
+                <ScheduleViewSwitcher
+                    value={view}
+                    options={[
+                        { value: 'week', label: t('member.week') },
+                        { value: 'month', label: t('member.month') },
+                        ...extraViews,
+                    ]}
+                    onChange={(value) => {
+                        if (value === 'week' || value === 'month') {
+                            schedule.setView(value);
+                        }
+
+                        onSelectView?.(value);
+                    }}
+                />
+            </div>
+
             {members && members.length > 1 && (
                 <SearchableSelect
                     options={members.map((option) => ({
@@ -139,28 +199,37 @@ export default function MemberSchedule({
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="secondary" className="tabular-nums">
                         {formatHours(totalMinutes)}
                     </Badge>
 
-                    <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        value={view}
-                        onValueChange={(value) => {
-                            if (value === 'week' || value === 'month') {
-                                schedule.setView(value);
+                    {/* The view's primary action stays alongside the range
+                        controls, always in reach rather than below a tall
+                        month grid. */}
+                    {view === 'week' ? (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsRepeatOpen(true)}
+                        >
+                            <Repeat className="h-4 w-4" />
+                            {t('member.repeatWeek')}
+                        </Button>
+                    ) : (
+                        <Button
+                            type="button"
+                            size="sm"
+                            disabled={selectedDays.size === 0}
+                            onClick={() =>
+                                setEditingDays(Array.from(selectedDays))
                             }
-                        }}
-                    >
-                        <ToggleGroupItem value="week">
-                            {t('member.week')}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="month">
-                            {t('member.month')}
-                        </ToggleGroupItem>
-                    </ToggleGroup>
+                        >
+                            <CalendarDays className="h-4 w-4" />
+                            {editDaysLabel}
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -171,29 +240,6 @@ export default function MemberSchedule({
                 />
             ) : (
                 <MemberMonthView schedule={schedule} />
-            )}
-
-            {view === 'week' ? (
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full sm:w-auto"
-                    onClick={() => setIsRepeatOpen(true)}
-                >
-                    <Repeat className="h-4 w-4" />
-                    {t('member.repeatWeek')}
-                </Button>
-            ) : (
-                <Button
-                    type="button"
-                    className="w-full sm:w-auto"
-                    disabled={selectedDays.size === 0}
-                    onClick={() => setEditingDays(Array.from(selectedDays))}
-                >
-                    <CalendarDays className="h-4 w-4" />
-                    {t('member.editDays', { count: selectedDays.size })}
-                </Button>
             )}
 
             <DayEditorSheet

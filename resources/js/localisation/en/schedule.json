@@ -55,6 +55,11 @@
         "repeatWeekEmpty": "This week has no hours yet. Repeating it will clear the weeks ahead.",
         "repeatWeekSummary": "{days} working days, {hours} per week.",
         "weekCount": "{count} weeks",
-        "repeatConfirm": "Repeat for {count} weeks"
+        "repeatConfirm": "Repeat for {count} weeks",
+        "weekCountOne": "1 week",
+        "repeatConfirmOne": "Repeat for 1 week",
+        "editDaysEmpty": "Edit days",
+        "editDaysOne": "Edit 1 day",
+        "team": "Team"
     }
 }

@@ -265,3 +265,72 @@ test('the member edit page resolves the schedule only when a partial reload asks
         ->assertJsonCount(2, 'props.scheduleMembers')
         ->assertJsonMissingPath('props.member');
 });
+
+test('the schedule page points the week view at the requester by default', function () {
+    [, , $member] = memberScheduleTeam();
+
+    $this
+        ->actingAs($member)
+        ->get(route('schedule.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('schedule/index')
+            ->where('selectedMember.id', $member->id)
+            // Resolved only when the Week/Month views ask for it, so the Team
+            // grid costs nothing extra.
+            ->missing('memberSchedule')
+        );
+});
+
+test('a manager can point the week view at another member', function () {
+    [, $owner, $member] = memberScheduleTeam();
+
+    $this
+        ->actingAs($owner)
+        ->get(route('schedule.index', ['member' => $member->id]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('selectedMember.id', $member->id));
+});
+
+test('a plain member cannot read a colleagues hours through the query string', function () {
+    [, $owner, $member] = memberScheduleTeam();
+
+    $this
+        ->actingAs($member)
+        ->get(route('schedule.index', ['member' => $owner->id]))
+        ->assertOk()
+        // Falls back to themselves rather than honouring the id.
+        ->assertInertia(fn ($page) => $page->where('selectedMember.id', $member->id));
+});
+
+test('the schedule page returns the selected members range on a partial reload', function () {
+    [$team, $owner, $member] = memberScheduleTeam();
+
+    ScheduleSlot::factory()->for($member)->create([
+        'team_id' => $team->id,
+        'date' => '2026-08-10',
+        'start_time' => '09:00',
+        'end_time' => '17:00',
+    ]);
+
+    $this->actingAs($owner)->get(route('schedule.index'))->assertOk();
+
+    $this
+        ->actingAs($owner)
+        ->get(
+            route('schedule.index', [
+                'member' => $member->id,
+                'from' => '2026-08-01',
+                'to' => '2026-08-31',
+            ]),
+            [
+                'X-Inertia' => 'true',
+                'X-Inertia-Version' => Inertia::getVersion(),
+                'X-Inertia-Partial-Component' => 'schedule/index',
+                'X-Inertia-Partial-Data' => 'memberSchedule',
+            ]
+        )
+        ->assertOk()
+        ->assertJsonCount(1, 'props.memberSchedule.2026-08-10')
+        ->assertJsonPath('props.memberSchedule.2026-08-10.0.start', '09:00');
+});

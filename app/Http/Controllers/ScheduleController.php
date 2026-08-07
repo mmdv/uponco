@@ -40,6 +40,8 @@ class ScheduleController extends Controller
             ->orderBy('start_time')
             ->get();
 
+        $selected = $this->selectedMember($request, $members, $user);
+
         return Inertia::render('schedule/index', [
             'members' => $members->map(fn (User $member): array => [
                 'id' => $member->id,
@@ -48,7 +50,35 @@ class ScheduleController extends Controller
                 'role' => $member->pivot->role->value,
             ])->values(),
             'slots' => $this->toSlotMap($slots),
+            // Whose hours the Week/Month views show. Always someone the
+            // requester may schedule for, since it is drawn from `$members`.
+            'selectedMember' => [
+                'id' => $selected->id,
+                'name' => $selected->name,
+                'avatar' => $selected->avatar ?? null,
+            ],
+            // Only resolved when the Week or Month view asks for it, so the
+            // Team grid still loads exactly as it always has.
+            'memberSchedule' => Inertia::optional(
+                fn (): array => MemberScheduleController::scheduleFor($request, $team, $selected)
+            ),
         ]);
+    }
+
+    /**
+     * The member the Week/Month views are pointed at.
+     *
+     * Falls back to the requester, and ignores a `member` that is not in the
+     * set they are allowed to schedule for — so a plain member cannot read a
+     * colleague's hours by editing the query string.
+     *
+     * @param  Collection<int, User>  $members
+     */
+    protected function selectedMember(Request $request, Collection $members, User $user): User
+    {
+        $requested = $request->integer('member');
+
+        return $members->firstWhere('id', $requested) ?? $user;
     }
 
     /**

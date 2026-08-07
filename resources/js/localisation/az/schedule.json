@@ -55,6 +55,11 @@
         "repeatWeekEmpty": "Bu həftədə hələ saat yoxdur. Təkrarlamaq qarşıdakı həftələri təmizləyəcək.",
         "repeatWeekSummary": "{days} iş günü, həftədə {hours}.",
         "weekCount": "{count} həftə",
-        "repeatConfirm": "{count} həftə üçün təkrarla"
+        "repeatConfirm": "{count} həftə üçün təkrarla",
+        "weekCountOne": "1 həftə",
+        "repeatConfirmOne": "1 həftə üçün təkrarla",
+        "editDaysEmpty": "Günləri redaktə et",
+        "editDaysOne": "1 günü redaktə et",
+        "team": "Komanda"
     }
 }

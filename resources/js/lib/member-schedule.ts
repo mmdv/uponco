@@ -17,7 +17,18 @@ export const SCHEDULE_PRESETS: ScheduleSlot[] = [
 export const DEFAULT_SLOT: ScheduleSlot = { start: '09:00', end: '17:00' };
 
 /** Week counts offered by the "repeat this week" dialog. */
-export const REPEAT_WEEK_OPTIONS = [2, 4, 8, 12] as const;
+export const REPEAT_WEEK_OPTIONS = [1, 2, 4] as const;
+
+/**
+ * Selected-state classes for the schedule's toggle groups.
+ *
+ * The outline toggle's default "on" state is a faint muted fill that reads as
+ * hover rather than selection, so the active option is filled with the primary
+ * colour instead. Shared so the view tabs and the repeat-week options can't
+ * drift apart.
+ */
+export const SELECTED_TOGGLE_CLASS =
+    'data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary data-[state=on]:hover:text-primary-foreground';
 
 /**
  * The dates covered by a view: seven Mon–Sun days for `week`, the full six-week
