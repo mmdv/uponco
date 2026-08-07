@@ -110,7 +110,8 @@
                 "profile": "Profile",
                 "access": "Access Control",
                 "locations": "Locations",
-                "services": "Services"
+                "services": "Services",
+                "schedule": "Schedule"
             },
             "account": {
                 "title": "Account",
@@ -156,7 +157,8 @@
                 "description": "Services this specialist provides",
                 "empty": "No services yet. Add one under Company → Services.",
                 "save": "Save"
-            }
+            },
+            "scheduleDescription": "Plan this member's week or month"
         }
     },
     "services": {

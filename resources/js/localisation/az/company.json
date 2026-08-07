@@ -110,7 +110,8 @@
                 "profile": "Profil",
                 "access": "Giriş nəzarəti",
                 "locations": "Filiallar",
-                "services": "Xidmətlər"
+                "services": "Xidmətlər",
+                "schedule": "Cədvəl"
             },
             "account": {
                 "title": "Hesab",
@@ -156,7 +157,8 @@
                 "description": "Bu mütəxəssisin göstərdiyi xidmətlər",
                 "empty": "Hələ xidmət yoxdur. Şirkət → Xidmətlər bölməsindən əlavə edin.",
                 "save": "Yadda saxla"
-            }
+            },
+            "scheduleDescription": "Bu üzvün həftəsini və ya ayını planlaşdırın"
         }
     },
     "services": {

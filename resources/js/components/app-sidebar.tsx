@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     CalendarClock,
+    CalendarRange,
     FolderGit2,
     LayoutGrid,
     ShieldCheck,
@@ -25,7 +26,7 @@ import { isTeamManager } from '@/lib/teams';
 import { dashboard } from '@/routes';
 import { index as backoffice } from '@/routes/backoffice';
 import { index as company } from '@/routes/company';
-import { index as schedule } from '@/routes/schedule';
+import { index as schedule, my as mySchedule } from '@/routes/schedule';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -51,6 +52,11 @@ export function AppSidebar() {
                             href: schedule(),
                             icon: CalendarClock,
                         },
+                  {
+                      title: 'My Schedule',
+                      href: mySchedule(),
+                      icon: CalendarRange,
+                  },
               ]
             : []),
         ...(page.props.currentTeam?.name === 'Uponco'

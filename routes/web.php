@@ -14,6 +14,7 @@ use App\Http\Controllers\Company\ServiceCategoryController;
 use App\Http\Controllers\Company\ServiceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MemberScheduleController;
 use App\Http\Controllers\OnboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicAppointmentController;
@@ -88,6 +89,9 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
 
         Route::get('schedule', [ScheduleController::class, 'index'])->name('schedule.index');
         Route::post('schedule', [ScheduleController::class, 'store'])->name('schedule.store');
+
+        Route::get('schedule/my', [MemberScheduleController::class, 'show'])->name('schedule.my');
+        Route::put('schedule/member/{user}', [MemberScheduleController::class, 'update'])->name('schedule.member.update');
 
         Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');

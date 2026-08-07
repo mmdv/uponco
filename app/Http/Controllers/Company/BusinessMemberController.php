@@ -6,6 +6,7 @@ use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MemberScheduleController;
 use App\Http\Requests\Company\CreateBusinessMemberRequest;
 use App\Http\Requests\Company\SyncMemberLocationsRequest;
 use App\Http\Requests\Company\SyncMemberServicesRequest;
@@ -146,6 +147,23 @@ class BusinessMemberController extends Controller
                 ->intersect($teamServiceIds)
                 ->values(),
             'permissions' => $request->user()->toTeamPermissions($team),
+            // Only resolved when the Schedule section asks for it, so opening
+            // the page on any other section costs nothing extra.
+            'schedule' => Inertia::optional(
+                fn (): array => MemberScheduleController::scheduleFor($request, $team, $user)
+            ),
+            'scheduleMembers' => Inertia::optional(
+                fn (): array => $team->members()
+                    ->orderBy('name')
+                    ->get()
+                    ->map(fn (User $member): array => [
+                        'id' => $member->id,
+                        'name' => $member->name,
+                        'avatar' => $member->avatar ?? null,
+                    ])
+                    ->values()
+                    ->all()
+            ),
         ]);
     }
 

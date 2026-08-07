@@ -29,5 +29,32 @@
     "toast": {
         "saved": "Cədvəl yadda saxlanıldı.",
         "error": "Zəhmət olmasa xətaları düzəldin və yenidən cəhd edin."
+    },
+    "member": {
+        "navTitle": "Mənim cədvəlim",
+        "myTitle": "Mənim cədvəlim",
+        "myDescription": "Öz həftənizi və ya ayınızı planlaşdırın",
+        "sectionDescription": "Bu üzvün həftəsini və ya ayını planlaşdırın",
+        "week": "Həftə",
+        "month": "Ay",
+        "today": "Bu gün",
+        "previous": "Əvvəlki",
+        "next": "Növbəti",
+        "selectMember": "Üzv seçin",
+        "dayOff": "İstirahət günü",
+        "markDayOff": "İstirahət günü kimi qeyd et",
+        "presets": "Sürətli şablonlar",
+        "timeBlocks": "Vaxt blokları",
+        "alsoApplyTo": "Həmçinin tətbiq et",
+        "editDays": "{count} günü redaktə et",
+        "editDayDescription": "Bu gün işlənən saatları təyin edin.",
+        "applyingToDays": "{count} gün üçün tətbiq olunur.",
+        "blockCount": "{count} blok",
+        "repeatWeek": "Bu həftəni təkrarla",
+        "repeatWeekDescription": "Bu həftənin sxemini — iş günlərini və istirahət günlərini — qarşıdakı həftələrə köçürün.",
+        "repeatWeekEmpty": "Bu həftədə hələ saat yoxdur. Təkrarlamaq qarşıdakı həftələri təmizləyəcək.",
+        "repeatWeekSummary": "{days} iş günü, həftədə {hours}.",
+        "weekCount": "{count} həftə",
+        "repeatConfirm": "{count} həftə üçün təkrarla"
     }
 }

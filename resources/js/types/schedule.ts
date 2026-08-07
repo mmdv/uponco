@@ -58,6 +58,35 @@ export type ScheduleSlot = { start: string; end: string };
 export type ScheduleSlotMap = Record<CellId, ScheduleSlot[]>;
 
 /**
+ * A team member shown in the per-member schedule editor's member picker.
+ */
+export type MemberScheduleMember = {
+    id: number;
+    name: string;
+    avatar?: string | null;
+};
+
+/**
+ * Which range the per-member schedule editor is showing.
+ */
+export type MemberScheduleView = 'week' | 'month';
+
+/**
+ * One member's persisted slots keyed by `YYYY-MM-DD`. A missing key means the
+ * day has no hours (a day off).
+ */
+export type DayScheduleMap = Record<string, ScheduleSlot[]>;
+
+/**
+ * One day of the per-member save payload. An empty `slots` array clears the
+ * day.
+ */
+export type ScheduleDayPayload = {
+    date: string;
+    slots: ScheduleSlot[];
+};
+
+/**
  * A single day in the 7-day availability summary shown on the company and
  * dashboard cards.
  */

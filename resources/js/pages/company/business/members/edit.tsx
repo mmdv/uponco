@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 import {
@@ -13,6 +13,7 @@ import {
 import AvatarUploader from '@/components/avatar-uploader';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import MemberSchedule from '@/components/schedule/member/member-schedule';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
@@ -27,8 +28,12 @@ import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
-import { index as businessMembers } from '@/routes/company/business/members';
+import {
+    edit as editMember,
+    index as businessMembers,
+} from '@/routes/company/business/members';
 import type { RoleOption } from '@/types';
+import type { DayScheduleMap, MemberScheduleMember } from '@/types/schedule';
 
 type MemberAccount = {
     id: number;
@@ -57,9 +62,29 @@ type Props = {
     assignedLocationIds: number[];
     services: MemberService[];
     assignedServiceIds: number[];
+    schedule?: DayScheduleMap;
+    scheduleMembers?: MemberScheduleMember[];
 };
 
-type SectionKey = 'profile' | 'access' | 'locations' | 'services';
+type SectionKey = 'profile' | 'access' | 'locations' | 'services' | 'schedule';
+
+/**
+ * The section named in the URL, so links into a particular tab — such as the
+ * schedule picker hopping between members — land where they meant to.
+ */
+function sectionFromUrl(): SectionKey {
+    const requested = new URLSearchParams(window.location.search).get(
+        'section',
+    );
+
+    return requested === 'profile' ||
+        requested === 'access' ||
+        requested === 'locations' ||
+        requested === 'services' ||
+        requested === 'schedule'
+        ? requested
+        : 'profile';
+}
 
 export default function EditMember({
     member,
@@ -69,9 +94,11 @@ export default function EditMember({
     assignedLocationIds,
     services,
     assignedServiceIds,
+    schedule,
+    scheduleMembers,
 }: Props) {
     const { t } = useTranslation('company');
-    const [section, setSection] = useState<SectionKey>('profile');
+    const [section, setSection] = useState<SectionKey>(sectionFromUrl);
     const memberArg: SectionArg = [member.id];
 
     const sections: { key: SectionKey; title: string }[] = [
@@ -84,6 +111,10 @@ export default function EditMember({
         {
             key: 'services',
             title: t('business.memberEdit.sections.services'),
+        },
+        {
+            key: 'schedule',
+            title: t('business.memberEdit.sections.schedule'),
         },
     ];
 
@@ -124,8 +155,19 @@ export default function EditMember({
 
                 <Separator className="my-6 lg:hidden" />
 
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl">
+                {/* The seven-column week grid needs the full width; the form
+                    sections stay narrow so their fields don't stretch. */}
+                <div
+                    className={cn(
+                        'flex-1',
+                        section === 'schedule' ? 'min-w-0' : 'md:max-w-2xl',
+                    )}
+                >
+                    <section
+                        className={
+                            section === 'schedule' ? 'min-w-0' : 'max-w-xl'
+                        }
+                    >
                         {section === 'profile' ? (
                             <ProfileSection
                                 member={member}
@@ -152,6 +194,13 @@ export default function EditMember({
                                 services={services}
                                 assignedServiceIds={assignedServiceIds}
                                 arg={memberArg}
+                            />
+                        ) : null}
+                        {section === 'schedule' ? (
+                            <ScheduleSection
+                                member={member}
+                                schedule={schedule}
+                                scheduleMembers={scheduleMembers}
                             />
                         ) : null}
                     </section>
@@ -511,6 +560,49 @@ function LocationsSection({
                     </>
                 )}
             </Form>
+        </div>
+    );
+}
+
+/**
+ * This member's own week/month schedule, alongside the rest of their settings.
+ *
+ * The slot map arrives as an optional Inertia prop, so opening any other
+ * section never pays for the query; the picker jumps between members without
+ * leaving the Schedule tab.
+ */
+function ScheduleSection({
+    member,
+    schedule,
+    scheduleMembers,
+}: {
+    member: MemberAccount;
+    schedule?: DayScheduleMap;
+    scheduleMembers?: MemberScheduleMember[];
+}) {
+    const { t } = useTranslation('company');
+
+    return (
+        <div className="space-y-6">
+            <Heading
+                variant="small"
+                title={t('business.memberEdit.sections.schedule')}
+                description={t('business.memberEdit.scheduleDescription')}
+            />
+
+            <MemberSchedule
+                member={{ id: member.id, name: member.name, avatar: member.avatar }}
+                slots={schedule}
+                reloadProps={['schedule', 'scheduleMembers']}
+                members={scheduleMembers}
+                onSelectMember={(memberId) =>
+                    router.visit(
+                        editMember.url([memberId], {
+                            query: { section: 'schedule' },
+                        }),
+                    )
+                }
+            />
         </div>
     );
 }
