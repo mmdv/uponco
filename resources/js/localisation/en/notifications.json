@@ -1,0 +1,20 @@
+{
+    "title": "Notifications",
+    "description": "Everything that happened to your appointments.",
+    "seeAll": "See all",
+    "empty": "No notifications yet.",
+    "emptyHint": "You will hear about new bookings, changes and cancellations here.",
+    "alert": {
+        "booked": "New booking",
+        "rescheduled": "Appointment moved",
+        "cancelled": "Booking cancelled"
+    },
+    "forSpecialist": "for {name}",
+    "unknownService": "Deleted service",
+    "unknownCustomer": "Deleted customer",
+    "pagination": {
+        "showing": "Showing {from}–{to} of {total}",
+        "previous": "Previous",
+        "next": "Next"
+    }
+}

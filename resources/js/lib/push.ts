@@ -7,7 +7,7 @@
  * situation instead of showing a broken toggle.
  */
 
-const SUBSCRIPTION_URL = '/settings/notifications/subscription';
+const SUBSCRIPTION_URL = '/settings/push-notifications/subscription';
 
 /** Is Web Push usable in this browser, right now, as it is being run? */
 export const pushSupported = (): boolean =>

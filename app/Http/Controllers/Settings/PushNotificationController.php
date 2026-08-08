@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class NotificationController extends Controller
+class PushNotificationController extends Controller
 {
     /**
      * Show the notification settings page.
@@ -30,7 +30,7 @@ class NotificationController extends Controller
             ])
             ->all();
 
-        return Inertia::render('settings/notifications', [
+        return Inertia::render('settings/push-notifications', [
             'vapidPublicKey' => config('webpush.vapid.public_key'),
             'devices' => $devices,
         ]);

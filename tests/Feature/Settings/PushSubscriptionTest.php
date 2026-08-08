@@ -27,10 +27,10 @@ test('the notification settings page exposes the vapid public key', function () 
 
     $this
         ->actingAs($user)
-        ->get(route('notifications.edit'))
+        ->get(route('push-notifications.edit'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('settings/notifications')
+            ->component('settings/push-notifications')
             ->where('vapidPublicKey', 'test-public-key')
             ->has('devices', 0),
         );
@@ -41,7 +41,7 @@ test('a device can subscribe to push notifications', function () {
 
     $this
         ->actingAs($user)
-        ->postJson(route('notifications.subscription.store'), pushSubscriptionPayload())
+        ->postJson(route('push-notifications.subscription.store'), pushSubscriptionPayload())
         ->assertOk();
 
     expect($user->pushSubscriptions()->count())->toBe(1);
@@ -56,14 +56,14 @@ test('re-subscribing the same device updates the existing subscription', functio
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->postJson(route('notifications.subscription.store'), pushSubscriptionPayload())
+        ->postJson(route('push-notifications.subscription.store'), pushSubscriptionPayload())
         ->assertOk();
 
     $payload = pushSubscriptionPayload();
     $payload['keys']['auth'] = 'a-rotated-auth-token';
 
     $this->actingAs($user)
-        ->postJson(route('notifications.subscription.store'), $payload)
+        ->postJson(route('push-notifications.subscription.store'), $payload)
         ->assertOk();
 
     expect($user->pushSubscriptions()->count())->toBe(1);
@@ -76,7 +76,7 @@ test('a user can have several subscribed devices', function () {
     foreach (['device-a', 'device-b'] as $device) {
         $this->actingAs($user)
             ->postJson(
-                route('notifications.subscription.store'),
+                route('push-notifications.subscription.store'),
                 pushSubscriptionPayload("https://push.example.com/{$device}"),
             )
             ->assertOk();
@@ -86,7 +86,7 @@ test('a user can have several subscribed devices', function () {
 
     $this
         ->actingAs($user)
-        ->get(route('notifications.edit'))
+        ->get(route('push-notifications.edit'))
         ->assertInertia(fn ($page) => $page->has('devices', 2));
 });
 
@@ -94,11 +94,11 @@ test('a device can unsubscribe', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->postJson(route('notifications.subscription.store'), pushSubscriptionPayload())
+        ->postJson(route('push-notifications.subscription.store'), pushSubscriptionPayload())
         ->assertOk();
 
     $this->actingAs($user)
-        ->deleteJson(route('notifications.subscription.destroy'), [
+        ->deleteJson(route('push-notifications.subscription.destroy'), [
             'endpoint' => 'https://push.example.com/device-a',
         ])
         ->assertOk();
@@ -113,11 +113,11 @@ test('unsubscribing leaves another user\'s subscription alone', function () {
     $other->updatePushSubscription('https://push.example.com/device-b', 'key', 'token');
 
     $this->actingAs($user)
-        ->postJson(route('notifications.subscription.store'), pushSubscriptionPayload())
+        ->postJson(route('push-notifications.subscription.store'), pushSubscriptionPayload())
         ->assertOk();
 
     $this->actingAs($user)
-        ->deleteJson(route('notifications.subscription.destroy'), [
+        ->deleteJson(route('push-notifications.subscription.destroy'), [
             'endpoint' => 'https://push.example.com/device-b',
         ])
         ->assertOk();
@@ -130,7 +130,7 @@ test('the subscription payload is validated', function () {
 
     $this
         ->actingAs($user)
-        ->postJson(route('notifications.subscription.store'), ['endpoint' => 'https://push.example.com/device-a'])
+        ->postJson(route('push-notifications.subscription.store'), ['endpoint' => 'https://push.example.com/device-a'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['keys.p256dh', 'keys.auth']);
 });
@@ -139,11 +139,11 @@ test('guests cannot manage push subscriptions', function () {
     // The app only renders JSON errors for `api/*` (see bootstrap/app.php), so
     // an unauthenticated call is bounced to the login page rather than 401'd.
     $this
-        ->postJson(route('notifications.subscription.store'), pushSubscriptionPayload())
+        ->postJson(route('push-notifications.subscription.store'), pushSubscriptionPayload())
         ->assertRedirect(route('login'));
 
     $this
-        ->get(route('notifications.edit'))
+        ->get(route('push-notifications.edit'))
         ->assertRedirect(route('login'));
 
     expect(DB::table(config('webpush.table_name'))->count())->toBe(0);

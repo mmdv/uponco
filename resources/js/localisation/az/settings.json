@@ -6,7 +6,7 @@
         "account": "Hesab",
         "security": "Təhlükəsizlik",
         "integrations": "İnteqrasiyalar",
-        "notifications": "Bildirişlər"
+        "pushNotifications": "Push bildirişləri"
     },
     "profile": {
         "pictureTitle": "Profil şəkli",
@@ -45,8 +45,8 @@
         "dark": "Tünd",
         "system": "Sistem"
     },
-    "notifications": {
-        "title": "Bildirişlər",
+    "pushNotifications": {
+        "title": "Push bildirişləri",
         "pushTitle": "Push bildirişləri",
         "pushDescription": "Kimsə sizinlə görüş rezerv etdikdə telefonunuza bildiriş alın.",
         "enabled": "Bildirişlər aktivdir",

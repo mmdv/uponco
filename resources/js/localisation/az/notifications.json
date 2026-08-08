@@ -1,0 +1,20 @@
+{
+    "title": "Bildirişlər",
+    "description": "Görüşlərinizlə bağlı baş verən hər şey.",
+    "seeAll": "Hamısına bax",
+    "empty": "Hələ bildiriş yoxdur.",
+    "emptyHint": "Yeni rezervasiyalar, dəyişikliklər və ləğvlər barədə burada məlumat alacaqsınız.",
+    "alert": {
+        "booked": "Yeni rezervasiya",
+        "rescheduled": "Görüş vaxtı dəyişdi",
+        "cancelled": "Rezervasiya ləğv edildi"
+    },
+    "forSpecialist": "{name} üçün",
+    "unknownService": "Silinmiş xidmət",
+    "unknownCustomer": "Silinmiş müştəri",
+    "pagination": {
+        "showing": "{total} nəticədən {from}–{to} göstərilir",
+        "previous": "Əvvəlki",
+        "next": "Növbəti"
+    }
+}

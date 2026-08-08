@@ -5,8 +5,8 @@ import type { SectionNavItem } from '@/components/section-nav';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { edit as editIntegrations } from '@/routes/integrations';
-import { edit as editNotifications } from '@/routes/notifications';
 import { edit as editProfile } from '@/routes/profile';
+import { edit as editPushNotifications } from '@/routes/push-notifications';
 import { edit as editSecurity } from '@/routes/security';
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
@@ -29,11 +29,11 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             isActive: isCurrentOrParentUrl(editSecurity()),
         },
         {
-            key: 'notifications',
-            title: t('nav.notifications'),
-            href: editNotifications(),
+            key: 'push-notifications',
+            title: t('nav.pushNotifications'),
+            href: editPushNotifications(),
             icon: Bell,
-            isActive: isCurrentOrParentUrl(editNotifications()),
+            isActive: isCurrentOrParentUrl(editPushNotifications()),
         },
         {
             key: 'integrations',

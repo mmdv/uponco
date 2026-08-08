@@ -10,6 +10,7 @@ import { useState } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import NotificationBell from '@/components/notifications/notification-bell';
 import TeamSwitcherModal from '@/components/team-switcher-modal';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -154,6 +155,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         <div className="relative flex items-center space-x-1">
                             <LanguageSwitcher />
                             <ThemeSwitcher />
+                            {currentTeam && <NotificationBell />}
                             <div className="ml-1 hidden gap-1 lg:flex">
                                 {rightNavItems.map((item) => (
                                     <TooltipProvider

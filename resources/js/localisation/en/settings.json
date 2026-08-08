@@ -6,7 +6,7 @@
         "account": "Account",
         "security": "Security",
         "integrations": "Integrations",
-        "notifications": "Notifications"
+        "pushNotifications": "Push notifications"
     },
     "profile": {
         "pictureTitle": "Profile picture",
@@ -45,8 +45,8 @@
         "dark": "Dark",
         "system": "System"
     },
-    "notifications": {
-        "title": "Notifications",
+    "pushNotifications": {
+        "title": "Push notifications",
         "pushTitle": "Push notifications",
         "pushDescription": "Get notified on your phone when someone books an appointment with you.",
         "enabled": "Notifications on",

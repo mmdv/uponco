@@ -2,12 +2,19 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use App\Support\Analytics;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    /**
+     * How many notifications the header drawer shows before "See all".
+     */
+    protected const RECENT_NOTIFICATIONS = 10;
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -46,6 +53,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
+            'notificationBell' => fn () => $user ? $this->notificationSummary($user) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
             'locale' => app()->getLocale(),
             'availableLocales' => $this->availableLocales(),
@@ -56,6 +64,36 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'events' => Analytics::pending(),
             ],
+        ];
+    }
+
+    /**
+     * The unread count and recent items behind the header's notification bell.
+     *
+     * Shared on every authenticated response because the bell lives in the app
+     * header rather than on any one page. It is also what the header polls:
+     * `router.reload({ only: ['notificationBell'] })` refreshes exactly this.
+     *
+     * Named for the bell rather than "notifications" so it cannot be shadowed
+     * by the paginated `notifications` prop on the notifications page itself.
+     *
+     * @return array{unread: int, items: list<array<string, mixed>>}
+     */
+    protected function notificationSummary(User $user): array
+    {
+        return [
+            'unread' => $user->unreadNotifications()->count(),
+            'items' => $user->notifications()
+                ->latest()
+                ->limit(self::RECENT_NOTIFICATIONS)
+                ->get()
+                ->map(fn (DatabaseNotification $notification): array => [
+                    'id' => $notification->id,
+                    'read' => $notification->read(),
+                    'created_at' => $notification->created_at?->toIso8601String(),
+                    ...$notification->data,
+                ])
+                ->all(),
         ];
     }
 

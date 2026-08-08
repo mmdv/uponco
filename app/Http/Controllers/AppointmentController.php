@@ -114,7 +114,7 @@ class AppointmentController extends Controller
             'end_at' => $start->addMinutes($appointment->service->duration),
         ]);
 
-        $this->notifySpecialist($appointment, AppointmentAlert::Rescheduled);
+        $this->notifyAppointmentAudience($appointment, AppointmentAlert::Rescheduled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment rescheduled.')]);
 
@@ -138,7 +138,7 @@ class AppointmentController extends Controller
 
         $appointment->cancel();
         $this->notifyCustomerCancelled($appointment);
-        $this->notifySpecialist($appointment, AppointmentAlert::Cancelled);
+        $this->notifyAppointmentAudience($appointment, AppointmentAlert::Cancelled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment cancelled.')]);
 

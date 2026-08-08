@@ -15,6 +15,7 @@ use App\Http\Controllers\Company\ServiceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberScheduleController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicAppointmentController;
@@ -97,6 +98,9 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
         Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
         Route::patch('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
         Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 
         // Company management (business, team, services, locations, brand) is
         // restricted to admins and owners. Members are gated out entirely.

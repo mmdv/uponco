@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import PushNotificationCard from '@/components/notifications/push-notification-card';
 import { useTranslation } from '@/hooks/use-translation';
-import { edit } from '@/routes/notifications';
+import { edit } from '@/routes/push-notifications';
 
 type PushDevice = {
     id: number;
@@ -11,7 +11,7 @@ type PushDevice = {
     created_at: string | null;
 };
 
-export default function Notifications({
+export default function PushNotifications({
     vapidPublicKey,
     devices,
 }: {
@@ -22,15 +22,15 @@ export default function Notifications({
 
     return (
         <>
-            <Head title={t('notifications.title')} />
+            <Head title={t('pushNotifications.title')} />
 
-            <h1 className="sr-only">{t('notifications.title')}</h1>
+            <h1 className="sr-only">{t('pushNotifications.title')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title={t('notifications.pushTitle')}
-                    description={t('notifications.pushDescription')}
+                    title={t('pushNotifications.pushTitle')}
+                    description={t('pushNotifications.pushDescription')}
                 />
 
                 <PushNotificationCard
@@ -42,10 +42,10 @@ export default function Notifications({
     );
 }
 
-Notifications.layout = {
+PushNotifications.layout = {
     breadcrumbs: [
         {
-            title: 'Notifications',
+            title: 'Push notifications',
             href: edit(),
         },
     ],

@@ -12,19 +12,41 @@ function Toaster({ ...props }: ToasterProps) {
             theme={appearance}
             className="toaster group"
             position="top-right"
+            closeButton
             toastOptions={{
                 classNames: {
                     // A bit rounded to match the inputs and buttons; errors stay
                     // red so they read as problems rather than confirmations.
-                    toast: 'group !rounded-xl !gap-2',
+                    // The right padding keeps the text clear of the close button.
+                    toast: 'group !rounded-xl !gap-2 !pr-10',
                     error: '!bg-destructive !text-white !border-destructive',
+                    // The brand colour carries the headline instead of flooding
+                    // the whole toast. Errors keep white text, since theirs is
+                    // the one surface that is still filled.
+                    title: '!font-semibold !text-primary group-data-[type=error]:!text-white',
+                    description:
+                        '!text-foreground group-data-[type=error]:!text-white/90',
+                    // Sonner only reveals the close button on hover, which
+                    // leaves no way to dismiss a toast by touch. Keep it always
+                    // visible, and inherit the toast's own colours so it stays
+                    // legible on the red error surface too.
+                    closeButton:
+                        '!opacity-100 !bg-transparent !border-transparent !text-muted-foreground hover:!text-foreground group-data-[type=error]:!text-white/80 group-data-[type=error]:hover:!text-white',
                 },
             }}
             style={
                 {
-                    '--normal-bg': 'var(--primary)',
-                    '--normal-text': 'var(--primary-foreground)',
-                    '--normal-border': 'var(--primary)',
+                    // The same surface as popovers and dialogs, so a toast reads
+                    // as part of the app chrome and follows light/dark on its own.
+                    '--normal-bg': 'var(--popover)',
+                    '--normal-text': 'var(--popover-foreground)',
+                    '--normal-border': 'var(--border)',
+                    // Sonner pins the close button to the top-left corner and
+                    // pulls it out over the border with a negative translate.
+                    // Move it to the top-right and tuck it back inside.
+                    '--toast-close-button-start': 'unset',
+                    '--toast-close-button-end': '0.5rem',
+                    '--toast-close-button-transform': 'translateY(0.5rem)',
                 } as React.CSSProperties
             }
             {...props}

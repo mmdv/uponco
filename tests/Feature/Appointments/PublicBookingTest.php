@@ -6,9 +6,9 @@ use App\Enums\BusinessCategory;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
-use App\Notifications\Appointments\SpecialistAppointmentAlert;
 use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -332,9 +332,10 @@ test('a guest booking pushes an alert to the assigned specialist', function () {
 
     Notification::assertSentTo(
         $setup['user'],
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification, array $channels): bool => $notification->alert === AppointmentAlert::Booked
-            && $channels === [WebPushChannel::class],
+        AppointmentActivity::class,
+        // The assigned specialist gets both the bell entry and the phone push.
+        fn (AppointmentActivity $notification, array $channels): bool => $notification->alert === AppointmentAlert::Booked
+            && $channels === ['database', WebPushChannel::class],
     );
 });
 
@@ -349,8 +350,8 @@ test('a customer cancelling from the signed link pushes an alert to the speciali
 
     Notification::assertSentTo(
         $setup['user'],
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
+        AppointmentActivity::class,
+        fn (AppointmentActivity $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
     );
 });
 

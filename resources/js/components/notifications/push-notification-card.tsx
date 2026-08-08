@@ -40,11 +40,11 @@ export default function PushNotificationCard({
         return (
             <Alert data-test="push-install-hint">
                 <Smartphone />
-                <AlertTitle>{t('notifications.installTitle')}</AlertTitle>
+                <AlertTitle>{t('pushNotifications.installTitle')}</AlertTitle>
                 <AlertDescription>
                     {ios
-                        ? t('notifications.installIos')
-                        : t('notifications.installOther')}
+                        ? t('pushNotifications.installIos')
+                        : t('pushNotifications.installOther')}
                 </AlertDescription>
             </Alert>
         );
@@ -54,9 +54,11 @@ export default function PushNotificationCard({
         return (
             <Alert data-test="push-unsupported">
                 <BellOff />
-                <AlertTitle>{t('notifications.unsupportedTitle')}</AlertTitle>
+                <AlertTitle>
+                    {t('pushNotifications.unsupportedTitle')}
+                </AlertTitle>
                 <AlertDescription>
-                    {t('notifications.unsupportedDescription')}
+                    {t('pushNotifications.unsupportedDescription')}
                 </AlertDescription>
             </Alert>
         );
@@ -66,9 +68,9 @@ export default function PushNotificationCard({
         return (
             <Alert data-test="push-denied">
                 <BellOff />
-                <AlertTitle>{t('notifications.deniedTitle')}</AlertTitle>
+                <AlertTitle>{t('pushNotifications.deniedTitle')}</AlertTitle>
                 <AlertDescription>
-                    {t('notifications.deniedDescription')}
+                    {t('pushNotifications.deniedDescription')}
                 </AlertDescription>
             </Alert>
         );
@@ -84,13 +86,13 @@ export default function PushNotificationCard({
                 <div className="space-y-0.5 pr-4">
                     <p className="text-sm font-medium">
                         {subscribed
-                            ? t('notifications.enabled')
-                            : t('notifications.disabled')}
+                            ? t('pushNotifications.enabled')
+                            : t('pushNotifications.disabled')}
                     </p>
                     <p className="text-sm text-muted-foreground">
                         {subscribed
-                            ? t('notifications.enabledHint')
-                            : t('notifications.disabledHint')}
+                            ? t('pushNotifications.enabledHint')
+                            : t('pushNotifications.disabledHint')}
                     </p>
                 </div>
 
@@ -100,7 +102,7 @@ export default function PushNotificationCard({
                     onCheckedChange={() =>
                         void (subscribed ? disable() : enable())
                     }
-                    aria-label={t('notifications.pushTitle')}
+                    aria-label={t('pushNotifications.pushTitle')}
                     data-test="push-toggle"
                 />
             </div>
@@ -111,8 +113,8 @@ export default function PushNotificationCard({
                     data-test="push-device-count"
                 >
                     {devices === 1
-                        ? t('notifications.deviceCountOne')
-                        : t('notifications.deviceCountOther', {
+                        ? t('pushNotifications.deviceCountOne')
+                        : t('pushNotifications.deviceCountOther', {
                               count: devices,
                           })}
                 </p>
@@ -123,7 +125,7 @@ export default function PushNotificationCard({
                     className="text-sm text-destructive-foreground"
                     data-test="push-error"
                 >
-                    {t('notifications.failed')}
+                    {t('pushNotifications.failed')}
                 </p>
             )}
         </div>

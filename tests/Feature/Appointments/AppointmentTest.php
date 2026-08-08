@@ -6,99 +6,14 @@ use App\Enums\TeamRole;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Location;
-use App\Models\ScheduleSlot;
 use App\Models\Service;
-use App\Models\ServiceCategory;
 use App\Models\User;
+use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
-use App\Notifications\Appointments\SpecialistAppointmentAlert;
 use App\Support\Appointments\AppointmentCalendar;
 use App\Support\Appointments\SlotGenerator;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Notification;
-
-/**
- * Build a fully related service/location/specialist scenario with work hours,
- * and return the pieces plus a valid future start instant.
- */
-function bookableSetup(array $serviceOverrides = []): array
-{
-    $user = User::factory()->create();
-    $team = $user->currentTeam;
-    $team->update(['timezone' => 'UTC']);
-
-    $category = ServiceCategory::factory()->for($team)->create();
-    $service = Service::factory()->for($category, 'category')->create(array_merge([
-        'duration' => 60,
-        'technical_break' => 0,
-        'service_type' => 'individual',
-        'capacity' => null,
-        'delivery_type' => 'onsite',
-        'online_meeting_provider' => null,
-        'is_active' => true,
-    ], $serviceOverrides));
-
-    $location = Location::factory()->for($team)->create();
-
-    $service->locations()->attach($location);
-    $service->specialists()->attach($user);
-    $location->specialists()->attach($user);
-
-    $startAt = CarbonImmutable::now('UTC')->addWeek()->startOfWeek()->setTime(9, 0);
-
-    // Schedule is now date-based, so seed a concrete slot for every day of the
-    // booking week (tests book on $startAt and $startAt->addDay()).
-    foreach (range(0, 6) as $offset) {
-        ScheduleSlot::factory()->for($user)->create([
-            'team_id' => $team->id,
-            'date' => $startAt->addDays($offset)->format('Y-m-d'),
-            'start_time' => '09:00',
-            'end_time' => '17:00',
-        ]);
-    }
-
-    return compact('user', 'team', 'service', 'location', 'startAt');
-}
-
-/**
- * Add a second bookable specialist to the setup's team: attached to the same
- * service and location, and working the same hours.
- */
-function teamMemberSpecialist(array $setup): User
-{
-    $member = User::factory()->create();
-    $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
-    $member->switchTeam($setup['team']);
-
-    $setup['service']->specialists()->attach($member);
-    $setup['location']->specialists()->attach($member);
-
-    foreach (range(0, 6) as $offset) {
-        ScheduleSlot::factory()->for($member)->create([
-            'team_id' => $setup['team']->id,
-            'date' => $setup['startAt']->addDays($offset)->format('Y-m-d'),
-            'start_time' => '09:00',
-            'end_time' => '17:00',
-        ]);
-    }
-
-    return $member;
-}
-
-function appointmentPayload(array $setup, array $overrides = []): array
-{
-    return array_merge([
-        'service_id' => $setup['service']->id,
-        'location_id' => $setup['location']?->id,
-        'specialist_id' => $setup['user']->id,
-        'start_at' => $setup['startAt']->toIso8601String(),
-        'customer_name' => 'Jane Doe',
-        'customer_email' => 'jane@example.com',
-        'customer_phone' => '+1 555 123 4567',
-        'notes' => 'First visit',
-    ], $overrides);
-}
 
 test('the appointments page can be rendered', function () {
     $user = User::factory()->create();
@@ -247,7 +162,7 @@ test('booking for yourself does not push an alert to your own phone', function (
         ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertRedirect();
 
-    Notification::assertNotSentTo($setup['user'], SpecialistAppointmentAlert::class);
+    Notification::assertNotSentTo($setup['user'], AppointmentActivity::class);
 });
 
 test('booking on behalf of a colleague pushes an alert to them', function () {
@@ -263,8 +178,8 @@ test('booking on behalf of a colleague pushes an alert to them', function () {
 
     Notification::assertSentTo(
         $member,
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Booked,
+        AppointmentActivity::class,
+        fn (AppointmentActivity $notification): bool => $notification->alert === AppointmentAlert::Booked,
     );
 });
 
@@ -292,8 +207,8 @@ test('rescheduling a colleague\'s appointment pushes an alert to them', function
 
     Notification::assertSentTo(
         $member,
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Rescheduled,
+        AppointmentActivity::class,
+        fn (AppointmentActivity $notification): bool => $notification->alert === AppointmentAlert::Rescheduled,
     );
 });
 
@@ -316,8 +231,8 @@ test('cancelling a colleague\'s appointment pushes an alert to them', function (
 
     Notification::assertSentTo(
         $member,
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
+        AppointmentActivity::class,
+        fn (AppointmentActivity $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
     );
 });
 
@@ -349,14 +264,14 @@ test('reassigning an appointment alerts both the old and the new specialist', fu
     // The specialist losing the appointment is told about the slot they had.
     Notification::assertSentTo(
         $member,
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
+        AppointmentActivity::class,
+        fn (AppointmentActivity $notification): bool => $notification->alert === AppointmentAlert::Cancelled,
     );
 
     Notification::assertSentTo(
         $other,
-        SpecialistAppointmentAlert::class,
-        fn (SpecialistAppointmentAlert $notification): bool => $notification->alert === AppointmentAlert::Booked,
+        AppointmentActivity::class,
+        fn (AppointmentActivity $notification): bool => $notification->alert === AppointmentAlert::Booked,
     );
 });
 
@@ -383,7 +298,7 @@ test('editing only the notes does not push an alert to the specialist', function
         ->assertSessionHasNoErrors()
         ->assertRedirect();
 
-    Notification::assertNotSentTo($member, SpecialistAppointmentAlert::class);
+    Notification::assertNotSentTo($member, AppointmentActivity::class);
 });
 
 test('the specialist push payload carries the booking details and a link', function () {
@@ -400,7 +315,7 @@ test('the specialist push payload carries the booking details and a link', funct
         'end_at' => $setup['startAt']->addMinutes(60),
     ]);
 
-    $notification = new SpecialistAppointmentAlert($appointment, AppointmentAlert::Booked);
+    $notification = new AppointmentActivity($appointment, AppointmentAlert::Booked);
     $payload = $notification->toWebPush($setup['user'], $notification)->toArray();
 
     expect($payload['title'])->toContain($setup['service']->title);
@@ -426,7 +341,7 @@ test('the push payload for a reassigned appointment keeps the old slot for the o
 
     $previousStart = $setup['startAt']->setTime(11, 0);
 
-    $notification = new SpecialistAppointmentAlert($appointment, AppointmentAlert::Cancelled, $previousStart);
+    $notification = new AppointmentActivity($appointment, AppointmentAlert::Cancelled, $previousStart);
     $payload = $notification->toWebPush($setup['user'], $notification)->toArray();
 
     expect($payload['body'])->toContain('11:00');

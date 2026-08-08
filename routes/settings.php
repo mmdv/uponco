@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\Settings\AccountController;
 use App\Http\Controllers\Settings\GoogleIntegrationController;
-use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\PushNotificationController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Teams\TeamController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -34,9 +34,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
 
-    Route::get('settings/notifications', [NotificationController::class, 'edit'])->name('notifications.edit');
-    Route::post('settings/notifications/subscription', [NotificationController::class, 'store'])->name('notifications.subscription.store');
-    Route::delete('settings/notifications/subscription', [NotificationController::class, 'destroy'])->name('notifications.subscription.destroy');
+    Route::get('settings/push-notifications', [PushNotificationController::class, 'edit'])->name('push-notifications.edit');
+    Route::post('settings/push-notifications/subscription', [PushNotificationController::class, 'store'])->name('push-notifications.subscription.store');
+    Route::delete('settings/push-notifications/subscription', [PushNotificationController::class, 'destroy'])->name('push-notifications.subscription.destroy');
 
     Route::get('settings/integrations', [GoogleIntegrationController::class, 'edit'])->name('integrations.edit');
     Route::get('settings/integrations/google/connect', [GoogleIntegrationController::class, 'redirect'])->name('integrations.google.connect');

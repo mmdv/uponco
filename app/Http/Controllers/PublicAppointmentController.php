@@ -102,7 +102,7 @@ class PublicAppointmentController extends Controller
 
         $appointment->cancel();
         $this->notifyCustomerCancelled($appointment);
-        $this->notifySpecialist($appointment, AppointmentAlert::Cancelled);
+        $this->notifyAppointmentAudience($appointment, AppointmentAlert::Cancelled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your appointment has been cancelled.')]);
 

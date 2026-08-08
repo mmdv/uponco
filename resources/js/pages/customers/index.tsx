@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Search, UserPlus } from 'lucide-react';
+import { Search, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import CustomerFormDialog from '@/components/customers/customer-form-dialog';
@@ -9,6 +9,7 @@ import DeleteCustomerModal from '@/components/customers/delete-customer-modal';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as customersIndex } from '@/routes/customers';
 import type { Customer, Paginated } from '@/types';
@@ -120,46 +121,12 @@ export default function CustomersIndex({ customers, filters }: Props) {
                     onDelete={confirmDelete}
                 />
 
-                {customers.total > 0 && (
-                    <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm text-muted-foreground">
-                            {t('pagination.showing', {
-                                from: customers.from ?? 0,
-                                to: customers.to ?? 0,
-                                total: customers.total,
-                            })}
-                        </p>
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={customers.current_page <= 1}
-                                onClick={() =>
-                                    goToPage(customers.current_page - 1)
-                                }
-                                data-test="customers-prev-page"
-                            >
-                                <ChevronLeft className="size-4" />{' '}
-                                {t('pagination.previous')}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={
-                                    customers.current_page >=
-                                    customers.last_page
-                                }
-                                onClick={() =>
-                                    goToPage(customers.current_page + 1)
-                                }
-                                data-test="customers-next-page"
-                            >
-                                {t('pagination.next')}{' '}
-                                <ChevronRight className="size-4" />
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                <PaginationControls
+                    page={customers}
+                    onPageChange={goToPage}
+                    t={t}
+                    testPrefix="customers"
+                />
             </div>
 
             {/* Mobile: create lives in a floating action button, off the header.

@@ -5,19 +5,21 @@ namespace App\Concerns;
 use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentChange;
 use App\Enums\DeliveryType;
+use App\Enums\TeamRole;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
+use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
-use App\Notifications\Appointments\SpecialistAppointmentAlert;
 use App\Support\Appointments\SlotGenerator;
 use App\Support\Google\GoogleCalendarService;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -51,7 +53,7 @@ trait InteractsWithAppointmentBooking
 
         $this->maybeGenerateMeetingLink($appointment);
         $this->notifyCustomer($appointment, AppointmentChange::Created);
-        $this->notifySpecialist($appointment, AppointmentAlert::Booked);
+        $this->notifyAppointmentAudience($appointment, AppointmentAlert::Booked);
 
         return $appointment;
     }
@@ -178,8 +180,8 @@ trait InteractsWithAppointmentBooking
      *
      * Handing the appointment to a different specialist frees the original one's
      * slot and fills the new one's, so both are told. Otherwise only a change of
-     * start time is worth a push — editing notes or a location does not affect
-     * when the specialist has to show up.
+     * start time is worth announcing — editing notes or a location does not
+     * affect when the specialist has to show up.
      */
     protected function notifySpecialistsOfEdit(Appointment $appointment, int $previousSpecialistId, CarbonInterface $previousStart): void
     {
@@ -187,16 +189,16 @@ trait InteractsWithAppointmentBooking
             $previousSpecialist = User::find($previousSpecialistId);
 
             if ($previousSpecialist instanceof User) {
-                $this->notifySpecialist($appointment, AppointmentAlert::Cancelled, $previousSpecialist, $previousStart);
+                $this->notifyAppointmentAudience($appointment, AppointmentAlert::Cancelled, $previousSpecialist, $previousStart);
             }
 
-            $this->notifySpecialist($appointment, AppointmentAlert::Booked);
+            $this->notifyAppointmentAudience($appointment, AppointmentAlert::Booked);
 
             return;
         }
 
         if (! $appointment->start_at->equalTo($previousStart)) {
-            $this->notifySpecialist($appointment, AppointmentAlert::Rescheduled);
+            $this->notifyAppointmentAudience($appointment, AppointmentAlert::Rescheduled);
         }
     }
 
@@ -245,17 +247,17 @@ trait InteractsWithAppointmentBooking
     }
 
     /**
-     * Push a notification to the specialist the appointment is assigned to.
+     * Notify everyone who should know about a change to an appointment: the
+     * assigned specialist, plus every owner and admin of the team.
      *
-     * Skipped when the specialist is the signed-in user making the change —
-     * there is no point buzzing someone's phone about something they are doing
-     * on screen right now. The public booking flow is unauthenticated, so a
-     * customer booking always reaches the specialist.
+     * The person making the change is left out — there is no point notifying
+     * someone about something they are doing on screen right now. The public
+     * booking flow is unauthenticated, so a customer booking reaches everyone.
      *
      * As with the customer emails, a delivery failure is reported and swallowed
      * so it can never break the booking.
      */
-    protected function notifySpecialist(Appointment $appointment, AppointmentAlert $alert, ?User $specialist = null, ?CarbonInterface $startAt = null): void
+    protected function notifyAppointmentAudience(Appointment $appointment, AppointmentAlert $alert, ?User $specialist = null, ?CarbonInterface $startAt = null): void
     {
         $specialist ??= $appointment->specialist;
 
@@ -263,15 +265,40 @@ trait InteractsWithAppointmentBooking
             return;
         }
 
-        if (Auth::id() === $specialist->id) {
+        $recipients = $this->appointmentAudience($appointment, $specialist);
+
+        if ($recipients->isEmpty()) {
             return;
         }
 
         try {
-            $specialist->notify(new SpecialistAppointmentAlert($appointment, $alert, $startAt));
+            Notification::send($recipients, new AppointmentActivity($appointment, $alert, $specialist, $startAt));
         } catch (\Throwable $e) {
             report($e);
         }
+    }
+
+    /**
+     * Resolve who receives an appointment notification.
+     *
+     * Managers are included so the team has a complete feed, while a member
+     * only ever hears about their own appointments — which is what makes the
+     * stored notification rows self-scoping and the listing role-agnostic.
+     *
+     * @return Collection<int, User>
+     */
+    protected function appointmentAudience(Appointment $appointment, User $specialist): Collection
+    {
+        $managers = $appointment->team
+            ->members()
+            ->wherePivotIn('role', [TeamRole::Owner->value, TeamRole::Admin->value])
+            ->get();
+
+        return $managers
+            ->push($specialist)
+            ->unique(fn (User $user): int => $user->getKey())
+            ->reject(fn (User $user): bool => $user->getKey() === Auth::id())
+            ->values();
     }
 
     /**
