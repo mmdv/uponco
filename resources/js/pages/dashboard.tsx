@@ -125,9 +125,9 @@ export default function Dashboard({
 
     /*
         Two cards that swap column depending on the viewport: on a phone they
-        follow the appointments list directly, so a freshly onboarded owner
-        immediately sees what to do next. On desktop they head the right rail.
-        Declared once and rendered in exactly one branch below.
+        tail the single column, keeping the appointments and figures — what an
+        owner opens the dashboard for — above the fold. On desktop they head
+        the right rail. Declared once and rendered in exactly one branch below.
     */
     const bookingShareCard = (
         <BookingShareCard
@@ -157,8 +157,8 @@ export default function Dashboard({
                     Desktop: a 2/3 left column stacking upcoming appointments,
                     the week ahead and the stats, beside a 1/3 right rail
                     holding the booking link and the company hub. Mobile: a
-                    single column, with those two lifted out of the rail so the
-                    booking link follows the appointments directly.
+                    single column, with those two lifted out of the rail and
+                    appended below the stats.
                 */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="flex min-w-0 flex-col gap-6 lg:col-span-2 lg:col-start-1 lg:row-start-1">
@@ -171,8 +171,6 @@ export default function Dashboard({
                             }}
                         />
 
-                        {isMobile && bookingShareCard}
-
                         {trend.length > 0 && (
                             <BookingsChart trend={trend} mounted={mounted} />
                         )}
@@ -180,6 +178,8 @@ export default function Dashboard({
                         <DashboardStats stats={safeStats} mounted={mounted} />
 
                         {isMobile && companyCard}
+
+                        {isMobile && bookingShareCard}
                     </div>
 
                     {!isMobile && (

@@ -266,12 +266,17 @@ export default function CompanyIndex({
                         </div>
                     </BentoCard>
 
-                    {/* Schedule — availability for the next 7 days */}
+                    {/*
+                        Schedule — availability for the next 7 days. Leads the
+                        single-column phone layout, where the week ahead is what
+                        an owner reaches for; from `sm` up the bento takes over
+                        and it sits back in source order.
+                    */}
                     <BentoCard
                         href={scheduleIndex()}
                         mounted={mounted}
                         delay={120}
-                        className="sm:col-span-2 lg:col-span-2"
+                        className="order-first sm:order-none sm:col-span-2 lg:col-span-2"
                         icon={CalendarClock}
                         accent={CARD_ACCENTS.schedule}
                         graphic={<ScheduleGraphic />}
