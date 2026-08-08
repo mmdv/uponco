@@ -31,7 +31,7 @@ function Toaster({ ...props }: ToasterProps) {
                     // visible, and inherit the toast's own colours so it stays
                     // legible on the red error surface too.
                     closeButton:
-                        '!opacity-100 !bg-transparent !border-transparent !text-muted-foreground hover:!text-foreground group-data-[type=error]:!text-white/80 group-data-[type=error]:hover:!text-white',
+                        '!size-7 [&>svg]:!size-5 !opacity-100 !bg-transparent !border-transparent !text-muted-foreground hover:!text-foreground group-data-[type=error]:!text-white/80 group-data-[type=error]:hover:!text-white',
                 },
             }}
             style={
@@ -43,10 +43,11 @@ function Toaster({ ...props }: ToasterProps) {
                     '--normal-border': 'var(--border)',
                     // Sonner pins the close button to the top-left corner and
                     // pulls it out over the border with a negative translate.
-                    // Move it to the top-right and tuck it back inside.
+                    // Move it to the top-right and drop it down so it sits
+                    // centred on the title line rather than the toast's edge.
                     '--toast-close-button-start': 'unset',
                     '--toast-close-button-end': '0.5rem',
-                    '--toast-close-button-transform': 'translateY(0.5rem)',
+                    '--toast-close-button-transform': 'translateY(0.75rem)',
                 } as React.CSSProperties
             }
             {...props}

@@ -14,8 +14,9 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
 /**
- * Read the push payload. The Laravel webpush channel sends the notification
- * options under a top-level `data` key.
+ * Read the push payload. The Laravel webpush channel emits the notification
+ * options at the top level (`title`, `body`, `icon`, `badge`, `tag`) with the
+ * click-through payload nested under a `data` key.
  */
 const readPayload = (event) => {
     if (!event.data) {
@@ -23,9 +24,7 @@ const readPayload = (event) => {
     }
 
     try {
-        const payload = event.data.json();
-
-        return payload.data ?? payload;
+        return event.data.json();
     } catch {
         return { title: event.data.text() };
     }
