@@ -264,7 +264,9 @@ test('a guest can book an appointment and a customer is created', function () {
     $this
         ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
         ->assertSessionHasNoErrors()
-        ->assertRedirect();
+        // Always lands back on the booking page (never back()/home) so the widget
+        // iframe shows the success screen on iOS Safari too.
+        ->assertRedirect(route('public.appointments.show', ['company' => $setup['team']->slug]));
 
     $this->assertDatabaseHas('customers', [
         'team_id' => $setup['team']->id,

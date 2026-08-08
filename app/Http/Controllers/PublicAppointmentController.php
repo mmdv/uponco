@@ -62,7 +62,11 @@ class PublicAppointmentController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your appointment has been booked.')]);
 
-        return back();
+        // Redirect to the booking page explicitly rather than back(): embedded in
+        // the widget iframe, iOS Safari strips the Referer to the bare origin, so
+        // back() would resolve to "/" and swap the iframe to the home page instead
+        // of letting the success screen render on the booking component.
+        return redirect()->route('public.appointments.show', $company);
     }
 
     /**
