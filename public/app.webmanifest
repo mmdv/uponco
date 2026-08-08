@@ -1,6 +1,6 @@
 {
     "id": "/",
-    "start_url": "/",
+    "start_url": "/dashboard",
     "scope": "/",
     "name": "Uponco",
     "short_name": "Uponco",

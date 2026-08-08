@@ -23,7 +23,6 @@
     window.__uponcoWidgetLoaded = true;
 
     var PRIMARY = '#0063ff';
-    var PRIMARY_DARK = '#3884fe';
     var label = config.label || 'Book online';
 
     // Desktop drawer width; also referenced when placing the close button just
@@ -32,13 +31,17 @@
 
     function injectStyles() {
         var css =
-            '.uponco-widget-launcher{position:fixed;right:20px;bottom:20px;z-index:2147483000;display:inline-flex;align-items:center;gap:8px;padding:14px 20px;border:0;border-radius:9999px;cursor:pointer;font:600 15px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#fff;background:linear-gradient(135deg,' +
+            "@import url('https://fonts.googleapis.com/css?family=Play:400,700&subset=latin,cyrillic');" +
+            '.uponco-widget-launcher{position:fixed;right:30px;bottom:30px;z-index:2147483000;width:100px;height:100px;padding:0;border:0;background:transparent;cursor:pointer;box-sizing:border-box;}' +
+            '.uponco-widget-launcher-bg{position:absolute;left:0;top:0;width:100px;height:100px;border-radius:50%;background:' +
             PRIMARY +
-            ',' +
-            PRIMARY_DARK +
-            ');box-shadow:0 8px 24px rgba(0,99,255,.35);transition:transform .15s ease,box-shadow .15s ease;}' +
-            '.uponco-widget-launcher:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,99,255,.45);}' +
-            '.uponco-widget-launcher svg{width:18px;height:18px;flex:none;}' +
+            ';opacity:.85;box-shadow:0 8px 24px rgba(0,99,255,.35);transition:transform .15s ease;box-sizing:border-box;}' +
+            '.uponco-widget-launcher:hover .uponco-widget-launcher-bg{transform:scale(1.05);}' +
+            '.uponco-widget-launcher-wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:100%;height:100%;border-radius:50%;border:2px solid ' +
+            PRIMARY +
+            ';opacity:.9;box-sizing:border-box;animation:uponco-widget-wave 2s infinite cubic-bezier(.37,0,.8,.77);}' +
+            '.uponco-widget-launcher-text{position:absolute;left:6px;right:6px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font:400 15px/1.25 "Play",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:1.5px;pointer-events:none;box-sizing:border-box;}' +
+            '@keyframes uponco-widget-wave{100%{width:200%;height:200%;border-color:transparent;opacity:0;}}' +
             '.uponco-widget-overlay{position:fixed;inset:0;z-index:2147483001;display:none;background:rgba(15,23,42,.5);opacity:0;transition:opacity .2s ease;}' +
             '.uponco-widget-overlay.is-open{display:block;opacity:1;}' +
             '.uponco-widget-frame-wrap{position:fixed;top:8px;right:8px;bottom:8px;width:' +
@@ -57,13 +60,6 @@
         style.type = 'text/css';
         style.appendChild(document.createTextNode(css));
         document.head.appendChild(style);
-    }
-
-    function calendarIcon() {
-        return (
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-            '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'
-        );
     }
 
     var overlay;
@@ -135,7 +131,13 @@
         var button = document.createElement('button');
         button.className = 'uponco-widget-launcher';
         button.setAttribute('type', 'button');
-        button.innerHTML = calendarIcon() + '<span>' + label + '</span>';
+        button.setAttribute('aria-label', label);
+        button.innerHTML =
+            '<span class="uponco-widget-launcher-bg"></span>' +
+            '<span class="uponco-widget-launcher-wave"></span>' +
+            '<span class="uponco-widget-launcher-text">' +
+            label +
+            '</span>';
         button.addEventListener('click', openWidget);
         document.body.appendChild(button);
     }
