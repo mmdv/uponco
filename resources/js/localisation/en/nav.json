@@ -8,6 +8,7 @@
         "schedule": "Schedule"
     },
     "toggleTheme": "Toggle theme",
+    "pullToRefresh": "Refreshing",
     "changeLanguage": "Change language",
     "userMenu": {
         "settings": "Settings",

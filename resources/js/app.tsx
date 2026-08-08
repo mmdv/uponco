@@ -1,5 +1,6 @@
 import { createInertiaApp, router } from '@inertiajs/react';
 import ConsentBanner from '@/components/analytics/consent-banner';
+import PullToRefresh from '@/components/pull-to-refresh';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -75,6 +76,7 @@ createInertiaApp({
         return (
             <TooltipProvider delayDuration={0}>
                 {app}
+                <PullToRefresh />
                 <ConsentBanner />
                 <Toaster />
             </TooltipProvider>
