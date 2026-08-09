@@ -1,4 +1,5 @@
-import { Mail, Phone, User } from 'lucide-react';
+import { Check, Copy, Mail, Phone, User } from 'lucide-react';
+import { useState } from 'react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -37,10 +38,16 @@ export default function CustomerPreviewModal({
                                     {getInitials(customer.name)}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="min-w-0">
-                                <DialogTitle className="truncate text-xl leading-tight">
-                                    {customer.name}
-                                </DialogTitle>
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1">
+                                    <DialogTitle className="min-w-0 truncate text-xl leading-tight">
+                                        {customer.name}
+                                    </DialogTitle>
+                                    <CopyButton
+                                        value={customer.name}
+                                        label={t('preview.copyName')}
+                                    />
+                                </div>
                                 <p className="text-sm text-muted-foreground">
                                     {t('preview.customer')}
                                 </p>
@@ -61,6 +68,7 @@ export default function CustomerPreviewModal({
                                         ? `mailto:${customer.email}`
                                         : undefined
                                 }
+                                copyLabel={t('preview.copyEmail')}
                             />
                             <ContactRow
                                 icon={<Phone className="size-4" />}
@@ -71,6 +79,7 @@ export default function CustomerPreviewModal({
                                         ? `tel:${customer.phone}`
                                         : undefined
                                 }
+                                copyLabel={t('preview.copyPhone')}
                             />
 
                             {!customer.email && !customer.phone && (
@@ -100,11 +109,13 @@ function ContactRow({
     label,
     value,
     href,
+    copyLabel,
 }: {
     icon: React.ReactNode;
     label: string;
     value: string | null;
     href?: string;
+    copyLabel: string;
 }) {
     return (
         <div className="flex items-center gap-3 rounded-lg border p-3">
@@ -128,7 +139,44 @@ function ContactRow({
                     <p className="text-sm text-muted-foreground">—</p>
                 )}
             </div>
+            {value && <CopyButton value={value} label={copyLabel} />}
         </div>
+    );
+}
+
+/**
+ * A small icon button that copies a value to the clipboard, briefly swapping to
+ * a check mark to confirm the copy.
+ */
+function CopyButton({ value, label }: { value: string; label: string }) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(value);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1500);
+        } catch {
+            // Clipboard access can be denied; nothing to do but leave the icon.
+        }
+    };
+
+    return (
+        <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
+            onClick={handleCopy}
+            aria-label={label}
+            title={label}
+        >
+            {copied ? (
+                <Check className="size-4 text-green-600" />
+            ) : (
+                <Copy className="size-4" />
+            )}
+        </Button>
     );
 }
 

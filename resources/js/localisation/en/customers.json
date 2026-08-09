@@ -38,7 +38,10 @@
         "email": "Email",
         "phone": "Phone",
         "noContact": "No contact details on file.",
-        "close": "Close"
+        "close": "Close",
+        "copyName": "Copy name",
+        "copyEmail": "Copy email",
+        "copyPhone": "Copy phone"
     },
     "delete": {
         "title": "Delete customer",

@@ -38,7 +38,10 @@
         "email": "E-poçt",
         "phone": "Telefon",
         "noContact": "Əlaqə məlumatı yoxdur.",
-        "close": "Bağla"
+        "close": "Bağla",
+        "copyName": "Adı kopyala",
+        "copyEmail": "E-poçtu kopyala",
+        "copyPhone": "Telefonu kopyala"
     },
     "delete": {
         "title": "Müştərini sil",

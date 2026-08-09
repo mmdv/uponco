@@ -610,27 +610,29 @@ function ServiceFormFields({
                                     forceMount
                                     className="data-[state=closed]:hidden"
                                 >
-                                    <div className="space-y-4 border-t p-3">
+                                    <div className="divide-y border-t">
                                         {specialistIds.map((id) => (
-                                            <SpecialistPricingFields
-                                                key={id}
-                                                id={id}
-                                                label={
-                                                    specialists.find(
-                                                        (option) =>
-                                                            option.value === id,
-                                                    )?.label ?? id
-                                                }
-                                                priceType={priceType}
-                                                pricing={
-                                                    service
-                                                        ?.specialist_pricing?.[
-                                                        Number(id)
-                                                    ]
-                                                }
-                                                service={service}
-                                                errors={errors}
-                                            />
+                                            <div key={id} className="p-3">
+                                                <SpecialistPricingFields
+                                                    id={id}
+                                                    label={
+                                                        specialists.find(
+                                                            (option) =>
+                                                                option.value ===
+                                                                id,
+                                                        )?.label ?? id
+                                                    }
+                                                    priceType={priceType}
+                                                    pricing={
+                                                        service
+                                                            ?.specialist_pricing?.[
+                                                            Number(id)
+                                                        ]
+                                                    }
+                                                    service={service}
+                                                    errors={errors}
+                                                />
+                                            </div>
                                         ))}
                                     </div>
                                 </CollapsibleContent>
