@@ -36,14 +36,19 @@ trait InteractsWithAppointmentBooking
     protected function createAppointment(Team $team, SaveAppointmentRequest $request): Appointment
     {
         $appointment = DB::transaction(function () use ($team, $request): Appointment {
-            $customer = $this->resolveCustomer($team, $request->customerData());
+            $contact = $request->customerData();
+            $customer = $this->resolveCustomer($team, $contact);
             $data = $request->appointmentData();
 
-            $this->guardSlotAvailability($request->service(), $data['start_at'], $data['end_at'], $data['specialist_id'], $customer->id);
+            if ($customer === null) {
+                $data['notes'] = $this->noteForCustomerlessBooking($contact['name'], $data['notes']);
+            }
+
+            $this->guardSlotAvailability($request->service(), $data['start_at'], $data['end_at'], $data['specialist_id'], $customer?->id);
 
             $appointment = $team->appointments()->create([
                 ...$data,
-                'customer_id' => $customer->id,
+                'customer_id' => $customer?->id,
             ]);
 
             $appointment->setRelation('customer', $customer);
@@ -111,7 +116,7 @@ trait InteractsWithAppointmentBooking
      * double-booked, capacity can never be exceeded, and a customer can never
      * end up booked into the same session twice.
      */
-    protected function guardSlotAvailability(Service $service, CarbonInterface $startAt, CarbonInterface $endAt, int $specialistId, int $customerId): void
+    protected function guardSlotAvailability(Service $service, CarbonInterface $startAt, CarbonInterface $endAt, int $specialistId, ?int $customerId): void
     {
         if (! $service->isGroup()) {
             $taken = Appointment::query()
@@ -139,7 +144,7 @@ trait InteractsWithAppointmentBooking
             ->lockForUpdate()
             ->get(['customer_id']);
 
-        if ($session->contains('customer_id', $customerId)) {
+        if ($customerId !== null && $session->contains('customer_id', $customerId)) {
             throw ValidationException::withMessages([
                 'booking_conflict' => __('You have already booked this session. Use a different email or phone number, or choose another time.'),
             ]);
@@ -157,14 +162,20 @@ trait InteractsWithAppointmentBooking
      */
     protected function updateAppointment(Team $team, SaveAppointmentRequest $request, Appointment $appointment): Appointment
     {
-        $customer = $this->resolveCustomer($team, $request->customerData());
+        $contact = $request->customerData();
+        $customer = $this->resolveCustomer($team, $contact);
+        $data = $request->appointmentData();
+
+        if ($customer === null) {
+            $data['notes'] = $this->noteForCustomerlessBooking($contact['name'], $data['notes']);
+        }
 
         $previousSpecialistId = $appointment->specialist_id;
         $previousStart = $appointment->start_at;
 
         $appointment->update([
-            ...$request->appointmentData(),
-            'customer_id' => $customer->id,
+            ...$data,
+            'customer_id' => $customer?->id,
         ]);
 
         $appointment->setRelation('customer', $customer);
@@ -304,10 +315,20 @@ trait InteractsWithAppointmentBooking
     /**
      * Find or create the customer for the appointment within the team.
      *
-     * @param  array{name: string, email: ?string, phone: ?string}  $data
+     * A customer is only ever recorded from a contact detail: without an email or
+     * a phone there is no one to reach, so no customer is created even when a name
+     * was typed. Such a booking keeps the name as part of its note instead (see
+     * {@see noteForCustomerlessBooking()}). An existing customer is matched by the
+     * supplied contact detail before a new one is created.
+     *
+     * @param  array{name: ?string, email: ?string, phone: ?string}  $data
      */
-    protected function resolveCustomer(Team $team, array $data): Customer
+    protected function resolveCustomer(Team $team, array $data): ?Customer
     {
+        if (blank($data['email']) && blank($data['phone'])) {
+            return null;
+        }
+
         $existing = $team->customers()
             ->where(function ($query) use ($data): void {
                 $query->when($data['email'], fn ($q) => $q->orWhere('email', $data['email']));
@@ -320,6 +341,23 @@ trait InteractsWithAppointmentBooking
         }
 
         return $team->customers()->create($data);
+    }
+
+    /**
+     * Build the note for a booking that has no customer.
+     *
+     * With no contact detail no customer is created, so a typed name has nowhere
+     * to live and is folded into the note. An existing note is kept, with the
+     * name in front of it; a booking with neither keeps a null note.
+     */
+    protected function noteForCustomerlessBooking(?string $name, ?string $notes): ?string
+    {
+        $parts = array_values(array_filter(
+            [trim((string) $name), trim((string) $notes)],
+            static fn (string $part): bool => $part !== '',
+        ));
+
+        return $parts === [] ? null : implode(' — ', $parts);
     }
 
     /**
@@ -348,8 +386,10 @@ trait InteractsWithAppointmentBooking
                 'name' => $appointment->specialist?->name ?? __('Unknown specialist'),
             ],
             'customer' => [
+                // A note-only appointment has no customer: the id is null and the
+                // name is left blank so the client can fall back to the note.
                 'id' => $appointment->customer?->id ?? $appointment->customer_id,
-                'name' => $appointment->customer?->name ?? __('Deleted customer'),
+                'name' => $appointment->customer?->name ?? ($appointment->customer_id ? __('Deleted customer') : ''),
                 'email' => $appointment->customer?->email,
                 'phone' => $appointment->customer?->phone,
             ],

@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
+import { appointmentCustomerLabel } from '@/lib/appointments';
 import type { Appointment } from '@/types';
 
 type Props = {
@@ -65,7 +66,12 @@ export default function AppointmentCustomerFields({
                                 {t('customer.nameLabel')}
                             </dt>
                             <dd className="text-sm font-medium">
-                                {customer?.name || '—'}
+                                {appointment
+                                    ? appointmentCustomerLabel(
+                                          appointment,
+                                          t('customer.noName'),
+                                      )
+                                    : '—'}
                             </dd>
                         </div>
                         <div className="grid gap-0.5">

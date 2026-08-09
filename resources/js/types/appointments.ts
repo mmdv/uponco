@@ -75,7 +75,7 @@ export type Appointment = {
     location: { id: number; name: string } | null;
     specialist: { id: number; name: string };
     customer: {
-        id: number;
+        id: number | null;
         name: string;
         email: string | null;
         phone: string | null;

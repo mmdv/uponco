@@ -278,6 +278,29 @@ export function nameInitials(name: string): string {
 }
 
 /**
+ * Whether the appointment is tied to a real customer record. A note-only
+ * dashboard appointment has no customer, so its details come from the note.
+ */
+export function appointmentHasCustomer(appointment: Appointment): boolean {
+    return appointment.customer.id !== null;
+}
+
+/**
+ * The label shown for an appointment's customer. A note-only appointment has no
+ * name, so it falls back to the note and then to the provided placeholder.
+ */
+export function appointmentCustomerLabel(
+    appointment: Appointment,
+    fallback: string,
+): string {
+    return (
+        appointment.customer.name.trim() ||
+        appointment.notes?.trim() ||
+        fallback
+    );
+}
+
+/**
  * Format a service duration in minutes as a short human label, e.g. "1h 30m".
  */
 export function formatDuration(minutes: number): string {

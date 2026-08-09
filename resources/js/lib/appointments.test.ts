@@ -1,7 +1,29 @@
 import { describe, expect, it } from 'vitest';
 
-import { groupServicesByCategory } from '@/lib/appointments';
-import type { AppointmentServiceOption } from '@/types';
+import {
+    appointmentCustomerLabel,
+    appointmentHasCustomer,
+    groupServicesByCategory,
+} from '@/lib/appointments';
+import type { Appointment, AppointmentServiceOption } from '@/types';
+
+function makeAppointment(overrides: Partial<Appointment> = {}): Appointment {
+    return {
+        id: 1,
+        start_at: '2026-08-10T09:00:00Z',
+        end_at: '2026-08-10T10:00:00Z',
+        timezone: 'UTC',
+        notes: null,
+        service: { id: 1, title: 'Haircut' },
+        location: null,
+        specialist: { id: 20, name: 'Alex' },
+        customer: { id: 5, name: 'Jane Doe', email: null, phone: null },
+        service_id: 1,
+        location_id: null,
+        specialist_id: 20,
+        ...overrides,
+    };
+}
 
 function makeService(
     overrides: Partial<AppointmentServiceOption> = {},
@@ -26,6 +48,55 @@ function makeService(
         ...overrides,
     };
 }
+
+describe('appointmentCustomerLabel', () => {
+    it('uses the customer name when present', () => {
+        const appointment = makeAppointment({
+            customer: { id: 5, name: 'Jane Doe', email: null, phone: null },
+            notes: 'ignored note',
+        });
+
+        expect(appointmentCustomerLabel(appointment, 'No name')).toBe(
+            'Jane Doe',
+        );
+    });
+
+    it('falls back to the note for a note-only appointment', () => {
+        const appointment = makeAppointment({
+            customer: { id: null, name: '', email: null, phone: null },
+            notes: 'Walk-in, cash payment',
+        });
+
+        expect(appointmentCustomerLabel(appointment, 'No name')).toBe(
+            'Walk-in, cash payment',
+        );
+    });
+
+    it('falls back to the placeholder when there is neither name nor note', () => {
+        const appointment = makeAppointment({
+            customer: { id: null, name: '', email: null, phone: null },
+            notes: null,
+        });
+
+        expect(appointmentCustomerLabel(appointment, 'No name')).toBe(
+            'No name',
+        );
+    });
+});
+
+describe('appointmentHasCustomer', () => {
+    it('is true when a customer id is present', () => {
+        expect(appointmentHasCustomer(makeAppointment())).toBe(true);
+    });
+
+    it('is false for a note-only appointment', () => {
+        const appointment = makeAppointment({
+            customer: { id: null, name: '', email: null, phone: null },
+        });
+
+        expect(appointmentHasCustomer(appointment)).toBe(false);
+    });
+});
 
 describe('groupServicesByCategory', () => {
     it('groups services under their category', () => {

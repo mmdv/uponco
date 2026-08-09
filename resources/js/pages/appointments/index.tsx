@@ -204,7 +204,15 @@ export default function AppointmentsIndex({
     };
 
     const openCustomer = (appointment: Appointment) => {
-        setViewingCustomer(appointment.customer);
+        // A note-only appointment has no customer to preview.
+        if (appointment.customer.id === null) {
+            return;
+        }
+
+        setViewingCustomer({
+            ...appointment.customer,
+            id: appointment.customer.id,
+        });
         setCustomerOpen(true);
     };
 

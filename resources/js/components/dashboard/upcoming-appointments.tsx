@@ -5,7 +5,11 @@ import { ACCENTS } from '@/components/accents';
 import { AgendaGraphic } from '@/components/card-graphics';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { dayLabel, formatAppointmentTimeRange } from '@/lib/appointments';
+import {
+    appointmentCustomerLabel,
+    dayLabel,
+    formatAppointmentTimeRange,
+} from '@/lib/appointments';
 import { cn } from '@/lib/utils';
 import { index as appointmentsIndex } from '@/routes/appointments';
 import type { UpcomingAppointment } from '@/types';
@@ -116,7 +120,10 @@ export default function UpcomingAppointments({
                                         {appointment.service.title}
                                     </p>
                                     <p className="truncate text-sm font-medium text-foreground/70">
-                                        {appointment.customer.name}
+                                        {appointmentCustomerLabel(
+                                            appointment,
+                                            t('upcoming.noName'),
+                                        )}
                                         {appointment.location
                                             ? ` · ${appointment.location.name}`
                                             : ''}

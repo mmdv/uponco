@@ -22,6 +22,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useTranslation } from '@/hooks/use-translation';
 import {
+    appointmentCustomerLabel,
     formatAppointmentDay,
     formatAppointmentTimeRange,
 } from '@/lib/appointments';
@@ -110,13 +111,19 @@ export default function AppointmentDetailsModal({
                                     <Avatar className="size-10">
                                         <AvatarFallback>
                                             {getInitials(
-                                                appointment.customer.name,
+                                                appointmentCustomerLabel(
+                                                    appointment,
+                                                    t('customer.noName'),
+                                                ),
                                             )}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="min-w-0">
                                         <p className="truncate font-medium">
-                                            {appointment.customer.name}
+                                            {appointmentCustomerLabel(
+                                                appointment,
+                                                t('customer.noName'),
+                                            )}
                                         </p>
                                         <div className="mt-1 flex flex-col gap-1 text-sm text-muted-foreground">
                                             {appointment.customer.email && (

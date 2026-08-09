@@ -62,10 +62,28 @@ class SaveAppointmentRequest extends FormRequest
                 Rule::exists('team_members', 'user_id')->where(fn ($query) => $query->where('team_id', $teamId)),
             ],
             'start_at' => ['required', 'date'],
-            'customer_name' => ['required', 'string', 'max:255'],
-            'customer_email' => ['nullable', 'required_without:customer_phone', 'email', 'max:255'],
-            'customer_phone' => ['nullable', 'required_without:customer_email', 'string', 'max:255'],
+            ...$this->customerRules(),
             'notes' => ['nullable', 'string', 'max:5000'],
+        ];
+    }
+
+    /**
+     * Validation rules for the customer fields.
+     *
+     * The dashboard allows a bare appointment that only carries a note: name,
+     * email and phone are all optional and no customer record is created. A note
+     * is required only when nothing else identifies the booking, so an entirely
+     * empty appointment is still rejected. The public booking page keeps every
+     * customer detail required (see {@see BookPublicAppointmentRequest}).
+     *
+     * @return array<string, array<int, string>>
+     */
+    protected function customerRules(): array
+    {
+        return [
+            'customer_name' => ['nullable', 'string', 'max:255', 'required_without_all:customer_email,customer_phone,notes'],
+            'customer_email' => ['nullable', 'email', 'max:255'],
+            'customer_phone' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -77,8 +95,7 @@ class SaveAppointmentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'customer_email.required_without' => __('Enter an email or a phone number for the customer.'),
-            'customer_phone.required_without' => __('Enter a phone number or an email for the customer.'),
+            'customer_name.required_without_all' => __('Add a customer name or a note for the appointment.'),
         ];
     }
 
@@ -207,7 +224,7 @@ class SaveAppointmentRequest extends FormRequest
     /**
      * Get the submitted customer details.
      *
-     * @return array{name: string, email: ?string, phone: ?string}
+     * @return array{name: ?string, email: ?string, phone: ?string}
      */
     public function customerData(): array
     {

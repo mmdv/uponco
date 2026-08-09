@@ -60,7 +60,8 @@
     },
     "customer": {
         "heading": "Müştəri",
-        "autoCreateNote": "Bu məlumatlar mövcud müştəriyə uyğun gəlmirsə, yeni müştəri yaradacağıq.",
+        "noName": "Ad yoxdur",
+        "autoCreateNote": "Müştəri yaratmaq üçün e-poçt və ya telefon əlavə edin. Onlarsız ad qeyd kimi saxlanılır.",
         "readOnlyNote": "Müştəri məlumatları rezervasiyadan sonra dəyişdirilə bilməz.",
         "nameLabel": "Ad soyad",
         "namePlaceholder": "Aygün Əliyeva",

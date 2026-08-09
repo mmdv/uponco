@@ -18,7 +18,9 @@ import {
 } from '@/components/ui/table';
 import { useTranslation } from '@/hooks/use-translation';
 import {
+    appointmentCustomerLabel,
     appointmentDurationMinutes,
+    appointmentHasCustomer,
     formatAppointmentTime,
     formatDuration,
     groupAppointmentsByDay,
@@ -132,17 +134,26 @@ export default function AppointmentsTable({
                                         ) : null}
                                     </TableCell>
                                     <TableCell className="align-top">
-                                        <button
-                                            type="button"
-                                            data-test="appointment-customer-button"
-                                            className="text-left font-medium hover:text-primary hover:underline"
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                onViewCustomer(appointment);
-                                            }}
-                                        >
-                                            {appointment.customer.name}
-                                        </button>
+                                        {appointmentHasCustomer(appointment) ? (
+                                            <button
+                                                type="button"
+                                                data-test="appointment-customer-button"
+                                                className="text-left font-medium hover:text-primary hover:underline"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    onViewCustomer(appointment);
+                                                }}
+                                            >
+                                                {appointment.customer.name}
+                                            </button>
+                                        ) : (
+                                            <span className="font-medium text-muted-foreground">
+                                                {appointmentCustomerLabel(
+                                                    appointment,
+                                                    t('customer.noName'),
+                                                )}
+                                            </span>
+                                        )}
                                     </TableCell>
                                     {showSpecialist ? (
                                         <TableCell className="align-top text-muted-foreground">

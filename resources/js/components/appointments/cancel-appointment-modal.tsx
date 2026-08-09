@@ -12,7 +12,10 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatAppointmentDay } from '@/lib/appointments';
+import {
+    appointmentCustomerLabel,
+    formatAppointmentDay,
+} from '@/lib/appointments';
 import { cancel } from '@/routes/appointments';
 import type { Appointment } from '@/types';
 
@@ -56,7 +59,10 @@ export default function CancelAppointmentModal({
                     <DialogDescription>
                         {appointment
                             ? t('cancel.confirmWithDate', {
-                                  name: appointment.customer.name,
+                                  name: appointmentCustomerLabel(
+                                      appointment,
+                                      t('customer.noName'),
+                                  ),
                                   date: formatAppointmentDay(
                                       appointment.start_at,
                                       appointment.timezone,

@@ -80,7 +80,7 @@ class AppointmentActivity extends Notification implements ShouldQueue
             'alert' => $this->alert->value,
             'appointment_id' => $appointment->id,
             'service_title' => $appointment->service?->title,
-            'customer_name' => $appointment->customer?->name,
+            'customer_name' => $appointment->customer?->name ?? $appointment->notes,
             'location_name' => $appointment->location?->name,
             'specialist_id' => $this->forSpecialist->getKey(),
             'specialist_name' => $this->forSpecialist->name,
@@ -102,7 +102,7 @@ class AppointmentActivity extends Notification implements ShouldQueue
         ]);
 
         $service = $appointment->service?->title ?? __('Deleted service');
-        $customer = $appointment->customer?->name ?? __('Deleted customer');
+        $customer = $appointment->customer?->name ?? $appointment->notes ?? __('Deleted customer');
 
         [$title, $body] = match ($this->alert) {
             AppointmentAlert::Booked => [

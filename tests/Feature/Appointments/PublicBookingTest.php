@@ -401,6 +401,28 @@ test('the booking page exposes the service type and capacity', function () {
         );
 });
 
+test('a public booking still requires a name and a contact method', function () {
+    $setup = bookableSetup();
+
+    // A note is not enough on the public page: a contact method is still required.
+    $this
+        ->post(
+            route('public.appointments.store', ['company' => $setup['team']->slug]),
+            appointmentPayload($setup, ['customer_email' => null, 'customer_phone' => null]),
+        )
+        ->assertSessionHasErrors('customer_email');
+
+    // And the customer must be named.
+    $this
+        ->post(
+            route('public.appointments.store', ['company' => $setup['team']->slug]),
+            appointmentPayload($setup, ['customer_name' => null]),
+        )
+        ->assertSessionHasErrors('customer_name');
+
+    expect(Appointment::count())->toBe(0);
+});
+
 test('multiple guests can book the same group session until it is full', function () {
     $setup = bookableSetup(['service_type' => 'group', 'capacity' => 2]);
 

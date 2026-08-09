@@ -44,6 +44,7 @@
         "title": "Qarşıdan gələn görüşlər",
         "viewAll": "Hamısına bax",
         "empty": "Hələ qarşıdan gələn görüş yoxdur.",
+        "noName": "Ad yoxdur",
         "bookAppointment": "İlk görüşü yarat"
     },
     "chart": {

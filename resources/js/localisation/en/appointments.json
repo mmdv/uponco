@@ -60,7 +60,8 @@
     },
     "customer": {
         "heading": "Customer",
-        "autoCreateNote": "We'll create a new customer if these details don't match an existing one.",
+        "noName": "No name",
+        "autoCreateNote": "Add an email or phone to save a customer. Without them, a name is kept as a note.",
         "readOnlyNote": "Customer details can't be changed after booking.",
         "nameLabel": "Name surname",
         "namePlaceholder": "Jane Doe",

@@ -507,6 +507,104 @@ test('an appointment reuses an existing customer with the same email', function 
     expect(Appointment::first()->customer_id)->toBe($customer->id);
 });
 
+test('a dashboard appointment can be booked with only a note and no customer', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup, [
+            'customer_name' => null,
+            'customer_email' => null,
+            'customer_phone' => null,
+            'notes' => 'Walk-in, cash payment',
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    // No customer record is created; the appointment stands on its own note.
+    expect(Customer::count())->toBe(0);
+
+    $appointment = Appointment::first();
+    expect($appointment->customer_id)->toBeNull();
+    expect($appointment->notes)->toBe('Walk-in, cash payment');
+});
+
+test('a dashboard appointment needs at least a name or a note', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup, [
+            'customer_name' => null,
+            'customer_email' => null,
+            'customer_phone' => null,
+            'notes' => null,
+        ]))
+        ->assertSessionHasErrors('customer_name');
+
+    expect(Appointment::count())->toBe(0);
+});
+
+test('a name-only dashboard appointment creates no customer and keeps the name as a note', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup, [
+            'customer_name' => 'Cash Walkin',
+            'customer_email' => null,
+            'customer_phone' => null,
+            'notes' => null,
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    // No contact means no customer; the typed name becomes the note.
+    expect(Customer::count())->toBe(0);
+
+    $appointment = Appointment::first();
+    expect($appointment->customer_id)->toBeNull();
+    expect($appointment->notes)->toBe('Cash Walkin');
+});
+
+test('a nameless booking with both a name and a note folds them together', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup, [
+            'customer_name' => 'Cash Walkin',
+            'customer_email' => null,
+            'customer_phone' => null,
+            'notes' => 'Pays in cash',
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    expect(Customer::count())->toBe(0);
+    expect(Appointment::first()->notes)->toBe('Cash Walkin — Pays in cash');
+});
+
+test('a booking with an email still creates a customer', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup, [
+            'customer_name' => 'Jane Doe',
+            'customer_email' => 'jane@example.com',
+            'customer_phone' => null,
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    expect(Customer::count())->toBe(1);
+
+    $customer = Customer::first();
+    expect($customer->name)->toBe('Jane Doe');
+    expect(Appointment::first()->customer_id)->toBe($customer->id);
+});
+
 test('the slot generator produces available times within work hours', function () {
     $setup = bookableSetup();
 
