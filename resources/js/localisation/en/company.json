@@ -261,7 +261,9 @@
             "categoryAdd": "Add category",
             "categoryNamePlaceholder": "New category name",
             "categorySave": "Add",
-            "categoryCancel": "Cancel"
+            "categoryCancel": "Cancel",
+            "specialistPricing": "Specialist pricing",
+            "specialistPricingHint": "Set a custom duration or price per specialist. Leave blank to use the service defaults."
         },
         "wizard": {
             "title": "Add service",

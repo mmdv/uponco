@@ -111,7 +111,7 @@ class AppointmentController extends Controller
 
         $appointment->update([
             'start_at' => $start,
-            'end_at' => $start->addMinutes($appointment->service->duration),
+            'end_at' => $start->addMinutes($appointment->service->durationFor($appointment->specialist)),
         ]);
 
         $this->notifyAppointmentAudience($appointment, AppointmentAlert::Rescheduled);

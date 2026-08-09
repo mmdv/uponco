@@ -261,7 +261,9 @@
             "categoryAdd": "Kateqoriya əlavə et",
             "categoryNamePlaceholder": "Yeni kateqoriyanın adı",
             "categorySave": "Əlavə et",
-            "categoryCancel": "Ləğv et"
+            "categoryCancel": "Ləğv et",
+            "specialistPricing": "Mütəxəssis qiymətləri",
+            "specialistPricingHint": "Hər mütəxəssis üçün fərdi müddət və ya qiymət təyin edin. Boş buraxsanız xidmətin standart dəyərləri istifadə olunur."
         },
         "wizard": {
             "title": "Xidmət əlavə et",

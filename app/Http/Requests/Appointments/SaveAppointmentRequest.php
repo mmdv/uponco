@@ -197,7 +197,7 @@ class SaveAppointmentRequest extends FormRequest
             'location_id' => $this->location()?->id,
             'specialist_id' => $this->integer('specialist_id'),
             'start_at' => $startAt,
-            'end_at' => $startAt->addMinutes($service->duration),
+            'end_at' => $startAt->addMinutes($service->durationFor($this->specialist())),
             'delivery_type' => $service->delivery_type->value,
             'online_meeting_provider' => $service->online_meeting_provider,
             'notes' => $this->validated('notes'),

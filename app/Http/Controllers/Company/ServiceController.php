@@ -73,7 +73,7 @@ class ServiceController extends Controller
         $service = Service::create($request->serviceData());
 
         $service->locations()->sync($request->locationIds());
-        $service->specialists()->sync($request->specialistIds());
+        $service->specialists()->sync($request->specialistSyncData());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Service created.')]);
 
@@ -90,7 +90,7 @@ class ServiceController extends Controller
         $service->update($request->serviceData());
 
         $service->locations()->sync($request->locationIds());
-        $service->specialists()->sync($request->specialistIds());
+        $service->specialists()->sync($request->specialistSyncData());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Service updated.')]);
 
@@ -148,6 +148,16 @@ class ServiceController extends Controller
             'description' => $service->description,
             'location_ids' => $service->locations->pluck('id')->all(),
             'user_ids' => $service->specialists->pluck('id')->all(),
+            'specialist_pricing' => $service->specialists
+                ->mapWithKeys(fn (User $specialist): array => [
+                    $specialist->id => [
+                        'duration' => $specialist->pivot->duration,
+                        'price' => $specialist->pivot->price,
+                        'price_min' => $specialist->pivot->price_min,
+                        'price_max' => $specialist->pivot->price_max,
+                    ],
+                ])
+                ->all(),
         ];
     }
 }

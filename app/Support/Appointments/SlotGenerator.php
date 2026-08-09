@@ -59,7 +59,7 @@ class SlotGenerator
             return [];
         }
 
-        $duration = $service->duration;
+        $duration = $service->durationFor($specialist);
         $step = $duration + $service->technical_break;
 
         $booked = static::bookedIntervals($specialist, $day, $ignoreAppointmentId);

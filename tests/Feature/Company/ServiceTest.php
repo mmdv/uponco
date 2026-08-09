@@ -397,6 +397,104 @@ test('a service can be created with assigned locations and specialists', functio
     expect($service->specialists->pluck('id')->all())->toEqual([$specialist->id]);
 });
 
+test('a service stores per-specialist duration and price overrides', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+    $location = Location::factory()->for($team)->create();
+    $specialist = User::factory()->create();
+    $team->members()->attach($specialist, ['role' => TeamRole::Member->value]);
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store'),
+            servicePayload($category->id, [
+                'price_type' => 'fixed',
+                'price' => 50,
+                'location_ids' => [$location->id],
+                'user_ids' => [$specialist->id],
+                'specialist_pricing' => [
+                    $specialist->id => ['duration' => 90, 'price' => 75],
+                ],
+            ]),
+        )
+        ->assertRedirect();
+
+    $pivot = Service::firstWhere('title', 'Haircut')
+        ->specialists()
+        ->firstWhere('users.id', $specialist->id)
+        ->pivot;
+
+    expect((int) $pivot->duration)->toBe(90);
+    expect((float) $pivot->price)->toBe(75.0);
+});
+
+test('a blank specialist override is stored as null so it inherits the service', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+    $location = Location::factory()->for($team)->create();
+    $specialist = User::factory()->create();
+    $team->members()->attach($specialist, ['role' => TeamRole::Member->value]);
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store'),
+            servicePayload($category->id, [
+                'location_ids' => [$location->id],
+                'user_ids' => [$specialist->id],
+                'specialist_pricing' => [
+                    $specialist->id => ['duration' => null, 'price' => null],
+                ],
+            ]),
+        )
+        ->assertRedirect();
+
+    $pivot = Service::firstWhere('title', 'Haircut')
+        ->specialists()
+        ->firstWhere('users.id', $specialist->id)
+        ->pivot;
+
+    expect($pivot->duration)->toBeNull();
+    expect($pivot->price)->toBeNull();
+});
+
+test('switching a service to free clears specialist price overrides', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create();
+    $location = Location::factory()->for($team)->create();
+    $specialist = User::factory()->create();
+    $team->members()->attach($specialist, ['role' => TeamRole::Member->value]);
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store'),
+            servicePayload($category->id, [
+                'price_type' => 'free',
+                'price' => null,
+                'location_ids' => [$location->id],
+                'user_ids' => [$specialist->id],
+                'specialist_pricing' => [
+                    $specialist->id => ['duration' => 90, 'price' => 75],
+                ],
+            ]),
+        )
+        ->assertRedirect();
+
+    $pivot = Service::firstWhere('title', 'Haircut')
+        ->specialists()
+        ->firstWhere('users.id', $specialist->id)
+        ->pivot;
+
+    // Duration is kept regardless of price type; the price override is dropped.
+    expect((int) $pivot->duration)->toBe(90);
+    expect($pivot->price)->toBeNull();
+});
+
 test('updating a service re-syncs locations and specialists', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;

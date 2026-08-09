@@ -74,7 +74,9 @@ class Service extends Model
      */
     public function specialists(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->belongsToMany(User::class)
+            ->withPivot(['duration', 'price', 'price_min', 'price_max'])
+            ->withTimestamps();
     }
 
     /**
@@ -83,6 +85,20 @@ class Service extends Model
     public function isGroup(): bool
     {
         return $this->service_type === ServiceType::Group;
+    }
+
+    /**
+     * Resolve the appointment duration (minutes) for a given specialist.
+     *
+     * A specialist may deliver the service in a custom duration; when they have
+     * no override the service's own duration is used.
+     */
+    public function durationFor(User $specialist): int
+    {
+        $custom = $specialist->pivot?->duration
+            ?? $this->specialists()->whereKey($specialist->getKey())->first()?->pivot?->duration;
+
+        return $custom !== null ? (int) $custom : $this->duration;
     }
 
     /**

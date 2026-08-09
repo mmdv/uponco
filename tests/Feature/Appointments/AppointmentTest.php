@@ -528,6 +528,45 @@ test('the slot generator produces available times within work hours', function (
     expect($first['available'])->toBeTrue();
 });
 
+test('the slot generator honours a specialist custom duration', function () {
+    $setup = bookableSetup();
+
+    // The service runs 60 minutes, but this specialist delivers it in 120.
+    $setup['service']->specialists()->updateExistingPivot($setup['user']->id, [
+        'duration' => 120,
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service']->fresh(),
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    // 09:00 to 17:00 in 120 minute slots yields 4 slots, not 8.
+    expect($slots)->toHaveCount(4);
+    expect($slots[0]['label'])->toBe('09:00');
+    expect($slots[1]['label'])->toBe('11:00');
+});
+
+test('a booking uses the specialist custom duration for its end time', function () {
+    $setup = bookableSetup();
+
+    $setup['service']->specialists()->updateExistingPivot($setup['user']->id, [
+        'duration' => 90,
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup))
+        ->assertSessionHasNoErrors();
+
+    $appointment = Appointment::first();
+
+    expect($appointment->end_at->equalTo($setup['startAt']->addMinutes(90)))->toBeTrue();
+});
+
 test('a date with no schedule slots produces no bookable times', function () {
     $setup = bookableSetup();
 

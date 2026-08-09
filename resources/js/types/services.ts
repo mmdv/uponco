@@ -8,6 +8,13 @@ export type ServiceCategory = {
     name: string;
 };
 
+export type SpecialistPricing = {
+    duration: number | null;
+    price: string | null;
+    price_min: string | null;
+    price_max: string | null;
+};
+
 export type Service = {
     id: number;
     service_category_id: number | null;
@@ -27,4 +34,5 @@ export type Service = {
     description: string | null;
     location_ids: number[];
     user_ids: number[];
+    specialist_pricing: Record<number, SpecialistPricing>;
 };
