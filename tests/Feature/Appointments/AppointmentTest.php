@@ -520,9 +520,11 @@ test('the slot generator produces available times within work hours', function (
 
     expect($slots)->not->toBeEmpty();
 
-    // 09:00 to 17:00 with 60 minute slots and no break yields 8 slots.
-    expect($slots)->toHaveCount(8);
+    // 09:00 to 17:00 stepping every 30 minutes (min(duration, 30)) for a 60 minute
+    // service yields starts 09:00 through 16:00: 15 slots.
+    expect($slots)->toHaveCount(15);
     expect($slots[0]['label'])->toBe('09:00');
+    expect($slots[1]['label'])->toBe('09:30');
 
     $first = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
     expect($first['available'])->toBeTrue();
@@ -544,10 +546,11 @@ test('the slot generator honours a specialist custom duration', function () {
         $setup['startAt']->format('Y-m-d'),
     );
 
-    // 09:00 to 17:00 in 120 minute slots yields 4 slots, not 8.
-    expect($slots)->toHaveCount(4);
+    // 09:00 to 17:00 stepping every 30 minutes for a 120 minute service yields
+    // starts 09:00 through 15:00: 13 slots.
+    expect($slots)->toHaveCount(13);
     expect($slots[0]['label'])->toBe('09:00');
-    expect($slots[1]['label'])->toBe('11:00');
+    expect($slots[1]['label'])->toBe('09:30');
 });
 
 test('a booking uses the specialist custom duration for its end time', function () {
@@ -623,6 +626,74 @@ test('the slot generator disables already booked times for the specialist', func
 
     $booked = collect($slots)->firstWhere('start', $setup['startAt']->toIso8601String());
     expect($booked['available'])->toBeFalse();
+});
+
+test('a booking on the half hour frees the time right after it for a longer service', function () {
+    $setup = bookableSetup();
+
+    // A 30 minute booking occupies 15:00–15:30, leaving 15:30 onward free.
+    $blocker = $setup['startAt']->setTime(15, 0);
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $blocker,
+        'end_at' => $blocker->addMinutes(30),
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service'],
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    // 15:00 still overlaps the booking, but the 60 minute service can now start at
+    // 15:30 (15:30–16:30 fits before 17:00) even though it is not a 60 minute offset.
+    $blocked = collect($slots)->firstWhere('start', $blocker->toIso8601String());
+    $free = collect($slots)->firstWhere('start', $blocker->addMinutes(30)->toIso8601String());
+
+    expect($blocked['available'])->toBeFalse();
+    expect($free)->not->toBeNull();
+    expect($free['available'])->toBeTrue();
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup, [
+            'start_at' => $blocker->addMinutes(30)->toIso8601String(),
+        ]))
+        ->assertSessionHasNoErrors();
+});
+
+test('the slot generator keeps a technical break as a gap between appointments', function () {
+    $setup = bookableSetup(['technical_break' => 15]);
+
+    // A 09:00–10:00 booking plus its 15 minute break reserves through 10:15.
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service']->fresh(),
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    // 10:00 falls inside the break and stays unavailable; 10:30 is the first free start.
+    $inBreak = collect($slots)->firstWhere('start', $setup['startAt']->addMinutes(60)->toIso8601String());
+    $afterBreak = collect($slots)->firstWhere('start', $setup['startAt']->addMinutes(90)->toIso8601String());
+
+    expect($inBreak['available'])->toBeFalse();
+    expect($afterBreak['available'])->toBeTrue();
 });
 
 test('a booked slot cannot be double booked for the specialist', function () {
@@ -1006,6 +1077,66 @@ test('an appointment can be rescheduled to an available slot', function () {
         'id' => $appointment->id,
         'start_at' => $newStart->toDateTimeString(),
         'end_at' => $newStart->addMinutes(60)->toDateTimeString(),
+    ]);
+});
+
+test('an appointment can be rescheduled to a free fifteen minute offset', function () {
+    $setup = bookableSetup();
+    $start = $setup['startAt']->addDay();
+
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $start,
+        'end_at' => $start->addMinutes(60),
+    ]);
+
+    // 13:15 is not a slot the 60 minute picker would list, but it fits the work
+    // hours and overlaps nothing, so a drag reschedule onto it is accepted.
+    $newStart = $start->setTime(13, 15);
+
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.reschedule', ['appointment' => $appointment]), [
+            'start_at' => $newStart->toIso8601String(),
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'start_at' => $newStart->toDateTimeString(),
+        'end_at' => $newStart->addMinutes(60)->toDateTimeString(),
+    ]);
+});
+
+test('an appointment cannot be rescheduled past the end of the work hours', function () {
+    $setup = bookableSetup();
+    $start = $setup['startAt']->addDay();
+
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $start,
+        'end_at' => $start->addMinutes(60),
+    ]);
+
+    // 16:30 + 60 minutes runs to 17:30, past the 17:00 window end, so it is rejected.
+    $newStart = $start->setTime(16, 30);
+
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.reschedule', ['appointment' => $appointment]), [
+            'start_at' => $newStart->toIso8601String(),
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'start_at' => $start->toDateTimeString(),
     ]);
 });
 

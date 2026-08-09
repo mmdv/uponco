@@ -94,7 +94,7 @@ class AppointmentController extends Controller
         $timezone = $team->timezone ?: config('app.timezone');
         $start = CarbonImmutable::parse($data['start_at'])->utc();
 
-        $available = SlotGenerator::isAvailableStart(
+        $available = SlotGenerator::fitsAt(
             $appointment->service,
             $appointment->specialist,
             $team->id,

@@ -60,7 +60,11 @@ class SlotGenerator
         }
 
         $duration = $service->durationFor($specialist);
-        $step = $duration + $service->technical_break;
+
+        // Candidate starts sit on a fixed grid rather than duration-sized blocks, so a
+        // longer service can still start on the half hour and slot into free time between
+        // existing bookings. The technical break is honoured through the overlap check.
+        $grid = min($duration, 30);
 
         $booked = static::bookedIntervals($specialist, $day, $ignoreAppointmentId);
 
@@ -96,7 +100,7 @@ class SlotGenerator
                     'remaining' => $remaining,
                 ];
 
-                $slotStart = $slotStart->addMinutes($step);
+                $slotStart = $slotStart->addMinutes($grid);
             }
         }
 
@@ -130,6 +134,68 @@ class SlotGenerator
     }
 
     /**
+     * Determine whether the service can be placed starting exactly at the given
+     * instant, independent of the picker's slot grid.
+     *
+     * Unlike {@see isAvailableStart()}, the start does not have to line up with a
+     * generated slot: it only has to be in the future, fit entirely inside one of
+     * the specialist's work-hour windows, and not overlap another booking (with
+     * technical breaks honoured). This backs free-form drag rescheduling on the
+     * day-view calendar's 15-minute grid.
+     */
+    public static function fitsAt(
+        Service $service,
+        User $specialist,
+        int $teamId,
+        string $timezone,
+        CarbonInterface $start,
+        ?int $ignoreAppointmentId = null,
+        ?CarbonImmutable $now = null,
+    ): bool {
+        $timezone = $timezone ?: config('app.timezone');
+
+        $slotStart = CarbonImmutable::parse($start)->setTimezone($timezone);
+        $now ??= CarbonImmutable::now($timezone);
+
+        if ($slotStart->lessThan($now)) {
+            return false;
+        }
+
+        $day = $slotStart->startOfDay();
+        $duration = $service->durationFor($specialist);
+        $slotEnd = $slotStart->addMinutes($duration);
+
+        $windows = $specialist->scheduleSlotsFor($teamId)
+            ->where('date', $day->format('Y-m-d'))
+            ->get();
+
+        $withinWindow = $windows->contains(function ($window) use ($day, $slotStart, $slotEnd): bool {
+            $windowStart = static::dateTimeOn($day, (string) $window->start_time);
+            $windowEnd = static::dateTimeOn($day, (string) $window->end_time);
+
+            return $slotStart->greaterThanOrEqualTo($windowStart)
+                && $slotEnd->lessThanOrEqualTo($windowEnd);
+        });
+
+        if (! $withinWindow) {
+            return false;
+        }
+
+        $booked = static::bookedIntervals($specialist, $day, $ignoreAppointmentId);
+        $slotStartIso = $slotStart->utc()->toIso8601String();
+
+        if ($service->isGroup()) {
+            $taken = static::sessionBookings($slotStartIso, $service, $booked);
+
+            if ($service->capacity - $taken <= 0) {
+                return false;
+            }
+        }
+
+        return ! static::overlapsOther($slotStart, $slotEnd, $slotStartIso, $service, $booked);
+    }
+
+    /**
      * Build a wall-clock datetime on the given day from a stored time string.
      */
     protected static function dateTimeOn(CarbonImmutable $day, string $time): CarbonImmutable
@@ -146,22 +212,24 @@ class SlotGenerator
      * sessions (same specialist/service/start_at) can be told apart from other
      * appointments that simply occupy the specialist's time.
      *
-     * @return Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}>
+     * @return Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string, break: int}>
      */
     protected static function bookedIntervals(User $specialist, CarbonImmutable $day, ?int $ignoreAppointmentId): Collection
     {
         return Appointment::query()
             ->booked()
+            ->with('service:id,technical_break')
             ->where('specialist_id', $specialist->id)
             ->where('start_at', '<', $day->endOfDay()->utc())
             ->where('end_at', '>', $day->utc())
             ->when($ignoreAppointmentId, fn ($query) => $query->whereKeyNot($ignoreAppointmentId))
-            ->get(['start_at', 'end_at', 'service_id'])
+            ->get(['id', 'start_at', 'end_at', 'service_id'])
             ->map(fn (Appointment $appointment): array => [
                 'start' => $appointment->start_at,
                 'end' => $appointment->end_at,
                 'service_id' => $appointment->service_id,
                 'start_iso' => $appointment->start_at->copy()->utc()->toIso8601String(),
+                'break' => (int) ($appointment->service?->technical_break ?? 0),
             ]);
     }
 
@@ -169,7 +237,10 @@ class SlotGenerator
      * Determine whether a slot overlaps any booked interval that is not part of
      * the same group session, i.e. an appointment that blocks the specialist.
      *
-     * @param  Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}>  $booked
+     * Each appointment reserves its own technical break as trailing time, so the
+     * gap after one appointment must clear before another may start on either side.
+     *
+     * @param  Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string, break: int}>  $booked
      */
     protected static function overlapsOther(
         CarbonImmutable $slotStart,
@@ -178,12 +249,16 @@ class SlotGenerator
         Service $service,
         Collection $booked,
     ): bool {
+        $slotEnd = $slotEnd->addMinutes($service->technical_break);
+
         foreach ($booked as $interval) {
             if (static::isSameSession($slotStartIso, $service, $interval)) {
                 continue;
             }
 
-            if ($slotStart->lessThan($interval['end']) && $slotEnd->greaterThan($interval['start'])) {
+            $intervalEnd = $interval['end']->copy()->addMinutes($interval['break']);
+
+            if ($slotStart->lessThan($intervalEnd) && $slotEnd->greaterThan($interval['start'])) {
                 return true;
             }
         }
@@ -194,7 +269,7 @@ class SlotGenerator
     /**
      * Count how many bookings already belong to this group session.
      *
-     * @param  Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}>  $booked
+     * @param  Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string, break: int}>  $booked
      */
     protected static function sessionBookings(string $slotStartIso, Service $service, Collection $booked): int
     {
@@ -207,7 +282,7 @@ class SlotGenerator
      * Determine whether a booked interval belongs to the same group session as
      * the candidate slot (same group service starting at the same instant).
      *
-     * @param  array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string}  $interval
+     * @param  array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string, break: int}  $interval
      */
     protected static function isSameSession(string $slotStartIso, Service $service, array $interval): bool
     {
