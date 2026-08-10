@@ -1,7 +1,8 @@
 import { Head, router, usePage, usePoll } from '@inertiajs/react';
 import { CalendarPlus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import AppointmentDayForm from '@/components/appointments/appointment-day-form';
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
 import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
 import type { SlotRequest } from '@/components/appointments/appointment-form-drawer';
@@ -92,6 +93,13 @@ export default function AppointmentsIndex({
     const [editing, setEditing] = useState<Appointment | null>(null);
     const [slotsLoading, setSlotsLoading] = useState(false);
 
+    // Day-view quick-create: clicking an empty slot opens a modal prefilled with
+    // that column's specialist and the clicked time.
+    const [dayFormOpen, setDayFormOpen] = useState(false);
+    const [daySpecialist, setDaySpecialist] =
+        useState<AppointmentSpecialistOption | null>(null);
+    const [dayStartIso, setDayStartIso] = useState<string | null>(null);
+
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelling, setCancelling] = useState<Appointment | null>(null);
 
@@ -160,22 +168,28 @@ export default function AppointmentsIndex({
     const activeAppointments = tab === 'upcoming' ? upcoming : past;
 
     // The day view splits into a column per working specialist. Working hours are
-    // date-specific and not shipped up front, so fetch them for the viewed day —
-    // and re-fetch whenever the day cursor moves — only while the day view is open.
+    // date-specific and not shipped up front, so fetch them for the viewed day.
     const cursorKey = dateKey(cursor);
 
-    useEffect(() => {
-        if (view !== 'day') {
-            return;
-        }
-
+    // `workingHours` is an optional prop, so any full reload (e.g. a create's
+    // `back()`) drops it. Re-fetch on demand — on day change and after a booking —
+    // so the columns never vanish.
+    const refreshWorkingHours = useCallback(() => {
         router.reload({
             only: ['workingHours'],
             data: { date: cursorKey },
             onStart: () => setWorkingHoursLoading(true),
             onFinish: () => setWorkingHoursLoading(false),
         });
-    }, [view, cursorKey]);
+    }, [cursorKey]);
+
+    useEffect(() => {
+        if (view !== 'day') {
+            return;
+        }
+
+        refreshWorkingHours();
+    }, [view, refreshWorkingHours]);
 
     // Columns are the specialists who work the viewed day, in name order, honouring
     // an active specialist filter so the grid matches the filtered appointments.
@@ -276,6 +290,18 @@ export default function AppointmentsIndex({
         );
     };
 
+    const handleCreateSlot = (specialistId: number, startIso: string) => {
+        const specialist = specialists.find((item) => item.id === specialistId);
+
+        if (!specialist) {
+            return;
+        }
+
+        setDaySpecialist(specialist);
+        setDayStartIso(startIso);
+        setDayFormOpen(true);
+    };
+
     const hasBookableResources = services.length > 0 && specialists.length > 0;
 
     return (
@@ -331,6 +357,7 @@ export default function AppointmentsIndex({
                         workingHoursLoading={workingHoursLoading}
                         onSelectAppointment={openDetails}
                         onReschedule={reschedule}
+                        onCreateSlot={handleCreateSlot}
                     />
                 )}
             </div>
@@ -361,6 +388,22 @@ export default function AppointmentsIndex({
                 slotsLoading={slotsLoading}
                 onRequestSlots={requestSlots}
                 onCancelAppointment={confirmCancel}
+            />
+
+            <AppointmentDayForm
+                open={dayFormOpen}
+                onOpenChange={setDayFormOpen}
+                specialist={daySpecialist}
+                startIso={dayStartIso}
+                timezone={timezone}
+                services={services}
+                locations={locations}
+                onSuccess={() => {
+                    setDayFormOpen(false);
+                    // The create's `back()` reload drops the optional workingHours
+                    // prop; re-fetch so the new booking's column stays rendered.
+                    refreshWorkingHours();
+                }}
             />
 
             <CancelAppointmentModal

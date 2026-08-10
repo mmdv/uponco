@@ -65,6 +65,7 @@ function makeSpecialist(
         avatar: null,
         service_ids: [1, 2],
         location_ids: [10, 11],
+        service_durations: {},
         next_available: null,
         available_days: [],
         ...overrides,

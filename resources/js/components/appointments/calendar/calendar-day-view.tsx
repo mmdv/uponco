@@ -1,4 +1,4 @@
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useTranslation } from '@/hooks/use-translation';
@@ -70,6 +70,12 @@ type Props = {
     timezone: string;
     onSelectAppointment: (appointment: Appointment) => void;
     onReschedule: (appointment: Appointment, startIso: string) => void;
+    onCreateSlot?: (specialistId: number, startIso: string) => void;
+};
+
+type HoverState = {
+    specialistId: number;
+    minutes: number;
 };
 
 export default function CalendarDayView({
@@ -80,6 +86,7 @@ export default function CalendarDayView({
     timezone,
     onSelectAppointment,
     onReschedule,
+    onCreateSlot,
 }: Props) {
     const { t } = useTranslation('appointments');
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -87,6 +94,7 @@ export default function CalendarDayView({
     const [containerWidth, setContainerWidth] = useState(0);
     const [drag, setDrag] = useState<DragState | null>(null);
     const [drop, setDrop] = useState<DropState | null>(null);
+    const [hover, setHover] = useState<HoverState | null>(null);
 
     const dayKey = dateKey(date);
 
@@ -154,6 +162,11 @@ export default function CalendarDayView({
                     .filter((rect): rect is { top: number; height: number } =>
                         Boolean(rect),
                     ),
+                // Working windows as minute ranges, for click-to-create hit testing.
+                windowRanges: column.windows.map((window) => ({
+                    start: timeToMinutes(window.start),
+                    end: timeToMinutes(window.end),
+                })),
             })),
         [columns, appointments, dayKey, timezone],
     );
@@ -284,6 +297,98 @@ export default function CalendarDayView({
         setDrop(null);
     };
 
+    const todayKey = useMemo(() => dateKey(new Date()), []);
+    const isPastDay = dayKey < todayKey;
+
+    /** Snap a pointer position within a column down to its 15-minute band. */
+    const minutesForColumnPointer = (
+        clientY: number,
+        columnEl: HTMLElement,
+    ): number => {
+        const rect = columnEl.getBoundingClientRect();
+        const raw =
+            GRID_START_MINUTES + ((clientY - rect.top) / HOUR_HEIGHT) * 60;
+        const snapped = Math.floor(raw / SLOT_MINUTES) * SLOT_MINUTES;
+
+        return Math.min(
+            Math.max(snapped, GRID_START_MINUTES),
+            GRID_END_MINUTES - SLOT_MINUTES,
+        );
+    };
+
+    /**
+     * Whether a new appointment may start at `minutes` in this column: inside a
+     * working window, not in the past, and not landing on an existing booking.
+     */
+    const creatableMinute = (
+        minutes: number,
+        column: (typeof positionedColumns)[number],
+    ): boolean => {
+        if (nowMinutes !== null && minutes < nowMinutes) {
+            return false;
+        }
+
+        const inWindow = column.windowRanges.some(
+            (range) => minutes >= range.start && minutes < range.end,
+        );
+
+        if (!inWindow) {
+            return false;
+        }
+
+        return !column.items.some(
+            (item) =>
+                minutes >= item.startMinutes && minutes < item.endMinutes,
+        );
+    };
+
+    const handleColumnClick = (
+        event: React.MouseEvent,
+        column: (typeof positionedColumns)[number],
+    ) => {
+        if (!onCreateSlot || drag || isPastDay) {
+            return;
+        }
+
+        const columnEl = columnRefs.current.get(column.column.specialist.id);
+
+        if (!columnEl) {
+            return;
+        }
+
+        const minutes = minutesForColumnPointer(event.clientY, columnEl);
+
+        if (!creatableMinute(minutes, column)) {
+            return;
+        }
+
+        onCreateSlot(
+            column.column.specialist.id,
+            wallTimeToUtcIso(dayKey, minutes, timezone),
+        );
+    };
+
+    const handleColumnHover = (
+        event: React.MouseEvent,
+        column: (typeof positionedColumns)[number],
+    ) => {
+        const columnEl = columnRefs.current.get(column.column.specialist.id);
+
+        if (!onCreateSlot || !columnEl || drag || isPastDay) {
+            setHover(null);
+
+            return;
+        }
+
+        const minutes = minutesForColumnPointer(event.clientY, columnEl);
+
+        setHover(
+            creatableMinute(minutes, column)
+                ? { specialistId: column.column.specialist.id, minutes }
+                : null,
+        );
+    };
+
     const contentWidth = GUTTER_WIDTH + columnWidth * count;
 
     return (
@@ -343,33 +448,48 @@ export default function CalendarDayView({
                                 className="relative flex"
                                 style={{ height: GRID_HEIGHT }}
                             >
-                                {positionedColumns.map(
-                                    ({ column, items, windows }) => {
-                                        const showDrop =
-                                            drag?.appointment.specialist_id ===
-                                            column.specialist.id;
+                                {positionedColumns.map((entry) => {
+                                    const { column, items, windows } = entry;
+                                    const showDrop =
+                                        drag?.appointment.specialist_id ===
+                                        column.specialist.id;
+                                    const showHover =
+                                        hover?.specialistId ===
+                                        column.specialist.id;
 
-                                        return (
-                                            <div
-                                                key={column.specialist.id}
-                                                data-test="calendar-day-column"
-                                                ref={(element) => {
-                                                    if (element) {
-                                                        columnRefs.current.set(
-                                                            column.specialist.id,
-                                                            element,
-                                                        );
-                                                    } else {
-                                                        columnRefs.current.delete(
-                                                            column.specialist.id,
-                                                        );
-                                                    }
-                                                }}
-                                                style={{ width: columnWidth }}
-                                                className="relative shrink-0 border-r bg-muted/40 last:border-r-0"
-                                            >
-                                                {/* Working windows: paint the surface back over the grey base */}
-                                                {windows.map((rect, index) => (
+                                    return (
+                                        <div
+                                            key={column.specialist.id}
+                                            data-test="calendar-day-column"
+                                            ref={(element) => {
+                                                if (element) {
+                                                    columnRefs.current.set(
+                                                        column.specialist.id,
+                                                        element,
+                                                    );
+                                                } else {
+                                                    columnRefs.current.delete(
+                                                        column.specialist.id,
+                                                    );
+                                                }
+                                            }}
+                                            style={{ width: columnWidth }}
+                                            className={cn(
+                                                'relative shrink-0 border-r bg-muted/40 last:border-r-0',
+                                                onCreateSlot &&
+                                                    !isPastDay &&
+                                                    'cursor-pointer',
+                                            )}
+                                            onClick={(event) =>
+                                                handleColumnClick(event, entry)
+                                            }
+                                            onMouseMove={(event) =>
+                                                handleColumnHover(event, entry)
+                                            }
+                                            onMouseLeave={() => setHover(null)}
+                                        >
+                                            {/* Working windows: paint the surface back over the grey base */}
+                                            {windows.map((rect, index) => (
                                                     <div
                                                         key={index}
                                                         className="absolute inset-x-0 bg-background"
@@ -421,6 +541,26 @@ export default function CalendarDayView({
                                                             {!drop.valid &&
                                                                 ` · ${t('dayView.unavailable')}`}
                                                         </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Hover affordance: the 15-min band a click would book */}
+                                                {showHover && hover && (
+                                                    <div
+                                                        className="pointer-events-none absolute inset-x-1 z-[5] flex items-center justify-center rounded-md border border-dashed border-primary/50 bg-primary/5 text-primary/70"
+                                                        style={{
+                                                            top:
+                                                                ((hover.minutes -
+                                                                    GRID_START_MINUTES) /
+                                                                    60) *
+                                                                HOUR_HEIGHT,
+                                                            height:
+                                                                (SLOT_MINUTES /
+                                                                    60) *
+                                                                HOUR_HEIGHT,
+                                                        }}
+                                                    >
+                                                        <Plus className="size-3.5" />
                                                     </div>
                                                 )}
 

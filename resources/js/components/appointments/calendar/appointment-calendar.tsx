@@ -23,6 +23,7 @@ type Props = {
     workingHoursLoading: boolean;
     onSelectAppointment: (appointment: Appointment) => void;
     onReschedule: (appointment: Appointment, startIso: string) => void;
+    onCreateSlot: (specialistId: number, startIso: string) => void;
 };
 
 export default function AppointmentCalendar({
@@ -36,6 +37,7 @@ export default function AppointmentCalendar({
     workingHoursLoading,
     onSelectAppointment,
     onReschedule,
+    onCreateSlot,
 }: Props) {
     const title = useMemo(() => formatTitle(view, date), [view, date]);
 
@@ -95,6 +97,7 @@ export default function AppointmentCalendar({
                     timezone={timezone}
                     onSelectAppointment={onSelectAppointment}
                     onReschedule={onReschedule}
+                    onCreateSlot={onCreateSlot}
                 />
             )}
 

@@ -35,16 +35,30 @@ trait InteractsWithAppointmentBooking
      */
     protected function createAppointment(Team $team, SaveAppointmentRequest $request): Appointment
     {
-        $appointment = DB::transaction(function () use ($team, $request): Appointment {
-            $contact = $request->customerData();
+        return $this->persistAppointment($team, $request->appointmentData(), $request->customerData(), $request->service());
+    }
+
+    /**
+     * Persist an appointment from already-built attributes and notify the audience.
+     *
+     * Shared by every create flow (the slot-picker drawer and the day-view
+     * quick-create modal): it resolves the customer, folds a customerless name
+     * into the note, re-checks slot availability under a row lock, creates the
+     * row, generates a meeting link when relevant and sends the notifications.
+     *
+     * @param  array<string, mixed>  $data  Appointment attributes, incl. `start_at`/`end_at`/`specialist_id`.
+     * @param  array{name: ?string, email: ?string, phone: ?string}  $contact
+     */
+    protected function persistAppointment(Team $team, array $data, array $contact, Service $service): Appointment
+    {
+        $appointment = DB::transaction(function () use ($team, $data, $contact, $service): Appointment {
             $customer = $this->resolveCustomer($team, $contact);
-            $data = $request->appointmentData();
 
             if ($customer === null) {
-                $data['notes'] = $this->noteForCustomerlessBooking($contact['name'], $data['notes']);
+                $data['notes'] = $this->noteForCustomerlessBooking($contact['name'], $data['notes'] ?? null);
             }
 
-            $this->guardSlotAvailability($request->service(), $data['start_at'], $data['end_at'], $data['specialist_id'], $customer?->id);
+            $this->guardSlotAvailability($service, $data['start_at'], $data['end_at'], $data['specialist_id'], $customer?->id);
 
             $appointment = $team->appointments()->create([
                 ...$data,

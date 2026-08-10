@@ -142,6 +142,9 @@ class SlotGenerator
      * the specialist's work-hour windows, and not overlap another booking (with
      * technical breaks honoured). This backs free-form drag rescheduling on the
      * day-view calendar's 15-minute grid.
+     *
+     * A custom `$duration` (minutes) overrides the service's own duration, so the
+     * day-view quick-create modal can place an appointment of any length.
      */
     public static function fitsAt(
         Service $service,
@@ -151,6 +154,7 @@ class SlotGenerator
         CarbonInterface $start,
         ?int $ignoreAppointmentId = null,
         ?CarbonImmutable $now = null,
+        ?int $duration = null,
     ): bool {
         $timezone = $timezone ?: config('app.timezone');
 
@@ -162,7 +166,7 @@ class SlotGenerator
         }
 
         $day = $slotStart->startOfDay();
-        $duration = $service->durationFor($specialist);
+        $duration ??= $service->durationFor($specialist);
         $slotEnd = $slotStart->addMinutes($duration);
 
         $windows = $specialist->scheduleSlotsFor($teamId)

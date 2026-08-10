@@ -129,7 +129,9 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      */
     public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Service::class)->withTimestamps();
+        return $this->belongsToMany(Service::class)
+            ->withPivot(['duration'])
+            ->withTimestamps();
     }
 
     /**

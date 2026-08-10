@@ -6,6 +6,7 @@ use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentAlert;
 use App\Enums\TeamRole;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
+use App\Http\Requests\Appointments\StoreDayAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
 use App\Support\Appointments\AppointmentOptions;
@@ -77,6 +78,24 @@ class AppointmentController extends Controller
         $team = $request->user()->currentTeam;
 
         $this->createAppointment($team, $request);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment created.')]);
+
+        return back();
+    }
+
+    /**
+     * Store an appointment created by clicking an empty slot in the day view.
+     *
+     * The specialist is fixed by the column and the duration is user-chosen, so
+     * the slot is validated free-form (must fit the work hours and not overlap a
+     * booking) rather than against the picker's generated slots.
+     */
+    public function dayStore(StoreDayAppointmentRequest $request): RedirectResponse
+    {
+        $team = $request->user()->currentTeam;
+
+        $this->persistAppointment($team, $request->appointmentData(), $request->customerData(), $request->service());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment created.')]);
 

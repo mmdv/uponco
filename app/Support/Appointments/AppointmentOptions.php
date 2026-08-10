@@ -77,7 +77,7 @@ class AppointmentOptions
     /**
      * Get the team's specialists, including their service and location relationships.
      *
-     * @return array<int, array{id: int, name: string, avatar: ?string, job_title: ?string, description: ?string, service_ids: array<int, int>, location_ids: array<int, int>, next_available: ?array{date: string, label: string, slots: array<int, string>}, available_days: array<int, string>}>
+     * @return array<int, array{id: int, name: string, avatar: ?string, job_title: ?string, description: ?string, service_ids: array<int, int>, location_ids: array<int, int>, service_durations: array<int, int>, next_available: ?array{date: string, label: string, slots: array<int, string>}, available_days: array<int, string>}>
      */
     public static function specialists(Team $team): array
     {
@@ -91,7 +91,9 @@ class AppointmentOptions
         return $team->members()
             ->with([
                 'profile:id,user_id,job_title,description',
-                'services:id',
+                // `duration` (plus the pivot override) resolves each service's
+                // effective duration for this specialist without an extra query.
+                'services:id,duration',
                 'locations:id',
                 'scheduleSlots' => fn ($query) => $query
                     ->where('team_id', $team->id)
@@ -110,6 +112,13 @@ class AppointmentOptions
                     'description' => $member->profile?->description,
                     'service_ids' => $member->services->pluck('id')->all(),
                     'location_ids' => $member->locations->pluck('id')->all(),
+                    // Effective duration per offered service: the specialist's
+                    // pivot override, falling back to the service's own duration.
+                    'service_durations' => $member->services
+                        ->mapWithKeys(fn (Service $service): array => [
+                            $service->id => (int) ($service->pivot?->duration ?? $service->duration),
+                        ])
+                        ->all(),
                     'next_available' => $availability['preview'],
                     'available_days' => $availability['days'],
                 ];

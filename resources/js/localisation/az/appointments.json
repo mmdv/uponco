@@ -10,6 +10,15 @@
         "empty": "Bu gün üçün işləyən mütəxəssis yoxdur.",
         "unavailable": "əlçatan deyil"
     },
+    "dayForm": {
+        "title": "{name} üçün görüş yarat",
+        "description": "Müştəri üçün yeni görüş yaradın.",
+        "startLabel": "Başlama vaxtı",
+        "earlierStart": "Daha tez başla",
+        "laterStart": "Daha gec başla",
+        "durationLabel": "Müddət",
+        "submit": "Görüş yarat"
+    },
     "toolbar": {
         "filters": "Filtrlər",
         "clearAll": "Hamısını təmizlə",
