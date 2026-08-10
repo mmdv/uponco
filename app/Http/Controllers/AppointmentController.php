@@ -7,8 +7,10 @@ use App\Enums\AppointmentAlert;
 use App\Enums\TeamRole;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Models\Appointment;
+use App\Models\Team;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\Appointments\SlotGenerator;
+use App\Support\ScheduleSlotMap;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,7 +44,29 @@ class AppointmentController extends Controller
             'locations' => fn (): array => AppointmentOptions::locations($team),
             'specialists' => fn (): array => AppointmentOptions::specialists($team),
             'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $team)),
+            'workingHours' => Inertia::optional(fn (): array => $this->workingHoursForDate($request, $team)),
         ]);
+    }
+
+    /**
+     * Each specialist's working windows for the viewed day, keyed by user id.
+     *
+     * Drives the day-view grid columns. Fetched on demand (and re-fetched as the
+     * day cursor moves) so a growing date-based schedule is never over-loaded.
+     * Members only ever see their own column — mirroring the appointments audience.
+     *
+     * @return array<int, array<int, array{start: string, end: string}>>
+     */
+    protected function workingHoursForDate(Request $request, Team $team): array
+    {
+        $timezone = $team->timezone ?: config('app.timezone');
+        $date = $request->date('date')?->format('Y-m-d')
+            ?? CarbonImmutable::now($timezone)->format('Y-m-d');
+
+        $user = $request->user();
+        $onlyUserId = $user->teamRole($team)?->isAtLeast(TeamRole::Admin) ? null : $user->id;
+
+        return ScheduleSlotMap::forTeamOnDate($team, $date, $onlyUserId);
     }
 
     /**

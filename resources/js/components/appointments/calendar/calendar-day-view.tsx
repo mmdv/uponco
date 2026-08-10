@@ -1,6 +1,7 @@
 import { GripVertical } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { formatAppointmentTimeRange } from '@/lib/appointments';
 import {
     appointmentDuration,
@@ -14,16 +15,33 @@ import {
     minutesFromMidnight,
     positionAppointments,
     SLOT_MINUTES,
+    timeToMinutes,
     wallTimeToUtcIso,
+    windowRect,
     wouldOverlap,
 } from '@/lib/calendar-grid';
 import { cn } from '@/lib/utils';
-import type { Appointment } from '@/types';
+import type { Appointment, WorkingWindow } from '@/types';
 
 const HOURS = Array.from(
     { length: GRID_END_MINUTES / 60 - GRID_START_HOUR + 1 },
     (_, index) => GRID_START_HOUR + index,
 );
+
+/** Width (px) of the fixed hour-label gutter — matches `w-16`. */
+const GUTTER_WIDTH = 64;
+/** Floor for a single column so it never collapses on very narrow screens. */
+const MIN_COLUMN_WIDTH = 96;
+/** Below this container width we cap the day view at 3 columns, else 5. */
+const MOBILE_BREAKPOINT = 768;
+const MOBILE_MAX_COLUMNS = 3;
+const DESKTOP_MAX_COLUMNS = 5;
+
+/** A single specialist column: who it is and the hours they work that day. */
+export type DayViewColumn = {
+    specialist: { id: number; name: string; avatar?: string | null };
+    windows: WorkingWindow[];
+};
 
 /** Current epoch ms. Wrapped so the impure read stays out of render scope. */
 function nowMs(): number {
@@ -33,6 +51,8 @@ function nowMs(): number {
 type DragState = {
     appointment: Appointment;
     duration: number;
+    /** The column element the drag is anchored to (drags stay within it). */
+    columnEl: HTMLDivElement;
     /** Pixels between the pointer and the top of the block when grabbed. */
     grabOffset: number;
 };
@@ -45,6 +65,8 @@ type DropState = {
 type Props = {
     date: Date;
     appointments: Appointment[];
+    columns: DayViewColumn[];
+    workingHoursLoading: boolean;
     timezone: string;
     onSelectAppointment: (appointment: Appointment) => void;
     onReschedule: (appointment: Appointment, startIso: string) => void;
@@ -53,19 +75,87 @@ type Props = {
 export default function CalendarDayView({
     date,
     appointments,
+    columns,
+    workingHoursLoading,
     timezone,
     onSelectAppointment,
     onReschedule,
 }: Props) {
-    const gridRef = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation('appointments');
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const columnRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+    const [containerWidth, setContainerWidth] = useState(0);
     const [drag, setDrag] = useState<DragState | null>(null);
     const [drop, setDrop] = useState<DropState | null>(null);
 
     const dayKey = dateKey(date);
 
-    const positioned = useMemo(
-        () => positionAppointments(appointments, dayKey, timezone),
-        [appointments, dayKey, timezone],
+    // Track the scroll container's width so the columns can be sized to fill it
+    // (up to the per-breakpoint cap) with any extras overflowing to scroll.
+    useEffect(() => {
+        const element = scrollRef.current;
+
+        if (!element) {
+            return;
+        }
+
+        setContainerWidth(element.clientWidth);
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                setContainerWidth(entry.contentRect.width);
+            }
+        });
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, []);
+
+    const count = columns.length;
+
+    const columnWidth = useMemo(() => {
+        if (count === 0 || containerWidth === 0) {
+            return MIN_COLUMN_WIDTH;
+        }
+
+        const visible =
+            containerWidth < MOBILE_BREAKPOINT
+                ? MOBILE_MAX_COLUMNS
+                : DESKTOP_MAX_COLUMNS;
+
+        return Math.max(
+            (containerWidth - GUTTER_WIDTH) / Math.min(count, visible),
+            MIN_COLUMN_WIDTH,
+        );
+    }, [count, containerWidth]);
+
+    // Position each specialist's appointments within their own column, so genuine
+    // double-bookings still sit side by side inside the column.
+    const positionedColumns = useMemo(
+        () =>
+            columns.map((column) => ({
+                column,
+                items: positionAppointments(
+                    appointments.filter(
+                        (appointment) =>
+                            appointment.specialist_id === column.specialist.id,
+                    ),
+                    dayKey,
+                    timezone,
+                ),
+                windows: column.windows
+                    .map((window) =>
+                        windowRect(
+                            timeToMinutes(window.start),
+                            timeToMinutes(window.end),
+                        ),
+                    )
+                    .filter((rect): rect is { top: number; height: number } =>
+                        Boolean(rect),
+                    ),
+            })),
+        [columns, appointments, dayKey, timezone],
     );
 
     const nowMinutes = useMemo(() => {
@@ -108,11 +198,7 @@ export default function CalendarDayView({
 
     /** Convert the pointer position into a snapped, clamped start minute. */
     const minutesForPointer = (clientY: number, state: DragState): number => {
-        const rect = gridRef.current?.getBoundingClientRect();
-
-        if (!rect) {
-            return GRID_START_MINUTES;
-        }
+        const rect = state.columnEl.getBoundingClientRect();
 
         const topPx = clientY - rect.top - state.grabOffset;
         const raw = GRID_START_MINUTES + (topPx / HOUR_HEIGHT) * 60;
@@ -133,15 +219,22 @@ export default function CalendarDayView({
             return;
         }
 
+        const columnEl = columnRefs.current.get(item.appointment.specialist_id);
+
+        if (!columnEl) {
+            return;
+        }
+
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
 
-        const rect = gridRef.current?.getBoundingClientRect();
-        const grabOffset = rect ? event.clientY - rect.top - item.top : 0;
+        const rect = columnEl.getBoundingClientRect();
+        const grabOffset = event.clientY - rect.top - item.top;
 
         const state: DragState = {
             appointment: item.appointment,
             duration: appointmentDuration(item.appointment),
+            columnEl,
             grabOffset,
         };
 
@@ -191,144 +284,261 @@ export default function CalendarDayView({
         setDrop(null);
     };
 
+    const contentWidth = GUTTER_WIDTH + columnWidth * count;
+
     return (
         <div className="overflow-hidden rounded-lg border select-none">
-            <div className="flex">
-                {/* Hour gutter */}
-                <div className="w-16 shrink-0 border-r">
-                    <div style={{ height: GRID_HEIGHT }} className="relative">
-                        {HOURS.slice(0, -1).map((hour, index) => (
-                            <div
-                                key={hour}
-                                className="absolute right-2 -translate-y-1/2 text-xs text-muted-foreground"
-                                style={{ top: index * HOUR_HEIGHT }}
-                            >
-                                {index === 0 ? '' : formatMinutes(hour * 60)}
-                            </div>
-                        ))}
+            <div ref={scrollRef} className="max-h-[70vh] overflow-auto">
+                {count === 0 ? (
+                    <div className="p-10 text-center text-sm text-muted-foreground">
+                        {workingHoursLoading
+                            ? t('dayView.loading')
+                            : t('dayView.empty')}
                     </div>
-                </div>
-
-                {/* Time grid */}
-                <div
-                    ref={gridRef}
-                    className="relative flex-1"
-                    style={{ height: GRID_HEIGHT }}
-                >
-                    {/* Hour lines */}
-                    {HOURS.map((hour, index) => (
-                        <div
-                            key={hour}
-                            className="absolute inset-x-0 border-t border-border/60"
-                            style={{ top: index * HOUR_HEIGHT }}
-                        />
-                    ))}
-
-                    {/* Current-time indicator */}
-                    {nowMinutes !== null && (
-                        <div
-                            className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
-                            style={{
-                                top:
-                                    ((nowMinutes - GRID_START_MINUTES) / 60) *
-                                    HOUR_HEIGHT,
-                            }}
-                        >
-                            <div className="size-2 -translate-x-1/2 rounded-full bg-red-500" />
-                            <div className="h-px flex-1 bg-red-500" />
-                        </div>
-                    )}
-
-                    {/* Drop indicator */}
-                    {drag && drop && (
-                        <div
-                            className={cn(
-                                'pointer-events-none absolute inset-x-1 z-30 rounded-md border-2 border-dashed',
-                                drop.valid
-                                    ? 'border-emerald-500 bg-emerald-500/10'
-                                    : 'border-red-500 bg-red-500/10',
-                            )}
-                            style={{
-                                top:
-                                    ((drop.minutes - GRID_START_MINUTES) / 60) *
-                                    HOUR_HEIGHT,
-                                height: (drag.duration / 60) * HOUR_HEIGHT,
-                            }}
-                        >
-                            <span className="px-2 text-xs font-medium">
-                                {formatMinutes(drop.minutes)}
-                                {!drop.valid && ' · unavailable'}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Appointments */}
-                    {positioned.map((item) => {
-                        const isDragged =
-                            drag?.appointment.id === item.appointment.id;
-
-                        return (
-                            <div
-                                key={item.appointment.id}
-                                data-test="calendar-appointment"
-                                className={cn(
-                                    'absolute z-10 flex overflow-hidden rounded-md border border-primary/30 bg-primary/10 text-xs shadow-sm transition-shadow',
-                                    isDragged && 'opacity-40',
-                                )}
-                                style={{
-                                    top: item.top,
-                                    height: item.height,
-                                    left: `calc(${item.left * 100}% + 4px)`,
-                                    width: `calc(${item.width * 100}% - 8px)`,
-                                }}
-                            >
-                                {/* Drag handle */}
-                                <button
-                                    type="button"
-                                    aria-label="Drag to reschedule"
-                                    data-test="calendar-appointment-handle"
-                                    onPointerDown={(event) =>
-                                        beginDrag(event, item)
-                                    }
-                                    onPointerMove={moveDrag}
-                                    onPointerUp={endDrag}
-                                    onPointerCancel={endDrag}
-                                    className={cn(
-                                        'flex w-5 shrink-0 touch-none items-center justify-center border-r border-primary/20 bg-primary/15 text-primary/70 hover:bg-primary/25 hover:text-primary',
-                                        drag
-                                            ? 'cursor-grabbing'
-                                            : 'cursor-grab',
-                                    )}
+                ) : (
+                    <div style={{ width: contentWidth }}>
+                        {/* Header row — specialist names, pinned to the top */}
+                        <div className="sticky top-0 z-30 flex bg-background">
+                            <div className="sticky left-0 z-40 h-11 w-16 shrink-0 border-r border-b bg-background" />
+                            {columns.map((column) => (
+                                <div
+                                    key={column.specialist.id}
+                                    style={{ width: columnWidth }}
+                                    className="flex h-11 shrink-0 items-center justify-center border-r border-b px-2 last:border-r-0"
                                 >
-                                    <GripVertical className="size-3.5" />
-                                </button>
+                                    <span
+                                        className="truncate text-sm font-medium"
+                                        title={column.specialist.name}
+                                    >
+                                        {column.specialist.name}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
 
-                                {/* Content (click to preview) */}
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        onSelectAppointment(item.appointment)
-                                    }
-                                    className="min-w-0 flex-1 px-2 py-1 text-left"
+                        {/* Body — hour gutter + one time column per specialist */}
+                        <div className="flex">
+                            {/* Hour gutter, pinned to the left */}
+                            <div className="sticky left-0 z-20 w-16 shrink-0 border-r bg-background">
+                                <div
+                                    style={{ height: GRID_HEIGHT }}
+                                    className="relative"
                                 >
-                                    <p className="font-medium text-foreground">
-                                        {formatAppointmentTimeRange(
-                                            item.appointment.start_at,
-                                            item.appointment.end_at,
-                                            timezone,
-                                        )}
-                                    </p>
-                                    <p className="truncate text-foreground">
-                                        {item.appointment.service.title}
-                                    </p>
-                                    <p className="truncate text-muted-foreground">
-                                        {item.appointment.specialist.name}
-                                    </p>
-                                </button>
+                                    {HOURS.slice(0, -1).map((hour, index) => (
+                                        <div
+                                            key={hour}
+                                            className="absolute right-2 -translate-y-1/2 text-xs text-muted-foreground"
+                                            style={{ top: index * HOUR_HEIGHT }}
+                                        >
+                                            {index === 0
+                                                ? ''
+                                                : formatMinutes(hour * 60)}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        );
-                    })}
-                </div>
+
+                            {/* Columns wrapper */}
+                            <div
+                                className="relative flex"
+                                style={{ height: GRID_HEIGHT }}
+                            >
+                                {positionedColumns.map(
+                                    ({ column, items, windows }) => {
+                                        const showDrop =
+                                            drag?.appointment.specialist_id ===
+                                            column.specialist.id;
+
+                                        return (
+                                            <div
+                                                key={column.specialist.id}
+                                                data-test="calendar-day-column"
+                                                ref={(element) => {
+                                                    if (element) {
+                                                        columnRefs.current.set(
+                                                            column.specialist.id,
+                                                            element,
+                                                        );
+                                                    } else {
+                                                        columnRefs.current.delete(
+                                                            column.specialist.id,
+                                                        );
+                                                    }
+                                                }}
+                                                style={{ width: columnWidth }}
+                                                className="relative shrink-0 border-r bg-muted/40 last:border-r-0"
+                                            >
+                                                {/* Working windows: paint the surface back over the grey base */}
+                                                {windows.map((rect, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="absolute inset-x-0 bg-background"
+                                                        style={{
+                                                            top: rect.top,
+                                                            height: rect.height,
+                                                        }}
+                                                    />
+                                                ))}
+
+                                                {/* Hour lines, drawn per column so they align across all */}
+                                                {HOURS.map((hour, index) => (
+                                                    <div
+                                                        key={hour}
+                                                        className="absolute inset-x-0 border-t border-border/60"
+                                                        style={{
+                                                            top:
+                                                                index *
+                                                                HOUR_HEIGHT,
+                                                        }}
+                                                    />
+                                                ))}
+
+                                                {/* Drop indicator for a drag inside this column */}
+                                                {showDrop && drag && drop && (
+                                                    <div
+                                                        className={cn(
+                                                            'pointer-events-none absolute inset-x-1 z-30 rounded-md border-2 border-dashed',
+                                                            drop.valid
+                                                                ? 'border-emerald-500 bg-emerald-500/10'
+                                                                : 'border-red-500 bg-red-500/10',
+                                                        )}
+                                                        style={{
+                                                            top:
+                                                                ((drop.minutes -
+                                                                    GRID_START_MINUTES) /
+                                                                    60) *
+                                                                HOUR_HEIGHT,
+                                                            height:
+                                                                (drag.duration /
+                                                                    60) *
+                                                                HOUR_HEIGHT,
+                                                        }}
+                                                    >
+                                                        <span className="px-2 text-xs font-medium">
+                                                            {formatMinutes(
+                                                                drop.minutes,
+                                                            )}
+                                                            {!drop.valid &&
+                                                                ` · ${t('dayView.unavailable')}`}
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Appointments */}
+                                                {items.map((item) => {
+                                                    const isDragged =
+                                                        drag?.appointment.id ===
+                                                        item.appointment.id;
+
+                                                    return (
+                                                        <div
+                                                            key={
+                                                                item.appointment
+                                                                    .id
+                                                            }
+                                                            data-test="calendar-appointment"
+                                                            className={cn(
+                                                                'absolute z-10 flex overflow-hidden rounded-md border border-primary/30 bg-primary/10 text-xs shadow-sm transition-shadow',
+                                                                isDragged &&
+                                                                    'opacity-40',
+                                                            )}
+                                                            style={{
+                                                                top: item.top,
+                                                                height: item.height,
+                                                                left: `calc(${item.left * 100}% + 4px)`,
+                                                                width: `calc(${item.width * 100}% - 8px)`,
+                                                            }}
+                                                        >
+                                                            {/* Drag handle */}
+                                                            <button
+                                                                type="button"
+                                                                aria-label="Drag to reschedule"
+                                                                data-test="calendar-appointment-handle"
+                                                                onPointerDown={(
+                                                                    event,
+                                                                ) =>
+                                                                    beginDrag(
+                                                                        event,
+                                                                        item,
+                                                                    )
+                                                                }
+                                                                onPointerMove={
+                                                                    moveDrag
+                                                                }
+                                                                onPointerUp={
+                                                                    endDrag
+                                                                }
+                                                                onPointerCancel={
+                                                                    endDrag
+                                                                }
+                                                                className={cn(
+                                                                    'flex w-5 shrink-0 touch-none items-center justify-center border-r border-primary/20 bg-primary/15 text-primary/70 hover:bg-primary/25 hover:text-primary',
+                                                                    drag
+                                                                        ? 'cursor-grabbing'
+                                                                        : 'cursor-grab',
+                                                                )}
+                                                            >
+                                                                <GripVertical className="size-3.5" />
+                                                            </button>
+
+                                                            {/* Content (click to preview) */}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    onSelectAppointment(
+                                                                        item.appointment,
+                                                                    )
+                                                                }
+                                                                className="min-w-0 flex-1 px-2 py-1 text-left"
+                                                            >
+                                                                <p className="font-medium text-foreground">
+                                                                    {formatAppointmentTimeRange(
+                                                                        item
+                                                                            .appointment
+                                                                            .start_at,
+                                                                        item
+                                                                            .appointment
+                                                                            .end_at,
+                                                                        timezone,
+                                                                    )}
+                                                                </p>
+                                                                <p className="truncate text-foreground">
+                                                                    {
+                                                                        item
+                                                                            .appointment
+                                                                            .service
+                                                                            .title
+                                                                    }
+                                                                </p>
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        );
+                                    },
+                                )}
+
+                                {/* Current-time indicator, spanning every column */}
+                                {nowMinutes !== null && (
+                                    <div
+                                        className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
+                                        style={{
+                                            top:
+                                                ((nowMinutes -
+                                                    GRID_START_MINUTES) /
+                                                    60) *
+                                                HOUR_HEIGHT,
+                                        }}
+                                    >
+                                        <div className="size-2 -translate-x-1/2 rounded-full bg-red-500" />
+                                        <div className="h-px flex-1 bg-red-500" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

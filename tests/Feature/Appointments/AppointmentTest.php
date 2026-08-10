@@ -3,9 +3,11 @@
 use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentChange;
 use App\Enums\TeamRole;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Location;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentActivity;
@@ -23,6 +25,37 @@ test('the appointments page can be rendered', function () {
         ->actingAs($user)
         ->get(route('appointments.index'))
         ->assertOk();
+});
+
+test('the day view partial reload returns each specialist working windows for the date', function () {
+    $setup = bookableSetup();
+
+    ScheduleSlot::factory()->for($setup['user'])->create([
+        'team_id' => $setup['team']->id,
+        'date' => '2026-08-10',
+        'start_time' => '09:00',
+        'end_time' => '13:00',
+    ]);
+    ScheduleSlot::factory()->for($setup['user'])->create([
+        'team_id' => $setup['team']->id,
+        'date' => '2026-08-10',
+        'start_time' => '14:00',
+        'end_time' => '18:00',
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->get(route('appointments.index', ['date' => '2026-08-10']), [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
+            'X-Inertia-Partial-Component' => 'appointments/index',
+            'X-Inertia-Partial-Data' => 'workingHours',
+        ])
+        ->assertOk()
+        ->assertJsonPath('props.workingHours.'.$setup['user']->id, [
+            ['start' => '09:00', 'end' => '13:00'],
+            ['start' => '14:00', 'end' => '18:00'],
+        ]);
 });
 
 test('the appointments page still renders after the booked service is deleted', function () {

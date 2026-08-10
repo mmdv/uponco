@@ -65,6 +65,15 @@ export type AppointmentSlot = {
     remaining: number | null;
 };
 
+/** A specialist's working window on a day, as `HH:MM` wall-clock times. */
+export type WorkingWindow = { start: string; end: string };
+
+/**
+ * The viewed day's working windows keyed by specialist id (as a string, since
+ * it arrives as a JSON object). A specialist absent from the map is off that day.
+ */
+export type WorkingHoursMap = Record<string, WorkingWindow[]>;
+
 export type Appointment = {
     id: number;
     start_at: string;

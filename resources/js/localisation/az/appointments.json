@@ -5,6 +5,11 @@
         "upcoming": "Qarşıdan gələn görüş yoxdur.",
         "past": "Keçmiş görüş yoxdur."
     },
+    "dayView": {
+        "loading": "Günün cədvəli yüklənir…",
+        "empty": "Bu gün üçün işləyən mütəxəssis yoxdur.",
+        "unavailable": "əlçatan deyil"
+    },
     "toolbar": {
         "filters": "Filtrlər",
         "clearAll": "Hamısını təmizlə",

@@ -169,6 +169,37 @@ export function monthGridDays(date: Date): Date[] {
     return Array.from({ length: 42 }, (_, index) => addDays(start, index));
 }
 
+/**
+ * Minutes from midnight for a wall-clock `HH:MM` string (`"09:30"` → `570`).
+ */
+export function timeToMinutes(time: string): number {
+    const [hour, minute] = time.split(':').map(Number);
+
+    return hour * 60 + minute;
+}
+
+/**
+ * Position a `[startMinutes, endMinutes)` window within the time grid, clamped
+ * to the visible range. Returns `null` when the window falls entirely outside
+ * the grid (nothing to paint). Used to shade a specialist's working windows.
+ */
+export function windowRect(
+    startMinutes: number,
+    endMinutes: number,
+): { top: number; height: number } | null {
+    const start = Math.max(startMinutes, GRID_START_MINUTES);
+    const end = Math.min(endMinutes, GRID_END_MINUTES);
+
+    if (end <= start) {
+        return null;
+    }
+
+    return {
+        top: ((start - GRID_START_MINUTES) / 60) * HOUR_HEIGHT,
+        height: ((end - start) / 60) * HOUR_HEIGHT,
+    };
+}
+
 export type PositionedAppointment = {
     appointment: Appointment;
     /** Minutes from midnight of the start, clamped to the grid. */

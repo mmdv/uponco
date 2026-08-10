@@ -35,13 +35,49 @@ final class ScheduleSlotMap
 
         return $slots
             ->groupBy(fn (ScheduleSlot $slot): string => $slot->date->format('Y-m-d'))
-            ->map(fn (Collection $daySlots): array => $daySlots
-                ->map(fn (ScheduleSlot $slot): array => [
-                    'start' => substr((string) $slot->start_time, 0, 5),
-                    'end' => substr((string) $slot->end_time, 0, 5),
-                ])
-                ->values()
-                ->all())
+            ->map(fn (Collection $daySlots): array => self::windows($daySlots))
+            ->all();
+    }
+
+    /**
+     * Every member's working windows on a single date, keyed by user id.
+     *
+     * Days off are simply absent (a member with no slots that date does not
+     * appear). Optionally restrict to a single member — members may only see
+     * their own column on the team schedule.
+     *
+     * @return array<int, array<int, array{start: string, end: string}>>
+     */
+    public static function forTeamOnDate(Team $team, string $date, ?int $onlyUserId = null): array
+    {
+        $slots = ScheduleSlot::query()
+            ->where('team_id', $team->id)
+            ->whereDate('date', $date)
+            ->when($onlyUserId !== null, fn ($query) => $query->where('user_id', $onlyUserId))
+            ->orderBy('user_id')
+            ->orderBy('start_time')
+            ->get();
+
+        return $slots
+            ->groupBy(fn (ScheduleSlot $slot): int => $slot->user_id)
+            ->map(fn (Collection $memberSlots): array => self::windows($memberSlots))
+            ->all();
+    }
+
+    /**
+     * Map a collection of slots to their `{start, end}` HH:MM windows.
+     *
+     * @param  Collection<int, ScheduleSlot>  $slots
+     * @return array<int, array{start: string, end: string}>
+     */
+    protected static function windows(Collection $slots): array
+    {
+        return $slots
+            ->map(fn (ScheduleSlot $slot): array => [
+                'start' => substr((string) $slot->start_time, 0, 5),
+                'end' => substr((string) $slot->end_time, 0, 5),
+            ])
+            ->values()
             ->all();
     }
 }

@@ -1,6 +1,6 @@
 import { Head, router, usePage, usePoll } from '@inertiajs/react';
 import { CalendarPlus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
 import AppointmentFormDrawer from '@/components/appointments/appointment-form-drawer';
@@ -20,6 +20,7 @@ import CustomerPreviewModal from '@/components/customers/customer-preview-modal'
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useTranslation } from '@/hooks/use-translation';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
+import { dateKey } from '@/lib/calendar-grid';
 import {
     index as appointmentsIndex,
     reschedule as rescheduleRoute,
@@ -31,6 +32,7 @@ import type {
     AppointmentSlot,
     AppointmentSpecialistOption,
     Customer,
+    WorkingHoursMap,
 } from '@/types';
 
 type Props = {
@@ -40,6 +42,7 @@ type Props = {
     locations: AppointmentLocationOption[];
     specialists: AppointmentSpecialistOption[];
     availableSlots?: AppointmentSlot[];
+    workingHours?: WorkingHoursMap;
 };
 
 export default function AppointmentsIndex({
@@ -49,6 +52,7 @@ export default function AppointmentsIndex({
     locations,
     specialists,
     availableSlots = [],
+    workingHours = {},
 }: Props) {
     const { t } = useTranslation('appointments');
     const { auth, currentTeam } = usePage().props;
@@ -82,6 +86,7 @@ export default function AppointmentsIndex({
         EMPTY_FILTERS,
     );
     const [cursor, setCursor] = useState<Date>(() => new Date());
+    const [workingHoursLoading, setWorkingHoursLoading] = useState(false);
 
     const [formOpen, setFormOpen] = useState(false);
     const [editing, setEditing] = useState<Appointment | null>(null);
@@ -153,6 +158,45 @@ export default function AppointmentsIndex({
     }, [filteredAppointments]);
 
     const activeAppointments = tab === 'upcoming' ? upcoming : past;
+
+    // The day view splits into a column per working specialist. Working hours are
+    // date-specific and not shipped up front, so fetch them for the viewed day —
+    // and re-fetch whenever the day cursor moves — only while the day view is open.
+    const cursorKey = dateKey(cursor);
+
+    useEffect(() => {
+        if (view !== 'day') {
+            return;
+        }
+
+        router.reload({
+            only: ['workingHours'],
+            data: { date: cursorKey },
+            onStart: () => setWorkingHoursLoading(true),
+            onFinish: () => setWorkingHoursLoading(false),
+        });
+    }, [view, cursorKey]);
+
+    // Columns are the specialists who work the viewed day, in name order, honouring
+    // an active specialist filter so the grid matches the filtered appointments.
+    const dayColumns = useMemo(
+        () =>
+            specialists
+                .filter(
+                    (specialist) =>
+                        (workingHours[String(specialist.id)]?.length ?? 0) > 0,
+                )
+                .filter(
+                    (specialist) =>
+                        filters.specialistIds.length === 0 ||
+                        filters.specialistIds.includes(String(specialist.id)),
+                )
+                .map((specialist) => ({
+                    specialist,
+                    windows: workingHours[String(specialist.id)],
+                })),
+        [specialists, workingHours, filters.specialistIds],
+    );
 
     const requestSlots = (request: SlotRequest) => {
         router.reload({
@@ -283,6 +327,8 @@ export default function AppointmentsIndex({
                         onViewChange={setView}
                         appointments={activeAppointments}
                         timezone={timezone}
+                        dayColumns={dayColumns}
+                        workingHoursLoading={workingHoursLoading}
                         onSelectAppointment={openDetails}
                         onReschedule={reschedule}
                     />

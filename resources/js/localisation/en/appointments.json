@@ -5,6 +5,11 @@
         "upcoming": "No upcoming appointments.",
         "past": "No past appointments."
     },
+    "dayView": {
+        "loading": "Loading the day's schedule…",
+        "empty": "No one is scheduled to work on this day.",
+        "unavailable": "unavailable"
+    },
     "toolbar": {
         "filters": "Filters",
         "clearAll": "Clear all",

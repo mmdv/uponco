@@ -6,6 +6,7 @@ import { addDays, addMonths, weekDays } from '@/lib/calendar-grid';
 import type { Appointment } from '@/types';
 
 import CalendarDayView from './calendar-day-view';
+import type {DayViewColumn} from './calendar-day-view';
 import CalendarMonthView from './calendar-month-view';
 import CalendarWeekView from './calendar-week-view';
 
@@ -18,6 +19,8 @@ type Props = {
     onViewChange: (view: CalendarView) => void;
     appointments: Appointment[];
     timezone: string;
+    dayColumns: DayViewColumn[];
+    workingHoursLoading: boolean;
     onSelectAppointment: (appointment: Appointment) => void;
     onReschedule: (appointment: Appointment, startIso: string) => void;
 };
@@ -29,6 +32,8 @@ export default function AppointmentCalendar({
     onViewChange,
     appointments,
     timezone,
+    dayColumns,
+    workingHoursLoading,
     onSelectAppointment,
     onReschedule,
 }: Props) {
@@ -85,6 +90,8 @@ export default function AppointmentCalendar({
                 <CalendarDayView
                     date={date}
                     appointments={appointments}
+                    columns={dayColumns}
+                    workingHoursLoading={workingHoursLoading}
                     timezone={timezone}
                     onSelectAppointment={onSelectAppointment}
                     onReschedule={onReschedule}
