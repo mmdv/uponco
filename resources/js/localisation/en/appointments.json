@@ -14,8 +14,6 @@
         "title": "Create appointment for {name}",
         "description": "Book a new appointment for a customer.",
         "startLabel": "Start time",
-        "earlierStart": "Earlier start",
-        "laterStart": "Later start",
         "durationLabel": "Duration",
         "submit": "Create appointment"
     },

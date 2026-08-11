@@ -1,5 +1,4 @@
 import { Form } from '@inertiajs/react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import AppointmentCustomerFields from '@/components/appointments/appointment-customer-fields';
@@ -15,18 +14,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useTranslation } from '@/hooks/use-translation';
 import { getAvailableOptions, groupServicesByCategory } from '@/lib/appointments';
-import {
-    formatMinutes,
-    GRID_END_MINUTES,
-    GRID_START_MINUTES,
-    minutesFromMidnight,
-    SLOT_MINUTES,
-    wallTimeToUtcIso,
-} from '@/lib/calendar-grid';
+import { wallTimeToUtcIso } from '@/lib/calendar-grid';
 import { dayStore } from '@/routes/appointments';
 import type {
     AppointmentLocationOption,
@@ -111,6 +104,18 @@ function zonedDayKey(iso: string, timezone: string): string {
     }).format(new Date(iso));
 }
 
+/**
+ * The wall-clock time (`HH:MM`, 24h) of an instant in the given timezone.
+ */
+function zonedTime(iso: string, timezone: string): string {
+    return new Intl.DateTimeFormat('en-GB', {
+        timeZone: timezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).format(new Date(iso));
+}
+
 function AppointmentDayFormFields({
     specialist,
     startIso,
@@ -141,8 +146,9 @@ function AppointmentDayFormFields({
     const [serviceId, setServiceId] = useState<number | null>(null);
     const [locationId, setLocationId] = useState<number | null>(null);
     const [duration, setDuration] = useState<number>(30);
-    const [startMinutes, setStartMinutes] = useState<number>(() =>
-        minutesFromMidnight(startIso, timezone),
+    // The start time is freely chosen; it defaults to the clicked slot's time.
+    const [startTime, setStartTime] = useState<string>(() =>
+        zonedTime(startIso, timezone),
     );
 
     const { availableServices, availableLocations } = useMemo(
@@ -201,23 +207,15 @@ function AppointmentDayFormFields({
         }
     };
 
-    const stepStart = (direction: 1 | -1) => {
-        setStartMinutes((current) =>
-            Math.min(
-                Math.max(
-                    current + direction * SLOT_MINUTES,
-                    GRID_START_MINUTES,
-                ),
-                GRID_END_MINUTES - SLOT_MINUTES,
-            ),
-        );
-    };
-
+    // `HH:MM` → minutes from midnight → the matching UTC instant on the day.
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMinute;
     const startAtIso = wallTimeToUtcIso(dayKey, startMinutes, timezone);
 
     const canSubmit =
         serviceId !== null &&
         (!showLocation || locationId !== null) &&
+        startTime !== '' &&
         duration >= 15;
 
     return (
@@ -283,48 +281,19 @@ function AppointmentDayFormFields({
                                 )}
 
                                 <div className="grid gap-2">
-                                    <Label>{t('dayForm.startLabel')}</Label>
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="flex-1 rounded-md border px-3 py-2 text-sm font-medium tabular-nums"
-                                            data-test="day-appointment-start"
-                                        >
-                                            {formatMinutes(startMinutes)}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="icon"
-                                                aria-label={t('dayForm.laterStart')}
-                                                className="h-5 rounded-b-none"
-                                                disabled={
-                                                    startMinutes >=
-                                                    GRID_END_MINUTES -
-                                                        SLOT_MINUTES
-                                                }
-                                                onClick={() => stepStart(1)}
-                                            >
-                                                <ChevronUp className="size-4" />
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="icon"
-                                                aria-label={t(
-                                                    'dayForm.earlierStart',
-                                                )}
-                                                className="-mt-px h-5 rounded-t-none"
-                                                disabled={
-                                                    startMinutes <=
-                                                    GRID_START_MINUTES
-                                                }
-                                                onClick={() => stepStart(-1)}
-                                            >
-                                                <ChevronDown className="size-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
+                                    <Label htmlFor="start_time">
+                                        {t('dayForm.startLabel')}
+                                    </Label>
+                                    <Input
+                                        id="start_time"
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(event) =>
+                                            setStartTime(event.target.value)
+                                        }
+                                        aria-invalid={Boolean(errors.start_at)}
+                                        data-test="day-appointment-start"
+                                    />
                                     <InputError message={errors.start_at} />
                                 </div>
 

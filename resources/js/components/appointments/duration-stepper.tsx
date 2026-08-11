@@ -1,38 +1,41 @@
 import { Minus, Plus } from 'lucide-react';
 
+import NumericInput from '@/components/numeric-input';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { formatDuration } from '@/lib/appointments';
-import { cn } from '@/lib/utils';
 
 type Props = {
     /** Current duration in minutes. */
     value: number;
     onChange: (value: number) => void;
-    /** Smallest allowed duration; also the increment for the +/- buttons. */
+    /** Smallest allowed duration. */
     min?: number;
     max?: number;
-    step?: number;
     id?: string;
     invalid?: boolean;
 };
 
+/** The 15-minute step the +/- buttons snap to. */
+const STEP = 15;
+
 /**
- * A minutes duration field with minus/plus buttons that step by 15 minutes.
- *
- * The buttons clamp to `[min, max]`; the input still accepts any typed integer
- * (clamped to `min` on blur) so a user can enter an arbitrary length.
+ * A minutes duration field. The text field accepts any whole number, while the
+ * minus/plus buttons snap to the nearest 15-minute mark beyond the current value
+ * (e.g. 37 → 45 on plus, 37 → 30 on minus).
  */
 export default function DurationStepper({
     value,
     onChange,
     min = 15,
     max = 600,
-    step = 15,
     id,
     invalid,
 }: Props) {
     const clamp = (next: number) => Math.min(Math.max(next, min), max);
+
+    // Next/previous 15-minute mark strictly beyond the current value.
+    const increment = () => onChange(clamp(Math.floor(value / STEP) * STEP + STEP));
+    const decrement = () => onChange(clamp(Math.ceil(value / STEP) * STEP - STEP));
 
     return (
         <div className="flex items-center gap-2">
@@ -43,24 +46,27 @@ export default function DurationStepper({
                 aria-label="Decrease duration"
                 data-test="duration-decrement"
                 disabled={value <= min}
-                onClick={() => onChange(clamp(value - step))}
+                onClick={decrement}
             >
                 <Minus className="size-4" />
             </Button>
 
             <div className="relative flex-1">
-                <Input
+                <NumericInput
                     id={id}
-                    type="number"
-                    inputMode="numeric"
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={Number.isNaN(value) ? '' : value}
+                    value={value ? value : ''}
                     aria-invalid={invalid}
-                    onChange={(event) => onChange(Number(event.target.value))}
-                    onBlur={(event) => onChange(clamp(Number(event.target.value) || min))}
-                    className={cn('pr-14 text-center')}
+                    onChange={(event) =>
+                        onChange(
+                            event.target.value === ''
+                                ? 0
+                                : Number(event.target.value),
+                        )
+                    }
+                    onBlur={(event) =>
+                        onChange(clamp(Number(event.target.value) || min))
+                    }
+                    className="pr-14 text-center"
                     data-test="duration-input"
                 />
                 <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground">
@@ -75,7 +81,7 @@ export default function DurationStepper({
                 aria-label="Increase duration"
                 data-test="duration-increment"
                 disabled={value >= max}
-                onClick={() => onChange(clamp(value + step))}
+                onClick={increment}
             >
                 <Plus className="size-4" />
             </Button>

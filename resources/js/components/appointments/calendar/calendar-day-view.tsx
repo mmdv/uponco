@@ -17,7 +17,6 @@ import {
     SLOT_MINUTES,
     timeToMinutes,
     wallTimeToUtcIso,
-    windowRect,
     wouldOverlap,
 } from '@/lib/calendar-grid';
 import { cn } from '@/lib/utils';
@@ -36,6 +35,15 @@ const MIN_COLUMN_WIDTH = 96;
 const MOBILE_BREAKPOINT = 768;
 const MOBILE_MAX_COLUMNS = 3;
 const DESKTOP_MAX_COLUMNS = 5;
+
+/**
+ * Diagonal hatching for non-working (non-selectable) time, a touch darker than a
+ * flat fill. Theme-aware via `--muted-foreground`, so it reads on light and dark.
+ */
+const NON_WORKING_STRIPES: React.CSSProperties = {
+    backgroundImage:
+        'repeating-linear-gradient(45deg, color-mix(in oklab, var(--muted-foreground) 16%, transparent) 0, color-mix(in oklab, var(--muted-foreground) 16%, transparent) 5px, transparent 5px, transparent 11px)',
+};
 
 /** A single specialist column: who it is and the hours they work that day. */
 export type DayViewColumn = {
@@ -152,15 +160,41 @@ export default function CalendarDayView({
                     dayKey,
                     timezone,
                 ),
+                // Working windows clamped to the grid, carrying both their pixel
+                // rect and their minute bounds (for shading and hit testing).
                 windows: column.windows
-                    .map((window) =>
-                        windowRect(
+                    .map((window) => {
+                        const start = Math.max(
                             timeToMinutes(window.start),
+                            GRID_START_MINUTES,
+                        );
+                        const end = Math.min(
                             timeToMinutes(window.end),
-                        ),
-                    )
-                    .filter((rect): rect is { top: number; height: number } =>
-                        Boolean(rect),
+                            GRID_END_MINUTES,
+                        );
+
+                        if (end <= start) {
+                            return null;
+                        }
+
+                        return {
+                            start,
+                            end,
+                            top:
+                                ((start - GRID_START_MINUTES) / 60) *
+                                HOUR_HEIGHT,
+                            height: ((end - start) / 60) * HOUR_HEIGHT,
+                        };
+                    })
+                    .filter(
+                        (
+                            window,
+                        ): window is {
+                            start: number;
+                            end: number;
+                            top: number;
+                            height: number;
+                        } => window !== null,
                     ),
                 // Working windows as minute ranges, for click-to-create hit testing.
                 windowRanges: column.windows.map((window) => ({
@@ -299,6 +333,25 @@ export default function CalendarDayView({
 
     const todayKey = useMemo(() => dateKey(new Date()), []);
     const isPastDay = dayKey < todayKey;
+
+    // The minute up to which working time counts as "passed" and is shaded grey:
+    // the whole day for past days, up to now for today, and nothing for future days.
+    const pastCutoff = useMemo(() => {
+        if (dayKey < todayKey) {
+            return GRID_END_MINUTES;
+        }
+
+        if (dayKey > todayKey) {
+            return null;
+        }
+
+        const minutes = minutesFromMidnight(new Date().toISOString(), timezone);
+
+        return Math.min(
+            Math.max(minutes, GRID_START_MINUTES),
+            GRID_END_MINUTES,
+        );
+    }, [dayKey, todayKey, timezone]);
 
     /** Snap a pointer position within a column down to its 15-minute band. */
     const minutesForColumnPointer = (
@@ -473,9 +526,12 @@ export default function CalendarDayView({
                                                     );
                                                 }
                                             }}
-                                            style={{ width: columnWidth }}
+                                            style={{
+                                                width: columnWidth,
+                                                ...NON_WORKING_STRIPES,
+                                            }}
                                             className={cn(
-                                                'relative shrink-0 border-r bg-muted/40 last:border-r-0',
+                                                'relative shrink-0 border-r bg-background last:border-r-0',
                                                 onCreateSlot &&
                                                     !isPastDay &&
                                                     'cursor-pointer',
@@ -488,17 +544,41 @@ export default function CalendarDayView({
                                             }
                                             onMouseLeave={() => setHover(null)}
                                         >
-                                            {/* Working windows: paint the surface back over the grey base */}
-                                            {windows.map((rect, index) => (
+                                            {/* Working windows: a white, dashed-green-bordered
+                                                area over the hatched base. On today (and past
+                                                days) the elapsed part is shaded grey. */}
+                                            {windows.map((window, index) => {
+                                                const grey =
+                                                    pastCutoff !== null &&
+                                                    pastCutoff > window.start;
+
+                                                return (
                                                     <div
                                                         key={index}
-                                                        className="absolute inset-x-0 bg-background"
+                                                        className="absolute inset-x-0 overflow-hidden rounded-sm border border-dashed border-emerald-500/50 bg-background"
                                                         style={{
-                                                            top: rect.top,
-                                                            height: rect.height,
+                                                            top: window.top,
+                                                            height: window.height,
                                                         }}
-                                                    />
-                                                ))}
+                                                    >
+                                                        {grey && (
+                                                            <div
+                                                                className="absolute inset-x-0 top-0 bg-muted/70"
+                                                                style={{
+                                                                    height:
+                                                                        ((Math.min(
+                                                                            pastCutoff,
+                                                                            window.end,
+                                                                        ) -
+                                                                            window.start) /
+                                                                            60) *
+                                                                        HOUR_HEIGHT,
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
 
                                                 {/* Hour lines, drawn per column so they align across all */}
                                                 {HOURS.map((hour, index) => (

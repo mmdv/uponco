@@ -14,8 +14,6 @@
         "title": "{name} üçün görüş yarat",
         "description": "Müştəri üçün yeni görüş yaradın.",
         "startLabel": "Başlama vaxtı",
-        "earlierStart": "Daha tez başla",
-        "laterStart": "Daha gec başla",
         "durationLabel": "Müddət",
         "submit": "Görüş yarat"
     },
