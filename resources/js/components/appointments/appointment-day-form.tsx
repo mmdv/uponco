@@ -18,11 +18,13 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     specialist: AppointmentSpecialistOption | null;
-    /** ISO-8601 UTC instant of the clicked slot start. */
+    /** ISO-8601 UTC instant of the clicked slot start (or the edited start). */
     startIso: string | null;
     timezone: string;
     services: AppointmentServiceOption[];
     locations: AppointmentLocationOption[];
+    /** The appointment being edited, or null when quick-creating. */
+    appointment: Appointment | null;
     onSuccess: () => void;
     /** Add a placeholder appointment to the grid the moment the form submits. */
     onOptimisticAdd: (appointment: Appointment) => void;
@@ -38,11 +40,13 @@ export default function AppointmentDayForm({
     timezone,
     services,
     locations,
+    appointment,
     onSuccess,
     onOptimisticAdd,
     onOptimisticRemove,
 }: Props) {
     const { t } = useTranslation('appointments');
+    const isEditing = appointment !== null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,20 +55,29 @@ export default function AppointmentDayForm({
                     <>
                         <DialogHeader className="shrink-0 border-b px-4 py-4 sm:px-6">
                             <DialogTitle>
-                                {t('dayForm.title', { name: specialist.name })}
+                                {isEditing
+                                    ? t('dayForm.editTitle', {
+                                          name: specialist.name,
+                                      })
+                                    : t('dayForm.title', {
+                                          name: specialist.name,
+                                      })}
                             </DialogTitle>
                             <DialogDescription>
-                                {t('dayForm.description')}
+                                {isEditing
+                                    ? t('dayForm.editDescription')
+                                    : t('dayForm.description')}
                             </DialogDescription>
                         </DialogHeader>
 
                         <AppointmentDayFormFields
-                            key={`${specialist.id}:${startIso}`}
+                            key={`${appointment?.id ?? 'new'}:${specialist.id}:${startIso}`}
                             specialist={specialist}
                             startIso={startIso}
                             timezone={timezone}
                             services={services}
                             locations={locations}
+                            appointment={appointment}
                             onSuccess={onSuccess}
                             onCancel={() => onOpenChange(false)}
                             onOptimisticAdd={onOptimisticAdd}

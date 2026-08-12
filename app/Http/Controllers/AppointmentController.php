@@ -7,6 +7,7 @@ use App\Enums\AppointmentAlert;
 use App\Enums\TeamRole;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Http\Requests\Appointments\StoreDayAppointmentRequest;
+use App\Http\Requests\Appointments\UpdateDayAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
 use App\Support\Appointments\AppointmentOptions;
@@ -98,6 +99,24 @@ class AppointmentController extends Controller
         $this->persistAppointment($team, $request->appointmentData(), $request->customerData(), $request->service());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment created.')]);
+
+        return back();
+    }
+
+    /**
+     * Update an appointment edited from the day view.
+     *
+     * Unlike {@see update()}, the start and duration are free-form (re-validated
+     * against the specialist's work hours, ignoring this appointment's own slot),
+     * so the time and length can be changed as freely as when quick-creating.
+     */
+    public function dayUpdate(UpdateDayAppointmentRequest $request, Appointment $appointment): RedirectResponse
+    {
+        $this->authorizeAppointment($request, $appointment);
+
+        $this->applyDayUpdate($appointment, $request->appointmentData());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment updated.')]);
 
         return back();
     }

@@ -13,13 +13,16 @@
     "dayForm": {
         "title": "{name} üçün görüş yarat",
         "description": "Müştəri üçün yeni görüş yaradın.",
+        "editTitle": "{name} ilə görüşü redaktə et",
+        "editDescription": "Bu görüşün vaxtını, müddətini və detallarını yeniləyin.",
         "startLabel": "Başlama vaxtı",
         "durationLabel": "Müddət",
         "submit": "Görüş yarat"
     },
     "toast": {
         "cancelError": "Görüşü ləğv etmək alınmadı. Yenidən cəhd edin.",
-        "createError": "Görüşü yaratmaq alınmadı. Yenidən cəhd edin."
+        "createError": "Görüşü yaratmaq alınmadı. Yenidən cəhd edin.",
+        "updateError": "Görüşü yeniləmək alınmadı. Yenidən cəhd edin."
     },
     "toolbar": {
         "filters": "Filtrlər",

@@ -135,7 +135,7 @@ class StoreDayAppointmentRequest extends FormRequest
                 $this->team()->id,
                 $this->teamTimezone(),
                 $this->startAt(),
-                null,
+                $this->ignoreAppointmentId(),
                 null,
                 $this->integer('duration'),
             );
@@ -144,6 +144,17 @@ class StoreDayAppointmentRequest extends FormRequest
                 $validator->errors()->add('duration', __("This appointment doesn't fit in the specialist's available time — try a shorter duration or another slot."));
             }
         });
+    }
+
+    /**
+     * The appointment to exclude from the overlap check.
+     *
+     * Null for a create; the appointment being edited overrides this so it never
+     * counts as overlapping itself.
+     */
+    protected function ignoreAppointmentId(): ?int
+    {
+        return null;
     }
 
     /**

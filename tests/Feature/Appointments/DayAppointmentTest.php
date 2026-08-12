@@ -111,3 +111,87 @@ test('a group service cannot be booked from the day view', function () {
 
     $this->assertDatabaseCount('appointments', 0);
 });
+
+test('a day-view edit updates the start and duration', function () {
+    $setup = bookableSetup();
+
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(30),
+        'status' => AppointmentStatus::Booked,
+    ]);
+
+    $newStart = $setup['startAt']->addHour();
+
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.day-update', $appointment), dayAppointmentPayload($setup, [
+            'start_at' => $newStart->toIso8601String(),
+            'duration' => 60,
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'start_at' => $newStart->format('Y-m-d H:i:s'),
+        'end_at' => $newStart->addMinutes(60)->format('Y-m-d H:i:s'),
+    ]);
+});
+
+test('a day-view edit ignores the appointment being edited when checking availability', function () {
+    $setup = bookableSetup();
+
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(30),
+        'status' => AppointmentStatus::Booked,
+    ]);
+
+    // Extending to 60 min at the same start overlaps only the appointment itself,
+    // so it must still fit — the edited appointment is excluded from the check.
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.day-update', $appointment), dayAppointmentPayload($setup, [
+            'start_at' => $setup['startAt']->toIso8601String(),
+            'duration' => 60,
+        ]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('appointments', [
+        'id' => $appointment->id,
+        'end_at' => $setup['startAt']->addMinutes(60)->format('Y-m-d H:i:s'),
+    ]);
+});
+
+test('a day-view edit rejects a duration that overflows the work window', function () {
+    $setup = bookableSetup();
+
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt']->setTime(16, 30),
+        'end_at' => $setup['startAt']->setTime(17, 0),
+        'status' => AppointmentStatus::Booked,
+    ]);
+
+    // Work window ends 17:00; a 16:30 start + 60 min runs to 17:30.
+    $this
+        ->actingAs($setup['user'])
+        ->patch(route('appointments.day-update', $appointment), dayAppointmentPayload($setup, [
+            'start_at' => $setup['startAt']->setTime(16, 30)->toIso8601String(),
+            'duration' => 60,
+        ]))
+        ->assertInvalid(['duration']);
+});

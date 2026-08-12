@@ -13,13 +13,16 @@
     "dayForm": {
         "title": "Create appointment for {name}",
         "description": "Book a new appointment for a customer.",
+        "editTitle": "Edit appointment with {name}",
+        "editDescription": "Update the time, duration and details for this appointment.",
         "startLabel": "Start time",
         "durationLabel": "Duration",
         "submit": "Create appointment"
     },
     "toast": {
         "cancelError": "Couldn't cancel the appointment. Please try again.",
-        "createError": "Couldn't create the appointment. Please try again."
+        "createError": "Couldn't create the appointment. Please try again.",
+        "updateError": "Couldn't update the appointment. Please try again."
     },
     "toolbar": {
         "filters": "Filters",

@@ -201,6 +201,28 @@ trait InteractsWithAppointmentBooking
     }
 
     /**
+     * Apply a free-form day-view edit to an appointment and notify.
+     *
+     * The customer is fixed for a booking, so only the appointment attributes
+     * (service, location, start, end/duration, notes) change here. Specialists
+     * are alerted the same way as for a slot-picker edit.
+     *
+     * @param  array<string, mixed>  $data  Appointment attributes, incl. `start_at`/`end_at`.
+     */
+    protected function applyDayUpdate(Appointment $appointment, array $data): Appointment
+    {
+        $previousSpecialistId = $appointment->specialist_id;
+        $previousStart = $appointment->start_at;
+
+        $appointment->update($data);
+        $this->maybeGenerateMeetingLink($appointment);
+        $this->notifyCustomer($appointment, AppointmentChange::Updated);
+        $this->notifySpecialistsOfEdit($appointment, $previousSpecialistId, $previousStart);
+
+        return $appointment;
+    }
+
+    /**
      * Alert the affected specialists after an appointment was edited.
      *
      * Handing the appointment to a different specialist frees the original one's

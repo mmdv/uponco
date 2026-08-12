@@ -84,8 +84,9 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
 
         Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
         Route::post('appointments', [AppointmentController::class, 'store'])->name('appointments.store');
-        // Two-segment path so it isn't captured by the public `appointments/{company}` route.
+        // Two-segment paths so they aren't captured by the public `appointments/{company}` route.
         Route::post('appointments/day/store', [AppointmentController::class, 'dayStore'])->name('appointments.day-store');
+        Route::patch('appointments/day/{appointment}', [AppointmentController::class, 'dayUpdate'])->name('appointments.day-update');
         Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
         Route::patch('appointments/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
         Route::patch('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');

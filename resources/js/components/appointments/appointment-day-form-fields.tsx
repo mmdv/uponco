@@ -13,11 +13,12 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useTranslation } from '@/hooks/use-translation';
 import {
+    appointmentDurationMinutes,
     getAvailableOptions,
     groupServicesByCategory,
 } from '@/lib/appointments';
 import { wallTimeToUtcIso } from '@/lib/calendar-grid';
-import { dayStore } from '@/routes/appointments';
+import { dayStore, dayUpdate } from '@/routes/appointments';
 import type {
     Appointment,
     AppointmentLocationOption,
@@ -31,6 +32,8 @@ type FieldsProps = {
     timezone: string;
     services: AppointmentServiceOption[];
     locations: AppointmentLocationOption[];
+    /** The appointment being edited, or null when quick-creating. */
+    appointment: Appointment | null;
     onSuccess: () => void;
     onCancel: () => void;
     onOptimisticAdd: (appointment: Appointment) => void;
@@ -75,12 +78,14 @@ export default function AppointmentDayFormFields({
     timezone,
     services,
     locations,
+    appointment,
     onSuccess,
     onCancel,
     onOptimisticAdd,
     onOptimisticRemove,
 }: FieldsProps) {
     const { t } = useTranslation('appointments');
+    const isEditing = appointment !== null;
 
     // The temp id of the optimistic appointment for the in-flight submit, so it
     // can be rolled back on failure.
@@ -102,10 +107,19 @@ export default function AppointmentDayFormFields({
         [services, specialist],
     );
 
-    const [serviceId, setServiceId] = useState<number | null>(null);
-    const [locationId, setLocationId] = useState<number | null>(null);
-    const [duration, setDuration] = useState<number>(30);
-    // The start time is freely chosen; it defaults to the clicked slot's time.
+    // When editing, every field is prefilled from the appointment; otherwise a
+    // quick-create starts blank with a sensible default duration.
+    const [serviceId, setServiceId] = useState<number | null>(
+        appointment?.service_id ?? null,
+    );
+    const [locationId, setLocationId] = useState<number | null>(
+        appointment?.location_id ?? null,
+    );
+    const [duration, setDuration] = useState<number>(() =>
+        appointment ? appointmentDurationMinutes(appointment) : 30,
+    );
+    // The start time is freely chosen; it defaults to the clicked slot's time
+    // (or, when editing, the appointment's own start).
     const [startTime, setStartTime] = useState<string>(() =>
         zonedTime(startIso, timezone),
     );
@@ -210,7 +224,9 @@ export default function AppointmentDayFormFields({
 
     return (
         <Form
-            {...dayStore.form()}
+            {...(isEditing
+                ? dayUpdate.form([appointment.id])
+                : dayStore.form())}
             // Partial reload, like reschedule: only `appointments` refreshes, so
             // the working-hours columns and the grid's scroll position are kept.
             options={{
@@ -219,6 +235,12 @@ export default function AppointmentDayFormFields({
                 preserveState: true,
             }}
             onBefore={() => {
+                // Only a create adds a placeholder; an edit's block is already on
+                // the grid and reconciles in place from the partial reload.
+                if (isEditing) {
+                    return;
+                }
+
                 const tempId = nextTemporaryId();
                 pendingTempId.current = tempId;
                 onOptimisticAdd(buildOptimisticAppointment(tempId));
@@ -229,7 +251,9 @@ export default function AppointmentDayFormFields({
                     pendingTempId.current = null;
                 }
 
-                toast.error(t('toast.createError'));
+                toast.error(
+                    isEditing ? t('toast.updateError') : t('toast.createError'),
+                );
             }}
             onSuccess={() => {
                 pendingTempId.current = null;
@@ -340,7 +364,7 @@ export default function AppointmentDayFormFields({
                             </div>
 
                             <AppointmentCustomerFields
-                                appointment={null}
+                                appointment={appointment}
                                 errors={errors}
                             />
                         </div>
@@ -359,7 +383,9 @@ export default function AppointmentDayFormFields({
                             data-test="day-appointment-save-button"
                             disabled={processing || !canSubmit}
                         >
-                            {t('dayForm.submit')}
+                            {isEditing
+                                ? t('form.saveChanges')
+                                : t('dayForm.submit')}
                         </Button>
                     </DialogFooter>
                 </>

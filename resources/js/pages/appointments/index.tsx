@@ -26,10 +26,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { partitionAppointments } from '@/lib/appointment-partition';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
 import { dateKey } from '@/lib/calendar-grid';
-import {
-    index as appointmentsIndex,
-    reschedule as rescheduleRoute,
-} from '@/routes/appointments';
+import { index as appointmentsIndex } from '@/routes/appointments';
 import type {
     Appointment,
     AppointmentLocationOption,
@@ -90,12 +87,14 @@ export default function AppointmentsIndex({
     const [editing, setEditing] = useState<Appointment | null>(null);
     const [slotsLoading, setSlotsLoading] = useState(false);
 
-    // Day-view quick-create: clicking an empty slot opens a modal prefilled with
-    // that column's specialist and the clicked time.
+    // Day-view quick-create/edit: clicking an empty slot opens a modal prefilled
+    // with that column's specialist and the clicked time; editing an individual
+    // appointment reuses the same free-form modal, prefilled from the booking.
     const [dayFormOpen, setDayFormOpen] = useState(false);
     const [daySpecialist, setDaySpecialist] =
         useState<AppointmentSpecialistOption | null>(null);
     const [dayStartIso, setDayStartIso] = useState<string | null>(null);
+    const [dayEditing, setDayEditing] = useState<Appointment | null>(null);
 
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelling, setCancelling] = useState<Appointment | null>(null);
@@ -108,6 +107,7 @@ export default function AppointmentsIndex({
         cancel: cancelAppointment,
         add: addOptimisticAppointment,
         remove: removeOptimisticAppointment,
+        reschedule,
     } = useOptimisticAppointments(appointments);
 
     const [detailsOpen, setDetailsOpen] = useState(false);
@@ -170,6 +170,29 @@ export default function AppointmentsIndex({
             return;
         }
 
+        // In the day view, edit through the free-form day modal so the time and
+        // duration can be changed directly. Only individual services fit that
+        // modal; anything else falls through to the slot-picker drawer.
+        const service = services.find(
+            (item) => item.id === appointment.service_id,
+        );
+        const specialist = specialists.find(
+            (item) => item.id === appointment.specialist_id,
+        );
+
+        if (
+            view === 'day' &&
+            service?.service_type === 'individual' &&
+            specialist
+        ) {
+            setDaySpecialist(specialist);
+            setDayStartIso(appointment.start_at);
+            setDayEditing(appointment);
+            setDayFormOpen(true);
+
+            return;
+        }
+
         setEditing(appointment);
         setFormOpen(true);
 
@@ -214,22 +237,6 @@ export default function AppointmentsIndex({
         setCustomerOpen(true);
     };
 
-    const reschedule = (appointment: Appointment, startIso: string) => {
-        if (isPastAppointment(appointment)) {
-            return;
-        }
-
-        router.patch(
-            rescheduleRoute.url([appointment.id]),
-            { start_at: startIso },
-            {
-                only: ['appointments'],
-                preserveScroll: true,
-                preserveState: true,
-            },
-        );
-    };
-
     const handleCreateSlot = (specialistId: number, startIso: string) => {
         const specialist = specialists.find((item) => item.id === specialistId);
 
@@ -237,6 +244,7 @@ export default function AppointmentsIndex({
             return;
         }
 
+        setDayEditing(null);
         setDaySpecialist(specialist);
         setDayStartIso(startIso);
         setDayFormOpen(true);
@@ -338,6 +346,7 @@ export default function AppointmentsIndex({
                 timezone={timezone}
                 services={services}
                 locations={locations}
+                appointment={dayEditing}
                 onSuccess={() => setDayFormOpen(false)}
                 onOptimisticAdd={addOptimisticAppointment}
                 onOptimisticRemove={removeOptimisticAppointment}

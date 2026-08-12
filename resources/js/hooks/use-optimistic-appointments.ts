@@ -1,7 +1,11 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { cancel as cancelRoute } from '@/routes/appointments';
+import { isPastAppointment } from '@/lib/appointments';
+import {
+    cancel as cancelRoute,
+    reschedule as rescheduleRoute,
+} from '@/routes/appointments';
 import type { Appointment } from '@/types';
 
 function byStartAscending(a: Appointment, b: Appointment): number {
@@ -23,6 +27,8 @@ type OptimisticAppointments = {
     add: (appointment: Appointment) => void;
     /** Remove an optimistic appointment by its temp id. */
     remove: (tempId: number) => void;
+    /** Move an appointment to a new start (drag-and-drop), reconciled by reload. */
+    reschedule: (appointment: Appointment, startIso: string) => void;
 };
 
 /**
@@ -75,5 +81,21 @@ export function useOptimisticAppointments(
         });
     };
 
-    return { appointments, cancelProcessing, cancel, add, remove };
+    const reschedule = (appointment: Appointment, startIso: string) => {
+        if (isPastAppointment(appointment)) {
+            return;
+        }
+
+        router.patch(
+            rescheduleRoute.url([appointment.id]),
+            { start_at: startIso },
+            {
+                only: ['appointments'],
+                preserveScroll: true,
+                preserveState: true,
+            },
+        );
+    };
+
+    return { appointments, cancelProcessing, cancel, add, remove, reschedule };
 }
