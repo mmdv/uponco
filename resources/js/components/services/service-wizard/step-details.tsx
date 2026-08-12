@@ -32,6 +32,7 @@ export type WizardDetails = {
     priceMax: string;
     duration: string;
     technicalBreak: string;
+    slotInterval: string;
     serviceType: ServiceTypeValue;
     capacity: string;
     specialistIds: string[];
@@ -142,6 +143,27 @@ export default function StepDetails({
                 aria-invalid={Boolean(errors.technical_break)}
             />
             <InputError message={errors.technical_break} />
+        </div>
+    );
+
+    const slotIntervalField = (
+        <div className="grid gap-2">
+            <Label htmlFor="wizard_slot_interval">
+                {t('services.form.slotInterval')}
+            </Label>
+            <NumericInput
+                id="wizard_slot_interval"
+                value={details.slotInterval}
+                onChange={(event) =>
+                    onPatch({ slotInterval: event.target.value })
+                }
+                placeholder={t('services.form.slotIntervalPlaceholder')}
+                aria-invalid={Boolean(errors.slot_interval)}
+            />
+            <p className="text-sm text-muted-foreground">
+                {t('services.form.slotIntervalHint')}
+            </p>
+            <InputError message={errors.slot_interval} />
         </div>
     );
 
@@ -350,6 +372,8 @@ export default function StepDetails({
                 </div>
                 {collapseAdvanced ? null : technicalBreakField}
             </div>
+
+            {collapseAdvanced ? null : slotIntervalField}
 
             <SectionHeading>
                 {t('services.wizard.details.format')}

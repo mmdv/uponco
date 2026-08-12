@@ -228,6 +228,24 @@ export default function ServiceFormFields({
                             </div>
                         </div>
 
+                        <div className="grid gap-2">
+                            <Label htmlFor="slot_interval">
+                                {t('services.form.slotInterval')}
+                            </Label>
+                            <NumericInput
+                                id="slot_interval"
+                                name="slot_interval"
+                                defaultValue={service?.slot_interval ?? ''}
+                                placeholder={t(
+                                    'services.form.slotIntervalPlaceholder',
+                                )}
+                            />
+                            <p className="text-sm text-muted-foreground">
+                                {t('services.form.slotIntervalHint')}
+                            </p>
+                            <InputError message={errors.slot_interval} />
+                        </div>
+
                         <ServiceTypeFields
                             serviceTypes={serviceTypes}
                             serviceType={serviceType}

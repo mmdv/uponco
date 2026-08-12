@@ -27,6 +27,7 @@ export type Service = {
     currency: CurrencyCode;
     duration: number;
     technical_break: number;
+    slot_interval: number | null;
     service_type: ServiceTypeValue;
     delivery_type: DeliveryType;
     online_meeting_provider: string | null;

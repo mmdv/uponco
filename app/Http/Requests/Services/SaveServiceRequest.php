@@ -41,6 +41,10 @@ class SaveServiceRequest extends FormRequest
             // Free services hide the currency select, so fall back to whatever
             // suits the active UI language rather than failing validation.
             'currency' => $this->input('currency') ?: Currency::forLocale(app()->getLocale())->value,
+            // A blank interval means "use the smart default"; store it as null.
+            'slot_interval' => $this->input('slot_interval') !== null && $this->input('slot_interval') !== ''
+                ? $this->input('slot_interval')
+                : null,
         ]);
     }
 
@@ -67,6 +71,7 @@ class SaveServiceRequest extends FormRequest
             'currency' => ['required', Rule::enum(Currency::class)],
             'duration' => ['required', 'integer', 'min:1', 'max:1440'],
             'technical_break' => ['required', 'integer', 'min:0', 'max:1440'],
+            'slot_interval' => ['nullable', 'integer', 'min:1', 'max:1440'],
             'service_type' => ['required', Rule::enum(ServiceType::class)],
             'delivery_type' => ['required', Rule::enum(DeliveryType::class)],
             'online_meeting_provider' => [

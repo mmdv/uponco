@@ -46,6 +46,7 @@ class ServiceFactory extends Factory
             'currency' => Currency::Default,
             'duration' => fake()->numberBetween(15, 240),
             'technical_break' => fake()->numberBetween(0, 30),
+            'slot_interval' => null,
             'service_type' => $serviceType,
             'delivery_type' => $deliveryType,
             'online_meeting_provider' => $deliveryType === DeliveryType::Online

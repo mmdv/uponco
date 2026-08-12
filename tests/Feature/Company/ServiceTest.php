@@ -132,6 +132,44 @@ test('a fixed price service can be created', function () {
     ]);
 });
 
+test('a service stores a custom slot interval', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store'),
+            onsiteServicePayload($team, null, ['slot_interval' => 60]),
+        )
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('services', [
+        'title' => 'Haircut',
+        'slot_interval' => 60,
+    ]);
+});
+
+test('a blank slot interval is stored as null', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+
+    $this
+        ->actingAs($user)
+        ->post(
+            route('company.services.store'),
+            onsiteServicePayload($team, null, ['slot_interval' => '']),
+        )
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('services', [
+        'title' => 'Haircut',
+        'slot_interval' => null,
+    ]);
+});
+
 test('a free service clears price columns', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;

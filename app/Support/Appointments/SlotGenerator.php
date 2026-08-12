@@ -64,7 +64,9 @@ class SlotGenerator
         // Candidate starts sit on a fixed grid rather than duration-sized blocks, so a
         // longer service can still start on the half hour and slot into free time between
         // existing bookings. The technical break is honoured through the overlap check.
-        $grid = min($duration, 30);
+        // A service may override the grid (e.g. hourly sessions that only start on the
+        // hour); otherwise it falls back to the smart default of min(duration, 30).
+        $grid = $service->slotIntervalFor($duration);
 
         $booked = static::bookedIntervals($specialist, $day, $ignoreAppointmentId);
 

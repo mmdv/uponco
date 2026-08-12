@@ -51,6 +51,7 @@ export function useServiceDraft(defaults: {
             priceMax: '',
             duration: '',
             technicalBreak: '0',
+            slotInterval: '',
             serviceType: 'individual',
             capacity: '',
             specialistIds: defaults.specialistIds ?? [],
@@ -131,6 +132,13 @@ export function ServiceFormInputs({ draft }: { draft: ServiceDraft }) {
                 name="technical_break"
                 value={details.technicalBreak}
             />
+            {details.slotInterval !== '' && (
+                <input
+                    type="hidden"
+                    name="slot_interval"
+                    value={details.slotInterval}
+                />
+            )}
             <input
                 type="hidden"
                 name="service_type"

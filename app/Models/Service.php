@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'currency',
     'duration',
     'technical_break',
+    'slot_interval',
     'service_type',
     'delivery_type',
     'online_meeting_provider',
@@ -102,6 +103,23 @@ class Service extends Model
     }
 
     /**
+     * Resolve the interval (minutes) between candidate start times.
+     *
+     * When the service has no explicit slot interval, start times sit on a smart
+     * default grid of min(duration, 30): shorter services keep a fine 15-minute
+     * grid while anything half an hour or longer defaults to the half hour. A
+     * business can override this per service — e.g. a 60-minute session that must
+     * only start on the hour sets its interval to 60.
+     *
+     * The duration passed in is the one that applies for the booking (which may be
+     * a specialist's custom duration), so the default grid tracks it correctly.
+     */
+    public function slotIntervalFor(int $duration): int
+    {
+        return $this->slot_interval ?? min($duration, 30);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -119,6 +137,7 @@ class Service extends Model
             'currency' => Currency::class,
             'duration' => 'integer',
             'technical_break' => 'integer',
+            'slot_interval' => 'integer',
             'capacity' => 'integer',
         ];
     }

@@ -661,6 +661,47 @@ test('the slot generator produces available times within work hours', function (
     expect($first['available'])->toBeTrue();
 });
 
+test('a service slot interval overrides the default grid', function () {
+    $setup = bookableSetup();
+
+    // A 60 minute session that may only start on the hour.
+    $setup['service']->update(['slot_interval' => 60]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service']->fresh(),
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    // 09:00 to 17:00 stepping every 60 minutes for a 60 minute service yields
+    // starts 09:00 through 16:00: 8 slots, all on the hour.
+    expect($slots)->toHaveCount(8);
+    expect($slots[0]['label'])->toBe('09:00');
+    expect($slots[1]['label'])->toBe('10:00');
+    expect(collect($slots)->pluck('label'))->not->toContain('09:30');
+});
+
+test('a slot interval smaller than the default produces a finer grid', function () {
+    $setup = bookableSetup();
+
+    // A 60 minute service that may start every 15 minutes.
+    $setup['service']->update(['slot_interval' => 15]);
+
+    $slots = SlotGenerator::generate(
+        $setup['service']->fresh(),
+        $setup['user'],
+        $setup['team']->id,
+        $setup['team']->timezone,
+        $setup['startAt']->format('Y-m-d'),
+    );
+
+    expect($slots[0]['label'])->toBe('09:00');
+    expect($slots[1]['label'])->toBe('09:15');
+    expect($slots[2]['label'])->toBe('09:30');
+});
+
 test('the slot generator honours a specialist custom duration', function () {
     $setup = bookableSetup();
 
