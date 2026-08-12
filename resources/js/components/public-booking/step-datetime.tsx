@@ -59,6 +59,7 @@ export default function StepDateTime({
                                 type="button"
                                 disabled={!day.available}
                                 onClick={() => onDateChange(day.date)}
+                                data-test={`booking-day-${day.date}`}
                                 className={cn(
                                     'flex w-14 shrink-0 flex-col items-center rounded-xl border py-2.5 transition-all duration-200',
                                     isSelected
@@ -126,6 +127,7 @@ export default function StepDateTime({
                                     type="button"
                                     disabled={isFull}
                                     onClick={() => onSelectSlot(slot.start)}
+                                    data-test={`booking-slot-${slot.label.replace(':', '')}`}
                                     className={cn(
                                         'flex flex-col items-center rounded-lg border py-2 text-sm font-medium transition-all duration-200',
                                         isSelected

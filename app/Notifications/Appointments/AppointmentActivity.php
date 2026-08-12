@@ -128,7 +128,7 @@ class AppointmentActivity extends Notification implements ShouldQueue
             // rather than stacking up on the lock screen.
             ->tag('appointment-'.$appointment->id)
             ->data([
-                'url' => route('notifications.index'),
+                'url' => route('appointments.index'),
                 'appointment_id' => $appointment->id,
             ]);
     }

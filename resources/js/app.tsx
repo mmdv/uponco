@@ -73,6 +73,10 @@ createInertiaApp({
         // installed PWA able to receive notifications while it is closed.
         registerServiceWorker();
 
+        // These extras are client-only: the SSR pass renders `app` alone, so
+        // each must emit no DOM at first paint or hydration mismatches. The
+        // Toaster gates itself to mount; PullToRefresh and ConsentBanner render
+        // nothing until a gesture / consent decision.
         return (
             <TooltipProvider delayDuration={0}>
                 {app}

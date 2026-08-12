@@ -348,7 +348,7 @@ test('the specialist push payload carries the booking details and a link', funct
         'end_at' => $setup['startAt']->addMinutes(60),
     ]);
 
-    $notification = new AppointmentActivity($appointment, AppointmentAlert::Booked);
+    $notification = new AppointmentActivity($appointment, AppointmentAlert::Booked, $setup['user']);
     $payload = $notification->toWebPush($setup['user'], $notification)->toArray();
 
     expect($payload['title'])->toContain($setup['service']->title);
@@ -374,7 +374,7 @@ test('the push payload for a reassigned appointment keeps the old slot for the o
 
     $previousStart = $setup['startAt']->setTime(11, 0);
 
-    $notification = new AppointmentActivity($appointment, AppointmentAlert::Cancelled, $previousStart);
+    $notification = new AppointmentActivity($appointment, AppointmentAlert::Cancelled, $setup['user'], $previousStart);
     $payload = $notification->toWebPush($setup['user'], $notification)->toArray();
 
     expect($payload['body'])->toContain('11:00');

@@ -1,11 +1,26 @@
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import { useAppearance } from '@/hooks/use-appearance';
+import { useEffect, useState } from 'react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 function Toaster({ ...props }: ToasterProps) {
     const { appearance } = useAppearance();
 
     useFlashToast();
+
+    // Sonner renders its notifications region into the DOM, but the app shell
+    // only mounts the Toaster on the client — the SSR pass omits it. Painting
+    // it before mount would leave the server HTML and the client tree out of
+    // sync and fail hydration, so hold off until we're client-side.
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return null;
+    }
 
     return (
         <Sonner

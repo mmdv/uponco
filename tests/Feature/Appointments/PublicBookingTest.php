@@ -221,9 +221,12 @@ test('the booking page returns null media when none is set', function () {
 test('specialist availability excludes fully booked days and reflects only free slots', function () {
     $setup = bookableSetup();
 
-    // Book the specialist's entire working window two days from now so that day
+    // Anchor to the seeded schedule week (bookableSetup seeds slots from
+    // $startAt, next Monday) so the assertions don't depend on today's weekday.
+    //
+    // Book the specialist's entire working window on the third seeded day so it
     // has no free slot left at all.
-    $blockedDay = CarbonImmutable::now('UTC')->addDays(2)->startOfDay();
+    $blockedDay = $setup['startAt']->addDays(2)->startOfDay();
 
     Appointment::factory()->create([
         'team_id' => $setup['team']->id,
@@ -234,9 +237,9 @@ test('specialist availability excludes fully booked days and reflects only free 
         'end_at' => $blockedDay->setTime(17, 0),
     ]);
 
-    // Book a single early slot tomorrow; that day stays available but the taken
-    // time must not appear in the preview.
-    $partialDay = CarbonImmutable::now('UTC')->addDay()->startOfDay();
+    // Book a single early slot on the first seeded day; that day stays available
+    // but the taken time must not appear in the preview.
+    $partialDay = $setup['startAt']->startOfDay();
 
     Appointment::factory()->create([
         'team_id' => $setup['team']->id,

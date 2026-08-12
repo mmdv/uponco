@@ -128,11 +128,13 @@ test('unsubscribing leaves another user\'s subscription alone', function () {
 test('the subscription payload is validated', function () {
     $user = User::factory()->create();
 
+    // This is a settings/* web route, and the app only renders JSON errors for
+    // api/* (see bootstrap/app.php), so a validation failure redirects back
+    // with the errors in the session rather than a 422 JSON body.
     $this
         ->actingAs($user)
-        ->postJson(route('push-notifications.subscription.store'), ['endpoint' => 'https://push.example.com/device-a'])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors(['keys.p256dh', 'keys.auth']);
+        ->post(route('push-notifications.subscription.store'), ['endpoint' => 'https://push.example.com/device-a'])
+        ->assertSessionHasErrors(['keys.p256dh', 'keys.auth']);
 });
 
 test('guests cannot manage push subscriptions', function () {
