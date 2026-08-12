@@ -131,8 +131,13 @@ export default function Onboard({
                   title: 'How will you take bookings?',
                   description:
                       'This decides how your booking page introduces you.',
+                  showAccountMenu: true,
               }
-            : { title: copy.title, description: copy.description },
+            : {
+                  title: copy.title,
+                  description: copy.description,
+                  showAccountMenu: true,
+              },
     );
 
     /**

@@ -13,6 +13,7 @@ import type { Onboarding, OnboardingStepKey } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
 import OnboardingScreen from './onboarding-screen';
+import OnboardingUserMenu from './onboarding-user-menu';
 import ScreenDelivery from './screen-delivery';
 import ScreenDetails from './screen-details';
 import ScreenDone from './screen-done';
@@ -160,10 +161,11 @@ export default function OnboardingWizard({ onboarding }: Props) {
         <AppBackground className="md:flex md:min-h-svh md:items-center md:justify-center md:p-6 lg:p-10">
             <div
                 className={cn(
-                    'flex h-svh w-full flex-col overflow-hidden md:h-auto md:rounded-2xl md:border md:bg-background md:shadow-xl',
+                    'relative flex h-svh w-full flex-col overflow-hidden md:h-auto md:rounded-2xl md:border md:bg-background md:shadow-xl',
                     counted ? 'md:max-w-5xl md:flex-row' : 'md:max-w-lg',
                 )}
             >
+                <OnboardingUserMenu user={auth.user} />
                 {counted ? (
                     <aside className="hidden w-72 shrink-0 flex-col gap-8 border-r bg-muted/30 p-8 md:flex">
                         <div className="space-y-1.5">

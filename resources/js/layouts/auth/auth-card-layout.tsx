@@ -1,5 +1,6 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
+import OnboardingUserMenu from '@/components/onboarding/onboarding-user-menu';
 import {
     Card,
     CardContent,
@@ -14,17 +15,23 @@ export default function AuthCardLayout({
     children,
     title,
     description,
+    showAccountMenu = false,
 }: PropsWithChildren<{
     name?: string;
     title?: string;
     description?: string;
+    showAccountMenu?: boolean;
 }>) {
     useKeyboardInset();
+    const { auth } = usePage().props;
 
     return (
         <div className="flex min-h-svh flex-col bg-background pb-[var(--keyboard-inset,0px)] sm:items-center sm:justify-center sm:gap-6 sm:bg-muted sm:p-6 md:p-10">
             <div className="flex w-full flex-1 flex-col sm:max-w-md sm:flex-none">
-                <Card className="flex-1 gap-0 rounded-none border-0 bg-background pb-2 shadow-none sm:flex-none sm:rounded-xl sm:border sm:bg-card sm:shadow-soft">
+                <Card className="relative flex-1 gap-0 rounded-none border-0 bg-background pb-2 shadow-none sm:flex-none sm:rounded-xl sm:border sm:bg-card sm:shadow-soft">
+                    {showAccountMenu && auth?.user ? (
+                        <OnboardingUserMenu user={auth.user} />
+                    ) : null}
                     <CardHeader className="px-6 pt-[max(env(safe-area-inset-top),0.5rem)] pb-0 text-center sm:px-10 sm:pt-6">
                         <Link
                             href={home()}

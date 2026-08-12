@@ -12,6 +12,7 @@ import {
     Video,
 } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
+import { useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +24,7 @@ import {
 import { useTranslation } from '@/hooks/use-translation';
 import type { TranslateFn } from '@/hooks/use-translation';
 import { currencySymbol } from '@/lib/currency';
+import { createFallthroughClickGuard } from '@/lib/fallthrough-click';
 import { cn } from '@/lib/utils';
 import { connect } from '@/routes/integrations/google';
 import type {
@@ -75,6 +77,15 @@ function ServiceCard({
 }: ServiceCardProps) {
     const { t } = useTranslation('company');
 
+    // Swallow the synthetic click a closing dropdown leaves on the card, so a
+    // menu action (e.g. delete) can't also trigger the card's edit handler.
+    const clickGuard = useRef(createFallthroughClickGuard());
+
+    const runMenuAction = (action: () => void) => {
+        clickGuard.current.markActionTaken();
+        action();
+    };
+
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -99,7 +110,7 @@ function ServiceCard({
             data-test="service-row"
             role="button"
             tabIndex={0}
-            onClick={onEdit}
+            onClick={() => clickGuard.current.shouldHandleClick() && onEdit()}
             onKeyDown={handleKeyDown}
             aria-label={service.title}
             className="group relative flex cursor-pointer flex-col rounded-2xl border border-[#f1f3f5] bg-card p-6 shadow-soft transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:border-border"
@@ -138,7 +149,7 @@ function ServiceCard({
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
                                 data-test="service-edit-button"
-                                onSelect={onEdit}
+                                onSelect={() => runMenuAction(onEdit)}
                             >
                                 <Pencil className="size-4" />{' '}
                                 {t('services.editServiceTooltip')}
@@ -146,7 +157,7 @@ function ServiceCard({
                             <DropdownMenuItem
                                 data-test="service-delete-button"
                                 variant="destructive"
-                                onSelect={onDelete}
+                                onSelect={() => runMenuAction(onDelete)}
                             >
                                 <Trash2 className="size-4" />{' '}
                                 {t('services.deleteServiceTooltip')}
