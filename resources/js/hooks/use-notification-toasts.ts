@@ -1,26 +1,21 @@
-import { usePoll } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 import { useTranslation } from '@/hooks/use-translation';
 import type { AppNotification } from '@/types/notifications';
 
-/** How often the header checks for new notifications. */
-const POLL_INTERVAL_MS = 30_000;
-
 /**
- * Poll for new notifications and toast the ones that arrive.
+ * Toast notifications that arrive when the payload changes.
  *
- * The ids already seen are remembered for the session, and the set is seeded
- * from the *first* payload — otherwise every page load would replay the whole
- * unread history as toasts. Only genuinely new arrivals pop up.
+ * Fresh notifications are pulled in on page navigation or pull-to-refresh, not
+ * on a timer. The ids already seen are remembered for the session, and the set
+ * is seeded from the *first* payload — otherwise every page load would replay
+ * the whole unread history as toasts. Only genuinely new arrivals pop up.
  */
 export function useNotificationToasts(items: AppNotification[]): void {
     const { t } = useTranslation('notifications');
 
     const seen = useRef<Set<string> | null>(null);
-
-    usePoll(POLL_INTERVAL_MS, { only: ['notificationBell'] });
 
     useEffect(() => {
         if (seen.current === null) {

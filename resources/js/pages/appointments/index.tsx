@@ -1,6 +1,7 @@
-import { Head, router, usePage, usePoll } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { CalendarPlus } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import AppointmentDayForm from '@/components/appointments/appointment-day-form';
 import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
@@ -18,8 +19,11 @@ import type {
 import AppointmentCalendar from '@/components/appointments/calendar/appointment-calendar';
 import CancelAppointmentModal from '@/components/appointments/cancel-appointment-modal';
 import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
+import { useDayColumns } from '@/hooks/use-day-columns';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useOptimisticAppointments } from '@/hooks/use-optimistic-appointments';
 import { useTranslation } from '@/hooks/use-translation';
+import { partitionAppointments } from '@/lib/appointment-partition';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
 import { dateKey } from '@/lib/calendar-grid';
 import {
@@ -68,12 +72,6 @@ export default function AppointmentsIndex({
         !isPastAppointment(appointment) &&
         (isTeamAdmin || appointment.specialist_id === auth.user.id);
 
-    // Keep the list fresh without a full reload: every 5s Inertia re-runs only
-    // the `appointments` prop on the server and merges it in, preserving local
-    // UI state (open drawer, active tab). Throttles automatically when the tab
-    // is in the background.
-    usePoll(5000, { only: ['appointments'] });
-
     const [tab, setTab] = useLocalStorage<AppointmentTab>(
         'appointments:tab',
         'upcoming',
@@ -87,7 +85,6 @@ export default function AppointmentsIndex({
         EMPTY_FILTERS,
     );
     const [cursor, setCursor] = useState<Date>(() => new Date());
-    const [workingHoursLoading, setWorkingHoursLoading] = useState(false);
 
     const [formOpen, setFormOpen] = useState(false);
     const [editing, setEditing] = useState<Appointment | null>(null);
@@ -103,6 +100,16 @@ export default function AppointmentsIndex({
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelling, setCancelling] = useState<Appointment | null>(null);
 
+    // Optimistic overlay on the server's appointments, so create and cancel land
+    // instantly without a full refresh that would lose the viewed day and scroll.
+    const {
+        appointments: localAppointments,
+        cancelProcessing,
+        cancel: cancelAppointment,
+        add: addOptimisticAppointment,
+        remove: removeOptimisticAppointment,
+    } = useOptimisticAppointments(appointments);
+
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [viewing, setViewing] = useState<Appointment | null>(null);
 
@@ -116,101 +123,24 @@ export default function AppointmentsIndex({
     const showLocation = locations.length > 1;
     const showSpecialist = specialists.length > 1;
 
-    // Apply the toolbar facet filters (location / service / specialist) before
-    // anything else so every view — minimal and calendar — sees the same set.
-    const filteredAppointments = useMemo(() => {
-        return appointments.filter((appointment) => {
-            if (
-                filters.locationIds.length > 0 &&
-                !filters.locationIds.includes(String(appointment.location_id))
-            ) {
-                return false;
-            }
-
-            if (
-                filters.serviceIds.length > 0 &&
-                !filters.serviceIds.includes(String(appointment.service_id))
-            ) {
-                return false;
-            }
-
-            if (
-                filters.specialistIds.length > 0 &&
-                !filters.specialistIds.includes(
-                    String(appointment.specialist_id),
-                )
-            ) {
-                return false;
-            }
-
-            return true;
-        });
-    }, [appointments, filters]);
-
-    // Appointments arrive ordered ascending by start. Upcoming keeps that order
-    // (closest future first); past is reversed so it reads closest-to-now first.
-    const { upcoming, past } = useMemo(() => {
-        const now = new Date().getTime();
-        const upcoming: Appointment[] = [];
-        const past: Appointment[] = [];
-
-        for (const appointment of filteredAppointments) {
-            if (new Date(appointment.start_at).getTime() >= now) {
-                upcoming.push(appointment);
-            } else {
-                past.push(appointment);
-            }
-        }
-
-        return { upcoming, past: past.reverse() };
-    }, [filteredAppointments]);
+    // Apply the toolbar facet filters, then split into upcoming and past so every
+    // view — minimal and calendar — sees the same set.
+    const { upcoming, past } = useMemo(
+        () => partitionAppointments(localAppointments, filters),
+        [localAppointments, filters],
+    );
 
     const activeAppointments = tab === 'upcoming' ? upcoming : past;
 
-    // The day view splits into a column per working specialist. Working hours are
-    // date-specific and not shipped up front, so fetch them for the viewed day.
     const cursorKey = dateKey(cursor);
 
-    // `workingHours` is an optional prop, so any full reload (e.g. a create's
-    // `back()`) drops it. Re-fetch on demand — on day change and after a booking —
-    // so the columns never vanish.
-    const refreshWorkingHours = useCallback(() => {
-        router.reload({
-            only: ['workingHours'],
-            data: { date: cursorKey },
-            onStart: () => setWorkingHoursLoading(true),
-            onFinish: () => setWorkingHoursLoading(false),
-        });
-    }, [cursorKey]);
-
-    useEffect(() => {
-        if (view !== 'day') {
-            return;
-        }
-
-        refreshWorkingHours();
-    }, [view, refreshWorkingHours]);
-
-    // Columns are the specialists who work the viewed day, in name order, honouring
-    // an active specialist filter so the grid matches the filtered appointments.
-    const dayColumns = useMemo(
-        () =>
-            specialists
-                .filter(
-                    (specialist) =>
-                        (workingHours[String(specialist.id)]?.length ?? 0) > 0,
-                )
-                .filter(
-                    (specialist) =>
-                        filters.specialistIds.length === 0 ||
-                        filters.specialistIds.includes(String(specialist.id)),
-                )
-                .map((specialist) => ({
-                    specialist,
-                    windows: workingHours[String(specialist.id)],
-                })),
-        [specialists, workingHours, filters.specialistIds],
-    );
+    const { dayColumns, workingHoursLoading } = useDayColumns({
+        view,
+        cursorKey,
+        specialists,
+        workingHours,
+        specialistFilterIds: filters.specialistIds,
+    });
 
     const requestSlots = (request: SlotRequest) => {
         router.reload({
@@ -254,6 +184,16 @@ export default function AppointmentsIndex({
     const confirmCancel = (appointment: Appointment) => {
         setCancelling(appointment);
         setCancelOpen(true);
+    };
+
+    const handleConfirmCancel = (appointment: Appointment) => {
+        cancelAppointment(appointment, {
+            onSuccess: () => {
+                setCancelOpen(false);
+                setFormOpen(false);
+            },
+            onError: () => toast.error(t('toast.cancelError')),
+        });
     };
 
     const openDetails = (appointment: Appointment) => {
@@ -398,19 +338,17 @@ export default function AppointmentsIndex({
                 timezone={timezone}
                 services={services}
                 locations={locations}
-                onSuccess={() => {
-                    setDayFormOpen(false);
-                    // The create's `back()` reload drops the optional workingHours
-                    // prop; re-fetch so the new booking's column stays rendered.
-                    refreshWorkingHours();
-                }}
+                onSuccess={() => setDayFormOpen(false)}
+                onOptimisticAdd={addOptimisticAppointment}
+                onOptimisticRemove={removeOptimisticAppointment}
             />
 
             <CancelAppointmentModal
                 appointment={cancelling}
                 open={cancelOpen}
                 onOpenChange={setCancelOpen}
-                onCancelled={() => setFormOpen(false)}
+                processing={cancelProcessing}
+                onConfirm={handleConfirmCancel}
             />
 
             <AppointmentDetailsModal

@@ -1,6 +1,3 @@
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
-
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -16,39 +13,36 @@ import {
     appointmentCustomerLabel,
     formatAppointmentDay,
 } from '@/lib/appointments';
-import { cancel } from '@/routes/appointments';
 import type { Appointment } from '@/types';
 
 type Props = {
     appointment: Appointment | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onCancelled?: () => void;
+    processing: boolean;
+    onConfirm: (appointment: Appointment) => void;
 };
 
+/**
+ * Confirmation dialog for cancelling an appointment. The cancellation itself is
+ * driven by the parent so it can update the list optimistically — this component
+ * only collects the confirmation.
+ */
 export default function CancelAppointmentModal({
     appointment,
     open,
     onOpenChange,
-    onCancelled,
+    processing,
+    onConfirm,
 }: Props) {
     const { t } = useTranslation('appointments');
-    const [processing, setProcessing] = useState(false);
 
     const cancelAppointment = () => {
         if (!appointment) {
             return;
         }
 
-        router.visit(cancel([appointment.id]), {
-            preserveScroll: true,
-            onStart: () => setProcessing(true),
-            onFinish: () => setProcessing(false),
-            onSuccess: () => {
-                onOpenChange(false);
-                onCancelled?.();
-            },
-        });
+        onConfirm(appointment);
     };
 
     return (

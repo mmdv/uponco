@@ -19,7 +19,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/use-translation';
 import { toDateInputValue } from '@/lib/appointments';
 import { dashboard } from '@/routes';
+import { cancel as cancelRoute } from '@/routes/appointments';
 import type {
+    Appointment,
     AppointmentSlot,
     DashboardFormOptions,
     DashboardStats as Stats,
@@ -103,6 +105,20 @@ export default function Dashboard({
     const confirmCancelAppointment = (appointment: UpcomingAppointment) => {
         setCancellingAppointment(appointment);
         setCancelOpen(true);
+    };
+
+    const [cancelProcessing, setCancelProcessing] = useState(false);
+
+    const cancelAppointment = (appointment: Appointment) => {
+        router.visit(cancelRoute([appointment.id]), {
+            preserveScroll: true,
+            onStart: () => setCancelProcessing(true),
+            onFinish: () => setCancelProcessing(false),
+            onSuccess: () => {
+                setCancelOpen(false);
+                setEditOpen(false);
+            },
+        });
     };
 
     const requestSlots = (request: SlotRequest) => {
@@ -230,7 +246,8 @@ export default function Dashboard({
                 appointment={cancellingAppointment}
                 open={cancelOpen}
                 onOpenChange={setCancelOpen}
-                onCancelled={() => setEditOpen(false)}
+                processing={cancelProcessing}
+                onConfirm={cancelAppointment}
             />
 
             {formOptions && (

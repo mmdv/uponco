@@ -17,6 +17,10 @@
         "durationLabel": "Duration",
         "submit": "Create appointment"
     },
+    "toast": {
+        "cancelError": "Couldn't cancel the appointment. Please try again.",
+        "createError": "Couldn't create the appointment. Please try again."
+    },
     "toolbar": {
         "filters": "Filters",
         "clearAll": "Clear all",

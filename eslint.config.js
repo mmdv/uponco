@@ -124,6 +124,18 @@ export default [
         rules: {
             curly: ['error', 'all'],
             '@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            'max-lines': [
+                'warn',
+                { max: 400, skipBlankLines: false, skipComments: false },
+            ],
+        },
+    },
+    {
+        // Data tables and test files are expected to be long: a lookup table or
+        // a suite of cases is not a complexity smell the way a large component is.
+        files: ['**/*.test.ts', '**/*.test.tsx', 'resources/js/lib/timezone-country.ts'],
+        rules: {
+            'max-lines': 'off',
         },
     },
 ];

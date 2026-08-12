@@ -6,7 +6,7 @@ import { addDays, addMonths, weekDays } from '@/lib/calendar-grid';
 import type { Appointment } from '@/types';
 
 import CalendarDayView from './calendar-day-view';
-import type {DayViewColumn} from './calendar-day-view';
+import type { DayViewColumn } from './calendar-day-view';
 import CalendarMonthView from './calendar-month-view';
 import CalendarWeekView from './calendar-week-view';
 

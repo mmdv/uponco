@@ -17,6 +17,10 @@
         "durationLabel": "Müddət",
         "submit": "Görüş yarat"
     },
+    "toast": {
+        "cancelError": "Görüşü ləğv etmək alınmadı. Yenidən cəhd edin.",
+        "createError": "Görüşü yaratmaq alınmadı. Yenidən cəhd edin."
+    },
     "toolbar": {
         "filters": "Filtrlər",
         "clearAll": "Hamısını təmizlə",
