@@ -72,9 +72,18 @@ export default function Login({ status, canResetPassword }: Props) {
                             </div>
 
                             <div className="flex items-center space-x-3">
+                                {/*
+                                    On by default: the installed iOS app is
+                                    launched from the home screen like any other
+                                    app, and being dropped back to a login form
+                                    every couple of hours is not what people
+                                    expect from one. Unchecking it still limits
+                                    the sign in to the session lifetime.
+                                */}
                                 <Checkbox
                                     id="remember"
                                     name="remember"
+                                    defaultChecked
                                     tabIndex={3}
                                 />
                                 <Label htmlFor="remember">Remember me</Label>

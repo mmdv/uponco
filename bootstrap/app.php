@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureCurrentTeam;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleLocale;
+use App\Http\Middleware\RefreshRememberCookie;
 use App\Http\Middleware\RememberPasskeyLogin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleLocale::class,
             RememberPasskeyLogin::class,
+            RefreshRememberCookie::class,
             EnsureCurrentTeam::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

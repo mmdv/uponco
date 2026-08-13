@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 use Laravel\Passkeys\Contracts\PasskeyLoginResponse;
@@ -91,4 +92,85 @@ test('users are rate limited', function () {
     ]);
 
     $response->assertTooManyRequests();
+});
+
+/**
+ * Forget the resolved auth guard so the next request has to work out who the
+ * user is from scratch, the way a fresh launch of the app does — otherwise the
+ * guard object from the previous request still holds the user in memory.
+ */
+function forgetResolvedGuard(): void
+{
+    Auth::clearResolvedInstances();
+    app()->forgetInstance('auth');
+    app()->forgetInstance('auth.driver');
+}
+
+test('remembered users survive the session expiring', function () {
+    $user = User::factory()->create();
+
+    $login = $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+        'remember' => 'on',
+    ]);
+
+    $recallerName = Auth::guard()->getRecallerName();
+    $recaller = $login->getCookie($recallerName);
+
+    expect($recaller)->not->toBeNull()
+        ->and($recaller->getExpiresTime())->toBeGreaterThan(now()->addYear()->timestamp);
+
+    // Drop everything the session was holding, as an expired session cookie or
+    // a swept sessions row would, and come back with only the recaller.
+    $this->flushSession();
+    forgetResolvedGuard();
+
+    $this->withCookie($recallerName, $recaller->getValue())
+        ->get(route('dashboard'))
+        ->assertRedirectContains(route('onboarding.show'));
+
+    $this->assertAuthenticatedAs($user);
+});
+
+test('the remember cookie is re-issued on every authenticated response', function () {
+    $user = User::factory()->create();
+
+    $recallerName = Auth::guard()->getRecallerName();
+    $recaller = $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+        'remember' => 'on',
+    ])->getCookie($recallerName);
+
+    $this->flushSession();
+    forgetResolvedGuard();
+
+    $refreshed = $this->withCookie($recallerName, $recaller->getValue())
+        ->get(route('dashboard'))
+        ->getCookie($recallerName);
+
+    expect($refreshed)->not->toBeNull()
+        ->and($refreshed->getValue())->toBe($recaller->getValue())
+        ->and($refreshed->isHttpOnly())->toBeTrue()
+        ->and($refreshed->getExpiresTime())->toBeGreaterThan(now()->addYear()->timestamp);
+});
+
+test('logging out clears the remember cookie instead of refreshing it', function () {
+    $user = User::factory()->create();
+
+    $recallerName = Auth::guard()->getRecallerName();
+    $recaller = $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+        'remember' => 'on',
+    ])->getCookie($recallerName);
+
+    $response = $this->withCookie($recallerName, $recaller->getValue())
+        ->post(route('logout'));
+
+    // Laravel deletes a cookie by re-sending it with an expiry in the past.
+    expect($response->getCookie($recallerName, decrypt: false)->getExpiresTime())
+        ->toBeLessThan(now()->timestamp);
+    $this->assertGuest();
 });
