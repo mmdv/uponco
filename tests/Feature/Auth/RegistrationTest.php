@@ -18,6 +18,7 @@ test('registering sends an email verification notification', function () {
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'terms' => 'on',
     ]);
 
     $user = User::where('email', 'test@example.com')->firstOrFail();
@@ -51,6 +52,7 @@ test('new users can register without company details', function () {
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'terms' => 'on',
     ]);
 
     $this->assertAuthenticated();
@@ -65,4 +67,33 @@ test('new users can register without company details', function () {
     expect($team->business_category)->toBeNull();
     expect($team->timezone)->toBeNull();
     expect($team->slug)->toBe('test-user');
+});
+
+test('registering records agreement to the terms in force', function () {
+    $this->post(route('register.store'), [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'terms' => 'on',
+    ]);
+
+    $user = User::where('email', 'test@example.com')->firstOrFail();
+
+    expect($user->terms_version)->toBe(config('legal.terms_version'))
+        ->and($user->terms_accepted_at)->not->toBeNull()
+        ->and($user->hasAcceptedCurrentTerms())->toBeTrue();
+});
+
+test('registering without accepting the terms is rejected', function () {
+    $response = $this->post(route('register.store'), [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response->assertSessionHasErrors('terms');
+    $this->assertGuest();
+    expect(User::where('email', 'test@example.com')->exists())->toBeFalse();
 });

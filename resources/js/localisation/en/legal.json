@@ -1,0 +1,20 @@
+{
+    "consent": {
+        "title": {
+            "first": "Before you continue",
+            "updated": "We've updated our terms"
+        },
+        "description": {
+            "first": "Please review and accept our Terms & Conditions and Privacy Policy to keep using {app}.",
+            "updated": "Our Terms & Conditions and Privacy Policy have changed. Please review and accept the new version to keep using {app}."
+        },
+        "agree": "I have read and agree to the",
+        "terms": "Terms & Conditions",
+        "and": "and",
+        "privacy": "Privacy Policy",
+        "openInNewTab": "Opens in a new tab",
+        "submit": "Accept and continue",
+        "logout": "Log out instead",
+        "required": "Please accept the terms to continue."
+    }
+}

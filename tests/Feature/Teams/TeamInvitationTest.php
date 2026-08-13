@@ -56,6 +56,7 @@ test('registering with a pending invitation joins the team without onboarding', 
             'email' => 'invited@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'terms' => 'on',
         ])
         ->assertRedirect('/dashboard');
 

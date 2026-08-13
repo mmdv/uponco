@@ -34,6 +34,9 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->accountRules(),
             'password' => $this->passwordRules(),
+            'terms' => ['accepted'],
+        ], [
+            'terms.accepted' => 'Please accept the Terms & Conditions and Privacy Policy to continue.',
         ])->validate();
 
         $invitation = $this->pendingInvitationFor($input['email']);
@@ -44,6 +47,10 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => $input['password'],
             ]);
+
+            // Ticking the box on the form is the agreement, so it is recorded
+            // here rather than leaving the user to be prompted again on arrival.
+            $user->acceptCurrentTerms();
 
             if ($invitation instanceof TeamInvitation) {
                 // Clicking the emailed link proves ownership of the address, so the

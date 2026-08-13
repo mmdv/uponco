@@ -102,6 +102,7 @@ test('registering queues a signup event', function () {
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'terms' => 'on',
     ]);
 
     expect(queuedEventNames())->toContain('signup_completed');
@@ -204,6 +205,7 @@ test('a queued event reaches the next page and is then cleared', function () {
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'terms' => 'on',
     ]);
 
     $this

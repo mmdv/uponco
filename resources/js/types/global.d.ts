@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { TermsConsent } from '@/types/legal';
 import type { NotificationSummary } from '@/types/notifications';
 import type { Team } from '@/types/teams';
 
@@ -18,6 +19,7 @@ declare module '@inertiajs/core' {
             currentTeam: Team | null;
             teams: Team[];
             notificationBell: NotificationSummary | null;
+            termsConsent: TermsConsent | null;
             locale: string;
             availableLocales: { code: string; name: string; native: string }[];
             [key: string]: unknown;

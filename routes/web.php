@@ -14,6 +14,7 @@ use App\Http\Controllers\Company\ServiceCategoryController;
 use App\Http\Controllers\Company\ServiceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LegalConsentController;
 use App\Http\Controllers\MemberScheduleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardController;
@@ -42,6 +43,13 @@ Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::inertia('/privacy', 'legal/privacy')->name('privacy');
 Route::inertia('/terms', 'legal/terms')->name('terms');
+
+// Only `auth` on purpose: the consent dialog blocks the app for users who have
+// not agreed yet, so accepting has to work before email verification and before
+// the team is onboarded, or those users would have no way past it.
+Route::post('/legal/accept', [LegalConsentController::class, 'store'])
+    ->middleware('auth')
+    ->name('legal.accept');
 
 Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'])
     ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
@@ -159,4 +167,3 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
 Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
 
 require __DIR__.'/settings.php';
-

@@ -61,10 +61,34 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
             'google_access_token' => 'encrypted',
             'google_refresh_token' => 'encrypted',
             'google_token_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Determine whether the user has agreed to the terms currently in force.
+     *
+     * Comparing versions rather than checking for any acceptance is what makes
+     * re-consent work: publishing new terms is a bump of `legal.terms_version`,
+     * which turns this false for everyone who agreed to the previous wording.
+     */
+    public function hasAcceptedCurrentTerms(): bool
+    {
+        return $this->terms_version === config('legal.terms_version');
+    }
+
+    /**
+     * Record the user's agreement to the terms currently in force.
+     */
+    public function acceptCurrentTerms(): void
+    {
+        $this->forceFill([
+            'terms_version' => config('legal.terms_version'),
+            'terms_accepted_at' => now(),
+        ])->save();
     }
 
     /**

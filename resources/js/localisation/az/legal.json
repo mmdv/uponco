@@ -1,0 +1,20 @@
+{
+    "consent": {
+        "title": {
+            "first": "Davam etməzdən əvvəl",
+            "updated": "Şərtlərimizi yenilədik"
+        },
+        "description": {
+            "first": "{app} istifadəsini davam etdirmək üçün İstifadə Şərtləri və Məxfilik Siyasəti ilə tanış olun və qəbul edin.",
+            "updated": "İstifadə Şərtləri və Məxfilik Siyasətimiz dəyişdi. {app} istifadəsini davam etdirmək üçün yeni versiya ilə tanış olun və qəbul edin."
+        },
+        "agree": "Oxudum və razıyam:",
+        "terms": "İstifadə Şərtləri",
+        "and": "və",
+        "privacy": "Məxfilik Siyasəti",
+        "openInNewTab": "Yeni səhifədə açılır",
+        "submit": "Qəbul et və davam et",
+        "logout": "Hesabdan çıx",
+        "required": "Davam etmək üçün şərtləri qəbul edin."
+    }
+}

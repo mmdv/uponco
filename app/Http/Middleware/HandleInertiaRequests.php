@@ -55,6 +55,7 @@ class HandleInertiaRequests extends Middleware
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'notificationBell' => fn () => $user ? $this->notificationSummary($user) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'termsConsent' => $this->termsConsent($user),
             'locale' => app()->getLocale(),
             'availableLocales' => $this->availableLocales(),
             'analytics' => [
@@ -64,6 +65,31 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'events' => Analytics::pending(),
             ],
+        ];
+    }
+
+    /**
+     * What the app needs to know to ask a user to agree to the terms.
+     *
+     * Null — the common case — means there is nothing to ask, so the dialog is
+     * never mounted. `updated` separates someone who has agreed to an older
+     * version (the terms changed under them) from someone who has never agreed
+     * at all, because the two need different wording.
+     *
+     * Shared rather than passed per page because the dialog lives in the app
+     * shell: whichever page a user lands on, they are asked.
+     *
+     * @return array{version: string, updated: bool}|null
+     */
+    protected function termsConsent(?User $user): ?array
+    {
+        if ($user === null || $user->hasAcceptedCurrentTerms()) {
+            return null;
+        }
+
+        return [
+            'version' => (string) config('legal.terms_version'),
+            'updated' => $user->terms_accepted_at !== null,
         ];
     }
 

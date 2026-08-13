@@ -3,11 +3,12 @@ import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { login } from '@/routes';
+import { login, privacy, terms } from '@/routes';
 import { store } from '@/routes/register';
 
 type Props = {
@@ -39,8 +40,8 @@ export default function Register({
                         <div className="grid gap-6">
                             {invitationTeam && (
                                 <p className="text-sm text-muted-foreground">
-                                    You've been invited to join {invitationTeam}.
-                                    Create your account to get started.
+                                    You've been invited to join {invitationTeam}
+                                    . Create your account to get started.
                                 </p>
                             )}
 
@@ -119,10 +120,47 @@ export default function Register({
                                 />
                             </div>
 
+                            <div className="grid gap-2">
+                                <div className="flex items-start space-x-3">
+                                    <Checkbox
+                                        id="terms"
+                                        name="terms"
+                                        tabIndex={5}
+                                        className="mt-0.5"
+                                        data-test="register-terms"
+                                    />
+                                    <Label
+                                        htmlFor="terms"
+                                        className="text-sm leading-relaxed font-normal"
+                                    >
+                                        I have read and agree to the{' '}
+                                        <a
+                                            href={terms().url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-primary underline underline-offset-4"
+                                        >
+                                            Terms &amp; Conditions
+                                        </a>{' '}
+                                        and{' '}
+                                        <a
+                                            href={privacy().url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-primary underline underline-offset-4"
+                                        >
+                                            Privacy Policy
+                                        </a>
+                                        .
+                                    </Label>
+                                </div>
+                                <InputError message={errors.terms} />
+                            </div>
+
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={5}
+                                tabIndex={6}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
@@ -132,7 +170,7 @@ export default function Register({
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={7}>
                                 Log in
                             </TextLink>
                         </div>

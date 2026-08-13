@@ -35,7 +35,33 @@ class UserFactory extends Factory
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+            'terms_version' => config('legal.terms_version'),
+            'terms_accepted_at' => now(),
         ];
+    }
+
+    /**
+     * Indicate that the user has never agreed to the terms, as everyone who
+     * registered before there was a box to tick has not.
+     */
+    public function withoutTermsAccepted(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'terms_version' => null,
+            'terms_accepted_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user agreed to a version of the terms that has since
+     * been replaced, which is what a change to the documents leaves behind.
+     */
+    public function withOutdatedTermsAccepted(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'terms_version' => 'legacy-version',
+            'terms_accepted_at' => now()->subYear(),
+        ]);
     }
 
     /**
