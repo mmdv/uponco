@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { CalendarPlus } from 'lucide-react';
+import { CalendarDays, CalendarPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -25,7 +25,7 @@ import { useOptimisticAppointments } from '@/hooks/use-optimistic-appointments';
 import { useTranslation } from '@/hooks/use-translation';
 import { partitionAppointments } from '@/lib/appointment-partition';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
-import { dateKey } from '@/lib/calendar-grid';
+import { dateKey, weekDays } from '@/lib/calendar-grid';
 import { index as appointmentsIndex } from '@/routes/appointments';
 import type {
     Appointment,
@@ -252,6 +252,25 @@ export default function AppointmentsIndex({
 
     const hasBookableResources = services.length > 0 && specialists.length > 0;
 
+    // Mobile: the inline "Today" button is hidden; it reappears as a bottom-left
+    // FAB only when the viewed period isn't the current one for the active view.
+    const isViewingToday = useMemo(() => {
+        const now = new Date();
+
+        if (view === 'week') {
+            return dateKey(weekDays(cursor)[0]) === dateKey(weekDays(now)[0]);
+        }
+
+        if (view === 'month') {
+            return (
+                cursor.getFullYear() === now.getFullYear() &&
+                cursor.getMonth() === now.getMonth()
+            );
+        }
+
+        return dateKey(cursor) === dateKey(now);
+    }, [view, cursor]);
+
     return (
         <>
             <Head title={t('title')} />
@@ -323,6 +342,21 @@ export default function AppointmentsIndex({
             >
                 <CalendarPlus className="size-6" />
             </button>
+
+            {/* Mobile: jump back to today. Mirrors the create FAB on the opposite
+                side (same line/height), shown only in a calendar view when the
+                viewed period isn't already the current one. */}
+            {view !== 'minimal' && !isViewingToday && (
+                <button
+                    type="button"
+                    className="fixed bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-50 flex size-14 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"
+                    data-test="calendar-today-fab"
+                    aria-label="Today"
+                    onClick={() => setCursor(new Date())}
+                >
+                    <CalendarDays className="size-6" />
+                </button>
+            )}
 
             <AppointmentFormDrawer
                 open={formOpen}

@@ -53,39 +53,38 @@ export default function AppointmentCalendar({
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => step(-1)}
-                            data-test="calendar-prev"
-                            aria-label="Previous"
-                            className="rounded-r-none"
-                        >
-                            <ChevronLeft className="size-4" />
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => step(1)}
-                            data-test="calendar-next"
-                            aria-label="Next"
-                            className="-ml-px rounded-l-none"
-                        >
-                            <ChevronRight className="size-4" />
-                        </Button>
-                    </div>
-                    <Button
-                        variant="outline"
-                        onClick={() => onDateChange(new Date())}
-                        data-test="calendar-today"
-                    >
-                        Today
-                    </Button>
-                    <h2 className="ml-1 text-sm font-medium">{title}</h2>
-                </div>
+            <div className="flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => step(-1)}
+                    data-test="calendar-prev"
+                    aria-label="Previous"
+                    className="order-1 sm:rounded-r-none"
+                >
+                    <ChevronLeft className="size-4" />
+                </Button>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => step(1)}
+                    data-test="calendar-next"
+                    aria-label="Next"
+                    className="order-3 sm:order-2 sm:-ml-px sm:rounded-l-none"
+                >
+                    <ChevronRight className="size-4" />
+                </Button>
+                <Button
+                    variant="outline"
+                    onClick={() => onDateChange(new Date())}
+                    data-test="calendar-today"
+                    className="order-3 hidden sm:inline-flex"
+                >
+                    Today
+                </Button>
+                <h2 className="order-2 flex-1 text-center text-sm font-medium sm:order-4 sm:ml-1 sm:flex-none sm:text-left">
+                    {title}
+                </h2>
             </div>
 
             {view === 'day' && (

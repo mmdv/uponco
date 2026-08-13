@@ -23,7 +23,6 @@ type Suggestion = {
 };
 
 type Props = {
-    country: string;
     /** The address already saved on the location, if any. */
     initialAddress: string | null;
     /** Whether the saved address was previously verified against Google. */
@@ -39,9 +38,14 @@ type Props = {
  * Picking a suggestion is what gives an appointment reliable directions: it
  * stores coordinates and a place id alongside the text, so maps resolve the
  * exact spot rather than re-guessing a typed address.
+ *
+ * The search is deliberately unscoped by country: Google's region filter is a
+ * hard exclude, so scoping it to the location's saved country would hide every
+ * result the moment that country is wrong or the operator searches elsewhere
+ * (which is exactly what breaks editing). The resolved suggestion sets the
+ * country itself, so biasing the search adds nothing.
  */
 export default function AddressAutocomplete({
-    country,
     initialAddress,
     initialVerified,
     onResolved,
@@ -73,12 +77,9 @@ export default function AddressAutocomplete({
         const timer = window.setTimeout(() => {
             setIsSearching(true);
 
-            fetch(
-                suggest.url({
-                    query: { query, ...(country ? { country } : {}) },
-                }),
-                { headers: { Accept: 'application/json' } },
-            )
+            fetch(suggest.url({ query: { query } }), {
+                headers: { Accept: 'application/json' },
+            })
                 .then((response) =>
                     response.ok ? response.json() : { suggestions: [] },
                 )
@@ -103,7 +104,7 @@ export default function AddressAutocomplete({
         }, 300);
 
         return () => window.clearTimeout(timer);
-    }, [query, country, shouldSearch]);
+    }, [query, shouldSearch]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {

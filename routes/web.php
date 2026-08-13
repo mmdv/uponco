@@ -159,3 +159,4 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
 Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
 
 require __DIR__.'/settings.php';
+
