@@ -108,6 +108,88 @@ test('a category can be deleted', function () {
     $this->assertSoftDeleted('service_categories', ['id' => $category->id]);
 });
 
+test('a duplicate category name is rejected within the same team', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    ServiceCategory::factory()->for($team)->create(['name' => 'Hair']);
+
+    $response = $this
+        ->actingAs($user)
+        ->post(route('company.service-categories.store'), [
+            'name' => 'Hair',
+        ]);
+
+    $response->assertSessionHasErrors(['name']);
+
+    expect(ServiceCategory::where('team_id', $team->id)->where('name', 'Hair')->count())->toBe(1);
+});
+
+test('a category name can be reused across different teams', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $otherTeam = Team::factory()->create();
+    ServiceCategory::factory()->for($otherTeam)->create(['name' => 'Hair']);
+
+    $response = $this
+        ->actingAs($user)
+        ->post(route('company.service-categories.store'), [
+            'name' => 'Hair',
+        ]);
+
+    $response->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('service_categories', [
+        'team_id' => $team->id,
+        'name' => 'Hair',
+    ]);
+});
+
+test('updating a category to a sibling name is rejected', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    ServiceCategory::factory()->for($team)->create(['name' => 'Hair']);
+    $category = ServiceCategory::factory()->for($team)->create(['name' => 'Nails']);
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(route('company.service-categories.update', [
+            'serviceCategory' => $category->id,
+        ]), ['name' => 'Hair']);
+
+    $response->assertSessionHasErrors(['name']);
+});
+
+test('updating a category keeping its own name succeeds', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    $category = ServiceCategory::factory()->for($team)->create(['name' => 'Hair']);
+
+    $response = $this
+        ->actingAs($user)
+        ->patch(route('company.service-categories.update', [
+            'serviceCategory' => $category->id,
+        ]), ['name' => 'Hair']);
+
+    $response->assertSessionHasNoErrors();
+    $response->assertRedirect();
+});
+
+test('a soft-deleted category name can be added again', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    ServiceCategory::factory()->for($team)->create(['name' => 'Hair'])->delete();
+
+    $response = $this
+        ->actingAs($user)
+        ->post(route('company.service-categories.store'), [
+            'name' => 'Hair',
+        ]);
+
+    $response->assertSessionHasNoErrors();
+
+    expect(ServiceCategory::where('team_id', $team->id)->where('name', 'Hair')->count())->toBe(1);
+});
+
 test('a fixed price service can be created', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;
