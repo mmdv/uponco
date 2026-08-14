@@ -1,11 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import { LayoutDashboard } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import { PublicBookingFlow } from '@/components/public-booking/booking-flow';
 import type { PublicBookingProps } from '@/components/public-booking/booking-flow';
-import type { PublicTheme } from '@/components/public-booking/booking-header';
 import { Button } from '@/components/ui/button';
+import { usePublicTheme } from '@/hooks/use-public-theme';
 import { brandStyle } from '@/lib/brand';
 import { dashboard } from '@/routes';
 
@@ -14,39 +13,11 @@ type PageProps = PublicBookingProps & {
     canManage?: boolean;
 };
 
-// The public page keeps its own light/dark preference, separate from the
-// dashboard's appearance so a visitor's choice never affects the team's user.
-const THEME_STORAGE_KEY = 'public-booking-appearance';
-
-function readStoredTheme(): PublicTheme {
-    if (typeof window === 'undefined') {
-        return 'light';
-    }
-
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-
-    if (stored === 'dark' || stored === 'light') {
-        return stored;
-    }
-
-    // Light is the default look everywhere, regardless of the OS preference;
-    // the visitor can still switch the page to dark.
-    return 'light';
-}
-
 export default function PublicAppointmentBooking({
     canManage = false,
     ...props
 }: PageProps) {
-    const [theme, setTheme] = useState<PublicTheme>(readStoredTheme);
-
-    // Apply and persist the visitor's chosen theme for the public page.
-    useEffect(() => {
-        const root = document.documentElement;
-        root.classList.toggle('dark', theme === 'dark');
-        root.style.colorScheme = theme;
-        window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    }, [theme]);
+    const { theme, setTheme } = usePublicTheme();
 
     return (
         <div

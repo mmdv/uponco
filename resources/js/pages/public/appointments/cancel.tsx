@@ -1,10 +1,9 @@
 import { Head, router } from '@inertiajs/react';
 import { CalendarX2, CheckCircle2, Clock } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { cancel as cancelRoute } from '@/actions/App/Http/Controllers/PublicAppointmentController';
 import BookingHeader from '@/components/public-booking/booking-header';
-import type { PublicTheme } from '@/components/public-booking/booking-header';
 import BookingSummary from '@/components/public-booking/booking-summary';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { usePublicTheme } from '@/hooks/use-public-theme';
 import { buildDateTimeLabel } from '@/lib/booking';
 import { brandStyle } from '@/lib/brand';
 import type { BrandPalette } from '@/lib/brand';
@@ -49,26 +49,6 @@ type Props = {
     canCancel: boolean;
 };
 
-// The public page keeps its own light/dark preference, separate from the
-// dashboard's appearance so a visitor's choice never affects the team's user.
-const THEME_STORAGE_KEY = 'public-booking-appearance';
-
-function readStoredTheme(): PublicTheme {
-    if (typeof window === 'undefined') {
-        return 'light';
-    }
-
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-
-    if (stored === 'dark' || stored === 'light') {
-        return stored;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-}
-
 export default function PublicAppointmentCancel({
     company,
     appointment,
@@ -76,17 +56,9 @@ export default function PublicAppointmentCancel({
     alreadyCancelled,
     canCancel,
 }: Props) {
-    const [theme, setTheme] = useState<PublicTheme>(readStoredTheme);
+    const { theme, setTheme } = usePublicTheme();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [processing, setProcessing] = useState(false);
-
-    // Apply and persist the visitor's chosen theme for the public page.
-    useEffect(() => {
-        const root = document.documentElement;
-        root.classList.toggle('dark', theme === 'dark');
-        root.style.colorScheme = theme;
-        window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    }, [theme]);
 
     const summary = {
         serviceTitle: appointment.service.title,

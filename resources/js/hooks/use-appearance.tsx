@@ -11,8 +11,11 @@ export type UseAppearanceReturn = {
 
 const listeners = new Set<() => void>();
 
-/** Light is the app's default look; `system` is opt-in from the settings. */
-const DEFAULT_APPEARANCE: Appearance = 'light';
+/**
+ * The app follows the visitor's system preference until they pick light or
+ * dark for themselves in the settings.
+ */
+const DEFAULT_APPEARANCE: Appearance = 'system';
 
 let currentAppearance: Appearance = DEFAULT_APPEARANCE;
 
