@@ -9,6 +9,7 @@ use App\Http\Requests\Appointments\BookPublicAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
 use App\Support\Appointments\AppointmentOptions;
+use App\Support\BrandPalette;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -152,6 +153,7 @@ class PublicAppointmentController extends Controller
             'type' => $company->type?->value,
             'headline' => $owner?->name ?: $company->name,
             'tagline' => $owner?->profile?->job_title,
+            'brand' => BrandPalette::forTeam($company),
         ];
     }
 
@@ -229,6 +231,7 @@ class PublicAppointmentController extends Controller
             'slug' => $team->slug,
             'logo' => $team->logoUrl(),
             'category' => $team->business_category?->value,
+            'brand' => BrandPalette::forTeam($team),
         ];
     }
 

@@ -175,6 +175,31 @@ test('the booking page exposes the company logo and specialist avatars', functio
         );
 });
 
+test('the booking page exposes the company brand colours', function () {
+    $setup = bookableSetup();
+
+    $setup['team']->update(['brand_primary_color' => '#ff6600']);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('company.brand.primary', '#ff6600')
+            ->where('company.brand.accent', 'rgba(255, 102, 0, 0.1)')
+        );
+});
+
+test('the booking page falls back to the platform colours', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('company.brand.primary', '#0063ff')
+            ->where('company.brand.accent', 'rgba(0, 99, 255, 0.1)')
+        );
+});
+
 test('the booking page exposes the specialist job title and description', function () {
     $setup = bookableSetup();
 

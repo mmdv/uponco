@@ -13,17 +13,6 @@
             "general": "Ümumi",
             "teamMembers": "Komanda üzvləri"
         },
-        "logo": {
-            "title": "Loqo",
-            "description": "Şirkət loqonuzu əlavə edin və ya yeniləyin"
-        },
-        "logoUploader": {
-            "noLogo": "Loqo yoxdur",
-            "chooseFile": "Fayl seçin",
-            "save": "Loqonu yadda saxla",
-            "remove": "Sil",
-            "hint": "SVG, PNG və ya JPG. 2MB-a qədər."
-        },
         "general": {
             "title": "Ümumi",
             "description": "Komanda adınızı və tənzimləmələrinizi yeniləyin",
@@ -356,6 +345,31 @@
         "locationPlural": "fəal filial"
     },
     "brand": {
-        "title": "Brend"
+        "title": "Brend",
+        "description": "Loqonuzu və brend rənglərinizi idarə edin",
+        "logo": {
+            "title": "Loqo",
+            "description": "Şirkət loqonuzu əlavə edin və ya yeniləyin"
+        },
+        "logoUploader": {
+            "noLogo": "Loqo yoxdur",
+            "chooseFile": "Fayl seçin",
+            "save": "Loqonu yadda saxla",
+            "remove": "Sil",
+            "hint": "SVG, PNG və ya JPG. 2MB-a qədər."
+        },
+        "color": {
+            "title": "Brend rəngləri",
+            "description": "Müştərilərin rezerv edərkən gördüyü əsas rəngi seçin",
+            "primaryLabel": "Əsas rəng",
+            "accentLabel": "Vurğu rəngi",
+            "accentHint": "Əsas rəngdən 10% şəffaflıqla avtomatik yaradılır.",
+            "hint": "Rezervasiya səhifənizdə və rezervasiya vidcetində istifadə olunur.",
+            "preview": "Önbaxış",
+            "previewButton": "İndi rezerv et",
+            "previewChip": "Seçilmiş",
+            "reset": "Standart rəngə qaytar",
+            "save": "Rəngləri yadda saxla"
+        }
     }
 }

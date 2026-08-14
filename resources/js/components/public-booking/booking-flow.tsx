@@ -8,6 +8,7 @@ import SuccessScreen from '@/components/public-booking/success-screen';
 import SummaryBar from '@/components/public-booking/summary-bar';
 import { useAppointmentBooking } from '@/hooks/use-appointment-booking';
 import type { BookingPreset } from '@/lib/booking';
+import type { BrandPalette } from '@/lib/brand';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
 import type {
     AppointmentLocationDetail,
@@ -29,6 +30,8 @@ export type PublicBookingProps = {
         headline: string;
         /** Their job title, or null to fall back to "Book an appointment". */
         tagline?: string | null;
+        /** The team's brand colours; absent falls back to the platform blue. */
+        brand?: BrandPalette | null;
     };
     timezone: string;
     services: AppointmentServiceOption[];

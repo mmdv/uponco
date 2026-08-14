@@ -49,7 +49,7 @@ export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
                                     className={cn(
                                         'flex w-full items-center gap-3 rounded-xl border p-2.5 text-left transition-all duration-200',
                                         isSelected
-                                            ? 'border-primary bg-primary/5'
+                                            ? 'border-primary bg-brand-accent'
                                             : 'border-border hover:border-primary/40',
                                     )}
                                 >

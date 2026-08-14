@@ -9,6 +9,8 @@ export type Team = {
     businessCategory?: string | null;
     businessCategoryOther?: string | null;
     logoUrl?: string | null;
+    /** The saved brand primary as `#rrggbb`, or null while unset. */
+    brandPrimaryColor?: string | null;
     role?: TeamRole;
     roleLabel?: string;
     isCurrent?: boolean;

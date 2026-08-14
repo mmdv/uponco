@@ -6,6 +6,7 @@ import { PublicBookingFlow } from '@/components/public-booking/booking-flow';
 import type { PublicBookingProps } from '@/components/public-booking/booking-flow';
 import type { PublicTheme } from '@/components/public-booking/booking-header';
 import { Button } from '@/components/ui/button';
+import { brandStyle } from '@/lib/brand';
 import { dashboard } from '@/routes';
 
 type PageProps = PublicBookingProps & {
@@ -48,7 +49,10 @@ export default function PublicAppointmentBooking({
     }, [theme]);
 
     return (
-        <div className="flex min-h-svh w-full justify-center bg-muted/30">
+        <div
+            className="flex min-h-svh w-full justify-center bg-muted/30"
+            style={brandStyle(props.company.brand)}
+        >
             <Head title={`Book an appointment · ${props.company.name}`} />
 
             <div className="flex w-full max-w-[460px] flex-col">

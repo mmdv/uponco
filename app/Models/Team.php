@@ -6,6 +6,7 @@ use App\Concerns\GeneratesUniqueTeamSlugs;
 use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Enums\TeamType;
+use App\Support\BrandPalette;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path'])]
+#[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path', 'brand_primary_color'])]
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -51,6 +52,15 @@ class Team extends Model
         }
 
         return Storage::disk('public')->url($this->logo_path);
+    }
+
+    /**
+     * The team's brand primary colour, falling back to the platform blue when
+     * the team hasn't picked one.
+     */
+    public function brandPrimaryColor(): string
+    {
+        return BrandPalette::normalise($this->brand_primary_color) ?? BrandPalette::DEFAULT_PRIMARY;
     }
 
     /**

@@ -1,6 +1,6 @@
 import { router, useForm } from '@inertiajs/react';
 import { useRef, useState } from 'react';
-import BusinessController from '@/actions/App/Http/Controllers/Company/BusinessController';
+import BrandController from '@/actions/App/Http/Controllers/Company/BrandController';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
@@ -31,7 +31,7 @@ export default function TeamLogoUploader({ team }: Props) {
     };
 
     const handleUpload = () => {
-        post(BusinessController.updateLogo.url(), {
+        post(BrandController.updateLogo.url(), {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -46,7 +46,7 @@ export default function TeamLogoUploader({ team }: Props) {
     };
 
     const handleRemove = () => {
-        router.delete(BusinessController.destroyLogo.url(), {
+        router.delete(BrandController.destroyLogo.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -71,7 +71,7 @@ export default function TeamLogoUploader({ team }: Props) {
                         />
                     ) : (
                         <span className="text-xs text-neutral-400">
-                            {t('business.logoUploader.noLogo')}
+                            {t('brand.logoUploader.noLogo')}
                         </span>
                     )}
                 </div>
@@ -91,7 +91,7 @@ export default function TeamLogoUploader({ team }: Props) {
                         variant="outline"
                         onClick={() => fileInput.current?.click()}
                     >
-                        {t('business.logoUploader.chooseFile')}
+                        {t('brand.logoUploader.chooseFile')}
                     </Button>
 
                     {data.logo ? (
@@ -101,7 +101,7 @@ export default function TeamLogoUploader({ team }: Props) {
                             disabled={processing}
                             onClick={handleUpload}
                         >
-                            {t('business.logoUploader.save')}
+                            {t('brand.logoUploader.save')}
                         </Button>
                     ) : null}
 
@@ -113,14 +113,14 @@ export default function TeamLogoUploader({ team }: Props) {
                             disabled={processing}
                             onClick={handleRemove}
                         >
-                            {t('business.logoUploader.remove')}
+                            {t('brand.logoUploader.remove')}
                         </Button>
                     ) : null}
                 </div>
             </div>
 
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                {t('business.logoUploader.hint')}
+                {t('brand.logoUploader.hint')}
             </p>
 
             <InputError message={errors.logo} />

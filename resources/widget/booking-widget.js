@@ -22,8 +22,35 @@
 
     window.__uponcoWidgetLoaded = true;
 
-    var PRIMARY = '#0063ff';
+    var DEFAULT_PRIMARY = '#0063ff';
+
+    // The company's brand colours, served with the config. `accent` is the
+    // primary at 10% opacity — the same wash the booking page uses.
+    var PRIMARY = config.primary || DEFAULT_PRIMARY;
+    var ACCENT = config.accent || 'rgba(0, 99, 255, 0.1)';
     var label = config.label || 'Book online';
+
+    /**
+     * The launcher's glow: the brand primary at 35% opacity. Derived here
+     * rather than served because it is the only place that needs it.
+     */
+    function glow() {
+        var hex = /^#([0-9a-fA-F]{6})$/.exec(PRIMARY);
+
+        if (!hex) {
+            return 'rgba(0, 99, 255, .35)';
+        }
+
+        return (
+            'rgba(' +
+            parseInt(hex[1].slice(0, 2), 16) +
+            ',' +
+            parseInt(hex[1].slice(2, 4), 16) +
+            ',' +
+            parseInt(hex[1].slice(4, 6), 16) +
+            ',.35)'
+        );
+    }
 
     // Desktop drawer width; also referenced when placing the close button just
     // outside the drawer's top-left corner.
@@ -35,7 +62,9 @@
             '.uponco-widget-launcher{position:fixed;right:30px;bottom:30px;z-index:2147483000;width:100px;height:100px;padding:0;border:0;background:transparent;cursor:pointer;box-sizing:border-box;}' +
             '.uponco-widget-launcher-bg{position:absolute;left:0;top:0;width:100px;height:100px;border-radius:50%;background:' +
             PRIMARY +
-            ';opacity:.85;box-shadow:0 8px 24px rgba(0,99,255,.35);transition:transform .15s ease;box-sizing:border-box;}' +
+            ';opacity:.85;box-shadow:0 8px 24px ' +
+            glow() +
+            ';transition:transform .15s ease;box-sizing:border-box;}' +
             '.uponco-widget-launcher:hover .uponco-widget-launcher-bg{transform:scale(1.05);}' +
             '.uponco-widget-launcher-wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:100%;height:100%;border-radius:50%;border:2px solid ' +
             PRIMARY +
@@ -46,7 +75,11 @@
             '.uponco-widget-overlay.is-open{display:block;opacity:1;}' +
             '.uponco-widget-frame-wrap{position:fixed;top:8px;right:8px;bottom:8px;width:' +
             DRAWER_WIDTH +
-            'px;max-width:calc(100vw - 16px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);transform:translateX(calc(100% + 16px));transition:transform .35s cubic-bezier(.32,.72,0,1);}' +
+            'px;max-width:calc(100vw - 16px);background-color:#fff;background-image:linear-gradient(' +
+            ACCENT +
+            ',' +
+            ACCENT +
+            ');border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);transform:translateX(calc(100% + 16px));transition:transform .35s cubic-bezier(.32,.72,0,1);}' +
             '.uponco-widget-overlay.is-open .uponco-widget-frame-wrap{transform:translateX(0);}' +
             '.uponco-widget-frame-wrap iframe{width:100%;height:100%;border:0;display:block;}' +
             '.uponco-widget-close{position:fixed;top:14px;right:calc(' +

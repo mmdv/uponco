@@ -17,6 +17,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { buildDateTimeLabel } from '@/lib/booking';
+import { brandStyle } from '@/lib/brand';
+import type { BrandPalette } from '@/lib/brand';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
 
 type CancelCompany = {
@@ -25,6 +27,8 @@ type CancelCompany = {
     logo: string | null;
     /** The team's business category, from `App\Enums\BusinessCategory`. */
     category: string | null;
+    /** The team's brand colours; absent falls back to the platform blue. */
+    brand?: BrandPalette | null;
 };
 
 type CancelAppointment = {
@@ -114,7 +118,10 @@ export default function PublicAppointmentCancel({
     };
 
     return (
-        <div className="flex min-h-svh w-full justify-center bg-muted/30">
+        <div
+            className="flex min-h-svh w-full justify-center bg-muted/30"
+            style={brandStyle(company.brand)}
+        >
             <Head title={`Cancel appointment · ${company.name}`} />
 
             <div className="flex w-full max-w-[460px] flex-col p-4">

@@ -35,6 +35,8 @@
     --color-muted: var(--muted);
     --color-muted-foreground: var(--muted-foreground);
 
+    --color-brand-accent: var(--brand-accent);
+
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
 
@@ -70,6 +72,12 @@
     --popover-foreground: oklch(0.145 0 0);
     --primary: #0063ff;
     --primary-foreground: oklch(0.985 0 0);
+    /*
+     * The brand accent: the primary at 10%, always derived and never picked.
+     * A team's public surfaces override it (alongside `--primary`) with the
+     * colour saved on the Brand page; everywhere else it stays platform blue.
+     */
+    --brand-accent: rgba(0, 99, 255, 0.1);
     --primary-gradient: linear-gradient(to top right, #0063ff, #3884fe);
     --primary-gradient-soft: linear-gradient(
         to top right,

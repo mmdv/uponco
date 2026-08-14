@@ -13,17 +13,6 @@
             "general": "General",
             "teamMembers": "Team Members"
         },
-        "logo": {
-            "title": "Logo",
-            "description": "Add or update your company logo"
-        },
-        "logoUploader": {
-            "noLogo": "No logo",
-            "chooseFile": "Choose file",
-            "save": "Save logo",
-            "remove": "Remove",
-            "hint": "SVG, PNG or JPG. Up to 2MB."
-        },
         "general": {
             "title": "General",
             "description": "Update your team name and settings",
@@ -356,6 +345,31 @@
         "locationPlural": "active locations"
     },
     "brand": {
-        "title": "Brand"
+        "title": "Brand",
+        "description": "Manage your logo and brand colours",
+        "logo": {
+            "title": "Logo",
+            "description": "Add or update your company logo"
+        },
+        "logoUploader": {
+            "noLogo": "No logo",
+            "chooseFile": "Choose file",
+            "save": "Save logo",
+            "remove": "Remove",
+            "hint": "SVG, PNG or JPG. Up to 2MB."
+        },
+        "color": {
+            "title": "Brand colours",
+            "description": "Pick the primary colour customers see when they book",
+            "primaryLabel": "Primary colour",
+            "accentLabel": "Accent",
+            "accentHint": "Generated automatically from your primary colour, at 10%.",
+            "hint": "Used on your booking page and the booking widget.",
+            "preview": "Preview",
+            "previewButton": "Book now",
+            "previewChip": "Selected",
+            "reset": "Reset to default",
+            "save": "Save colours"
+        }
     }
 }

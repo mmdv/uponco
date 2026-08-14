@@ -70,7 +70,7 @@ export default function SpecialistPicker({
                         className={cn(
                             'flex w-full cursor-pointer gap-3 rounded-xl border p-3 text-left transition-all duration-200',
                             isSelected
-                                ? 'border-primary bg-primary/5'
+                                ? 'border-primary bg-brand-accent'
                                 : 'border-border hover:border-primary/40',
                         )}
                     >

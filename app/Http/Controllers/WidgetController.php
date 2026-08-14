@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Team;
+use App\Support\BrandPalette;
 use Illuminate\Http\Response;
 
 class WidgetController extends Controller
@@ -15,10 +16,14 @@ class WidgetController extends Controller
      */
     public function script(Team $company): Response
     {
+        $palette = BrandPalette::forTeam($company);
+
         $config = [
             'url' => route('public.appointments.show', ['company' => $company->slug]),
             'label' => __('Book online'),
             'company' => $company->name,
+            'primary' => $palette['primary'],
+            'accent' => $palette['accent'],
         ];
 
         $body = (string) file_get_contents(resource_path('widget/booking-widget.js'));

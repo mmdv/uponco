@@ -132,14 +132,15 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
             Route::get('company', [CompanyController::class, 'index'])->name('company.index');
 
             Route::get('company/brand', [BrandController::class, 'index'])->name('company.brand.index');
+            Route::patch('company/brand', [BrandController::class, 'update'])->name('company.brand.update');
+
+            Route::post('company/brand/logo', [BrandController::class, 'updateLogo'])->name('company.brand.logo.update');
+            Route::delete('company/brand/logo', [BrandController::class, 'destroyLogo'])->name('company.brand.logo.destroy');
 
             Route::redirect('company/business', 'company/business/general')->name('company.business');
             Route::get('company/business/general', [BusinessController::class, 'edit'])->name('company.business.edit');
             Route::patch('company/business/general', [BusinessController::class, 'update'])->name('company.business.update');
             Route::delete('company/business/general', [BusinessController::class, 'destroy'])->name('company.business.destroy');
-
-            Route::post('company/business/general/logo', [BusinessController::class, 'updateLogo'])->name('company.business.logo.update');
-            Route::delete('company/business/general/logo', [BusinessController::class, 'destroyLogo'])->name('company.business.logo.destroy');
 
             Route::get('company/business/members', [BusinessController::class, 'members'])->name('company.business.members.index');
             Route::post('company/business/members', [BusinessMemberController::class, 'store'])->name('company.business.members.store');

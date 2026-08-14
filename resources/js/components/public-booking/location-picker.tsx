@@ -50,7 +50,7 @@ export default function LocationPicker({
                         className={cn(
                             'w-full cursor-pointer rounded-xl border p-3 text-left transition-all duration-200',
                             isSelected
-                                ? 'border-primary bg-primary/5'
+                                ? 'border-primary bg-brand-accent'
                                 : 'border-border hover:border-primary/40',
                         )}
                         data-test={`booking-location-${location.id}`}

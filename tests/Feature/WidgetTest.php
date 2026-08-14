@@ -3,6 +3,7 @@
 use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Models\User;
+use App\Support\BrandPalette;
 
 test('the widget script is served as javascript for a company', function () {
     $team = Team::factory()->create();
@@ -48,4 +49,21 @@ test('the brand page exposes the widget snippet urls to admins', function () {
             ->where('widget.scriptUrl', route('public.widget.script', ['company' => $team->slug]))
             ->where('widget.bookingUrl', route('public.appointments.show', ['company' => $team->slug]))
         );
+});
+
+test('the widget script carries the company brand colours', function () {
+    $team = Team::factory()->create(['brand_primary_color' => '#ff6600']);
+
+    $this
+        ->get(route('public.widget.script', ['company' => $team->slug]))
+        ->assertSee('#ff6600', false)
+        ->assertSee('rgba(255, 102, 0, 0.1)', false);
+});
+
+test('the widget script falls back to the platform colour', function () {
+    $team = Team::factory()->create(['brand_primary_color' => null]);
+
+    $this
+        ->get(route('public.widget.script', ['company' => $team->slug]))
+        ->assertSee(BrandPalette::DEFAULT_PRIMARY, false);
 });
