@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\GeneratesUniqueSlug;
 use App\Enums\Currency;
 use App\Enums\DeliveryType;
 use App\Enums\PriceType;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'service_category_id',
     'is_active',
     'title',
+    'slug',
     'price_type',
     'price',
     'price_min',
@@ -36,7 +38,27 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Service extends Model
 {
     /** @use HasFactory<ServiceFactory> */
-    use HasFactory, SoftDeletes;
+    use GeneratesUniqueSlug, HasFactory, SoftDeletes;
+
+    /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Service $service) {
+            if (blank($service->slug) && $service->team_id !== null) {
+                $service->slug = static::generateUniqueSlug((string) $service->title, (int) $service->team_id);
+            }
+        });
+
+        static::updating(function (Service $service) {
+            if ($service->isDirty('title') && ! $service->isDirty('slug') && $service->team_id !== null) {
+                $service->slug = static::generateUniqueSlug((string) $service->title, (int) $service->team_id, $service->id);
+            }
+        });
+    }
 
     /**
      * Get the team that owns the service.

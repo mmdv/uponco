@@ -11,17 +11,28 @@ import {
     buildCalendarEvent,
     buildSummary,
     buildUpcomingDaysWithAvailability,
+    cardOrder,
     EMPTY_DETAILS,
+    lockedKinds,
+    locationIsMandatory,
     nextOpenCard,
+    nothingToChoose,
     resolveBookableDate,
+    resolveInitialSelection,
     serviceRequiresLocation,
     slotsKey,
     stepAnimationClass,
 } from '@/lib/booking';
-import type { ConfirmedSummary, EntryCard, SelectionKind } from '@/lib/booking';
+import type {
+    BookingPreset,
+    ConfirmedSummary,
+    EntryCard,
+    SelectionIds,
+    SelectionKind,
+} from '@/lib/booking';
 import { store } from '@/routes/public/appointments';
 import type {
-    AppointmentLocationOption,
+    AppointmentLocationDetail,
     AppointmentServiceOption,
     AppointmentSlot,
     AppointmentSpecialistOption,
@@ -37,9 +48,10 @@ type Params = {
     company: { name: string; slug: string };
     timezone: string;
     services: AppointmentServiceOption[];
-    locations: AppointmentLocationOption[];
+    locations: AppointmentLocationDetail[];
     specialists: AppointmentSpecialistOption[];
     availableSlots: AppointmentSlot[];
+    preset: BookingPreset | null;
 };
 
 /**
@@ -48,9 +60,11 @@ type Params = {
  * final submission. Returns the derived view state plus the handlers the page
  * and its child components bind to, keeping the page itself presentational.
  *
- * The interdependent-selection, day-resolution and summary/calendar building
- * logic lives in `@/lib/booking` as pure functions so it can be unit-tested
- * independently of React state and the Inertia router.
+ * Choices that only have one possible answer — and anything a deep link pinned
+ * — start out already made, and the flow reports which of them the visitor can
+ * still change. That resolution, the card ordering and the summary/calendar
+ * building all live in `@/lib/booking` as pure functions, so they can be
+ * unit-tested independently of React state and the Inertia router.
  */
 export function useAppointmentBooking({
     company,
@@ -59,15 +73,58 @@ export function useAppointmentBooking({
     locations,
     specialists,
     availableSlots,
+    preset,
 }: Params) {
+    // Resolved once: the option lists arrive with the page and never change
+    // within a visit, so re-resolving could only ever fight the visitor's own
+    // later choices.
+    const [initialSelection] = useState(() =>
+        resolveInitialSelection({ services, locations, specialists }, preset),
+    );
+
+    /**
+     * Whether the location card belongs on screen for a given selection.
+     *
+     * Not the same question as `requiresLocation`, which needs a chosen service
+     * and so is false on arrival — that hid the location card on exactly the
+     * pages where it had already been decided. This asks the same thing the
+     * preselection did: is a location unavoidable from here?
+     */
+    const locationVisibleFor = (selection: SelectionIds): boolean => {
+        const { availableServices } = getAvailableOptions(
+            services,
+            locations,
+            specialists,
+            {
+                serviceId: selection.service,
+                locationId: selection.location,
+                specialistId: selection.specialist,
+            },
+        );
+
+        return locationIsMandatory(
+            availableServices,
+            services.find((item) => item.id === selection.service) ?? null,
+        );
+    };
+
     const [step, setStep] = useState(0);
     const [hasNavigated, setHasNavigated] = useState(false);
     const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+
+    const [serviceId, setServiceId] = useState<number | null>(
+        initialSelection.service,
+    );
+    const [locationId, setLocationId] = useState<number | null>(
+        initialSelection.location,
+    );
+    const [specialistId, setSpecialistId] = useState<number | null>(
+        initialSelection.specialist,
+    );
+    // Nothing is unfolded on arrival: every card that is still a choice starts
+    // collapsed, so the step reads as a short list of what it needs.
     const [openCard, setOpenCard] = useState<EntryCard>(null);
 
-    const [serviceId, setServiceId] = useState<number | null>(null);
-    const [locationId, setLocationId] = useState<number | null>(null);
-    const [specialistId, setSpecialistId] = useState<number | null>(null);
     const [date, setDate] = useState('');
     const [selectedStart, setSelectedStart] = useState('');
     const [selectedEnd, setSelectedEnd] = useState('');
@@ -84,23 +141,27 @@ export function useAppointmentBooking({
     const [processing, setProcessing] = useState(false);
     const [confirmed, setConfirmed] = useState<ConfirmedSummary | null>(null);
 
-    const { availableServices, availableLocations, availableSpecialists } =
-        useMemo(
-            () =>
-                getAvailableOptions(services, locations, specialists, {
-                    serviceId,
-                    locationId,
-                    specialistId,
-                }),
-            [
-                services,
-                locations,
-                specialists,
+    const {
+        availableServices,
+        availableLocations: narrowedLocations,
+        availableSpecialists,
+    } = useMemo(
+        () =>
+            getAvailableOptions(services, locations, specialists, {
                 serviceId,
                 locationId,
                 specialistId,
-            ],
-        );
+            }),
+        [services, locations, specialists, serviceId, locationId, specialistId],
+    );
+
+    // `getAvailableOptions` is shared with the dashboard and so returns the base
+    // location shape; map back onto our own list to keep the address detail.
+    const availableLocations = useMemo(() => {
+        const ids = new Set(narrowedLocations.map((item) => item.id));
+
+        return locations.filter((location) => ids.has(location.id));
+    }, [locations, narrowedLocations]);
 
     const serviceGroups = useMemo(
         () => groupServicesByCategory(availableServices),
@@ -132,10 +193,43 @@ export function useAppointmentBooking({
     );
 
     const requiresLocation = serviceRequiresLocation(selectedService);
+    // Shown from the first paint when a location is unavoidable, even before a
+    // service narrows it down — otherwise the one already chosen for the
+    // visitor would sit invisible until they picked something.
+    const locationVisible = locationVisibleFor({
+        service: serviceId,
+        location: locationId,
+        specialist: specialistId,
+    });
     const selectionComplete =
         serviceId !== null &&
         specialistId !== null &&
         (!requiresLocation || locationId !== null);
+
+    // What is locked is measured against the full option pools, not the
+    // narrowed ones: a company with two specialists still offers a real choice
+    // even while the current service happens to narrow it to one, and the
+    // visitor can widen it again by changing the service.
+    const locked = useMemo(
+        () =>
+            lockedKinds(
+                {
+                    service: services.length,
+                    location: locations.length,
+                    specialist: specialists.length,
+                },
+                preset,
+            ),
+        [services, locations, specialists, preset],
+    );
+
+    const order = useMemo(() => cardOrder(locked), [locked]);
+
+    const selectionIsFixed = nothingToChoose(
+        locked,
+        requiresLocation,
+        selectionComplete,
+    );
 
     // The slot query the visitor most recently asked for, and the one whose
     // slots are currently on screen. Comparing against them lets a late
@@ -213,7 +307,7 @@ export function useAppointmentBooking({
         setServiceId(next.service);
         setLocationId(next.location);
         setSpecialistId(next.specialist);
-        setOpenCard(nextOpenCard(next, services));
+        setOpenCard(nextOpenCard(next, order, locationVisibleFor(next)));
     };
 
     const handleServiceChange = (value: number) =>
@@ -365,9 +459,12 @@ export function useAppointmentBooking({
 
     const resetFlow = () => {
         setConfirmed(null);
-        setServiceId(null);
-        setLocationId(null);
-        setSpecialistId(null);
+        // Back to the starting point, not to nothing: the single specialist a
+        // solo business has is just as preselected on the second booking.
+        setServiceId(initialSelection.service);
+        setLocationId(initialSelection.location);
+        setSpecialistId(initialSelection.specialist);
+        setOpenCard(null);
         setDate('');
         setSelectedStart('');
         setSelectedEnd('');
@@ -377,7 +474,6 @@ export function useAppointmentBooking({
         setSlots([]);
         setDetails(EMPTY_DETAILS);
         setErrors({});
-        setOpenCard(null);
         setDirection('back');
         setStep(0);
     };
@@ -403,7 +499,14 @@ export function useAppointmentBooking({
         selectedLocation,
         selectedSpecialist,
         requiresLocation,
+        /** Whether the location card belongs on screen at all. */
+        locationVisible,
         selectionComplete,
+        locked,
+        /** The order step one stacks its sections in. */
+        order,
+        /** Nothing on step 0 is the visitor's to decide; it is a recap. */
+        selectionIsFixed,
         handleServiceChange,
         handleLocationChange,
         handleSpecialistChange,

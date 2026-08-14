@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\GeneratesUniqueSlug;
 use App\Support\LocationOptions;
 use Database\Factories\LocationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'team_id',
     'is_active',
     'name',
+    'slug',
     'country',
     'city',
     'street_address',
@@ -29,7 +31,27 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Location extends Model
 {
     /** @use HasFactory<LocationFactory> */
-    use HasFactory, SoftDeletes;
+    use GeneratesUniqueSlug, HasFactory, SoftDeletes;
+
+    /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Location $location) {
+            if (blank($location->slug) && $location->team_id !== null) {
+                $location->slug = static::generateUniqueSlug((string) $location->name, (int) $location->team_id);
+            }
+        });
+
+        static::updating(function (Location $location) {
+            if ($location->isDirty('name') && ! $location->isDirty('slug') && $location->team_id !== null) {
+                $location->slug = static::generateUniqueSlug((string) $location->name, (int) $location->team_id, $location->id);
+            }
+        });
+    }
 
     /**
      * Get the team that owns the location.

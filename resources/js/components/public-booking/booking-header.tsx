@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import {
     Check,
     Copy,
@@ -24,7 +25,21 @@ export type PublicTheme = 'light' | 'dark';
 
 type Props = {
     companyName: string;
+    /**
+     * What leads the page. For a solo practitioner this is their own name
+     * rather than the business name, which is usually the same thing said
+     * twice. Defaults to the company name, which is what the cancellation
+     * page wants.
+     */
+    headline?: string;
+    /** Their job title or slogan; falls back to "Book an appointment". */
+    tagline?: string | null;
     logoUrl?: string | null;
+    /**
+     * On a deep-linked page, where the logo and name lead: back to the full
+     * booking page. Absent on the full page, where they lead nowhere.
+     */
+    backUrl?: string | null;
     theme: PublicTheme;
     onThemeChange: (theme: PublicTheme) => void;
     /**
@@ -67,7 +82,10 @@ function supportsNativeShare(): boolean {
  */
 export default function BookingHeader({
     companyName,
+    headline = companyName,
+    tagline,
     logoUrl,
+    backUrl,
     theme,
     onThemeChange,
     showMenu = true,
@@ -98,31 +116,51 @@ export default function BookingHeader({
         }
     };
 
+    // The logo and name double as the way back to the full booking page on a
+    // deep-linked one — a dedicated back link said the same thing and cost a
+    // whole row of an already crowded header.
+    const identity = (
+        <>
+            <Avatar className="size-12 rounded-xl">
+                {logoUrl ? (
+                    <AvatarImage
+                        src={logoUrl}
+                        alt={companyName}
+                        className="rounded-xl object-cover"
+                    />
+                ) : null}
+                <AvatarFallback className="rounded-xl bg-primary/10 text-sm font-semibold text-primary">
+                    {initialsFrom(headline)}
+                </AvatarFallback>
+            </Avatar>
+
+            <div className="text-left">
+                <h1 className="text-lg leading-tight font-semibold">
+                    {headline}
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                    {tagline || 'Book an appointment'}
+                </p>
+            </div>
+        </>
+    );
+
     return (
         <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-                <Avatar className="size-12 rounded-xl">
-                    {logoUrl ? (
-                        <AvatarImage
-                            src={logoUrl}
-                            alt={companyName}
-                            className="rounded-xl object-cover"
-                        />
-                    ) : null}
-                    <AvatarFallback className="rounded-xl bg-primary/10 text-sm font-semibold text-primary">
-                        {initialsFrom(companyName)}
-                    </AvatarFallback>
-                </Avatar>
-
-                <div className="text-left">
-                    <h1 className="text-lg leading-tight font-semibold">
-                        {companyName}
-                    </h1>
-                    <p className="text-xs text-muted-foreground">
-                        Book an appointment
-                    </p>
+            {backUrl ? (
+                <Link
+                    href={backUrl}
+                    className="flex min-w-0 items-center gap-3 rounded-xl transition-opacity hover:opacity-75"
+                    aria-label={`All bookings at ${companyName}`}
+                    data-test="booking-back-to-company"
+                >
+                    {identity}
+                </Link>
+            ) : (
+                <div className="flex min-w-0 items-center gap-3">
+                    {identity}
                 </div>
-            </div>
+            )}
 
             {showMenu && (
                 <Popover>

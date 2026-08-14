@@ -1,15 +1,16 @@
 import BookingFooter from '@/components/public-booking/booking-footer';
-import BookingHeader from '@/components/public-booking/booking-header';
 import type { PublicTheme } from '@/components/public-booking/booking-header';
+import BookingHeader from '@/components/public-booking/booking-header';
 import StepDateTime from '@/components/public-booking/step-datetime';
 import StepDetails from '@/components/public-booking/step-details';
 import StepSelection from '@/components/public-booking/step-selection';
 import SuccessScreen from '@/components/public-booking/success-screen';
 import SummaryBar from '@/components/public-booking/summary-bar';
 import { useAppointmentBooking } from '@/hooks/use-appointment-booking';
+import type { BookingPreset } from '@/lib/booking';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
 import type {
-    AppointmentLocationOption,
+    AppointmentLocationDetail,
     AppointmentServiceOption,
     AppointmentSlot,
     AppointmentSpecialistOption,
@@ -22,11 +23,19 @@ export type PublicBookingProps = {
         logo?: string | null;
         /** The team's business category, from `App\Enums\BusinessCategory`. */
         category?: string | null;
+        /** `individual` or `organisation`, from `App\Enums\TeamType`. */
+        type?: string | null;
+        /** The name the page leads with — the person's, for a solo business. */
+        headline: string;
+        /** Their job title, or null to fall back to "Book an appointment". */
+        tagline?: string | null;
     };
     timezone: string;
     services: AppointmentServiceOption[];
-    locations: AppointmentLocationOption[];
+    locations: AppointmentLocationDetail[];
     specialists: AppointmentSpecialistOption[];
+    /** Set when the visitor arrived through a deep-linked booking URL. */
+    preset?: BookingPreset | null;
     availableSlots?: AppointmentSlot[];
 };
 
@@ -35,8 +44,7 @@ type FlowProps = PublicBookingProps & {
     onThemeChange?: (theme: PublicTheme) => void;
     /**
      * Renders the flow inside its host container rather than as a full page:
-     * no share/appearance menu and a footer pinned to the container. Used by
-     * the dashboard's booking-page preview.
+     * no share/appearance menu and a footer pinned to the container.
      */
     embedded?: boolean;
 };
@@ -46,6 +54,9 @@ const STEP_TITLES = [
     'Pick a date & time',
     'Almost done',
 ];
+
+/** The heading for step one when there was nothing there to decide. */
+const RECAP_TITLE = "Here's your booking";
 
 /**
  * The public booking wizard itself, without any page-level chrome, so the
@@ -61,6 +72,7 @@ export function PublicBookingFlow({
     services,
     locations,
     specialists,
+    preset = null,
     availableSlots = [],
     theme = 'light',
     onThemeChange = () => {},
@@ -73,9 +85,10 @@ export function PublicBookingFlow({
         locations,
         specialists,
         availableSlots,
+        preset,
     });
 
-    const { step, confirmed } = booking;
+    const { step, confirmed, selectionIsFixed } = booking;
 
     // What the business does decides how a service is pictured, everywhere the
     // chosen service is shown back to the customer.
@@ -86,13 +99,21 @@ export function PublicBookingFlow({
             <header className="space-y-4 px-5 pt-4 pb-3">
                 <BookingHeader
                     companyName={company.name}
+                    headline={company.headline}
+                    tagline={company.tagline}
                     logoUrl={company.logo}
+                    backUrl={preset?.back_url}
                     theme={theme}
                     onThemeChange={onThemeChange}
                     showMenu={!embedded}
                 />
 
-                {confirmed === null && (
+                {/*
+                 * Step one already shows every choice in full, so a summary
+                 * above it would only repeat the cards underneath. It earns
+                 * its place from step two on, once those cards are behind you.
+                 */}
+                {confirmed === null && step > 0 && (
                     <SummaryBar
                         {...booking.summary}
                         serviceIcon={serviceIcon}
@@ -115,7 +136,9 @@ export function PublicBookingFlow({
                 ) : (
                     <div key={step} className={booking.stepClass}>
                         <h2 className="mb-4 text-base font-semibold">
-                            {STEP_TITLES[step]}
+                            {step === 0 && selectionIsFixed
+                                ? RECAP_TITLE
+                                : STEP_TITLES[step]}
                         </h2>
 
                         {step === 0 && (
@@ -128,10 +151,12 @@ export function PublicBookingFlow({
                                 serviceId={booking.serviceId}
                                 locationId={booking.locationId}
                                 specialistId={booking.specialistId}
-                                requiresLocation={booking.requiresLocation}
+                                locationVisible={booking.locationVisible}
                                 selectedService={booking.selectedService}
                                 selectedLocation={booking.selectedLocation}
                                 selectedSpecialist={booking.selectedSpecialist}
+                                locked={booking.locked}
+                                order={booking.order}
                                 onServiceChange={booking.handleServiceChange}
                                 onLocationChange={booking.handleLocationChange}
                                 onSpecialistChange={
@@ -173,6 +198,11 @@ export function PublicBookingFlow({
                         step === 0
                             ? booking.selectionComplete
                             : booking.selectedStart !== ''
+                    }
+                    continueLabel={
+                        step === 0 && selectionIsFixed
+                            ? 'Choose date & time'
+                            : 'Continue'
                     }
                     processing={booking.processing}
                     onBack={() => booking.goToStep(step - 1)}

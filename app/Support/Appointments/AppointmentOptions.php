@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Builds the service/location/specialist option data needed to drive the
@@ -71,6 +72,64 @@ class AppointmentOptions
                 'service_ids' => $location->services->pluck('id')->all(),
                 'specialist_ids' => $location->specialists->pluck('id')->all(),
             ])
+            ->all();
+    }
+
+    /**
+     * Get the team's locations with the public-facing detail the v2 booking page
+     * shows while (or instead of) choosing: address, phone and a directions link.
+     *
+     * Kept separate from {@see locations()} so the dashboard and the v1 booking
+     * page keep their leaner payload untouched.
+     *
+     * @return array<int, array{id: int, slug: ?string, name: string, address: ?string, city: ?string, phone: ?string, directions_url: ?string, is_geocoded: bool, service_ids: array<int, int>, specialist_ids: array<int, int>}>
+     */
+    public static function detailedLocations(Team $team): array
+    {
+        return $team->locations()
+            ->where('is_active', true)
+            ->with(['services:id', 'specialists:id'])
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Location $location): array => [
+                'id' => $location->id,
+                'slug' => $location->slug,
+                'name' => $location->name,
+                'address' => $location->displayAddress(),
+                'city' => $location->city,
+                'phone' => $location->phone,
+                'directions_url' => $location->directionsUrl(),
+                'is_geocoded' => $location->isGeocoded(),
+                'service_ids' => $location->services->pluck('id')->all(),
+                'specialist_ids' => $location->specialists->pluck('id')->all(),
+            ])
+            ->all();
+    }
+
+    /**
+     * Build the URL slug for every member of the team.
+     *
+     * Specialists are users, which are global and have no team-scoped slug
+     * column, so the slug is derived from the name and disambiguated with the
+     * member's id whenever two names slugify identically. Both the payload and
+     * the incoming-URL lookup go through here, so they can never disagree.
+     *
+     * @return array<int, string> member id => slug
+     */
+    public static function specialistSlugs(Team $team): array
+    {
+        $names = $team->members()->orderBy('users.name')->pluck('users.name', 'users.id');
+
+        $counts = $names
+            ->map(fn (?string $name): string => Str::slug((string) $name) ?: 'specialist')
+            ->countBy();
+
+        return $names
+            ->map(function (?string $name, int $id) use ($counts): string {
+                $slug = Str::slug((string) $name) ?: 'specialist';
+
+                return $counts[$slug] > 1 ? $slug.'-'.$id : $slug;
+            })
             ->all();
     }
 

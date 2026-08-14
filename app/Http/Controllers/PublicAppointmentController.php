@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentAlert;
+use App\Enums\TeamType;
 use App\Http\Requests\Appointments\BookPublicAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
@@ -28,6 +29,83 @@ class PublicAppointmentController extends Controller
             return redirect()->route('home');
         }
 
+        return $this->renderPage($request, $company, null);
+    }
+
+    /**
+     * Show the booking page with a service already chosen.
+     */
+    public function showService(Request $request, Team $company, string $service): Response|RedirectResponse
+    {
+        return $this->renderPreset($request, $company, function (Team $company) use ($service): ?array {
+            $model = $company->services()
+                ->where('services.is_active', true)
+                ->where('services.slug', $service)
+                ->first();
+
+            return $model === null ? null : ['type' => 'service', 'id' => $model->id, 'name' => $model->title];
+        });
+    }
+
+    /**
+     * Show the booking page with a specialist already chosen.
+     */
+    public function showSpecialist(Request $request, Team $company, string $specialist): Response|RedirectResponse
+    {
+        return $this->renderPreset($request, $company, function (Team $company) use ($specialist): ?array {
+            $id = array_search($specialist, AppointmentOptions::specialistSlugs($company), strict: true);
+
+            if ($id === false) {
+                return null;
+            }
+
+            $member = $company->members()->whereKey($id)->first();
+
+            return $member === null ? null : ['type' => 'specialist', 'id' => $member->id, 'name' => $member->name];
+        });
+    }
+
+    /**
+     * Show the booking page with a location already chosen.
+     */
+    public function showLocation(Request $request, Team $company, string $location): Response|RedirectResponse
+    {
+        return $this->renderPreset($request, $company, function (Team $company) use ($location): ?array {
+            $model = $company->locations()
+                ->where('is_active', true)
+                ->where('slug', $location)
+                ->first();
+
+            return $model === null ? null : ['type' => 'location', 'id' => $model->id, 'name' => $model->name];
+        });
+    }
+
+    /**
+     * Render a deep-linked page, 404ing when the slug matches nothing bookable.
+     *
+     * @param  callable(Team): ?array{type: string, id: int, name: string}  $resolve
+     */
+    protected function renderPreset(Request $request, Team $company, callable $resolve): Response|RedirectResponse
+    {
+        if ($company->slug === 'uponco') {
+            return redirect()->route('home');
+        }
+
+        $preset = $resolve($company);
+
+        abort_if($preset === null, 404);
+
+        return $this->renderPage($request, $company, $preset);
+    }
+
+    /**
+     * Render the booking page, optionally with one choice already pinned by a
+     * deep link.
+     *
+     * @param  ?array{type: string, id: int, name: string}  $preset
+     */
+    protected function renderPage(Request $request, Team $company, ?array $preset): Response
+    {
         $timezone = $company->timezone ?: config('app.timezone');
 
         // A signed-in member viewing their own booking page gets a shortcut back
@@ -37,20 +115,44 @@ class PublicAppointmentController extends Controller
             && $company->members()->whereKey($user->getKey())->exists();
 
         return Inertia::render('public/appointments/book', [
-            'company' => [
-                'name' => $company->name,
-                'slug' => $company->slug,
-                'logo' => $company->logoUrl(),
-                // Drives the icon the service picker is introduced with.
-                'category' => $company->business_category?->value,
-            ],
+            'company' => $this->companyHeaderPayload($company),
             'canManage' => $canManage,
             'timezone' => $timezone,
             'services' => AppointmentOptions::services($company),
-            'locations' => AppointmentOptions::locations($company),
+            'locations' => AppointmentOptions::detailedLocations($company),
             'specialists' => AppointmentOptions::specialists($company),
+            'preset' => $preset === null
+                ? null
+                : $preset + ['back_url' => route('public.appointments.show', $company)],
             'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $company)),
         ]);
+    }
+
+    /**
+     * The company payload the booking page's header is built from.
+     *
+     * A solo practitioner's booking page leads with their own name and job
+     * title rather than the business name and a generic "Book an appointment",
+     * which is otherwise the same line on every page. Organisations, and
+     * individuals whose profile has no job title, keep the generic wording —
+     * the page falls back whenever `tagline` is null.
+     *
+     * @return array<string, mixed>
+     */
+    protected function companyHeaderPayload(Team $company): array
+    {
+        $isIndividual = $company->type === TeamType::Individual;
+        $owner = $isIndividual ? $company->owner() : null;
+
+        return [
+            'name' => $company->name,
+            'slug' => $company->slug,
+            'logo' => $company->logoUrl(),
+            'category' => $company->business_category?->value,
+            'type' => $company->type?->value,
+            'headline' => $owner?->name ?: $company->name,
+            'tagline' => $owner?->profile?->job_title,
+        ];
     }
 
     /**

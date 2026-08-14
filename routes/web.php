@@ -58,6 +58,19 @@ Route::post('appointments/{company}', [PublicAppointmentController::class, 'stor
     ->middleware('throttle:10,1')
     ->name('public.appointments.store');
 
+// Dedicated v2 entry points a business can advertise, each arriving with one
+// choice already made. The literal middle segment keeps them clear of both
+// `appointments/cancel/{appointment}` and the authed `appointments/*` routes.
+Route::get('appointments/{company}/service/{service}', [PublicAppointmentController::class, 'showService'])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->name('public.appointments.service');
+Route::get('appointments/{company}/specialist/{specialist}', [PublicAppointmentController::class, 'showSpecialist'])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->name('public.appointments.specialist');
+Route::get('appointments/{company}/location/{location}', [PublicAppointmentController::class, 'showLocation'])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->name('public.appointments.location');
+
 Route::get('appointments/cancel/{appointment}', [PublicAppointmentController::class, 'showCancel'])
     ->middleware(['signed', 'throttle:60,1'])
     ->name('public.appointments.cancel');

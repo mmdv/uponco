@@ -7,7 +7,6 @@ import {
     buildMetaLabel,
     buildSummary,
     buildUpcomingDaysWithAvailability,
-    nextOpenCard,
     resolveBookableDate,
     serviceRequiresLocation,
     slotsKey,
@@ -209,57 +208,6 @@ describe('applySelection', () => {
             location: 11,
             specialist: 21,
         });
-    });
-});
-
-describe('nextOpenCard', () => {
-    const services = [
-        makeService({ id: 1, delivery_type: 'onsite' }),
-        makeService({ id: 2, delivery_type: 'online' }),
-    ];
-
-    it('opens the service card when no service is chosen', () => {
-        expect(nextOpenCard(NO_SELECTION, services)).toBe('service');
-    });
-
-    it('opens the specialist card once a service is chosen', () => {
-        const selection: SelectionIds = {
-            service: 1,
-            location: null,
-            specialist: null,
-        };
-
-        expect(nextOpenCard(selection, services)).toBe('specialist');
-    });
-
-    it('opens the location card for an in-person service missing a location', () => {
-        const selection: SelectionIds = {
-            service: 1,
-            location: null,
-            specialist: 20,
-        };
-
-        expect(nextOpenCard(selection, services)).toBe('location');
-    });
-
-    it('collapses for an online service without needing a location', () => {
-        const selection: SelectionIds = {
-            service: 2,
-            location: null,
-            specialist: 20,
-        };
-
-        expect(nextOpenCard(selection, services)).toBeNull();
-    });
-
-    it('collapses once everything required is selected', () => {
-        const selection: SelectionIds = {
-            service: 1,
-            location: 10,
-            specialist: 20,
-        };
-
-        expect(nextOpenCard(selection, services)).toBeNull();
     });
 });
 

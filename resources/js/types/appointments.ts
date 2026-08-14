@@ -31,6 +31,20 @@ export type AppointmentLocationOption = {
     specialist_ids: number[];
 };
 
+/**
+ * A location with the public-facing detail the v2 booking page shows while (and
+ * after) choosing. Superset of {@link AppointmentLocationOption}, so anything
+ * accepting the base option accepts this too.
+ */
+export type AppointmentLocationDetail = AppointmentLocationOption & {
+    slug: string | null;
+    address: string | null;
+    city: string | null;
+    phone: string | null;
+    directions_url: string | null;
+    is_geocoded: boolean;
+};
+
 export type SpecialistAvailabilityPreview = {
     /** `YYYY-MM-DD` of the nearest working day. */
     date: string;

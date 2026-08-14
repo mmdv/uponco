@@ -10,6 +10,11 @@ type Props = {
     onBack: () => void;
     onContinue: () => void;
     onSubmit: () => void;
+    /**
+     * What the primary button says on steps 0–1. When step one had nothing to
+     * choose, "Continue" implies there was — this says where it actually goes.
+     */
+    continueLabel?: string;
     /** Pins the bar to its container instead of the viewport (embedded preview). */
     embedded?: boolean;
 };
@@ -25,6 +30,7 @@ export default function BookingFooter({
     onBack,
     onContinue,
     onSubmit,
+    continueLabel = 'Continue',
     embedded = false,
 }: Props) {
     return (
@@ -55,8 +61,9 @@ export default function BookingFooter({
                     className="h-[50px] flex-1 text-base"
                     disabled={!canContinue}
                     onClick={onContinue}
+                    data-test="appointment-continue-button"
                 >
-                    Continue
+                    {continueLabel}
                 </Button>
             ) : (
                 <Button

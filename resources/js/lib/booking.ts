@@ -5,6 +5,7 @@ import {
     formatAppointmentTimeRange,
     formatDuration,
     formatServicePrice,
+    getAvailableOptions,
 } from '@/lib/appointments';
 import type { UpcomingDay } from '@/lib/appointments';
 import type { CalendarEvent } from '@/lib/calendar';
@@ -104,33 +105,6 @@ export function applySelection(
     }
 
     return next;
-}
-
-/**
- * Given a (possibly partial) selection, decide which entry card should open
- * next: the first still-missing one in service → specialist → location order,
- * or `null` once everything required is chosen. Location is only required when
- * the chosen service is delivered on-site.
- */
-export function nextOpenCard(
-    selection: SelectionIds,
-    services: AppointmentServiceOption[],
-): EntryCard {
-    if (selection.service === null) {
-        return 'service';
-    }
-
-    if (selection.specialist === null) {
-        return 'specialist';
-    }
-
-    const service = services.find((item) => item.id === selection.service);
-
-    if (serviceRequiresLocation(service) && selection.location === null) {
-        return 'location';
-    }
-
-    return null;
 }
 
 /**
@@ -289,3 +263,211 @@ export const EMPTY_DETAILS: CustomerDetails = {
     customer_phone: '',
     notes: '',
 };
+
+/** A choice the visitor arrived with, from a deep-linked booking URL. */
+export type BookingPreset = {
+    type: SelectionKind;
+    id: number;
+    name: string;
+    back_url: string;
+};
+
+/** Which of the three choices the visitor cannot change. */
+export type LockedKinds = Record<SelectionKind, boolean>;
+
+type Pools = {
+    services: AppointmentServiceOption[];
+    locations: AppointmentLocationOption[];
+    specialists: AppointmentSpecialistOption[];
+};
+
+/**
+ * Whether a location has to be picked at all.
+ *
+ * Once a service is chosen its own delivery type decides. Before then, a
+ * location is only unavoidable when every service still on offer is on-site —
+ * if even one online service remains, choosing it would drop the requirement,
+ * so nothing may be preselected on the visitor's behalf yet.
+ */
+export function locationIsMandatory(
+    availableServices: AppointmentServiceOption[],
+    selectedService: AppointmentServiceOption | null,
+): boolean {
+    if (selectedService !== null) {
+        return serviceRequiresLocation(selectedService);
+    }
+
+    return (
+        availableServices.length > 0 &&
+        availableServices.every(serviceRequiresLocation)
+    );
+}
+
+/**
+ * Decide what is already chosen the moment the page loads.
+ *
+ * A choice with exactly one possible answer is not a choice: an appointment
+ * cannot exist without a service or a specialist, so a company offering one of
+ * either has it selected up front. A location follows the same rule, but only
+ * while it is genuinely unavoidable ({@see locationIsMandatory}). Anything the
+ * URL pinned via a deep link is applied first and always wins.
+ *
+ * The passes matter: selecting the only service can narrow the specialists to
+ * one, which can in turn narrow the locations to one. Four passes is more than
+ * the three kinds can ever need, and bounds the loop.
+ */
+export function resolveInitialSelection(
+    { services, locations, specialists }: Pools,
+    preset: BookingPreset | null,
+): SelectionIds {
+    const pools: SelectionPools = {
+        service: services,
+        location: locations,
+        specialist: specialists,
+    };
+
+    let selection: SelectionIds = {
+        service: null,
+        location: null,
+        specialist: null,
+    };
+
+    if (preset) {
+        selection = applySelection(pools, selection, preset.type, preset.id);
+    }
+
+    for (let pass = 0; pass < 4; pass++) {
+        const { availableServices, availableLocations, availableSpecialists } =
+            getAvailableOptions(services, locations, specialists, {
+                serviceId: selection.service,
+                locationId: selection.location,
+                specialistId: selection.specialist,
+            });
+
+        let changed = false;
+
+        if (selection.service === null && availableServices.length === 1) {
+            selection = applySelection(
+                pools,
+                selection,
+                'service',
+                availableServices[0].id,
+            );
+            changed = true;
+        }
+
+        if (
+            selection.specialist === null &&
+            availableSpecialists.length === 1
+        ) {
+            selection = applySelection(
+                pools,
+                selection,
+                'specialist',
+                availableSpecialists[0].id,
+            );
+            changed = true;
+        }
+
+        if (selection.location === null && availableLocations.length === 1) {
+            const selectedService =
+                services.find((item) => item.id === selection.service) ?? null;
+
+            if (locationIsMandatory(availableServices, selectedService)) {
+                selection = applySelection(
+                    pools,
+                    selection,
+                    'location',
+                    availableLocations[0].id,
+                );
+                changed = true;
+            }
+        }
+
+        if (!changed) {
+            break;
+        }
+    }
+
+    return selection;
+}
+
+/**
+ * Which kinds the visitor has no say over: pinned by the URL, or down to a
+ * single option. A locked kind is shown as a plain statement of fact rather
+ * than as a picker with one row.
+ */
+export function lockedKinds(
+    counts: Record<SelectionKind, number>,
+    preset: BookingPreset | null,
+): LockedKinds {
+    return {
+        service: preset?.type === 'service' || counts.service <= 1,
+        location: preset?.type === 'location' || counts.location <= 1,
+        specialist: preset?.type === 'specialist' || counts.specialist <= 1,
+    };
+}
+
+/** Settled sections lead, in this order. */
+const SETTLED_ORDER: SelectionKind[] = ['specialist', 'service', 'location'];
+
+/** Sections still to be chosen follow, in this order. */
+const CHOOSABLE_ORDER: SelectionKind[] = ['service', 'specialist', 'location'];
+
+/**
+ * The order step one stacks its three sections in.
+ *
+ * Whatever is already settled floats to the top: those are statements of fact,
+ * and reading them first tells the visitor what this page is before asking them
+ * for anything. What is left to choose follows, service first — it is the one
+ * that reads as a menu, and the other two mostly narrow it.
+ */
+export function cardOrder(locked: LockedKinds): SelectionKind[] {
+    return [
+        ...SETTLED_ORDER.filter((kind) => locked[kind]),
+        ...CHOOSABLE_ORDER.filter((kind) => !locked[kind]),
+    ];
+}
+
+/**
+ * Which card to open once the visitor has made a choice: the first one in the
+ * rendered order that is still empty.
+ *
+ * Only ever called in response to a selection — nothing is open on arrival, so
+ * a page of collapsed cards reads as a short list of what it needs rather than
+ * one unfolded list with the rest hidden below it.
+ */
+export function nextOpenCard(
+    selection: SelectionIds,
+    order: SelectionKind[],
+    locationVisible: boolean,
+): EntryCard {
+    for (const kind of order) {
+        if (kind === 'location' && !locationVisible) {
+            continue;
+        }
+
+        if (selection[kind] === null) {
+            return kind;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Whether step one has nothing left for the visitor to decide, which turns it
+ * into a recap and makes the button below it say where it actually goes.
+ */
+export function nothingToChoose(
+    locked: LockedKinds,
+    requiresLocation: boolean,
+    selectionComplete: boolean,
+): boolean {
+    return (
+        selectionComplete &&
+        locked.service &&
+        locked.specialist &&
+        (!requiresLocation || locked.location)
+    );
+}
