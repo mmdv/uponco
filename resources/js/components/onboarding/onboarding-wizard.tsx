@@ -349,6 +349,7 @@ export default function OnboardingWizard({ onboarding }: Props) {
                             {current === 'schedule' && (
                                 <StepSchedule
                                     data={onboarding.schedule}
+                                    hasSchedule={onboarding.hasSchedule}
                                     controls={controls}
                                 />
                             )}

@@ -32,7 +32,7 @@ class OnboardingController extends Controller
         $role = $user->teamRole($team);
         abort_unless($role !== null && $role->isAtLeast(TeamRole::Admin), 403);
 
-        return Inertia::render('onboarding', OnboardingPayload::build($user, $team));
+        return Inertia::render('onboarding', OnboardingPayload::build($request, $user, $team));
     }
 
     /**

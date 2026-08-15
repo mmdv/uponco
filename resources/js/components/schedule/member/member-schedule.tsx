@@ -41,10 +41,13 @@ type MemberScheduleProps = {
     reloadProps: string[];
     /**
      * Section heading. Owned here rather than by the host page so the view
-     * switcher can sit opposite it on the title row.
+     * switcher can sit opposite it on the title row. Omit it where the host
+     * already has a heading of its own — the onboarding step does.
      */
-    title: string;
+    title?: string;
     description?: string;
+    /** Set false to lock the editor to `initialView`; onboarding shows week only. */
+    showViewSwitcher?: boolean;
     /** Other members to offer in the picker; omit to hide it. */
     members?: MemberScheduleMember[];
     onSelectMember?: (memberId: number) => void;
@@ -73,6 +76,7 @@ export default function MemberSchedule({
     reloadProps,
     title,
     description,
+    showViewSwitcher = true,
     members,
     onSelectMember,
     initialView,
@@ -126,30 +130,37 @@ export default function MemberSchedule({
     return (
         <div className="space-y-4">
             {/* Title row: heading left, view switcher hard right on desktop.
-                They stack on mobile, where the switcher goes full width. */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <Heading
-                    variant="small"
-                    title={title}
-                    description={description}
-                />
+                They stack on mobile, where the switcher goes full width. A host
+                that supplies neither gets no row at all. */}
+            {(title || showViewSwitcher) && (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    {title && (
+                        <Heading
+                            variant="small"
+                            title={title}
+                            description={description}
+                        />
+                    )}
 
-                <ScheduleViewSwitcher
-                    value={view}
-                    options={[
-                        { value: 'week', label: t('member.week') },
-                        { value: 'month', label: t('member.month') },
-                        ...extraViews,
-                    ]}
-                    onChange={(value) => {
-                        if (value === 'week' || value === 'month') {
-                            schedule.setView(value);
-                        }
+                    {showViewSwitcher && (
+                        <ScheduleViewSwitcher
+                            value={view}
+                            options={[
+                                { value: 'week', label: t('member.week') },
+                                { value: 'month', label: t('member.month') },
+                                ...extraViews,
+                            ]}
+                            onChange={(value) => {
+                                if (value === 'week' || value === 'month') {
+                                    schedule.setView(value);
+                                }
 
-                        onSelectView?.(value);
-                    }}
-                />
-            </div>
+                                onSelectView?.(value);
+                            }}
+                        />
+                    )}
+                </div>
+            )}
 
             {members && members.length > 1 && (
                 <SearchableSelect

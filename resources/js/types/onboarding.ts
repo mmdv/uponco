@@ -1,5 +1,5 @@
 import type { SelectOption } from './locations';
-import type { ScheduleMember, ScheduleSlotMap } from './schedule';
+import type { DayScheduleMap } from './schedule';
 import type { Service, ServiceCategory } from './services';
 
 export type OnboardingStepKey = 'services' | 'profile' | 'schedule';
@@ -44,8 +44,8 @@ export type Onboarding = {
         google: GoogleIntegrationStatus;
     };
     profile: OnboardingProfile;
-    schedule: {
-        members: ScheduleMember[];
-        slots: ScheduleSlotMap;
-    };
+    /** The user's own slots for the range on screen; absent while reloading. */
+    schedule?: DayScheduleMap;
+    /** Whether any work hours are saved, which is what the step requires. */
+    hasSchedule: boolean;
 };

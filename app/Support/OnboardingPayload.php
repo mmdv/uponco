@@ -3,13 +3,14 @@
 namespace App\Support;
 
 use App\Enums\OnboardingStep;
+use App\Http\Controllers\MemberScheduleController;
 use App\Models\OnboardingProgress;
-use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 /**
@@ -27,7 +28,7 @@ class OnboardingPayload
      *
      * @return array<string, mixed>
      */
-    public static function build(User $user, Team $team): array
+    public static function build(Request $request, User $user, Team $team): array
     {
         $progress = self::progress($user, $team);
 
@@ -40,7 +41,10 @@ class OnboardingPayload
                 'status' => $progress->statusFor($step)->value,
                 'mandatory' => $step->isMandatory(),
             ])->all(),
-            'services' => [
+            // The work-hours step changes its range with a partial reload of the
+            // slot map alone, so the heavier sections are closures — they only
+            // run when the response actually carries them.
+            'services' => fn (): array => [
                 'categories' => $team->serviceCategories()->orderBy('name')->get()->map(fn (ServiceCategory $category): array => [
                     'id' => $category->id,
                     'name' => $category->name,
@@ -64,14 +68,19 @@ class OnboardingPayload
                     'email' => $user->google_account_email,
                 ],
             ],
-            'profile' => [
+            'profile' => fn (): array => [
                 'name' => $user->name,
                 'email' => $user->profile?->email,
                 'phone' => $user->profile?->phone,
                 'job_title' => $user->profile?->job_title,
                 'description' => $user->profile?->description,
             ],
-            'schedule' => self::scheduleData($team),
+            // Whoever is setting the business up sets their own hours here;
+            // colleagues get theirs from the schedule screens afterwards.
+            'schedule' => fn (): array => MemberScheduleController::scheduleFor($request, $team, $user),
+            // Gates the step's "Finish" button on exactly what the step update
+            // endpoint will accept, so the two can never disagree.
+            'hasSchedule' => $progress->hasDataForStep(OnboardingStep::Schedule, $team, $user),
         ];
     }
 
@@ -94,43 +103,6 @@ class OnboardingPayload
         }
 
         return $progress;
-    }
-
-    /**
-     * Build the scheduling grid payload (members and existing slots) for the
-     * work-hours step. Managers schedule the whole team, so every member is
-     * returned as a grid row.
-     *
-     * @return array{members: array<int, array<string, mixed>>, slots: array<string, array<int, array{start: string, end: string}>>}
-     */
-    protected static function scheduleData(Team $team): array
-    {
-        $members = $team->members()->get();
-
-        $slots = ScheduleSlot::query()
-            ->where('team_id', $team->id)
-            ->whereIn('user_id', $members->pluck('id'))
-            ->orderBy('start_time')
-            ->get();
-
-        return [
-            'members' => $members->map(fn (User $member): array => [
-                'id' => $member->id,
-                'name' => $member->name,
-                'avatar' => $member->avatar ?? null,
-                'role' => $member->pivot->role->value,
-            ])->values()->all(),
-            'slots' => $slots
-                ->groupBy(fn (ScheduleSlot $slot): string => $slot->user_id.':'.$slot->date->format('Y-m-d'))
-                ->map(fn (Collection $daySlots): array => $daySlots
-                    ->map(fn (ScheduleSlot $slot): array => [
-                        'start' => substr((string) $slot->start_time, 0, 5),
-                        'end' => substr((string) $slot->end_time, 0, 5),
-                    ])
-                    ->values()
-                    ->all())
-                ->all(),
-        ];
     }
 
     /**

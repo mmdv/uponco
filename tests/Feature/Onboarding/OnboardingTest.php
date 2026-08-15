@@ -3,6 +3,7 @@
 use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\OnboardingProgress;
 use App\Models\ScheduleSlot;
 use App\Models\Service;
@@ -201,7 +202,7 @@ test('completing the schedule step requires saved work hours', function () {
         ->toBe(OnboardingStepStatus::Completed);
 });
 
-test('the payload includes schedule members and google status', function () {
+test('the payload includes the empty schedule and google status', function () {
     [$user, $team] = onboardingOwner();
 
     $this
@@ -210,10 +211,72 @@ test('the payload includes schedule members and google status', function () {
         ->assertInertia(fn ($page) => $page
             ->where('steps.2.key', 'schedule')
             ->where('steps.2.mandatory', true)
-            ->has('schedule.members', 1)
-            ->has('schedule.slots')
+            ->where('schedule', [])
+            ->where('hasSchedule', false)
             ->where('services.google.connected', false)
         );
+});
+
+test('the schedule payload carries the owner\'s own slots for the default range', function () {
+    [$user, $team] = onboardingOwner();
+
+    // The default range is the current month's calendar grid, so anchor the day
+    // inside the month rather than a fixed number of days from today.
+    $date = now()->startOfMonth()->addDays(9)->format('Y-m-d');
+
+    ScheduleSlot::factory()->create([
+        'team_id' => $team->id,
+        'user_id' => $user->id,
+        'date' => $date,
+        'start_time' => '09:00',
+        'end_time' => '17:00',
+    ]);
+
+    // A colleague's hours belong to their own schedule screen, not this step.
+    $colleague = User::factory()->create();
+    $team->members()->attach($colleague, ['role' => TeamRole::Member->value]);
+    ScheduleSlot::factory()->create([
+        'team_id' => $team->id,
+        'user_id' => $colleague->id,
+        'date' => $date,
+    ]);
+
+    $this
+        ->actingAs($user)
+        ->get(onboardingRoute($team))
+        ->assertInertia(fn ($page) => $page
+            ->where('hasSchedule', true)
+            ->has('schedule', 1)
+            ->where('schedule.'.$date, [['start' => '09:00', 'end' => '17:00']])
+        );
+});
+
+test('the schedule payload follows the range the editor asks for', function () {
+    [$user, $team] = onboardingOwner();
+
+    $date = now()->addMonths(2)->startOfMonth()->addDays(9)->format('Y-m-d');
+
+    ScheduleSlot::factory()->create([
+        'team_id' => $team->id,
+        'user_id' => $user->id,
+        'date' => $date,
+        'start_time' => '10:00',
+        'end_time' => '14:00',
+    ]);
+
+    // Moving the week reloads the slot map alone, which is a partial visit.
+    $this
+        ->actingAs($user)
+        ->get(onboardingRoute($team).'?from='.now()->addMonths(2)->startOfMonth()->format('Y-m-d')
+            .'&to='.now()->addMonths(2)->endOfMonth()->format('Y-m-d'), [
+                'X-Inertia' => 'true',
+                'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
+                'X-Inertia-Partial-Component' => 'onboarding',
+                'X-Inertia-Partial-Data' => 'schedule',
+            ])
+        ->assertOk()
+        ->assertJsonPath('props.schedule.'.$date, [['start' => '10:00', 'end' => '14:00']])
+        ->assertJsonMissingPath('props.services');
 });
 
 test('the services payload carries everything the service screens need', function () {
