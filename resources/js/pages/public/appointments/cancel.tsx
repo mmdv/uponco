@@ -16,6 +16,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { usePublicTheme } from '@/hooks/use-public-theme';
+import { useTranslation } from '@/hooks/use-translation';
 import { buildDateTimeLabel } from '@/lib/booking';
 import { brandStyle } from '@/lib/brand';
 import type { BrandPalette } from '@/lib/brand';
@@ -57,6 +58,7 @@ export default function PublicAppointmentCancel({
     canCancel,
 }: Props) {
     const { theme, setTheme } = usePublicTheme();
+    const { t } = useTranslation('booking');
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [processing, setProcessing] = useState(false);
 
@@ -94,7 +96,7 @@ export default function PublicAppointmentCancel({
             className="flex min-h-svh w-full justify-center bg-muted/30"
             style={brandStyle(company.brand)}
         >
-            <Head title={`Cancel appointment · ${company.name}`} />
+            <Head title={t('cancel.pageTitle', { company: company.name })} />
 
             <div className="flex w-full max-w-[460px] flex-col p-4">
                 <BookingHeader
@@ -110,15 +112,15 @@ export default function PublicAppointmentCancel({
                         <StatusPanel
                             icon={CheckCircle2}
                             tone="muted"
-                            title="This appointment is cancelled"
-                            description="This booking has already been cancelled. If this was a mistake, you can book a new appointment at any time."
+                            title={t('cancel.alreadyTitle')}
+                            description={t('cancel.alreadyDescription')}
                         />
                     ) : isPast ? (
                         <StatusPanel
                             icon={Clock}
                             tone="muted"
-                            title="This appointment can no longer be cancelled"
-                            description="The appointment time has already passed. Please contact us directly if you have any questions."
+                            title={t('cancel.pastTitle')}
+                            description={t('cancel.pastDescription')}
                         />
                     ) : (
                         <div className="animate-in duration-500 fade-in-0">
@@ -127,12 +129,10 @@ export default function PublicAppointmentCancel({
                                     <CalendarX2 className="size-6" />
                                 </div>
                                 <h1 className="mt-4 text-xl font-semibold">
-                                    Cancel your appointment?
+                                    {t('cancel.confirmTitle')}
                                 </h1>
                                 <p className="mt-1.5 text-sm text-muted-foreground">
-                                    Please review the details below. Cancelling
-                                    is permanent and will free up your time
-                                    slot.
+                                    {t('cancel.confirmDescription')}
                                 </p>
                             </div>
 
@@ -152,7 +152,7 @@ export default function PublicAppointmentCancel({
                                 onClick={() => setConfirmOpen(true)}
                                 data-test="cancel-appointment"
                             >
-                                Cancel appointment
+                                {t('cancel.cancelButton')}
                             </Button>
                         </div>
                     )}
@@ -162,17 +162,18 @@ export default function PublicAppointmentCancel({
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Cancel this appointment?</DialogTitle>
+                        <DialogTitle>{t('cancel.dialogTitle')}</DialogTitle>
                         <DialogDescription>
-                            Your {summary.dateTimeLabel} appointment with{' '}
-                            {company.name} will be cancelled. This action cannot
-                            be undone.
+                            {t('cancel.dialogDescription', {
+                                datetime: summary.dateTimeLabel ?? '',
+                                company: company.name,
+                            })}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">
-                                Keep appointment
+                                {t('cancel.keep')}
                             </Button>
                         </DialogClose>
                         <Button
@@ -182,7 +183,9 @@ export default function PublicAppointmentCancel({
                             onClick={submitCancellation}
                             data-test="confirm-cancel-appointment"
                         >
-                            {processing ? 'Cancelling…' : 'Yes, cancel it'}
+                            {processing
+                                ? t('cancel.cancelling')
+                                : t('cancel.confirmCancel')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

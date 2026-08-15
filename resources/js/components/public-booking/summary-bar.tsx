@@ -1,6 +1,7 @@
 import { CalendarClock, MapPin, Sparkles, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { GENERIC_SERVICE_ICON } from '@/lib/business-category-icons';
 
 type Chip = {
@@ -30,6 +31,7 @@ export default function SummaryBar({
     dateTimeLabel,
     serviceIcon = GENERIC_SERVICE_ICON,
 }: Props) {
+    const { t } = useTranslation('booking');
     const chips: Chip[] = [];
 
     if (serviceTitle) {
@@ -52,7 +54,7 @@ export default function SummaryBar({
         return (
             <div className="flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/40 px-3 text-xs text-muted-foreground">
                 <Sparkles className="size-3.5" />
-                Let&apos;s build your booking
+                {t('summary.empty')}
             </div>
         );
     }

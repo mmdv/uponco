@@ -3,6 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 
 import BookingSummary from '@/components/public-booking/booking-summary';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import type { CalendarEvent } from '@/lib/calendar';
 import { buildGoogleCalendarUrl, downloadIcsFile } from '@/lib/calendar';
 
@@ -33,6 +34,8 @@ export default function SuccessScreen({
     serviceIcon,
     onBookAnother,
 }: Props) {
+    const { t } = useTranslation('booking');
+
     return (
         <div className="flex animate-in flex-col items-center px-1 py-6 text-center duration-500 fade-in-0 zoom-in-95">
             <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -41,10 +44,12 @@ export default function SuccessScreen({
                 </span>
             </div>
 
-            <h1 className="mt-5 text-xl font-semibold">You're booked in</h1>
+            <h1 className="mt-5 text-xl font-semibold">{t('success.title')}</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-                Thanks {customerName.split(' ')[0] || 'there'} — we've sent your
-                appointment with {companyName} to our team.
+                {t('success.message', {
+                    name: customerName.split(' ')[0] || t('success.there'),
+                    company: companyName,
+                })}
             </p>
 
             <div className="mt-6 w-full text-left">
@@ -54,7 +59,7 @@ export default function SuccessScreen({
             {calendar && (
                 <div className="mt-6 w-full space-y-2 text-left">
                     <p className="text-xs font-medium text-muted-foreground">
-                        Add to your calendar
+                        {t('success.addToCalendar')}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                         <Button variant="outline" className="h-11" asChild>
@@ -64,7 +69,7 @@ export default function SuccessScreen({
                                 rel="noopener noreferrer"
                             >
                                 <Calendar className="size-4" />
-                                Google
+                                {t('success.google')}
                             </a>
                         </Button>
                         <Button
@@ -74,7 +79,7 @@ export default function SuccessScreen({
                             onClick={() => downloadIcsFile(calendar)}
                         >
                             <Apple className="size-4" />
-                            Apple
+                            {t('success.apple')}
                         </Button>
                     </div>
                 </div>
@@ -85,7 +90,7 @@ export default function SuccessScreen({
                 className="mt-4 h-12 w-full text-base"
                 onClick={onBookAnother}
             >
-                Book another appointment
+                {t('success.bookAnother')}
             </Button>
         </div>
     );

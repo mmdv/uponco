@@ -11,6 +11,7 @@ import LockedRow from '@/components/public-booking/locked-row';
 import ServicePicker from '@/components/public-booking/service-picker';
 import SpecialistPicker from '@/components/public-booking/specialist-picker';
 import SpecialistProfileDialog from '@/components/public-booking/specialist-profile-dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import type { ServiceCategoryGroup } from '@/lib/appointments';
 import type { EntryCard, SelectionKind } from '@/lib/booking';
 import type { LockedKinds } from '@/lib/booking';
@@ -75,6 +76,7 @@ export default function StepSelection({
     onSpecialistChange,
     serviceIcon: ServiceIcon,
 }: Props) {
+    const { t } = useTranslation('booking');
     const [profileSpecialist, setProfileSpecialist] =
         useState<AppointmentSpecialistOption | null>(null);
     const [detailsLocation, setDetailsLocation] =
@@ -93,17 +95,19 @@ export default function StepSelection({
         specialist: specialistSettled ? (
             <LockedRow
                 icon={User}
-                title="Specialist"
+                title={t('selection.specialistTitle')}
                 value={selectedSpecialist.name}
                 onShowDetails={() => setProfileSpecialist(selectedSpecialist)}
-                detailsLabel={`About ${selectedSpecialist.name}`}
+                detailsLabel={t('selection.about', {
+                    name: selectedSpecialist.name,
+                })}
                 data-test="booking-locked-specialist"
             />
         ) : (
             <ExpandableCard
                 icon={User}
-                title="Specialist"
-                hint="Choose who you'll see"
+                title={t('selection.specialistTitle')}
+                hint={t('selection.specialistHint')}
                 selectedLabel={selectedSpecialist?.name}
                 open={openCard === 'specialist'}
                 onToggle={() => onToggle('specialist')}
@@ -120,10 +124,12 @@ export default function StepSelection({
         location: !locationVisible ? null : locationSettled ? (
             <LockedRow
                 icon={MapPin}
-                title="Location"
+                title={t('selection.locationTitle')}
                 value={selectedLocation.name}
                 onShowDetails={() => setDetailsLocation(selectedLocation)}
-                detailsLabel={`About ${selectedLocation.name}`}
+                detailsLabel={t('selection.about', {
+                    name: selectedLocation.name,
+                })}
                 data-test="booking-locked-location"
             >
                 <LocationDetails
@@ -135,8 +141,8 @@ export default function StepSelection({
         ) : (
             <ExpandableCard
                 icon={MapPin}
-                title="Location"
-                hint="Pick where to visit"
+                title={t('selection.locationTitle')}
+                hint={t('selection.locationHint')}
                 selectedLabel={selectedLocation?.name}
                 open={openCard === 'location'}
                 onToggle={() => onToggle('location')}
@@ -152,15 +158,15 @@ export default function StepSelection({
         service: serviceSettled ? (
             <LockedRow
                 icon={ServiceIcon}
-                title="Service"
+                title={t('selection.serviceTitle')}
                 value={selectedService.title}
                 data-test="booking-locked-service"
             />
         ) : (
             <ExpandableCard
                 icon={ServiceIcon}
-                title="Service"
-                hint="Choose a treatment"
+                title={t('selection.serviceTitle')}
+                hint={t('selection.serviceHint')}
                 selectedLabel={selectedService?.title}
                 open={openCard === 'service'}
                 onToggle={() => onToggle('service')}

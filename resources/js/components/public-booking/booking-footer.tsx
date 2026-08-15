@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -30,9 +31,11 @@ export default function BookingFooter({
     onBack,
     onContinue,
     onSubmit,
-    continueLabel = 'Continue',
+    continueLabel,
     embedded = false,
 }: Props) {
+    const { t } = useTranslation('booking');
+
     return (
         <footer
             className={cn(
@@ -49,7 +52,7 @@ export default function BookingFooter({
                     size="icon"
                     className="size-[50px] shrink-0"
                     onClick={onBack}
-                    aria-label="Back"
+                    aria-label={t('footer.back')}
                 >
                     <ArrowLeft className="size-5" />
                 </Button>
@@ -63,7 +66,7 @@ export default function BookingFooter({
                     onClick={onContinue}
                     data-test="appointment-continue-button"
                 >
-                    {continueLabel}
+                    {continueLabel ?? t('footer.continue')}
                 </Button>
             ) : (
                 <Button
@@ -73,7 +76,7 @@ export default function BookingFooter({
                     onClick={onSubmit}
                     data-test="appointment-save-button"
                 >
-                    Confirm booking
+                    {t('footer.confirm')}
                 </Button>
             )}
         </footer>

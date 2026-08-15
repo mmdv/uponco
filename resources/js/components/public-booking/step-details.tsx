@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 
 export type CustomerDetails = {
     customer_name: string;
@@ -22,6 +23,8 @@ type Props = {
  * summary bar at the top of the flow.
  */
 export default function StepDetails({ values, onChange, errors }: Props) {
+    const { t } = useTranslation('booking');
+
     return (
         <div className="space-y-6">
             {/*
@@ -35,7 +38,7 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                 className="space-y-4"
                 onSubmit={(event) => event.preventDefault()}
             >
-                <h2 className="text-sm font-medium">Your details</h2>
+                <h2 className="text-sm font-medium">{t('details.heading')}</h2>
 
                 {errors.booking_conflict && (
                     <p
@@ -47,7 +50,7 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                 )}
 
                 <div className="grid gap-2">
-                    <Label htmlFor="customer_name">Name surname</Label>
+                    <Label htmlFor="customer_name">{t('details.name')}</Label>
                     <Input
                         id="customer_name"
                         className="h-12"
@@ -55,7 +58,7 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                         onChange={(event) =>
                             onChange('customer_name', event.target.value)
                         }
-                        placeholder="Jane Doe"
+                        placeholder={t('details.namePlaceholder')}
                         autoComplete="name"
                         autoCapitalize="words"
                         aria-invalid={Boolean(errors.customer_name)}
@@ -65,7 +68,7 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="customer_email">Email</Label>
+                    <Label htmlFor="customer_email">{t('details.email')}</Label>
                     <Input
                         id="customer_email"
                         type="email"
@@ -74,7 +77,7 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                         onChange={(event) =>
                             onChange('customer_email', event.target.value)
                         }
-                        placeholder="jane@example.com"
+                        placeholder={t('details.emailPlaceholder')}
                         autoComplete="email"
                         autoCapitalize="none"
                         autoCorrect="off"
@@ -86,13 +89,13 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="customer_phone">Phone</Label>
+                    <Label htmlFor="customer_phone">{t('details.phone')}</Label>
                     <InternationalPhoneInput
                         id="customer_phone"
                         className="h-12"
                         value={values.customer_phone}
                         onChange={(next) => onChange('customer_phone', next)}
-                        placeholder="555 123 4567"
+                        placeholder={t('details.phonePlaceholder')}
                         aria-invalid={Boolean(errors.customer_phone)}
                         data-test="appointment-customer-phone-input"
                     />
@@ -100,14 +103,14 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="notes">Notes</Label>
+                    <Label htmlFor="notes">{t('details.notes')}</Label>
                     <Textarea
                         id="notes"
                         value={values.notes}
                         onChange={(event) =>
                             onChange('notes', event.target.value)
                         }
-                        placeholder="Anything we should know before your visit…"
+                        placeholder={t('details.notesPlaceholder')}
                         rows={4}
                         autoComplete="off"
                         data-test="appointment-notes-input"

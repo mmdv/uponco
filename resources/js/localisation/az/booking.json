@@ -1,0 +1,122 @@
+{
+    "page": {
+        "title": "Görüş təyin edin · {company}",
+        "viewingOwnPage": "Öz rezervasiya səhifənizə baxırsınız",
+        "goToDashboard": "İdarə panelinə keç"
+    },
+    "steps": {
+        "selection": "Bron detallarınızı seçin",
+        "datetime": "Tarix və vaxt seçin",
+        "details": "Az qaldı",
+        "recap": "Rezervasiyanız budur"
+    },
+    "footer": {
+        "continue": "Davam et",
+        "chooseDateTime": "Tarix və vaxt seç",
+        "confirm": "Görüşü təsdiqlə",
+        "back": "Geri"
+    },
+    "header": {
+        "tagline": "Görüş təyin edin",
+        "menu": "Paylaş və görünüş",
+        "theme": "Tema",
+        "light": "İşıqlı",
+        "dark": "Qaranlıq",
+        "language": "Dil",
+        "share": "Paylaş",
+        "sharePage": "Rezervasiya səhifəsini paylaş",
+        "shareTitle": "{company} ilə görüş təyin edin",
+        "copyLink": "Rezervasiya linkini köçür",
+        "allBookings": "{company} üzrə bütün rezervasiyalar"
+    },
+    "summary": {
+        "empty": "Rezervasiyanızı quraq",
+        "service": "Xidmət",
+        "specialist": "Mütəxəssis",
+        "location": "Filial",
+        "when": "Nə vaxt"
+    },
+    "selection": {
+        "serviceTitle": "Xidmət",
+        "serviceHint": "Prosedur seçin",
+        "specialistTitle": "Mütəxəssis",
+        "specialistHint": "Kimə yazılacağınızı seçin",
+        "locationTitle": "Məkan",
+        "locationHint": "Gedəcəyiniz yeri seçin",
+        "about": "{name} haqqında",
+        "noServices": "Mövcud xidmət yoxdur.",
+        "noSpecialists": "Mövcud mütəxəssis yoxdur.",
+        "noLocations": "Mövcud filial yoxdur."
+    },
+    "specialist": {
+        "nextAvailable": "Ən yaxın vaxt · {label}",
+        "noAvailability": "Yaxın vaxtda boş yer yoxdur",
+        "about": "{name} haqqında",
+        "noDescription": "Hələ təsvir yoxdur.",
+        "close": "Bağla"
+    },
+    "location": {
+        "getDirections": "Marşrutu göstər",
+        "aboutFallback": "Bu filial haqqında",
+        "close": "Bağla"
+    },
+    "datetime": {
+        "chooseDay": "Gün seçin",
+        "chooseTime": "Vaxt seçin",
+        "today": "Bu gün",
+        "tomorrow": "Sabah",
+        "weekdays": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+        "months": [
+            "Yan",
+            "Fev",
+            "Mar",
+            "Apr",
+            "May",
+            "İyn",
+            "İyl",
+            "Avq",
+            "Sen",
+            "Okt",
+            "Noy",
+            "Dek"
+        ],
+        "noTimes": "Bu gün üçün mövcud vaxt yoxdur. Başqa gün seçin.",
+        "fullyBooked": "Tam doludur",
+        "left": "{count} yer qalıb"
+    },
+    "details": {
+        "heading": "Məlumatlarınız",
+        "name": "Ad Soyad",
+        "namePlaceholder": "Azər Məmmədov",
+        "email": "E-poçt",
+        "emailPlaceholder": "azer@example.com",
+        "phone": "Telefon",
+        "phonePlaceholder": "055 123 45 67",
+        "notes": "Qeydlər",
+        "notesPlaceholder": "Görüşdən əvvəl bilməli olduğumuz nə isə varmı…"
+    },
+    "success": {
+        "title": "Rezervasiyanız təsdiqləndi",
+        "message": "Təşəkkürlər {name} — {company} ilə görüşünüzü komandamıza göndərdik.",
+        "there": "dostum",
+        "addToCalendar": "Təqvimə əlavə et",
+        "google": "Google",
+        "apple": "Apple",
+        "bookAnother": "Başqa görüş təyin et"
+    },
+    "cancel": {
+        "pageTitle": "Görüşü ləğv et · {company}",
+        "alreadyTitle": "Bu görüş ləğv edilib",
+        "alreadyDescription": "Bu rezervasiya artıq ləğv edilib. Əgər bu səhv idisə, istənilən vaxt yeni görüş təyin edə bilərsiniz.",
+        "pastTitle": "Bu görüş artıq ləğv edilə bilməz",
+        "pastDescription": "Görüş vaxtı artıq keçib. Sualınız varsa, bizimlə birbaşa əlaqə saxlayın.",
+        "confirmTitle": "Görüşünüzü ləğv edirsiniz?",
+        "confirmDescription": "Zəhmət olmasa aşağıdakı məlumatları nəzərdən keçirin. Ləğv həmişəlikdir və vaxt yerinizi boşaldacaq.",
+        "cancelButton": "Görüşü ləğv et",
+        "dialogTitle": "Bu görüşü ləğv edirsiniz?",
+        "dialogDescription": "{company} ilə {datetime} tarixli görüşünüz ləğv ediləcək. Bu əməliyyat geri qaytarıla bilməz.",
+        "keep": "Görüşü saxla",
+        "cancelling": "Ləğv edilir…",
+        "confirmCancel": "Bəli, ləğv et"
+    }
+}

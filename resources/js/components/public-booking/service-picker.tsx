@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react';
 
 import PhotoPlaceholder from '@/components/public-booking/photo-placeholder';
+import { useTranslation } from '@/hooks/use-translation';
 import { formatDuration, formatServicePrice } from '@/lib/appointments';
 import type { ServiceCategoryGroup } from '@/lib/appointments';
 import { cn } from '@/lib/utils';
@@ -18,10 +19,12 @@ type Props = {
  * plain list, so a business without categories just sees its services.
  */
 export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
+    const { t } = useTranslation('booking');
+
     if (groups.length === 0) {
         return (
             <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-                No services available.
+                {t('selection.noServices')}
             </p>
         );
     }

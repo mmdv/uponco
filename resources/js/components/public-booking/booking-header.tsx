@@ -18,7 +18,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { useLocale } from '@/hooks/use-translation';
+import { useLocale, useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
 export type PublicTheme = 'light' | 'dark';
@@ -91,6 +91,7 @@ export default function BookingHeader({
     showMenu = true,
 }: Props) {
     const { locale, availableLocales, setLocale } = useLocale();
+    const { t } = useTranslation('booking');
     const [shareUrl] = useState(currentUrl);
     const [canNativeShare] = useState(supportsNativeShare);
     const [copied, setCopied] = useState(false);
@@ -98,7 +99,7 @@ export default function BookingHeader({
     const handleNativeShare = () => {
         navigator
             .share({
-                title: `Book with ${companyName}`,
+                title: t('header.shareTitle', { company: companyName }),
                 url: shareUrl,
             })
             .catch(() => {
@@ -139,7 +140,7 @@ export default function BookingHeader({
                     {headline}
                 </h1>
                 <p className="text-xs text-muted-foreground">
-                    {tagline || 'Book an appointment'}
+                    {tagline || t('header.tagline')}
                 </p>
             </div>
         </>
@@ -151,7 +152,9 @@ export default function BookingHeader({
                 <Link
                     href={backUrl}
                     className="flex min-w-0 items-center gap-3 rounded-xl transition-opacity hover:opacity-75"
-                    aria-label={`All bookings at ${companyName}`}
+                    aria-label={t('header.allBookings', {
+                        company: companyName,
+                    })}
                     data-test="booking-back-to-company"
                 >
                     {identity}
@@ -168,7 +171,7 @@ export default function BookingHeader({
                         <Button
                             variant="ghost"
                             size="icon"
-                            aria-label="Share and appearance"
+                            aria-label={t('header.menu')}
                             data-test="booking-header-menu"
                         >
                             <EllipsisVertical className="size-5" />
@@ -177,7 +180,7 @@ export default function BookingHeader({
                     <PopoverContent align="end" className="w-72 space-y-4">
                         <div className="space-y-2">
                             <p className="text-xs font-medium text-muted-foreground">
-                                Theme
+                                {t('header.theme')}
                             </p>
                             <div className="grid grid-cols-2 gap-2">
                                 <Button
@@ -191,7 +194,7 @@ export default function BookingHeader({
                                     data-test="booking-theme-light"
                                 >
                                     <Sun className="size-4" />
-                                    Light
+                                    {t('header.light')}
                                 </Button>
                                 <Button
                                     type="button"
@@ -202,7 +205,7 @@ export default function BookingHeader({
                                     data-test="booking-theme-dark"
                                 >
                                     <Moon className="size-4" />
-                                    Dark
+                                    {t('header.dark')}
                                 </Button>
                             </div>
                         </div>
@@ -210,7 +213,7 @@ export default function BookingHeader({
                         {availableLocales.length > 1 ? (
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">
-                                    Language
+                                    {t('header.language')}
                                 </p>
                                 <div className="grid grid-cols-2 gap-2">
                                     {availableLocales.map((language) => (
@@ -237,7 +240,7 @@ export default function BookingHeader({
 
                         <div className="space-y-2">
                             <p className="text-xs font-medium text-muted-foreground">
-                                Share
+                                {t('header.share')}
                             </p>
                             {canNativeShare ? (
                                 <Button
@@ -247,7 +250,7 @@ export default function BookingHeader({
                                     data-test="booking-share-native"
                                 >
                                     <Share2 className="size-4" />
-                                    Share booking page
+                                    {t('header.sharePage')}
                                 </Button>
                             ) : (
                                 <div className="flex items-center gap-2">
@@ -269,7 +272,7 @@ export default function BookingHeader({
                                             copied && 'text-primary',
                                         )}
                                         onClick={handleCopy}
-                                        aria-label="Copy booking link"
+                                        aria-label={t('header.copyLink')}
                                         data-test="booking-share-copy"
                                     >
                                         {copied ? (

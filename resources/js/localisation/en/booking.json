@@ -1,0 +1,122 @@
+{
+    "page": {
+        "title": "Book an appointment · {company}",
+        "viewingOwnPage": "You're viewing your booking page",
+        "goToDashboard": "Go to dashboard"
+    },
+    "steps": {
+        "selection": "Choose your booking details",
+        "datetime": "Pick a date & time",
+        "details": "Almost done",
+        "recap": "Here's your booking"
+    },
+    "footer": {
+        "continue": "Continue",
+        "chooseDateTime": "Choose date & time",
+        "confirm": "Confirm booking",
+        "back": "Back"
+    },
+    "header": {
+        "tagline": "Book an appointment",
+        "menu": "Share and appearance",
+        "theme": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "language": "Language",
+        "share": "Share",
+        "sharePage": "Share booking page",
+        "shareTitle": "Book with {company}",
+        "copyLink": "Copy booking link",
+        "allBookings": "All bookings at {company}"
+    },
+    "summary": {
+        "empty": "Let's build your booking",
+        "service": "Service",
+        "specialist": "Specialist",
+        "location": "Location",
+        "when": "When"
+    },
+    "selection": {
+        "serviceTitle": "Service",
+        "serviceHint": "Choose a treatment",
+        "specialistTitle": "Specialist",
+        "specialistHint": "Choose who you'll see",
+        "locationTitle": "Location",
+        "locationHint": "Pick where to visit",
+        "about": "About {name}",
+        "noServices": "No services available.",
+        "noSpecialists": "No specialists available.",
+        "noLocations": "No locations available."
+    },
+    "specialist": {
+        "nextAvailable": "Next available · {label}",
+        "noAvailability": "No upcoming availability",
+        "about": "About {name}",
+        "noDescription": "No description yet.",
+        "close": "Close"
+    },
+    "location": {
+        "getDirections": "Get directions",
+        "aboutFallback": "About this location",
+        "close": "Close"
+    },
+    "datetime": {
+        "chooseDay": "Choose a day",
+        "chooseTime": "Choose a time",
+        "today": "Today",
+        "tomorrow": "Tmrw",
+        "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "months": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
+        "noTimes": "No times available on this day. Try another.",
+        "fullyBooked": "Fully booked",
+        "left": "{count} left"
+    },
+    "details": {
+        "heading": "Your details",
+        "name": "Name surname",
+        "namePlaceholder": "Jane Doe",
+        "email": "Email",
+        "emailPlaceholder": "jane@example.com",
+        "phone": "Phone",
+        "phonePlaceholder": "555 123 4567",
+        "notes": "Notes",
+        "notesPlaceholder": "Anything we should know before your visit…"
+    },
+    "success": {
+        "title": "You're booked in",
+        "message": "Thanks {name} — we've sent your appointment with {company} to our team.",
+        "there": "there",
+        "addToCalendar": "Add to your calendar",
+        "google": "Google",
+        "apple": "Apple",
+        "bookAnother": "Book another appointment"
+    },
+    "cancel": {
+        "pageTitle": "Cancel appointment · {company}",
+        "alreadyTitle": "This appointment is cancelled",
+        "alreadyDescription": "This booking has already been cancelled. If this was a mistake, you can book a new appointment at any time.",
+        "pastTitle": "This appointment can no longer be cancelled",
+        "pastDescription": "The appointment time has already passed. Please contact us directly if you have any questions.",
+        "confirmTitle": "Cancel your appointment?",
+        "confirmDescription": "Please review the details below. Cancelling is permanent and will free up your time slot.",
+        "cancelButton": "Cancel appointment",
+        "dialogTitle": "Cancel this appointment?",
+        "dialogDescription": "Your {datetime} appointment with {company} will be cancelled. This action cannot be undone.",
+        "keep": "Keep appointment",
+        "cancelling": "Cancelling…",
+        "confirmCancel": "Yes, cancel it"
+    }
+}

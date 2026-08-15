@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import SpecialistProfileDialog from '@/components/public-booking/specialist-profile-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTranslation } from '@/hooks/use-translation';
 import { filterPreviewSlotsByDuration, nameInitials } from '@/lib/appointments';
 import { cn } from '@/lib/utils';
 import type { AppointmentSpecialistOption } from '@/types';
@@ -26,6 +27,7 @@ export default function SpecialistPicker({
     serviceDuration,
     onSelect,
 }: Props) {
+    const { t } = useTranslation('booking');
     const [profile, setProfile] = useState<AppointmentSpecialistOption | null>(
         null,
     );
@@ -33,7 +35,7 @@ export default function SpecialistPicker({
     if (specialists.length === 0) {
         return (
             <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-                No specialists available.
+                {t('selection.noSpecialists')}
             </p>
         );
     }
@@ -96,7 +98,9 @@ export default function SpecialistPicker({
                                 <div className="flex shrink-0 items-center gap-1.5">
                                     <button
                                         type="button"
-                                        aria-label={`About ${specialist.name}`}
+                                        aria-label={t('specialist.about', {
+                                            name: specialist.name,
+                                        })}
                                         data-test={`specialist-info-${specialist.id}`}
                                         onClick={(event) => {
                                             // Reading the bio must never pick
@@ -130,7 +134,9 @@ export default function SpecialistPicker({
                             {preview && slots.length > 0 ? (
                                 <div className="mt-1.5">
                                     <p className="text-xs text-muted-foreground">
-                                        Next available · {preview.label}
+                                        {t('specialist.nextAvailable', {
+                                            label: preview.label,
+                                        })}
                                     </p>
                                     <div className="mt-1.5 flex flex-wrap gap-1">
                                         {slots.slice(0, 4).map((slot) => (
@@ -145,7 +151,7 @@ export default function SpecialistPicker({
                                 </div>
                             ) : (
                                 <p className="mt-1 text-xs text-muted-foreground/70">
-                                    No upcoming availability
+                                    {t('specialist.noAvailability')}
                                 </p>
                             )}
                         </div>

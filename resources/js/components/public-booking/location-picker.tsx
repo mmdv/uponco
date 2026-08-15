@@ -1,6 +1,7 @@
 import { Check, MapPin } from 'lucide-react';
 
 import LocationDetails from '@/components/public-booking/location-details';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { AppointmentLocationDetail } from '@/types';
 
@@ -20,10 +21,12 @@ export default function LocationPicker({
     selectedId,
     onSelect,
 }: Props) {
+    const { t } = useTranslation('booking');
+
     if (locations.length === 0) {
         return (
             <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-                No locations available.
+                {t('selection.noLocations')}
             </p>
         );
     }

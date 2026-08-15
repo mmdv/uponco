@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/hooks/use-translation';
 import type { UpcomingDay } from '@/lib/appointments';
 import { cn } from '@/lib/utils';
 import type { AppointmentSlot } from '@/types';
@@ -31,11 +32,27 @@ export default function StepDateTime({
     onSelectSlot,
     error,
 }: Props) {
-    const timeFormatter = new Intl.DateTimeFormat(undefined, {
+    const { t, locale } = useTranslation('booking');
+    const timeFormatter = new Intl.DateTimeFormat(locale, {
         timeZone: timezone,
         hour: '2-digit',
         minute: '2-digit',
     });
+
+    // The day strip's weekday/month labels come from bundled translation lists
+    // indexed by day-of-week / month number, not from `Intl` — embedded webviews
+    // often ship without the visitor's locale data and silently fall back to
+    // English (or worse) for `Intl` date parts. The `YYYY-MM-DD` value is parsed
+    // as a local calendar date so the weekday can't drift a day across timezones.
+    const parseLocalDate = (value: string): Date => {
+        const [year, month, day] = value.split('-').map(Number);
+
+        return new Date(year, month - 1, day);
+    };
+    const weekdayLabel = (value: string): string =>
+        t(`datetime.weekdays.${parseLocalDate(value).getDay()}`);
+    const monthLabel = (value: string): string =>
+        t(`datetime.months.${parseLocalDate(value).getMonth()}`);
 
     // Bookable slots plus full group sessions, which are shown disabled so the
     // visitor can see the session existed. Past / specialist-blocked slots stay
@@ -47,7 +64,9 @@ export default function StepDateTime({
     return (
         <div className="space-y-6">
             <section className="space-y-3">
-                <h2 className="text-sm font-medium">Choose a day</h2>
+                <h2 className="text-sm font-medium">
+                    {t('datetime.chooseDay')}
+                </h2>
 
                 <div className="-mx-1 flex [scrollbar-width:thin] [scrollbar-color:var(--color-primary)_transparent] gap-2 overflow-x-auto px-1 pt-1 pb-3 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary/70 [&::-webkit-scrollbar-track]:bg-transparent">
                     {days.map((day) => {
@@ -78,10 +97,10 @@ export default function StepDateTime({
                                     )}
                                 >
                                     {day.isToday
-                                        ? 'Today'
+                                        ? t('datetime.today')
                                         : day.isTomorrow
-                                          ? 'Tmrw'
-                                          : day.weekday}
+                                          ? t('datetime.tomorrow')
+                                          : weekdayLabel(day.date)}
                                 </span>
                                 <span className="text-lg font-semibold">
                                     {day.day}
@@ -94,7 +113,7 @@ export default function StepDateTime({
                                             : 'text-muted-foreground',
                                     )}
                                 >
-                                    {day.month}
+                                    {monthLabel(day.date)}
                                 </span>
                             </button>
                         );
@@ -103,7 +122,9 @@ export default function StepDateTime({
             </section>
 
             <section className="space-y-3">
-                <h2 className="text-sm font-medium">Choose a time</h2>
+                <h2 className="text-sm font-medium">
+                    {t('datetime.chooseTime')}
+                </h2>
 
                 {loading ? (
                     <div className="grid grid-cols-3 gap-2">
@@ -113,7 +134,7 @@ export default function StepDateTime({
                     </div>
                 ) : visibleSlots.length === 0 ? (
                     <p className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
-                        No times available on this day. Try another.
+                        {t('datetime.noTimes')}
                     </p>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
@@ -155,8 +176,10 @@ export default function StepDateTime({
                                             )}
                                         >
                                             {isFull
-                                                ? 'Fully booked'
-                                                : `${slot.remaining} left`}
+                                                ? t('datetime.fullyBooked')
+                                                : t('datetime.left', {
+                                                      count: slot.remaining,
+                                                  })}
                                         </span>
                                     )}
                                 </button>

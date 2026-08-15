@@ -11,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import type { AppointmentLocationDetail } from '@/types';
 
 type Props = {
@@ -24,6 +25,8 @@ type Props = {
  * location counterpart of the specialist profile dialog.
  */
 export default function LocationDetailsDialog({ location, onClose }: Props) {
+    const { t } = useTranslation('booking');
+
     return (
         <Dialog
             open={location !== null}
@@ -45,7 +48,9 @@ export default function LocationDetailsDialog({ location, onClose }: Props) {
                     <DialogTitle className="mt-3">{location?.name}</DialogTitle>
 
                     <DialogDescription className="sr-only">
-                        {`About ${location?.name ?? 'this location'}`}
+                        {location
+                            ? t('selection.about', { name: location.name })
+                            : t('location.aboutFallback')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -60,7 +65,7 @@ export default function LocationDetailsDialog({ location, onClose }: Props) {
                 <DialogFooter className="sm:justify-center">
                     <DialogClose asChild>
                         <Button variant="outline" className="w-full">
-                            Close
+                            {t('location.close')}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

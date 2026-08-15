@@ -7,6 +7,7 @@ import StepSelection from '@/components/public-booking/step-selection';
 import SuccessScreen from '@/components/public-booking/success-screen';
 import SummaryBar from '@/components/public-booking/summary-bar';
 import { useAppointmentBooking } from '@/hooks/use-appointment-booking';
+import { useTranslation } from '@/hooks/use-translation';
 import type { BookingPreset } from '@/lib/booking';
 import type { BrandPalette } from '@/lib/brand';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
@@ -52,15 +53,6 @@ type FlowProps = PublicBookingProps & {
     embedded?: boolean;
 };
 
-const STEP_TITLES = [
-    'What would you like to book?',
-    'Pick a date & time',
-    'Almost done',
-];
-
-/** The heading for step one when there was nothing there to decide. */
-const RECAP_TITLE = "Here's your booking";
-
 /**
  * The public booking wizard itself, without any page-level chrome, so the
  * dashboard can embed the very same flow admins hand to their customers.
@@ -81,6 +73,13 @@ export function PublicBookingFlow({
     onThemeChange = () => {},
     embedded = false,
 }: FlowProps) {
+    const { t } = useTranslation('booking');
+    const stepTitles = [
+        t('steps.selection'),
+        t('steps.datetime'),
+        t('steps.details'),
+    ];
+
     const booking = useAppointmentBooking({
         company,
         timezone,
@@ -140,8 +139,8 @@ export function PublicBookingFlow({
                     <div key={step} className={booking.stepClass}>
                         <h2 className="mb-4 text-base font-semibold">
                             {step === 0 && selectionIsFixed
-                                ? RECAP_TITLE
-                                : STEP_TITLES[step]}
+                                ? t('steps.recap')
+                                : stepTitles[step]}
                         </h2>
 
                         {step === 0 && (
@@ -204,8 +203,8 @@ export function PublicBookingFlow({
                     }
                     continueLabel={
                         step === 0 && selectionIsFixed
-                            ? 'Choose date & time'
-                            : 'Continue'
+                            ? t('footer.chooseDateTime')
+                            : t('footer.continue')
                     }
                     processing={booking.processing}
                     onBack={() => booking.goToStep(step - 1)}

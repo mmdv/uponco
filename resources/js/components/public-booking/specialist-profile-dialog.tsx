@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import { nameInitials } from '@/lib/appointments';
 import type { AppointmentSpecialistOption } from '@/types';
 
@@ -26,6 +27,8 @@ export default function SpecialistProfileDialog({
     specialist,
     onClose,
 }: Props) {
+    const { t } = useTranslation('booking');
+
     return (
         <Dialog
             open={specialist !== null}
@@ -58,7 +61,9 @@ export default function SpecialistProfileDialog({
                     </DialogTitle>
 
                     <DialogDescription className="sr-only">
-                        {`About ${specialist?.name ?? 'this specialist'}`}
+                        {specialist
+                            ? t('specialist.about', { name: specialist.name })
+                            : t('selection.specialistTitle')}
                     </DialogDescription>
 
                     {specialist?.job_title ? (
@@ -69,13 +74,13 @@ export default function SpecialistProfileDialog({
                 </DialogHeader>
 
                 <p className="text-center text-sm whitespace-pre-line text-muted-foreground">
-                    {specialist?.description || 'No description yet.'}
+                    {specialist?.description || t('specialist.noDescription')}
                 </p>
 
                 <DialogFooter className="sm:justify-center">
                     <DialogClose asChild>
                         <Button variant="outline" className="w-full">
-                            Close
+                            {t('specialist.close')}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

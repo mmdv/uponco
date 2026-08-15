@@ -5,6 +5,7 @@ import { PublicBookingFlow } from '@/components/public-booking/booking-flow';
 import type { PublicBookingProps } from '@/components/public-booking/booking-flow';
 import { Button } from '@/components/ui/button';
 import { usePublicTheme } from '@/hooks/use-public-theme';
+import { useTranslation } from '@/hooks/use-translation';
 import { brandStyle } from '@/lib/brand';
 import { dashboard } from '@/routes';
 
@@ -18,24 +19,25 @@ export default function PublicAppointmentBooking({
     ...props
 }: PageProps) {
     const { theme, setTheme } = usePublicTheme();
+    const { t } = useTranslation('booking');
 
     return (
         <div
             className="flex min-h-svh w-full justify-center bg-muted/30"
             style={brandStyle(props.company.brand)}
         >
-            <Head title={`Book an appointment · ${props.company.name}`} />
+            <Head title={t('page.title', { company: props.company.name })} />
 
             <div className="flex w-full max-w-[460px] flex-col">
                 {canManage && (
                     <div className="flex items-center justify-between gap-3 px-5 pt-3">
                         <span className="text-xs text-muted-foreground">
-                            You're viewing your booking page
+                            {t('page.viewingOwnPage')}
                         </span>
                         <Button asChild size="sm" variant="outline">
                             <Link href={dashboard.url()}>
                                 <LayoutDashboard />
-                                Go to dashboard
+                                {t('page.goToDashboard')}
                             </Link>
                         </Button>
                     </div>

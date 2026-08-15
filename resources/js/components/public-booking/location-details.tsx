@@ -1,5 +1,6 @@
 import { MapPin, Navigation, Phone } from 'lucide-react';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { AppointmentLocationDetail } from '@/types';
 
@@ -23,6 +24,7 @@ export default function LocationDetails({
     compact = false,
     className,
 }: Props) {
+    const { t } = useTranslation('booking');
     const address = location.address ?? location.city;
 
     if (!address && !location.phone && !location.directions_url) {
@@ -61,7 +63,7 @@ export default function LocationDetails({
                         data-test={`booking-location-directions-${location.id}`}
                     >
                         <Navigation className="size-3.5" />
-                        Get directions
+                        {t('location.getDirections')}
                     </a>
                 )}
             </div>

@@ -1,6 +1,7 @@
 import { CalendarClock, MapPin, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { GENERIC_SERVICE_ICON } from '@/lib/business-category-icons';
 
 type Row = {
@@ -31,28 +32,37 @@ export default function BookingSummary({
     dateTimeLabel,
     serviceIcon = GENERIC_SERVICE_ICON,
 }: Props) {
+    const { t } = useTranslation('booking');
     const rows: Row[] = [];
 
     if (serviceTitle) {
         rows.push({
             icon: serviceIcon,
-            label: 'Service',
+            label: t('summary.service'),
             value: metaLabel ? `${serviceTitle} · ${metaLabel}` : serviceTitle,
         });
     }
 
     if (specialistName) {
-        rows.push({ icon: User, label: 'Specialist', value: specialistName });
+        rows.push({
+            icon: User,
+            label: t('summary.specialist'),
+            value: specialistName,
+        });
     }
 
     if (locationName) {
-        rows.push({ icon: MapPin, label: 'Location', value: locationName });
+        rows.push({
+            icon: MapPin,
+            label: t('summary.location'),
+            value: locationName,
+        });
     }
 
     if (dateTimeLabel) {
         rows.push({
             icon: CalendarClock,
-            label: 'When',
+            label: t('summary.when'),
             value: dateTimeLabel,
         });
     }
