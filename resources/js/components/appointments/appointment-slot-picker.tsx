@@ -122,24 +122,52 @@ export default function AppointmentSlotPicker({
                     </p>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
-                        {slots.map((slot) => (
-                            <button
-                                key={slot.start}
-                                type="button"
-                                disabled={!slot.available}
-                                aria-pressed={selectedStart === slot.start}
-                                onClick={() => onSelectSlot(slot.start)}
-                                data-test="appointment-slot"
-                                className={cn(
-                                    'rounded-md border px-2 py-2 text-sm transition-colors',
-                                    'hover:border-ring disabled:cursor-not-allowed disabled:line-through disabled:opacity-40 disabled:hover:border-input',
-                                    selectedStart === slot.start &&
-                                        'border-primary bg-primary-gradient text-primary-foreground hover:border-primary',
-                                )}
-                            >
-                                {slot.label}
-                            </button>
-                        ))}
+                        {slots.map((slot) => {
+                            const isSelected = selectedStart === slot.start;
+                            const isFull = slot.remaining === 0;
+
+                            return (
+                                <button
+                                    key={slot.start}
+                                    type="button"
+                                    disabled={!slot.available}
+                                    aria-pressed={isSelected}
+                                    onClick={() => onSelectSlot(slot.start)}
+                                    data-test="appointment-slot"
+                                    className={cn(
+                                        'flex flex-col items-center rounded-md border px-2 py-2 text-sm transition-colors',
+                                        'hover:border-ring disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-input',
+                                        isSelected &&
+                                            'border-primary bg-primary-gradient text-primary-foreground hover:border-primary',
+                                    )}
+                                >
+                                    <span
+                                        className={cn(
+                                            !slot.available && 'line-through',
+                                        )}
+                                    >
+                                        {slot.label}
+                                    </span>
+
+                                    {slot.remaining !== null && (
+                                        <span
+                                            className={cn(
+                                                'text-[11px] font-normal',
+                                                isSelected
+                                                    ? 'text-primary-foreground/80'
+                                                    : 'text-muted-foreground',
+                                            )}
+                                        >
+                                            {isFull
+                                                ? t('slots.fullyBooked')
+                                                : t('slots.left', {
+                                                      count: slot.remaining,
+                                                  })}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 )}
             </div>

@@ -96,7 +96,9 @@
         "pickDate": "Pick a date",
         "selectServiceSpecialist": "Select a service and specialist to see available times.",
         "pickDateHint": "Pick a date to see available times.",
-        "noTimes": "No available times on this day."
+        "noTimes": "No available times on this day.",
+        "left": "{count} left",
+        "fullyBooked": "Fully booked"
     },
     "cancel": {
         "title": "Cancel appointment",

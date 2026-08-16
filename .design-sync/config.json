@@ -1,0 +1,93 @@
+{
+  "projectId": "d7db5cd6-56ea-464a-bb5c-960eb890a80d",
+  "shape": "package",
+  "pkg": "uponco",
+  "globalName": "Uponco",
+  "srcDir": "resources/js/components",
+  "tsconfig": ".design-sync/tsconfig.ds-sync.json",
+  "cssEntry": ".design-sync/.cache/css/app.css",
+  "libOverrides": {
+    "source-kit.mjs": "components/ui/ is the primitive layer — stock GENERIC_DIR collapses it (and the root-level app shell) into one 210-component \"general\" group"
+  },
+  "buildCmd": "npm run build && node .design-sync/prepare-css.mjs",
+  "overrides": {
+    "PublicBookingFlow": {
+      "cardMode": "column"
+    },
+    "StepDateTime": {
+      "cardMode": "column"
+    },
+    "LocationDetailsDialog": {
+      "cardMode": "single",
+      "primaryStory": "BranchWithPhoneAndDirections"
+    },
+    "SpecialistProfileDialog": {
+      "cardMode": "single",
+      "primaryStory": "WithBio"
+    },
+    "FeaturePillars": {
+      "cardMode": "single",
+      "viewport": "1280x2200"
+    },
+    "DashboardHeader": {
+      "cardMode": "column"
+    },
+    "SiteFooter": {
+      "cardMode": "column"
+    },
+    "SiteHeader": {
+      "cardMode": "column"
+    },
+    "DialogPortal": {
+      "cardMode": "column"
+    },
+    "NavigationMenu": {
+      "cardMode": "column"
+    },
+    "NavigationMenuContent": {
+      "cardMode": "column"
+    },
+    "NavigationMenuItem": {
+      "cardMode": "column"
+    },
+    "NavigationMenuList": {
+      "cardMode": "column"
+    },
+    "DialogOverlay": {
+      "cardMode": "single",
+      "primaryStory": "ScrimBehindDialog"
+    },
+    "Popover": {
+      "cardMode": "single",
+      "primaryStory": "FiltersPopover"
+    },
+    "PopoverAnchor": {
+      "cardMode": "single",
+      "primaryStory": "AnchoredToSlot"
+    },
+    "PopoverContent": {
+      "cardMode": "single",
+      "primaryStory": "WithForm"
+    },
+    "PopoverTrigger": {
+      "cardMode": "single",
+      "primaryStory": "ButtonTrigger"
+    },
+    "Tooltip": {
+      "cardMode": "single",
+      "primaryStory": "RemoveMemberHint"
+    },
+    "TooltipContent": {
+      "cardMode": "single",
+      "primaryStory": "WrappingParagraph"
+    },
+    "TooltipProvider": {
+      "cardMode": "single",
+      "primaryStory": "ToolbarWithSharedTiming"
+    },
+    "TooltipTrigger": {
+      "cardMode": "single",
+      "primaryStory": "RestingInMemberRow"
+    }
+  }
+}

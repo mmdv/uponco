@@ -1,0 +1,212 @@
+// forked from design-sync lib/source-kit.mjs — this repo's primitives live in components/ui/, which the stock GENERIC_DIR set collapses into one 210-component "general" group
+// Non-storybook `package` adapter. Bundles dist/ when present (the authoritative
+// component list comes from shipped .d.ts; with no dist it synthesizes an
+// entry from src/ as a last resort) and opportunistically enriches each
+// component from src/ — JSDoc and dir-derived group. Every enrichment miss
+// degrades to the plain-dist behaviour.
+//
+// Discovery is heuristic-based; each heuristic has a `.design-sync/config.json`
+// override (ASSUMPTION comments below name them) so repos that don't match the
+// defaults write config, not code. `componentSrcMap` is the single override
+// knob for component inclusion: non-null value = add/pin src path, null =
+// exclude a .d.ts-exported internal.
+
+import { existsSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import { Project, Node, ts } from 'ts-morph';
+import { leadingJsdoc, readText, slash, walk } from '../../.ds-sync/lib/common.mjs';
+import { resolveDistEntry } from '../../.ds-sync/lib/bundle.mjs';
+import { exportedNames, isComponentName } from '../../.ds-sync/lib/dts.mjs';
+
+const NON_IMPL_RX = /\.(stories|test|spec)\./;
+const SRC_IMPL_RX = /\.(tsx|jsx)$/;
+// Dir names that don't usefully group components — skip so the emitted path
+// is `components/<group>/<Name>` not `components/components/<Name>`.
+// FORK: 'ui' removed — resources/js/components/ui/ is this repo's primitive
+// layer and makes a genuinely useful group label.
+const GENERIC_DIR = new Set(['components', 'component', 'src', 'lib', 'packages', 'react']);
+// FORK: components sitting directly in the source root are the app shell /
+// chrome layer, not an unclassifiable remainder — 'general' undersells them.
+const ROOT_GROUP = 'app';
+const slug = (s) => s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'general';
+
+// No .d.ts → scan src files for PascalCase value exports via ts-morph.
+function deriveComponentsFromSrc(srcFiles) {
+  const project = new Project({
+    skipAddingFilesFromTsConfig: true,
+    compilerOptions: { jsx: ts.JsxEmit.Preserve, allowJs: true, skipLibCheck: true },
+  });
+  const seen = new Set();
+  for (const p of srcFiles) {
+    if (NON_IMPL_RX.test(p) || !SRC_IMPL_RX.test(p)) continue;
+    const sf = project.addSourceFileAtPathIfExists(p);
+    if (!sf) continue;
+    for (const [name, decls] of sf.getExportedDeclarations()) {
+      // `export default function Button()` is keyed as 'default' — recover
+      // the declared name from the function/class node.
+      const real = name === 'default'
+        ? decls.map((d) => d.getName?.()).find((n) => n && n !== 'default')
+        : name;
+      if (!real || !/^[A-Z][A-Za-z0-9]*$/.test(real)) continue;
+      if (decls.some((d) => Node.isVariableDeclaration(d) || Node.isFunctionDeclaration(d) || Node.isClassDeclaration(d))) {
+        seen.add(real);
+      }
+    }
+  }
+  return [...seen].sort().map((name) => ({ name, group: 'general' }));
+}
+
+// FORK: map each src file to the PascalCase name of its default export, when it
+// has one that carries a declared name (`export default function Foo`,
+// `const Foo = …; export default Foo`). Anonymous defaults are skipped — there
+// is no name to publish them under.
+function defaultExportNames(files) {
+  const project = new Project({
+    skipAddingFilesFromTsConfig: true,
+    compilerOptions: { jsx: ts.JsxEmit.Preserve, allowJs: true, skipLibCheck: true },
+  });
+  const out = new Map();
+  for (const p of files) {
+    const sf = project.addSourceFileAtPathIfExists(p);
+    if (!sf) continue;
+    for (const [key, decls] of sf.getExportedDeclarations()) {
+      if (key !== 'default') continue;
+      const name = decls.map((d) => d.getName?.()).find((n) => n && n !== 'default' && /^[A-Z][A-Za-z0-9]*$/.test(n));
+      if (name) out.set(p, name);
+    }
+  }
+  return out;
+}
+
+export async function resolvePackage(ctx) {
+  const { PKG_DIR, pkgJson, ENTRY_OVERRIDE, PKG, OUT, cfg } = ctx;
+  const srcMap = cfg.componentSrcMap ?? {};
+
+  // ── 1. src/ discovery (best-effort; feeds enrichment + synth-entry fallback).
+  // ASSUMPTION: source root is first of src/ | lib/ | components/. Override: cfg.srcDir.
+  const srcRoot = [cfg.srcDir, 'src', 'lib', 'components']
+    .map((d) => d && resolve(PKG_DIR, d))
+    .find((d) => d && existsSync(d));
+  const srcFiles = srcRoot ? walk(srcRoot, (n) => /\.(tsx|jsx|mdx?)$/.test(n)) : [];
+
+  // ── 2. entry: dist if it exists, else synthesize from src/ (last resort).
+  let entry = resolveDistEntry({ pkgDir: PKG_DIR, pkgJson, override: ENTRY_OVERRIDE, pkgName: PKG, soft: true });
+  let synthEntry = false;
+  if (!entry) {
+    if (!srcRoot) {
+      console.error(`[NO_DIST] ${PKG} has no built entry and no src/ to synthesize from — run its build.`);
+      process.exit(1);
+    }
+    const comps = srcFiles.filter((p) => SRC_IMPL_RX.test(p) && !NON_IMPL_RX.test(p));
+    entry = join(OUT, '.pkg-entry.mjs');
+    // FORK: `export *` skips default exports, and this repo's app components are
+    // overwhelmingly `export default function AddMemberModal()`. Without this the
+    // names are discovered but never reach window.<GLOBAL> ([BUNDLE_EXPORT] on
+    // 135/323). Re-export each recovered default under its declared name; first
+    // file wins on a collision, matching `export *`'s own precedence.
+    const defaults = defaultExportNames(comps);
+    const taken = new Set();
+    const lines = comps.map((p) => {
+      let line = `export * from ${JSON.stringify(p)};`;
+      const name = defaults.get(p);
+      if (name && !taken.has(name)) {
+        taken.add(name);
+        line += `\nexport { default as ${name} } from ${JSON.stringify(p)};`;
+      }
+      return line;
+    });
+    writeFileSync(entry, lines.join('\n') + '\n');
+    synthEntry = true;
+    console.error(
+      `[NO_DIST] no built entry — synthesizing from ${comps.length} src files (run the package's build for best results)`,
+    );
+  }
+
+  // ── 3. component list: from shipped .d.ts (authoritative when dist exists).
+  // ASSUMPTION: components = PascalCase value exports in the .d.ts tree.
+  // Override: cfg.componentSrcMap (non-null adds/pins, null excludes).
+  const exported = exportedNames(PKG_DIR, pkgJson);
+  const names = new Set([...exported].filter(isComponentName));
+  for (const [k, v] of Object.entries(srcMap)) {
+    if (v === null) { names.delete(k); continue; }
+    // Names reach `<script>` blocks in the emitted HTML — reject anything
+    // that isn't a plain PascalCase identifier.
+    if (!/^[A-Z][A-Za-z0-9]*$/.test(k)) {
+      console.error(`[CONFIG] componentSrcMap: "${k}" is not a valid component name (PascalCase identifiers only)`);
+      continue;
+    }
+    names.add(k);
+  }
+  let components = [...names].sort().map((name) => ({ name, group: 'general' }));
+  if (!components.length && synthEntry) {
+    components = deriveComponentsFromSrc(srcFiles).filter((c) => srcMap[c.name] !== null);
+  }
+  if (!components.length) {
+    if (cfg.cssEntry || existsSync(join(PKG_DIR, 'styles.css'))) {
+      console.error('[ZERO_MATCH] no component exports — treating as tokens-only DS');
+      return { shape: 'package', entry, components: [], tokensOnly: true };
+    }
+    console.error(`[ZERO_MATCH] no PascalCase exports in ${PKG} and no styles — nothing to sync`);
+    process.exit(1);
+  }
+
+  // ── 4. src/ enrichment per component. Every miss degrades to plain-dist.
+  if (srcRoot) {
+    for (const c of components) {
+      // Pinned via config → skip fuzzy-find entirely.
+      let hit = typeof srcMap[c.name] === 'string' ? slash(resolve(PKG_DIR, srcMap[c.name])) : null;
+      if (!hit) {
+        // ASSUMPTION: <Name>.tsx | <name>/<name>.tsx | <Name>/index.tsx |
+        // <kebab-name>.tsx, case-insensitive; dir-match ranks above
+        // bare-file match, then prefer one that actually exports `c.name`.
+        // Override: cfg.componentSrcMap.
+        const kebab = c.name.replace(/([a-z0-9])([A-Z])/g, '$1-$2');
+        const nameRx = new RegExp(
+          `(?:^|/)(?:${c.name}/(?:index|${c.name})\\.(tsx|jsx)|(?:${c.name}|${kebab})\\.(tsx|jsx))$`,
+          'i',
+        );
+        const hits = srcFiles
+          .filter((p) => nameRx.test(p) && !NON_IMPL_RX.test(p))
+          .sort(
+            (a, b) =>
+              (b.toLowerCase().includes(`/${c.name.toLowerCase()}/`) ? 1 : 0) -
+              (a.toLowerCase().includes(`/${c.name.toLowerCase()}/`) ? 1 : 0),
+          );
+        const exportRx = new RegExp(`export\\s+(?:default\\s+)?(?:const|let|var|function|class)\\s+${c.name}\\b`);
+        hit = hits.find((p) => exportRx.test(readText(p))) ?? hits[0];
+      }
+      if (!hit || !existsSync(hit)) continue;
+      c.srcPath = hit;
+      c.doc = leadingJsdoc(readText(hit), c.name) || undefined;
+      // group = last src/ path segment that isn't the component's own dir or
+      // a generic container name — else JSDoc @category — else 'general'.
+      c.group = slug(
+        slash(relative(srcRoot, dirname(hit)))
+          .split('/')
+          .filter((s) => s && s.toLowerCase() !== c.name.toLowerCase() && !GENERIC_DIR.has(s.toLowerCase()))
+          .at(-1)
+        || (c.doc && /@category\s+(\S+)/.exec(c.doc)?.[1])
+        || ROOT_GROUP,
+      );
+    }
+  }
+
+  // FORK: subparts (DialogContent, SidebarMenuButton) have no file of their own,
+  // so the fuzzy-find leaves them ungrouped in a 130-strong 'general' bucket.
+  // Inherit the group of the longest PascalCase-prefix component that DID match
+  // — Dialog owns DialogContent, Sidebar owns SidebarMenuButton.
+  {
+    const grouped = components.filter((c) => c.srcPath).sort((a, b) => b.name.length - a.name.length);
+    for (const c of components) {
+      if (c.srcPath) continue;
+      const parent = grouped.find((g) => c.name.startsWith(g.name) && c.name.length > g.name.length);
+      if (parent) { c.group = parent.group; c.subOf = parent.name; }
+    }
+  }
+
+  console.error(
+    `  package: ${components.length} components` +
+      (srcRoot ? ` (${components.filter((c) => c.srcPath).length} src-matched)` : ' (no src/ — dist-only)'),
+  );
+  return { shape: 'package', entry, components, synthEntry, exported };
+}

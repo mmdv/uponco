@@ -96,7 +96,9 @@
         "pickDate": "Tarix seçin",
         "selectServiceSpecialist": "Mövcud vaxtları görmək üçün xidmət və mütəxəssis seçin.",
         "pickDateHint": "Mövcud vaxtları görmək üçün tarix seçin.",
-        "noTimes": "Bu gün üçün mövcud vaxt yoxdur."
+        "noTimes": "Bu gün üçün mövcud vaxt yoxdur.",
+        "left": "{count} yer qalıb",
+        "fullyBooked": "Tam doludur"
     },
     "cancel": {
         "title": "Görüşü ləğv et",

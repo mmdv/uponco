@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": "..",
+    "jsx": "react-jsx",
+    "paths": {
+      "@inertiajs/react": ["./.design-sync/shims/inertia-react.ts"],
+      "@/localisation": ["./.design-sync/shims/localisation.ts"]
+    }
+  }
+}
