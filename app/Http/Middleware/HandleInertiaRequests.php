@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\User;
 use App\Support\Analytics;
+use App\Support\Localization;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Middleware;
@@ -57,7 +58,7 @@ class HandleInertiaRequests extends Middleware
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
             'termsConsent' => $this->termsConsent($user),
             'locale' => app()->getLocale(),
-            'availableLocales' => $this->availableLocales(),
+            'availableLocales' => Localization::options(),
             'analytics' => [
                 'events' => Analytics::pending(),
             ],
@@ -117,23 +118,5 @@ class HandleInertiaRequests extends Middleware
                 ])
                 ->all(),
         ];
-    }
-
-    /**
-     * The locales that are enabled for selection in the UI.
-     *
-     * @return list<array{code: string, name: string, native: string}>
-     */
-    protected function availableLocales(): array
-    {
-        return collect(config('localization.available'))
-            ->filter(fn (array $locale): bool => $locale['enabled'] ?? false)
-            ->map(fn (array $locale, string $code): array => [
-                'code' => $code,
-                'name' => $locale['name'],
-                'native' => $locale['native'],
-            ])
-            ->values()
-            ->all();
     }
 }

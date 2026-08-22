@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\SaveBrandRequest;
+use App\Http\Requests\Company\SaveTeamLanguagesRequest;
 use App\Http\Requests\Company\SaveTeamLogoRequest;
 use App\Models\Team;
 use App\Support\BrandPalette;
@@ -32,6 +33,8 @@ class BrandController extends Controller
                 'slug' => $team->slug,
                 'logoUrl' => $team->logoUrl(),
                 'brandPrimaryColor' => $team->brand_primary_color,
+                'defaultLocale' => $team->defaultLocale(),
+                'availableLocales' => $team->availableLocales(),
             ],
             'permissions' => $user->toTeamPermissions($team),
             'palette' => BrandPalette::forTeam($team),
@@ -62,6 +65,30 @@ class BrandController extends Controller
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Brand updated.')]);
+
+        return to_route('company.brand.index');
+    }
+
+    /**
+     * Update the languages the team's public booking page offers.
+     */
+    public function updateLanguages(SaveTeamLanguagesRequest $request): RedirectResponse
+    {
+        $team = $request->user()->currentTeam;
+
+        $default = $request->validated('default_locale');
+        $available = array_values(array_unique($request->validated('available_locales')));
+
+        DB::transaction(function () use ($team, $default, $available): void {
+            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
+
+            $locked->update([
+                'default_locale' => $default,
+                'available_locales' => $available,
+            ]);
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Languages updated.')]);
 
         return to_route('company.brand.index');
     }

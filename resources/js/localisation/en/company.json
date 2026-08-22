@@ -370,6 +370,21 @@
             "previewChip": "Selected",
             "reset": "Reset to default",
             "save": "Save colours"
+        },
+        "languages": {
+            "title": "Languages",
+            "description": "Choose which languages your public booking page offers",
+            "availableLabel": "Available languages",
+            "defaultLabel": "Default language",
+            "hint": "The default is what visitors see first. They can switch to any available language.",
+            "save": "Save languages"
+        },
+        "widget": {
+            "title": "Booking widget",
+            "description": "Paste this snippet into your website, right before the closing </body> tag. A “Book online” button appears in the corner and opens your booking page in a pop-up.",
+            "copy": "Copy",
+            "copied": "Copied",
+            "preview": "Preview your booking page"
         }
     }
 }

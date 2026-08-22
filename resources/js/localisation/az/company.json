@@ -370,6 +370,21 @@
             "previewChip": "Seçilmiş",
             "reset": "Standart rəngə qaytar",
             "save": "Rəngləri yadda saxla"
+        },
+        "languages": {
+            "title": "Dillər",
+            "description": "Rezervasiya səhifənizin təklif etdiyi dilləri seçin",
+            "availableLabel": "Mövcud dillər",
+            "defaultLabel": "Əsas dil",
+            "hint": "Ziyarətçilər əvvəlcə əsas dili görür. Onlar istənilən mövcud dilə keçə bilər.",
+            "save": "Dilləri yadda saxla"
+        },
+        "widget": {
+            "title": "Rezervasiya vidceti",
+            "description": "Bu kodu veb-saytınıza, bağlanan </body> teqindən əvvəl əlavə edin. Küncdə “Onlayn rezerv et” düyməsi görünür və rezervasiya səhifənizi pəncərədə açır.",
+            "copy": "Kopyala",
+            "copied": "Kopyalandı",
+            "preview": "Rezervasiya səhifənizə baxın"
         }
     }
 }

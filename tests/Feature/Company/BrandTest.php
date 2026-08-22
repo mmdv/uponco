@@ -123,6 +123,108 @@ test('a member cannot save a primary colour', function () {
     expect($team->fresh()->brand_primary_color)->toBeNull();
 });
 
+test('the brand page exposes the team language settings', function () {
+    [$user, $team] = brandOwner();
+
+    $team->update(['default_locale' => 'az', 'available_locales' => ['az', 'en']]);
+
+    $this
+        ->actingAs($user)
+        ->get(brandRoute('company.brand.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('team.defaultLocale', 'az')
+            ->where('team.availableLocales', ['az', 'en'])
+        );
+});
+
+test('the brand page defaults to all enabled languages when none are set', function () {
+    [$user] = brandOwner();
+
+    $this
+        ->actingAs($user)
+        ->get(brandRoute('company.brand.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('team.defaultLocale', 'en')
+            ->where('team.availableLocales', ['en', 'az'])
+        );
+});
+
+test('an admin can save the team languages', function () {
+    [$user, $team] = brandOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.languages.update'), [
+            'default_locale' => 'az',
+            'available_locales' => ['en', 'az'],
+        ])
+        ->assertRedirect(route('company.brand.index'))
+        ->assertSessionHasNoErrors();
+
+    $team->refresh();
+
+    expect($team->default_locale)->toBe('az');
+    expect($team->available_locales)->toBe(['en', 'az']);
+});
+
+test('the default language must be one of the available languages', function () {
+    [$user, $team] = brandOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.languages.update'), [
+            'default_locale' => 'az',
+            'available_locales' => ['en'],
+        ])
+        ->assertSessionHasErrors('default_locale');
+
+    expect($team->fresh()->default_locale)->toBeNull();
+});
+
+test('unknown language codes are rejected', function () {
+    [$user] = brandOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.languages.update'), [
+            'default_locale' => 'en',
+            'available_locales' => ['en', 'fr'],
+        ])
+        ->assertSessionHasErrors('available_locales.1');
+});
+
+test('at least one available language is required', function () {
+    [$user] = brandOwner();
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.languages.update'), [
+            'default_locale' => 'en',
+            'available_locales' => [],
+        ])
+        ->assertSessionHasErrors('available_locales');
+});
+
+test('a member cannot save the team languages', function () {
+    [$owner, $team] = brandOwner();
+
+    $member = User::factory()->create();
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    $this
+        ->actingAs($member)
+        ->patch(brandRoute('company.brand.languages.update'), [
+            'default_locale' => 'az',
+            'available_locales' => ['en', 'az'],
+        ])
+        ->assertForbidden();
+
+    expect($team->fresh()->default_locale)->toBeNull();
+});
+
 test('the team logo can be uploaded by admins', function () {
     Storage::fake('public');
 

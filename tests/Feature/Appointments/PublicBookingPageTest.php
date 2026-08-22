@@ -307,3 +307,33 @@ test('the option payload reflects what is genuinely choosable', function () {
             ->etc(),
         );
 });
+
+test('the booking page renders in the team default language and offers its languages', function () {
+    $setup = bookableSetup();
+    $setup['team']->update(['default_locale' => 'az', 'available_locales' => ['az', 'en']]);
+
+    visitBooking($setup)
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/appointments/book')
+            ->where('locale', 'az')
+            ->where('availableLocales', fn ($locales) => collect($locales)->pluck('code')->all() === ['en', 'az'])
+            ->etc(),
+        );
+});
+
+test('a visitor cookie only wins when the team still offers that language', function () {
+    $setup = bookableSetup();
+    $setup['team']->update(['default_locale' => 'en', 'available_locales' => ['en']]);
+
+    // The team dropped Azerbaijani, so a stale az cookie falls back to the default.
+    test()->withCookie('locale', 'az');
+
+    visitBooking($setup)
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('locale', 'en')
+            ->where('availableLocales', fn ($locales) => collect($locales)->pluck('code')->all() === ['en'])
+            ->etc(),
+        );
+});

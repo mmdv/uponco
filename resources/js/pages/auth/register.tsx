@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -26,6 +27,9 @@ export default function Register({
     // settled, which scrolls the form out from under the user on arrival.
     const isMobile = useIsMobile();
 
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [termsError, setTermsError] = useState<string | null>(null);
+
     return (
         <>
             <Head title="Register" />
@@ -33,6 +37,16 @@ export default function Register({
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
+                onBefore={() => {
+                    if (!termsAccepted) {
+                        setTermsError(
+                            'Please accept the Terms & Conditions and Privacy Policy to continue.',
+                        );
+                        return false;
+                    }
+
+                    return true;
+                }}
                 className="flex flex-col gap-6"
             >
                 {({ processing, errors }) => (
@@ -128,6 +142,15 @@ export default function Register({
                                         tabIndex={5}
                                         className="mt-0.5"
                                         data-test="register-terms"
+                                        checked={termsAccepted}
+                                        onCheckedChange={(checked) => {
+                                            const accepted = checked === true;
+                                            setTermsAccepted(accepted);
+
+                                            if (accepted) {
+                                                setTermsError(null);
+                                            }
+                                        }}
                                     />
                                     <Label
                                         htmlFor="terms"
@@ -154,7 +177,9 @@ export default function Register({
                                         .
                                     </Label>
                                 </div>
-                                <InputError message={errors.terms} />
+                                <InputError
+                                    message={termsError ?? errors.terms}
+                                />
                             </div>
 
                             <Button

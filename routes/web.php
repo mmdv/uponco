@@ -134,6 +134,7 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
 
             Route::get('company/brand', [BrandController::class, 'index'])->name('company.brand.index');
             Route::patch('company/brand', [BrandController::class, 'update'])->name('company.brand.update');
+            Route::patch('company/brand/languages', [BrandController::class, 'updateLanguages'])->name('company.brand.languages.update');
 
             Route::post('company/brand/logo', [BrandController::class, 'updateLogo'])->name('company.brand.logo.update');
             Route::delete('company/brand/logo', [BrandController::class, 'destroyLogo'])->name('company.brand.logo.destroy');

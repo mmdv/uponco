@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Localization;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -27,7 +28,7 @@ class HandleLocale
 
     protected function resolveLocale(Request $request): string
     {
-        $enabled = $this->enabledLocales();
+        $enabled = Localization::enabledCodes();
 
         $cookie = $request->cookie('locale');
 
@@ -41,17 +42,6 @@ class HandleLocale
             return $preferred;
         }
 
-        return config('localization.default');
-    }
-
-    /**
-     * @return list<string>
-     */
-    protected function enabledLocales(): array
-    {
-        return array_keys(array_filter(
-            config('localization.available'),
-            fn (array $locale): bool => $locale['enabled'] ?? false,
-        ));
+        return Localization::default();
     }
 }

@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, usePage } from '@inertiajs/react';
 import { Check, Code2, Copy, ExternalLink, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
@@ -7,10 +7,11 @@ import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import TeamLogoUploader from '@/components/team-logo-uploader';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { useTranslation } from '@/hooks/use-translation';
+import { type AvailableLocale, useTranslation } from '@/hooks/use-translation';
 import { accentFrom } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 import { index as companyIndex } from '@/routes/company';
@@ -21,7 +22,10 @@ import type { Team, TeamPermissions } from '@/types';
 const PRIMARY_GRADIENT = 'from-[#0063ff] to-[#3884fe]';
 
 type Props = {
-    team: Team;
+    team: Team & {
+        defaultLocale: string;
+        availableLocales: string[];
+    };
     permissions: TeamPermissions;
     defaultPrimaryColor: string;
     widget: {
@@ -29,6 +33,24 @@ type Props = {
         bookingUrl: string;
     };
 };
+
+/** A titled card wrapping one branding concern. */
+function Section({
+    title,
+    description,
+    children,
+}: {
+    title: string;
+    description?: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <section className="rounded-2xl border bg-card p-6">
+            <Heading variant="small" title={title} description={description} />
+            <div className="mt-6">{children}</div>
+        </section>
+    );
+}
 
 export default function BrandIndex({
     team,
@@ -53,11 +75,41 @@ export default function BrandIndex({
     const previewPrimary = isValidHex ? primary : defaultPrimaryColor;
     const previewAccent = accentFrom(previewPrimary);
 
+    // Every language the platform offers to choose from.
+    const localeOptions =
+        (usePage().props.availableLocales as AvailableLocale[]) ?? [];
+
+    // The team's current selection, edited locally until saved.
+    const [available, setAvailable] = useState<string[]>(team.availableLocales);
+    const [defaultLocale, setDefaultLocale] = useState(team.defaultLocale);
+
+    const toggleAvailable = (code: string, checked: boolean): void => {
+        setAvailable((current) => {
+            if (checked) {
+                return [...current, code];
+            }
+
+            // Never leave the team with no languages.
+            if (current.length === 1) {
+                return current;
+            }
+
+            const next = current.filter((value) => value !== code);
+
+            // The default must always be a language that's still offered.
+            if (code === defaultLocale) {
+                setDefaultLocale(next[0]);
+            }
+
+            return next;
+        });
+    };
+
     return (
         <>
             <Head title={t('brand.title')} />
 
-            <div className="flex flex-col space-y-10 p-4">
+            <div className="flex flex-col space-y-6 p-4">
                 <Heading
                     variant="small"
                     title={t('brand.title')}
@@ -65,25 +117,19 @@ export default function BrandIndex({
                 />
 
                 {permissions.canUpdateTeam ? (
-                    <div className="space-y-6">
-                        <Heading
-                            variant="small"
-                            title={t('brand.logo.title')}
-                            description={t('brand.logo.description')}
-                        />
-
+                    <Section
+                        title={t('brand.logo.title')}
+                        description={t('brand.logo.description')}
+                    >
                         <TeamLogoUploader team={team} />
-                    </div>
+                    </Section>
                 ) : null}
 
                 {permissions.canUpdateTeam ? (
-                    <div className="space-y-6">
-                        <Heading
-                            variant="small"
-                            title={t('brand.color.title')}
-                            description={t('brand.color.description')}
-                        />
-
+                    <Section
+                        title={t('brand.color.title')}
+                        description={t('brand.color.description')}
+                    >
                         <Form
                             {...BrandController.update.form()}
                             options={{ preserveScroll: true }}
@@ -221,11 +267,146 @@ export default function BrandIndex({
                                 </>
                             )}
                         </Form>
-                    </div>
+                    </Section>
+                ) : null}
+
+                {permissions.canUpdateTeam ? (
+                    <Section
+                        title={t('brand.languages.title')}
+                        description={t('brand.languages.description')}
+                    >
+                        <Form
+                            {...BrandController.updateLanguages.form()}
+                            options={{ preserveScroll: true }}
+                            className="space-y-6"
+                        >
+                            {({ errors, processing }) => (
+                                <>
+                                    <div className="grid gap-3">
+                                        <Label>
+                                            {t('brand.languages.availableLabel')}
+                                        </Label>
+
+                                        <div className="grid gap-2">
+                                            {localeOptions.map((locale) => {
+                                                const checked =
+                                                    available.includes(
+                                                        locale.code,
+                                                    );
+
+                                                return (
+                                                    <label
+                                                        key={locale.code}
+                                                        className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm"
+                                                        data-test={`brand-language-${locale.code}`}
+                                                    >
+                                                        <Checkbox
+                                                            checked={checked}
+                                                            disabled={
+                                                                checked &&
+                                                                available.length ===
+                                                                    1
+                                                            }
+                                                            onCheckedChange={(
+                                                                value,
+                                                            ) =>
+                                                                toggleAvailable(
+                                                                    locale.code,
+                                                                    value ===
+                                                                        true,
+                                                                )
+                                                            }
+                                                        />
+                                                        <span className="font-medium">
+                                                            {locale.native}
+                                                        </span>
+                                                        <span className="text-xs uppercase text-muted-foreground">
+                                                            {locale.code}
+                                                        </span>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {available.map((code) => (
+                                            <input
+                                                key={code}
+                                                type="hidden"
+                                                name="available_locales[]"
+                                                value={code}
+                                            />
+                                        ))}
+
+                                        <InputError
+                                            message={errors.available_locales}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="default_locale">
+                                            {t('brand.languages.defaultLabel')}
+                                        </Label>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {localeOptions
+                                                .filter((locale) =>
+                                                    available.includes(
+                                                        locale.code,
+                                                    ),
+                                                )
+                                                .map((locale) => (
+                                                    <button
+                                                        key={locale.code}
+                                                        type="button"
+                                                        data-test={`brand-default-${locale.code}`}
+                                                        onClick={() =>
+                                                            setDefaultLocale(
+                                                                locale.code,
+                                                            )
+                                                        }
+                                                        className={cn(
+                                                            'rounded-lg border px-3 py-2 text-sm transition-colors',
+                                                            defaultLocale ===
+                                                                locale.code
+                                                                ? 'border-primary bg-primary/10 font-medium text-primary'
+                                                                : 'hover:bg-muted',
+                                                        )}
+                                                    >
+                                                        {locale.native}
+                                                    </button>
+                                                ))}
+                                        </div>
+
+                                        <input
+                                            type="hidden"
+                                            name="default_locale"
+                                            value={defaultLocale}
+                                        />
+
+                                        <p className="text-xs text-muted-foreground">
+                                            {t('brand.languages.hint')}
+                                        </p>
+
+                                        <InputError
+                                            message={errors.default_locale}
+                                        />
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        data-test="brand-languages-save"
+                                        disabled={processing}
+                                    >
+                                        {t('brand.languages.save')}
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
+                    </Section>
                 ) : null}
 
                 {/* Embeddable booking widget */}
-                <div className="rounded-2xl border bg-card p-6">
+                <section className="rounded-2xl border bg-card p-6">
                     <div className="flex items-start gap-4">
                         <div
                             className={cn(
@@ -238,16 +419,10 @@ export default function BrandIndex({
 
                         <div className="min-w-0 flex-1">
                             <h3 className="text-base font-semibold tracking-tight">
-                                Booking widget
+                                {t('brand.widget.title')}
                             </h3>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Paste this snippet into your website, right
-                                before the closing{' '}
-                                <code className="rounded bg-muted px-1 py-0.5 text-xs">
-                                    &lt;/body&gt;
-                                </code>{' '}
-                                tag. A “Book online” button appears in the
-                                corner and opens your booking page in a pop-up.
+                                {t('brand.widget.description')}
                             </p>
 
                             <div className="mt-4 flex items-stretch gap-2">
@@ -259,14 +434,16 @@ export default function BrandIndex({
                                     variant="outline"
                                     className="flex-none"
                                     onClick={() => copy(snippet)}
-                                    aria-label="Copy snippet"
+                                    aria-label={t('brand.widget.copy')}
                                 >
                                     {isCopied ? (
                                         <Check className="size-4 text-emerald-600" />
                                     ) : (
                                         <Copy className="size-4" />
                                     )}
-                                    {isCopied ? 'Copied' : 'Copy'}
+                                    {isCopied
+                                        ? t('brand.widget.copied')
+                                        : t('brand.widget.copy')}
                                 </Button>
                             </div>
 
@@ -277,11 +454,11 @@ export default function BrandIndex({
                                 className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
                             >
                                 <ExternalLink className="size-3.5" />
-                                Preview your booking page
+                                {t('brand.widget.preview')}
                             </a>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
         </>
     );

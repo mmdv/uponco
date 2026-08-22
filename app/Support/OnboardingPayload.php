@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\OnboardingStep;
 use App\Http\Controllers\MemberScheduleController;
+use App\Models\Location;
 use App\Models\OnboardingProgress;
 use App\Models\Service;
 use App\Models\ServiceCategory;
@@ -44,30 +45,46 @@ class OnboardingPayload
             // The work-hours step changes its range with a partial reload of the
             // slot map alone, so the heavier sections are closures — they only
             // run when the response actually carries them.
-            'services' => fn (): array => [
-                'categories' => $team->serviceCategories()->orderBy('name')->get()->map(fn (ServiceCategory $category): array => [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                ]),
-                'services' => $team->services()
-                    ->with(['locations:id', 'specialists:id'])
-                    ->orderBy('title')
-                    ->get()
-                    ->map(fn (Service $service): array => self::toServiceArray($service)),
-                // The flow can create a location inline, which needs the same
-                // options the standalone location form uses.
-                'serviceOptions' => self::toOptions($team->services()->orderBy('title')->get(), 'title'),
-                'locations' => self::toOptions($team->locations()->orderBy('name')->get(), 'name'),
-                'specialists' => self::toOptions($team->members()->orderBy('name')->get(), 'name'),
-                'countries' => LocationOptions::countries(),
-                'priceTypes' => ServiceOptions::priceTypes(),
-                'currencies' => ServiceOptions::currencies(),
-                'serviceTypes' => ServiceOptions::serviceTypes(),
-                'google' => [
-                    'connected' => $user->hasGoogleConnected(),
-                    'email' => $user->google_account_email,
-                ],
-            ],
+            'services' => function () use ($team, $user): array {
+                // Loaded once and reused for both the picker options and the
+                // full detail cards the location screen shows after a save.
+                $locations = $team->locations()
+                    ->with(['services:id', 'specialists:id'])
+                    ->orderBy('name')
+                    ->get();
+
+                return [
+                    'categories' => $team->serviceCategories()->orderBy('name')->get()->map(fn (ServiceCategory $category): array => [
+                        'id' => $category->id,
+                        'name' => $category->name,
+                    ]),
+                    'services' => $team->services()
+                        ->with(['locations:id', 'specialists:id'])
+                        ->orderBy('title')
+                        ->get()
+                        ->map(fn (Service $service): array => self::toServiceArray($service)),
+                    // The flow can create a location inline, which needs the same
+                    // options the standalone location form uses.
+                    'serviceOptions' => self::toOptions($team->services()->orderBy('title')->get(), 'title'),
+                    'locations' => self::toOptions($locations, 'name'),
+                    // Full location records so the screen can render an address
+                    // card and reopen the edit modal after one is created.
+                    'locationDetails' => $locations->map(fn (Location $location): array => self::toLocationArray($location)),
+                    'specialists' => self::toOptions($team->members()->orderBy('name')->get(), 'name'),
+                    'countries' => LocationOptions::countries(),
+                    'priceTypes' => ServiceOptions::priceTypes(),
+                    'currencies' => ServiceOptions::currencies(),
+                    'serviceTypes' => ServiceOptions::serviceTypes(),
+                    // Needed so the review screen can reopen the same add wizard
+                    // and edit drawer the dashboard uses.
+                    'deliveryTypes' => ServiceOptions::deliveryTypes(),
+                    'meetingProviders' => ServiceOptions::meetingProviders(),
+                    'google' => [
+                        'connected' => $user->hasGoogleConnected(),
+                        'email' => $user->google_account_email,
+                    ],
+                ];
+            },
             'profile' => fn (): array => [
                 'name' => $user->name,
                 'email' => $user->profile?->email,
@@ -120,6 +137,36 @@ class OnboardingPayload
     }
 
     /**
+     * Transform a location into its form representation.
+     *
+     * Mirrors the shape the standalone location form consumes so the onboarding
+     * flow can reopen the same edit modal the dashboard uses.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function toLocationArray(Location $location): array
+    {
+        return [
+            'id' => $location->id,
+            'is_active' => $location->is_active,
+            'name' => $location->name,
+            'country' => $location->country,
+            'city' => $location->city,
+            'street_address' => $location->street_address,
+            'unit' => $location->unit,
+            'postal_code' => $location->postal_code,
+            'phone' => $location->phone,
+            'place_id' => $location->place_id,
+            'formatted_address' => $location->formatted_address,
+            'latitude' => $location->latitude,
+            'longitude' => $location->longitude,
+            'is_geocoded' => $location->isGeocoded(),
+            'service_ids' => $location->services->pluck('id')->all(),
+            'user_ids' => $location->specialists->pluck('id')->all(),
+        ];
+    }
+
+    /**
      * Transform a service into its form representation.
      *
      * @return array<string, mixed>
@@ -145,6 +192,16 @@ class OnboardingPayload
             'description' => $service->description,
             'location_ids' => $service->locations->pluck('id')->all(),
             'user_ids' => $service->specialists->pluck('id')->all(),
+            'specialist_pricing' => $service->specialists
+                ->mapWithKeys(fn (User $specialist): array => [
+                    $specialist->id => [
+                        'duration' => $specialist->pivot->duration,
+                        'price' => $specialist->pivot->price,
+                        'price_min' => $specialist->pivot->price_min,
+                        'price_max' => $specialist->pivot->price_max,
+                    ],
+                ])
+                ->all(),
         ];
     }
 }

@@ -10,8 +10,10 @@ use App\Models\Appointment;
 use App\Models\Team;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\BrandPalette;
+use App\Support\Localization;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -115,7 +117,20 @@ class PublicAppointmentController extends Controller
         $canManage = $user !== null
             && $company->members()->whereKey($user->getKey())->exists();
 
+        // The public page follows the team's language settings, not the global
+        // config: the team's default wins on first visit, and a visitor's saved
+        // choice only carries over when the team still offers that language.
+        $available = $company->availableLocales();
+        $cookie = $request->cookie('locale');
+        $locale = is_string($cookie) && in_array($cookie, $available, true)
+            ? $cookie
+            : $company->defaultLocale();
+
+        App::setLocale($locale);
+
         return Inertia::render('public/appointments/book', [
+            'locale' => $locale,
+            'availableLocales' => Localization::optionsFor($available),
             'company' => $this->companyHeaderPayload($company),
             'canManage' => $canManage,
             'timezone' => $timezone,

@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import LocationFormFields from '@/components/locations/location-form-fields';
 import LocationFormModal from '@/components/locations/location-form-modal';
 import { Button } from '@/components/ui/button';
-import { CheckboxCardGroup } from '@/components/ui/checkbox-card-group';
-import type { Onboarding } from '@/types';
+import type { Location, Onboarding } from '@/types';
 
+import LocationSummaryCard from './location-summary-card';
 import OnboardingFooter from './onboarding-footer';
 import OnboardingScreen, { ScreenFooterBar } from './onboarding-screen';
 import ScreenHeader from './screen-header';
@@ -33,7 +33,7 @@ type Props = {
 export default function ScreenLocation(props: Props) {
     // Latched on arrival: saving the first location reloads the props, and
     // swapping to the picker mid-save would unmount the form before it can
-    // select what it just created and move on.
+    // show what it just created.
     const [mode] = useState(
         props.data.locations.length === 0 ? 'create' : 'pick',
     );
@@ -45,21 +45,67 @@ export default function ScreenLocation(props: Props) {
     );
 }
 
-/** The empty state: creating the first location is the whole screen. */
+/**
+ * The empty state: creating the first location is the whole screen. Once it is
+ * saved the form gives way to a summary card the user can review and edit,
+ * rather than jumping straight to the next screen.
+ */
 function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
-    const { locations } = data;
+    const { locations, locationDetails } = data;
     const [saved, setSaved] = useState(false);
+    const [editing, setEditing] = useState<Location | null>(null);
 
-    // Saving reloads the page props, so once the save succeeded whatever comes
-    // back was created here: select it and move straight on.
-    useEffect(() => {
-        if (!saved || locations.length === 0) {
-            return;
-        }
+    // Saving reloads the page props; once the save succeeded and the created
+    // location has come back, review it instead of the (now stale) form.
+    const reviewing = saved && locationDetails.length > 0;
 
-        onChange(locations.map((location) => location.value));
-        onNext();
-    }, [saved, locations, onChange, onNext]);
+    if (reviewing) {
+        return (
+            <OnboardingScreen
+                footer={
+                    <OnboardingFooter
+                        onClick={() => {
+                            onChange(
+                                locations.map((location) => location.value),
+                            );
+                            onNext();
+                        }}
+                    />
+                }
+            >
+                <ScreenHeader
+                    title="Where do you work?"
+                    description="Review the address customers will come to, then continue."
+                />
+
+                <div className="space-y-4">
+                    {locationDetails.map((location) => (
+                        <LocationSummaryCard
+                            key={location.id}
+                            location={location}
+                            countries={data.countries}
+                            onEdit={() => setEditing(location)}
+                        />
+                    ))}
+                </div>
+
+                <LocationFormModal
+                    open={editing !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setEditing(null);
+                        }
+                    }}
+                    location={editing}
+                    services={data.serviceOptions}
+                    specialists={data.specialists}
+                    countries={data.countries}
+                    showAssignments={false}
+                    defaultSpecialistIds={specialistIds}
+                />
+            </OnboardingScreen>
+        );
+    }
 
     return (
         <LocationFormFields
@@ -88,11 +134,15 @@ function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
 
 /** The team already has locations, so this is a choice rather than a form. */
 function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
-    const { locations } = data;
+    const { locations, locationDetails } = data;
 
+    // `editing` doubles as the modal's payload: null while adding a new
+    // location, the target record while editing an existing one.
     const [modalOpen, setModalOpen] = useState(false);
-    // Anything that appears while the modal is open was just created there, so
-    // it is ticked automatically.
+    const [editing, setEditing] = useState<Location | null>(null);
+
+    // Anything that appears while the add modal is open was just created there,
+    // so it is ticked automatically.
     const knownIds = useRef<string[] | null>(null);
 
     useEffect(() => {
@@ -112,8 +162,20 @@ function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
         onChange([...value, ...created]);
     }, [locations, value, onChange]);
 
-    const openModal = () => {
+    const toggle = (id: string, selected: boolean) => {
+        onChange(
+            selected ? [...value, id] : value.filter((item) => item !== id),
+        );
+    };
+
+    const openAddModal = () => {
         knownIds.current = locations.map((location) => location.value);
+        setEditing(null);
+        setModalOpen(true);
+    };
+
+    const openEditModal = (location: Location) => {
+        setEditing(location);
         setModalOpen(true);
     };
 
@@ -131,17 +193,28 @@ function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
                 description="Pick the places this service is offered at."
             />
 
-            <CheckboxCardGroup
-                options={locations}
-                value={value}
-                onChange={onChange}
+            <div
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2"
                 data-test="wizard-locations-select"
-            />
+            >
+                {locationDetails.map((location) => (
+                    <LocationSummaryCard
+                        key={location.id}
+                        location={location}
+                        countries={data.countries}
+                        selected={value.includes(String(location.id))}
+                        onSelectedChange={(selected) =>
+                            toggle(String(location.id), selected)
+                        }
+                        onEdit={() => openEditModal(location)}
+                    />
+                ))}
+            </div>
 
             <Button
                 type="button"
                 variant="outline"
-                onClick={openModal}
+                onClick={openAddModal}
                 data-test="wizard-add-location-button"
             >
                 <Plus />
@@ -151,7 +224,7 @@ function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
             <LocationFormModal
                 open={modalOpen}
                 onOpenChange={setModalOpen}
-                location={null}
+                location={editing}
                 services={data.serviceOptions}
                 specialists={data.specialists}
                 countries={data.countries}

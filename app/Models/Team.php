@@ -7,6 +7,7 @@ use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Enums\TeamType;
 use App\Support\BrandPalette;
+use App\Support\Localization;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path', 'brand_primary_color'])]
+#[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path', 'brand_primary_color', 'default_locale', 'available_locales'])]
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -61,6 +62,50 @@ class Team extends Model
     public function brandPrimaryColor(): string
     {
         return BrandPalette::normalise($this->brand_primary_color) ?? BrandPalette::DEFAULT_PRIMARY;
+    }
+
+    /**
+     * The default language the team's public booking page renders in.
+     *
+     * Falls back to the platform default when unset or pointing at a locale
+     * that is no longer enabled.
+     */
+    public function defaultLocale(): string
+    {
+        $stored = $this->default_locale;
+
+        if (is_string($stored) && in_array($stored, Localization::enabledCodes(), true)) {
+            return $stored;
+        }
+
+        return Localization::default();
+    }
+
+    /**
+     * The languages visitors can switch between on the team's public booking
+     * page.
+     *
+     * Stored codes are intersected with the currently-enabled platform locales
+     * so a removed language drops out cleanly. When nothing is stored the team
+     * offers every enabled locale, and the default is always included.
+     *
+     * @return list<string>
+     */
+    public function availableLocales(): array
+    {
+        $enabled = Localization::enabledCodes();
+
+        $stored = is_array($this->available_locales)
+            ? array_values(array_intersect($this->available_locales, $enabled))
+            : [];
+
+        $locales = $stored === [] ? $enabled : $stored;
+
+        if (! in_array($this->defaultLocale(), $locales, true)) {
+            $locales[] = $this->defaultLocale();
+        }
+
+        return array_values($locales);
     }
 
     /**
@@ -178,6 +223,7 @@ class Team extends Model
             'is_personal' => 'boolean',
             'type' => TeamType::class,
             'business_category' => BusinessCategory::class,
+            'available_locales' => 'array',
         ];
     }
 

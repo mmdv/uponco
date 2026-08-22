@@ -1,13 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-    Check,
-    Copy,
-    EllipsisVertical,
-    Languages,
-    Moon,
-    Share2,
-    Sun,
-} from 'lucide-react';
+import { Check, Copy, Moon, Settings, Share2, Sun } from 'lucide-react';
 import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,6 +10,13 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { useLocale, useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
@@ -174,7 +173,7 @@ export default function BookingHeader({
                             aria-label={t('header.menu')}
                             data-test="booking-header-menu"
                         >
-                            <EllipsisVertical className="size-5" />
+                            <Settings className="size-5" />
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent align="end" className="w-72 space-y-4">
@@ -215,26 +214,28 @@ export default function BookingHeader({
                                 <p className="text-xs font-medium text-muted-foreground">
                                     {t('header.language')}
                                 </p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {availableLocales.map((language) => (
-                                        <Button
-                                            key={language.code}
-                                            type="button"
-                                            variant={
-                                                locale === language.code
-                                                    ? 'default'
-                                                    : 'outline'
-                                            }
-                                            onClick={() =>
-                                                setLocale(language.code)
-                                            }
-                                            data-test={`booking-language-${language.code}`}
-                                        >
-                                            <Languages className="size-4" />
-                                            {language.native}
-                                        </Button>
-                                    ))}
-                                </div>
+                                <Select
+                                    value={locale}
+                                    onValueChange={setLocale}
+                                >
+                                    <SelectTrigger
+                                        className="w-full"
+                                        data-test="booking-language-select"
+                                    >
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableLocales.map((language) => (
+                                            <SelectItem
+                                                key={language.code}
+                                                value={language.code}
+                                                data-test={`booking-language-${language.code}`}
+                                            >
+                                                {language.native}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         ) : null}
 

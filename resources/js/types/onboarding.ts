@@ -1,4 +1,4 @@
-import type { SelectOption } from './locations';
+import type { Location, SelectOption } from './locations';
 import type { DayScheduleMap } from './schedule';
 import type { Service, ServiceCategory } from './services';
 
@@ -36,11 +36,15 @@ export type Onboarding = {
         services: Service[];
         serviceOptions: SelectOption[];
         locations: SelectOption[];
+        /** Full records for each location, for edit modals and detail cards. */
+        locationDetails: Location[];
         specialists: SelectOption[];
         countries: SelectOption[];
         priceTypes: SelectOption[];
         currencies: SelectOption[];
         serviceTypes: SelectOption[];
+        deliveryTypes: SelectOption[];
+        meetingProviders: SelectOption[];
         google: GoogleIntegrationStatus;
     };
     profile: OnboardingProfile;
