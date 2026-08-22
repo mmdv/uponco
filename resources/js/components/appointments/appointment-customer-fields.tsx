@@ -1,3 +1,6 @@
+import { useState } from 'react';
+
+import CustomerSearchPopover from '@/components/appointments/customer-search-popover';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,15 +32,34 @@ export default function AppointmentCustomerFields({
     const customer = appointment?.customer ?? null;
     const isEditing = appointment !== null;
 
+    // While creating, the fields are controlled so selecting a customer from
+    // search can autofill (and overwrite) them. When editing they're read-only.
+    const [name, setName] = useState(customer?.name ?? '');
+    const [email, setEmail] = useState(customer?.email ?? '');
+    const [phone, setPhone] = useState(customer?.phone ?? '');
+
     return (
         <div className="space-y-4 rounded-lg border p-4">
-            <div className="space-y-0.5">
-                <h3 className="text-sm font-medium">{t('customer.heading')}</h3>
-                <p className="text-sm text-muted-foreground">
-                    {isEditing
-                        ? t('customer.readOnlyNote')
-                        : t('customer.autoCreateNote')}
-                </p>
+            <div className="flex items-start justify-between gap-3">
+                <div className="space-y-0.5">
+                    <h3 className="text-sm font-medium">
+                        {t('customer.heading')}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                        {isEditing
+                            ? t('customer.readOnlyNote')
+                            : t('customer.autoCreateNote')}
+                    </p>
+                </div>
+                {!isEditing ? (
+                    <CustomerSearchPopover
+                        onSelect={(selected) => {
+                            setName(selected.name ?? '');
+                            setEmail(selected.email ?? '');
+                            setPhone(selected.phone ?? '');
+                        }}
+                    />
+                ) : null}
             </div>
 
             {isEditing ? (
@@ -101,7 +123,8 @@ export default function AppointmentCustomerFields({
                         <Input
                             id="customer_name"
                             name="customer_name"
-                            defaultValue={customer?.name ?? ''}
+                            value={name}
+                            onChange={(event) => setName(event.target.value)}
                             placeholder={t('customer.namePlaceholder')}
                             data-test="appointment-customer-name-input"
                         />
@@ -116,7 +139,8 @@ export default function AppointmentCustomerFields({
                             id="customer_email"
                             name="customer_email"
                             type="email"
-                            defaultValue={customer?.email ?? ''}
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
                             placeholder={t('customer.emailPlaceholder')}
                             data-test="appointment-customer-email-input"
                         />
@@ -130,7 +154,8 @@ export default function AppointmentCustomerFields({
                         <PhoneInput
                             id="customer_phone"
                             name="customer_phone"
-                            defaultValue={customer?.phone ?? ''}
+                            value={phone}
+                            onChange={(event) => setPhone(event.target.value)}
                             placeholder={t('customer.phonePlaceholder')}
                             data-test="appointment-customer-phone-input"
                         />

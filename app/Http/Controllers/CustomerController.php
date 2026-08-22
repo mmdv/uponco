@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Customers\SaveCustomerRequest;
 use App\Models\Customer;
 use App\Models\Team;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,13 +23,7 @@ class CustomerController extends Controller
         $search = trim((string) $request->string('search'));
 
         $customers = $team->customers()
-            ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($query) use ($search): void {
-                    $query->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('phone', 'like', "%{$search}%");
-                });
-            })
+            ->tap(fn (Builder $query) => $this->applySearch($query, $search))
             ->orderBy('name')
             ->paginate(50)
             ->withQueryString()
@@ -37,6 +33,40 @@ class CustomerController extends Controller
             'customers' => $customers,
             'filters' => ['search' => $search],
         ]);
+    }
+
+    /**
+     * Search the team's customers by name, email, or phone for autofilling the
+     * appointment form. Returns a small JSON list rather than an Inertia page.
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $team = $request->user()->currentTeam;
+        $search = trim((string) $request->string('search'));
+
+        $customers = $team->customers()
+            ->tap(fn (Builder $query) => $this->applySearch($query, $search))
+            ->orderBy('name')
+            ->limit(20)
+            ->get()
+            ->map(fn (Customer $customer): array => $this->toCustomerArray($customer));
+
+        return response()->json(['customers' => $customers]);
+    }
+
+    /**
+     * Constrain a customer query to those matching the free-text search across
+     * name, email, and phone. A blank term leaves the query untouched.
+     */
+    protected function applySearch(Builder $query, string $search): void
+    {
+        $query->when($search !== '', function (Builder $query) use ($search): void {
+            $query->where(function (Builder $query) use ($search): void {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        });
     }
 
     /**

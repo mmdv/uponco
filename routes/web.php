@@ -118,6 +118,7 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
         Route::get('schedule/my', [MemberScheduleController::class, 'show'])->name('schedule.my');
         Route::put('schedule/member/{user}', [MemberScheduleController::class, 'update'])->name('schedule.member.update');
 
+        Route::get('customers/search', [CustomerController::class, 'search'])->name('customers.search');
         Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
         Route::patch('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
