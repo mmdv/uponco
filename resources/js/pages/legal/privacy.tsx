@@ -78,10 +78,10 @@ export default function Privacy() {
                         <span className="font-medium text-foreground">
                             Usage and analytics data.
                         </span>{' '}
-                        Pages viewed, features used and similar
-                        product-analytics events, which we may associate with
-                        your account and team so we can understand how the
-                        Service is used. See{' '}
+                        Anonymous, aggregated product-analytics events such as
+                        pages viewed and features used, together with the
+                        country a visit comes from. This data is not linked to
+                        your account or to your identity. See{' '}
                         <a
                             href="#cookies"
                             className="font-medium text-primary hover:underline"
@@ -261,23 +261,20 @@ export default function Privacy() {
                     We also use a product-analytics service, PostHog, to
                     understand how the Service is used and to improve it.
                     PostHog processes data on our behalf as a processor, on
-                    servers located in the European Union. It records events
-                    such as page views, the pages and features you use and,
-                    where you are signed in, an identifier for your account and
-                    team. On public booking pages it also records which business
-                    the page belongs to.
+                    servers located in the European Union. It records anonymous
+                    events such as page views and the pages and features that
+                    are used. On public booking pages it also records which
+                    business the page belongs to.
                 </p>
                 <p>
-                    Analytics cookies are only set after you accept them in the
-                    cookie banner. Until you make a choice, and if you decline,
-                    analytics runs without cookies and without storing an
-                    identifier on your device — which means we can still count
-                    the visit but cannot recognise you when you return. Inside
-                    the embedded booking widget analytics is always cookieless.
-                    You can change your decision at any time by clearing this
-                    site's data in your browser, and your browser settings let
-                    you control cookies generally, though disabling essential
-                    cookies will affect functionality.
+                    Our analytics is deliberately anonymous. It does not set any
+                    cookie or store an identifier on your device, and it is not
+                    linked to your account, so we cannot recognise you or tell
+                    when the same person returns. Because no analytics cookie is
+                    used and no personal data is stored, no cookie consent
+                    banner is required. We derive the country a visit comes from
+                    the network connection to produce country-level statistics,
+                    and the underlying IP address is discarded and not stored.
                 </p>
                 <p>
                     We do not use cookies for advertising and we do not run

@@ -79,10 +79,10 @@ test('a guest page shares no analytics identity', function () {
     $this
         ->get(route('home'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->where('analytics.identity', null));
+        ->assertInertia(fn ($page) => $page->missing('analytics.identity'));
 });
 
-test('an authenticated page shares the user and their current team', function () {
+test('an authenticated page still shares no analytics identity', function () {
     [$user, $team] = analyticsOwner();
     analyticsOnboarded($user, $team);
 
@@ -90,10 +90,7 @@ test('an authenticated page shares the user and their current team', function ()
         ->actingAs($user)
         ->get(route('dashboard'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->where('analytics.identity.id', $user->id)
-            ->where('analytics.identity.team', $team->slug)
-        );
+        ->assertInertia(fn ($page) => $page->missing('analytics.identity'));
 });
 
 test('registering queues a signup event', function () {

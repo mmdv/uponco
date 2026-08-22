@@ -59,10 +59,6 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'availableLocales' => $this->availableLocales(),
             'analytics' => [
-                'identity' => fn () => $user ? [
-                    'id' => $user->id,
-                    'team' => $user->currentTeam?->slug,
-                ] : null,
                 'events' => Analytics::pending(),
             ],
         ];

@@ -1,5 +1,4 @@
 import { createInertiaApp, router } from '@inertiajs/react';
-import ConsentBanner from '@/components/analytics/consent-banner';
 import PullToRefresh from '@/components/pull-to-refresh';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -75,13 +74,12 @@ createInertiaApp({
 
         // These extras are client-only: the SSR pass renders `app` alone, so
         // each must emit no DOM at first paint or hydration mismatches. The
-        // Toaster gates itself to mount; PullToRefresh and ConsentBanner render
-        // nothing until a gesture / consent decision.
+        // Toaster gates itself to mount; PullToRefresh renders nothing until a
+        // gesture.
         return (
             <TooltipProvider delayDuration={0}>
                 {app}
                 <PullToRefresh />
-                <ConsentBanner />
                 <Toaster />
             </TooltipProvider>
         );
