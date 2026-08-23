@@ -31,7 +31,7 @@ export default function StepSchedule({ data, hasSchedule, controls }: Props) {
                 <OnboardingFooter
                     saving={controls.saving}
                     onClick={controls.onComplete}
-                    label="Finish"
+                    label="Complete onboarding"
                     disabled={!hasSchedule}
                 />
             }

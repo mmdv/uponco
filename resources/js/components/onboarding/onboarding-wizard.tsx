@@ -144,9 +144,12 @@ export default function OnboardingWizard({ onboarding }: Props) {
         onNext: goNext,
     };
 
-    // Finishing the last step flips this on the server; the closing screen is
-    // then the only thing left to show.
-    const current: ScreenId = onboarding.completed ? 'done' : screen;
+    // The closing screen is reached by an explicit finish (goNext to 'done') or,
+    // for someone who already finished, by initialScreen on load. It must NOT be
+    // forced from `onboarding.completed` here: saving the last step's data flips
+    // that flag server-side, and forcing 'done' on it would yank the user off
+    // the schedule screen the moment they save their hours.
+    const current: ScreenId = screen;
     const counted = isCounted(current);
 
     // A screen change swaps the content under a scroll position that belonged to
