@@ -7,6 +7,7 @@
         "profile": "Profile",
         "schedule": "Schedule"
     },
+    "platform": "Platform",
     "toggleTheme": "Toggle theme",
     "pullToRefresh": "Refreshing",
     "changeLanguage": "Change language",
@@ -18,6 +19,8 @@
     "teamSwitcher": {
         "title": "Switch team",
         "description": "Choose a team to work in or create a new one.",
+        "teams": "Teams",
+        "selectTeam": "Select team",
         "newTeam": "New team"
     },
     "createTeamModal": {

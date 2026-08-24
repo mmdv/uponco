@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import type { Onboarding } from '@/types';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
@@ -27,6 +28,7 @@ function RequiredMark() {
 }
 
 export default function StepProfile({ data, controls }: Props) {
+    const { t } = useTranslation('onboard');
     const [name, setName] = useState(data.name);
     const [jobTitle, setJobTitle] = useState(data.job_title ?? '');
 
@@ -41,14 +43,14 @@ export default function StepProfile({ data, controls }: Props) {
                 <>
                     <ScreenBody>
                         <ScreenHeader
-                            title="Your work profile"
-                            description="This is what customers see on your booking page."
+                            title={t('profile.title')}
+                            description={t('profile.description')}
                         />
 
                         <div className="grid gap-6 md:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="name">
-                                    Name <RequiredMark />
+                                    {t('profile.nameLabel')} <RequiredMark />
                                 </Label>
                                 <Input
                                     id="name"
@@ -60,14 +62,15 @@ export default function StepProfile({ data, controls }: Props) {
                                     required
                                     aria-required
                                     autoComplete="name"
-                                    placeholder="Public display name"
+                                    placeholder={t('profile.namePlaceholder')}
                                 />
                                 <InputError message={errors.name} />
                             </div>
 
                             <div className="grid gap-2">
                                 <Label htmlFor="job_title">
-                                    Job title <RequiredMark />
+                                    {t('profile.jobTitleLabel')}{' '}
+                                    <RequiredMark />
                                 </Label>
                                 <Input
                                     id="job_title"
@@ -76,7 +79,9 @@ export default function StepProfile({ data, controls }: Props) {
                                     onChange={(event) =>
                                         setJobTitle(event.target.value)
                                     }
-                                    placeholder="e.g. Senior Stylist"
+                                    placeholder={t(
+                                        'profile.jobTitlePlaceholder',
+                                    )}
                                     required
                                     aria-required
                                 />
@@ -85,38 +90,42 @@ export default function StepProfile({ data, controls }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="email">
-                                    Public email (optional)
+                                    {t('profile.emailLabel')}
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     name="email"
                                     defaultValue={data.email ?? ''}
-                                    placeholder="Contact email shown to customers"
+                                    placeholder={t('profile.emailPlaceholder')}
                                 />
                                 <InputError message={errors.email} />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="phone">Phone (optional)</Label>
+                                <Label htmlFor="phone">
+                                    {t('profile.phoneLabel')}
+                                </Label>
                                 <PhoneInput
                                     id="phone"
                                     name="phone"
                                     defaultValue={data.phone ?? ''}
-                                    placeholder="Contact phone number"
+                                    placeholder={t('profile.phonePlaceholder')}
                                 />
                                 <InputError message={errors.phone} />
                             </div>
 
                             <div className="grid gap-2 md:col-span-2">
                                 <Label htmlFor="description">
-                                    Description (optional)
+                                    {t('profile.descriptionLabel')}
                                 </Label>
                                 <Textarea
                                     id="description"
                                     name="description"
                                     defaultValue={data.description ?? ''}
-                                    placeholder="Tell customers about yourself and your work"
+                                    placeholder={t(
+                                        'profile.descriptionPlaceholder',
+                                    )}
                                 />
                                 <InputError message={errors.description} />
                             </div>

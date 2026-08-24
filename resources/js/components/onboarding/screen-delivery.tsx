@@ -1,4 +1,5 @@
 import StepDelivery from '@/components/services/service-wizard/step-delivery';
+import { useTranslation } from '@/hooks/use-translation';
 import type { DeliveryType } from '@/types';
 
 import OnboardingFooter from './onboarding-footer';
@@ -18,6 +19,8 @@ export default function ScreenDelivery({
     onChange: (value: DeliveryType) => void;
     onNext: () => void;
 }) {
+    const { t } = useTranslation('onboard');
+
     return (
         <OnboardingScreen
             footer={
@@ -25,8 +28,8 @@ export default function ScreenDelivery({
             }
         >
             <ScreenHeader
-                title="How do you meet customers?"
-                description="This decides how they attend their appointment."
+                title={t('delivery.title')}
+                description={t('delivery.description')}
             />
 
             <StepDelivery

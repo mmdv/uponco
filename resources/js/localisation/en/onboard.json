@@ -1,0 +1,159 @@
+{
+    "headTitle": "Set up your business",
+    "gate": {
+        "type": {
+            "title": "How will you take bookings?",
+            "description": "This decides how your booking page introduces you.",
+            "individual": {
+                "title": "Just me",
+                "description": "You take bookings under your own name or personal brand."
+            },
+            "organisation": {
+                "title": "A business or organisation",
+                "description": "You have a team, or bookings run under a company name."
+            },
+            "continue": "Continue"
+        },
+        "details": {
+            "back": "Back",
+            "individual": {
+                "title": "Tell us about you",
+                "description": "This is what your customers will see when they book.",
+                "nameLabel": "Your name",
+                "namePlaceholder": "Name Surname",
+                "nameHint": "This is how you'll appear on your booking page — use your own name, or a brand name if you have one."
+            },
+            "organisation": {
+                "title": "Tell us about your business",
+                "description": "This is what your customers will see when they book.",
+                "nameLabel": "Organisation name",
+                "namePlaceholder": "Organisation name",
+                "nameHint": "This is how your business will appear on your booking page."
+            },
+            "category": {
+                "label": "Category",
+                "dialogTitle": "Choose Category",
+                "customLabel": "What do you do?",
+                "customPlaceholder": "e.g. Sound therapist",
+                "placeholder": "Select a category",
+                "searchPlaceholder": "Search categories…",
+                "emptyMessage": "No categories found. Pick “Other” to write your own."
+            },
+            "timezone": {
+                "label": "Timezone",
+                "dialogTitle": "Choose Timezone",
+                "placeholder": "Select a timezone",
+                "searchPlaceholder": "Search timezones…",
+                "emptyMessage": "No timezones found.",
+                "localTime": "It's {time} here right now."
+            },
+            "continue": "Continue"
+        }
+    },
+    "wizard": {
+        "setupTitle": "Set up your business",
+        "stepProgress": "Step {position} of {total}",
+        "back": "Back",
+        "continue": "Continue",
+        "steps": {
+            "intro": "Welcome",
+            "delivery": "Delivery",
+            "location": "Location",
+            "onlineMethod": "Meeting links",
+            "details": "Service",
+            "profile": "Profile",
+            "schedule": "Working hours",
+            "done": "Done"
+        }
+    },
+    "userMenu": {
+        "account": "Account",
+        "logout": "Log out",
+        "leaveTitle": "You are leaving onboarding",
+        "leaveDescription": "Your progress is saved. You can sign back in and finish setting up your business whenever you are ready.",
+        "keepSettingUp": "Keep setting up",
+        "continueLater": "Yes, I'll continue setup later"
+    },
+    "intro": {
+        "title": "Finish setting up your business",
+        "description": "Four quick things and you're ready to take bookings.",
+        "getStarted": "Get started",
+        "checklist": {
+            "delivery": {
+                "label": "How and where you work",
+                "description": "In person, online, or both."
+            },
+            "service": {
+                "label": "Your first service",
+                "description": "What clients can book with you."
+            },
+            "profile": {
+                "label": "Your work profile",
+                "description": "The name and photo clients see."
+            },
+            "schedule": {
+                "label": "Your work hours",
+                "description": "When you're open for bookings."
+            }
+        }
+    },
+    "delivery": {
+        "title": "How do you meet customers?",
+        "description": "This decides how they attend their appointment."
+    },
+    "onlineMethod": {
+        "title": "How are meeting links handled?",
+        "description": "Every online appointment needs a link to join."
+    },
+    "location": {
+        "review": {
+            "title": "Where do you work?",
+            "description": "Review the address customers will come to, then continue."
+        },
+        "create": {
+            "title": "Where do you work?",
+            "description": "Add the address customers will come to."
+        },
+        "pick": {
+            "title": "Where do you work?",
+            "description": "Pick the places this service is offered at."
+        },
+        "addAnother": "Add another location",
+        "edit": "Edit"
+    },
+    "service": {
+        "create": {
+            "title": "Tell us about your service",
+            "description": "This is what customers see and book."
+        },
+        "review": {
+            "title": "Your services",
+            "description": "Review what you offer, then continue. You can add more or edit anytime."
+        },
+        "addAnother": "Add another service"
+    },
+    "profile": {
+        "title": "Your work profile",
+        "description": "This is what customers see on your booking page.",
+        "nameLabel": "Name",
+        "namePlaceholder": "Public display name",
+        "jobTitleLabel": "Job title",
+        "jobTitlePlaceholder": "e.g. Senior Stylist",
+        "emailLabel": "Public email (optional)",
+        "emailPlaceholder": "Contact email shown to customers",
+        "phoneLabel": "Phone (optional)",
+        "phonePlaceholder": "Contact phone number",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "Tell customers about yourself and your work"
+    },
+    "schedule": {
+        "title": "When do you work?",
+        "description": "Customers can only book inside these hours.",
+        "complete": "Complete onboarding"
+    },
+    "done": {
+        "title": "That's it — you're all set",
+        "description": "Your booking page is live. Share the link and take your first booking.",
+        "goToDashboard": "Go to dashboard"
+    }
+}

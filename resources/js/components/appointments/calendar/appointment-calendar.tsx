@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { addDays, addMonths, weekDays } from '@/lib/calendar-grid';
 import type { Appointment } from '@/types';
 
@@ -39,6 +40,7 @@ export default function AppointmentCalendar({
     onReschedule,
     onCreateSlot,
 }: Props) {
+    const { t } = useTranslation('appointments');
     const title = useMemo(() => formatTitle(view, date), [view, date]);
 
     const step = (direction: 1 | -1) => {
@@ -59,7 +61,7 @@ export default function AppointmentCalendar({
                     size="icon"
                     onClick={() => step(-1)}
                     data-test="calendar-prev"
-                    aria-label="Previous"
+                    aria-label={t('toolbar.calendar.previous')}
                     className="order-1 sm:rounded-r-none"
                 >
                     <ChevronLeft className="size-4" />
@@ -69,7 +71,7 @@ export default function AppointmentCalendar({
                     size="icon"
                     onClick={() => step(1)}
                     data-test="calendar-next"
-                    aria-label="Next"
+                    aria-label={t('toolbar.calendar.next')}
                     className="order-3 sm:order-2 sm:-ml-px sm:rounded-l-none"
                 >
                     <ChevronRight className="size-4" />
@@ -80,7 +82,7 @@ export default function AppointmentCalendar({
                     data-test="calendar-today"
                     className="order-3 hidden sm:inline-flex"
                 >
-                    Today
+                    {t('toolbar.calendar.today')}
                 </Button>
                 <h2 className="order-2 flex-1 text-center text-sm font-medium sm:order-4 sm:ml-1 sm:flex-none sm:text-left">
                     {title}

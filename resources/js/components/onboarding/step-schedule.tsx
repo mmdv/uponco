@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 
 import MemberSchedule from '@/components/schedule/member/member-schedule';
+import { useTranslation } from '@/hooks/use-translation';
 import type { DayScheduleMap } from '@/types/schedule';
 import type { StepControls } from './controls';
 import OnboardingFooter from './onboarding-footer';
@@ -24,6 +25,7 @@ type Props = {
  */
 export default function StepSchedule({ data, hasSchedule, controls }: Props) {
     const { auth } = usePage().props;
+    const { t } = useTranslation('onboard');
 
     return (
         <OnboardingScreen
@@ -31,14 +33,14 @@ export default function StepSchedule({ data, hasSchedule, controls }: Props) {
                 <OnboardingFooter
                     saving={controls.saving}
                     onClick={controls.onComplete}
-                    label="Complete onboarding"
+                    label={t('schedule.complete')}
                     disabled={!hasSchedule}
                 />
             }
         >
             <ScreenHeader
-                title="When do you work?"
-                description="Customers can only book inside these hours."
+                title={t('schedule.title')}
+                description={t('schedule.description')}
             />
 
             <MemberSchedule

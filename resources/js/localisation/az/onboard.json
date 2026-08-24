@@ -1,0 +1,159 @@
+{
+    "headTitle": "Biznesinizi qurun",
+    "gate": {
+        "type": {
+            "title": "Rezervasiyaları necə qəbul edəcəksiniz?",
+            "description": "Bu, rezervasiya səhifənizin sizi necə təqdim edəcəyini müəyyən edir.",
+            "individual": {
+                "title": "Yalnız mən",
+                "description": "Rezervasiyaları öz adınız və ya şəxsi brendiniz altında qəbul edirsiniz."
+            },
+            "organisation": {
+                "title": "Biznes və ya təşkilat",
+                "description": "Komandanız var və ya rezervasiyalar şirkət adı altında aparılır."
+            },
+            "continue": "Davam et"
+        },
+        "details": {
+            "back": "Geri",
+            "individual": {
+                "title": "Özünüz haqqında məlumat verin",
+                "description": "Müştəriləriniz rezervasiya edərkən bunu görəcək.",
+                "nameLabel": "Adınız",
+                "namePlaceholder": "Ad Soyad",
+                "nameHint": "Rezervasiya səhifənizdə bu cür görünəcəksiniz — öz adınızı, əgər varsa brend adınızı istifadə edin."
+            },
+            "organisation": {
+                "title": "Biznesiniz haqqında məlumat verin",
+                "description": "Müştəriləriniz rezervasiya edərkən bunu görəcək.",
+                "nameLabel": "Təşkilatın adı",
+                "namePlaceholder": "Təşkilatın adı",
+                "nameHint": "Biznesiniz rezervasiya səhifənizdə bu cür görünəcək."
+            },
+            "category": {
+                "label": "Kateqoriya",
+                "dialogTitle": "Kateqoriya seçin",
+                "customLabel": "Nə ilə məşğulsunuz?",
+                "customPlaceholder": "məs. Səs terapevti",
+                "placeholder": "Kateqoriya seçin",
+                "searchPlaceholder": "Kateqoriyaları axtarın…",
+                "emptyMessage": "Kateqoriya tapılmadı. Öz variantınızı yazmaq üçün “Digər” seçin."
+            },
+            "timezone": {
+                "label": "Saat qurşağı",
+                "dialogTitle": "Saat qurşağı seçin",
+                "placeholder": "Saat qurşağı seçin",
+                "searchPlaceholder": "Saat qurşaqlarını axtarın…",
+                "emptyMessage": "Saat qurşağı tapılmadı.",
+                "localTime": "Burada indi saat {time}-dır."
+            },
+            "continue": "Davam et"
+        }
+    },
+    "wizard": {
+        "setupTitle": "Biznesinizi qurun",
+        "stepProgress": "Addım {position} / {total}",
+        "back": "Geri",
+        "continue": "Davam et",
+        "steps": {
+            "intro": "Xoş gəlmisiniz",
+            "delivery": "Təqdimat",
+            "location": "Ünvan",
+            "onlineMethod": "Görüş linkləri",
+            "details": "Xidmət",
+            "profile": "Profil",
+            "schedule": "İş saatları",
+            "done": "Hazırdır"
+        }
+    },
+    "userMenu": {
+        "account": "Hesab",
+        "logout": "Çıxış",
+        "leaveTitle": "Qurulmadan çıxırsınız",
+        "leaveDescription": "Tərəqqiniz yadda saxlanılıb. İstənilən vaxt yenidən daxil olub biznesinizi qurmağı tamamlaya bilərsiniz.",
+        "keepSettingUp": "Qurmağa davam et",
+        "continueLater": "Bəli, qurulmanı sonra davam etdirəcəyəm"
+    },
+    "intro": {
+        "title": "Biznesinizin qurulmasını tamamlayın",
+        "description": "Dörd qısa addım və rezervasiya qəbul etməyə hazırsınız.",
+        "getStarted": "Başlayaq",
+        "checklist": {
+            "delivery": {
+                "label": "Necə və harada işləyirsiniz",
+                "description": "Şəxsən, onlayn və ya hər ikisi."
+            },
+            "service": {
+                "label": "İlk xidmətiniz",
+                "description": "Müştərilərin sizinlə nə rezervasiya edə biləcəyi."
+            },
+            "profile": {
+                "label": "İş profiliniz",
+                "description": "Müştərilərin gördüyü ad və şəkil."
+            },
+            "schedule": {
+                "label": "İş saatlarınız",
+                "description": "Rezervasiyalara nə vaxt açıqsınız."
+            }
+        }
+    },
+    "delivery": {
+        "title": "Müştərilərlə necə görüşürsünüz?",
+        "description": "Bu, onların görüşdə necə iştirak edəcəyini müəyyən edir."
+    },
+    "onlineMethod": {
+        "title": "Görüş linkləri necə idarə olunur?",
+        "description": "Hər onlayn görüş üçün qoşulma linki lazımdır."
+    },
+    "location": {
+        "review": {
+            "title": "Harada işləyirsiniz?",
+            "description": "Müştərilərin gələcəyi ünvanı yoxlayın, sonra davam edin."
+        },
+        "create": {
+            "title": "Harada işləyirsiniz?",
+            "description": "Müştərilərin gələcəyi ünvanı əlavə edin."
+        },
+        "pick": {
+            "title": "Harada işləyirsiniz?",
+            "description": "Bu xidmətin təklif olunduğu yerləri seçin."
+        },
+        "addAnother": "Başqa ünvan əlavə et",
+        "edit": "Redaktə et"
+    },
+    "service": {
+        "create": {
+            "title": "Xidmətiniz haqqında məlumat verin",
+            "description": "Müştərilər bunu görür və rezervasiya edir."
+        },
+        "review": {
+            "title": "Xidmətləriniz",
+            "description": "Təklif etdiklərinizi yoxlayın, sonra davam edin. İstənilən vaxt əlavə edə və ya redaktə edə bilərsiniz."
+        },
+        "addAnother": "Başqa xidmət əlavə et"
+    },
+    "profile": {
+        "title": "İş profiliniz",
+        "description": "Müştərilər bunu rezervasiya səhifənizdə görür.",
+        "nameLabel": "Ad",
+        "namePlaceholder": "İctimai görünən ad",
+        "jobTitleLabel": "Vəzifə",
+        "jobTitlePlaceholder": "məs. Baş stilist",
+        "emailLabel": "İctimai e-poçt (istəyə bağlı)",
+        "emailPlaceholder": "Müştərilərə göstərilən əlaqə e-poçtu",
+        "phoneLabel": "Telefon (istəyə bağlı)",
+        "phonePlaceholder": "Əlaqə telefon nömrəsi",
+        "descriptionLabel": "Təsvir (istəyə bağlı)",
+        "descriptionPlaceholder": "Müştərilərə özünüz və işiniz haqqında məlumat verin"
+    },
+    "schedule": {
+        "title": "Nə vaxt işləyirsiniz?",
+        "description": "Müştərilər yalnız bu saatlar daxilində rezervasiya edə bilər.",
+        "complete": "Qurulmanı tamamla"
+    },
+    "done": {
+        "title": "Budur — hər şey hazırdır",
+        "description": "Rezervasiya səhifəniz aktivdir. Linki paylaşın və ilk rezervasiyanızı qəbul edin.",
+        "goToDashboard": "İdarə panelinə keç"
+    }
+}

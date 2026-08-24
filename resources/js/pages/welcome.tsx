@@ -42,7 +42,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Your digital bridge to your customers" />
+            <Head title={t('metaTitle')} />
 
             <AppBackground className="min-h-screen w-full max-w-full overflow-x-hidden text-foreground">
                 <SiteHeader />

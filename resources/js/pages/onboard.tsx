@@ -11,6 +11,8 @@ import { SelectDialog } from '@/components/ui/select-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
 import { detectTimezone, timeInTimezone } from '@/lib/timezone-country';
+import { useTranslation } from '@/hooks/use-translation';
+import type { TranslateFn } from '@/hooks/use-translation';
 import type { SelectOption } from '@/types';
 
 type TeamType = 'individual' | 'organisation';
@@ -34,32 +36,15 @@ const OTHER_CATEGORY = 'other';
  * The copy on the details step, which asks a solo practitioner for their own
  * name and a company for its trading name.
  */
-const COPY: Record<
-    TeamType,
-    {
-        title: string;
-        description: string;
-        nameLabel: string;
-        namePlaceholder: string;
-        nameHint: string;
-    }
-> = {
-    individual: {
-        title: 'Tell us about you',
-        description: 'This is what your customers will see when they book.',
-        nameLabel: 'Your name',
-        namePlaceholder: 'Name Surname',
-        nameHint:
-            "This is how you'll appear on your booking page — use your own name, or a brand name if you have one.",
-    },
-    organisation: {
-        title: 'Tell us about your business',
-        description: 'This is what your customers will see when they book.',
-        nameLabel: 'Organisation name',
-        namePlaceholder: 'Organisation name',
-        nameHint: 'This is how your business will appear on your booking page.',
-    },
-};
+function detailsCopy(t: TranslateFn, type: TeamType) {
+    return {
+        title: t(`gate.details.${type}.title`),
+        description: t(`gate.details.${type}.description`),
+        nameLabel: t(`gate.details.${type}.nameLabel`),
+        namePlaceholder: t(`gate.details.${type}.namePlaceholder`),
+        nameHint: t(`gate.details.${type}.nameHint`),
+    };
+}
 
 /** How often the clock under the timezone picker catches up with itself. */
 const CLOCK_INTERVAL = 30_000;
@@ -97,6 +82,8 @@ export default function Onboard({
     timezones,
     businessCategories,
 }: Props) {
+    const { t } = useTranslation('onboard');
+
     /**
      * Teams created before this question existed were all backfilled as
      * organisations, so a stored type only counts as an answer once the team
@@ -116,7 +103,7 @@ export default function Onboard({
         initialTimezone(team.timezone, timezones),
     );
 
-    const copy = type === '' ? COPY.organisation : COPY[type];
+    const copy = detailsCopy(t, type === '' ? 'organisation' : type);
 
     // The same icon the customer meets on the booking page, so picking a
     // category here shows what it will look like there.
@@ -128,9 +115,8 @@ export default function Onboard({
     setLayoutProps(
         step === 'type'
             ? {
-                  title: 'How will you take bookings?',
-                  description:
-                      'This decides how your booking page introduces you.',
+                  title: t('gate.type.title'),
+                  description: t('gate.type.description'),
                   showAccountMenu: true,
               }
             : {
@@ -164,7 +150,7 @@ export default function Onboard({
 
     return (
         <>
-            <Head title="Set up your business" />
+            <Head title={t('headTitle')} />
 
             <Form
                 {...OnboardController.update.form()}
@@ -179,21 +165,27 @@ export default function Onboard({
                             <>
                                 <div
                                     role="radiogroup"
-                                    aria-label="How will you take bookings?"
+                                    aria-label={t('gate.type.title')}
                                     className="space-y-3"
                                 >
                                     <ChoiceCard
                                         icon={User}
-                                        title="Just me"
-                                        description="You take bookings under your own name or personal brand."
+                                        title={t('gate.type.individual.title')}
+                                        description={t(
+                                            'gate.type.individual.description',
+                                        )}
                                         selected={type === 'individual'}
                                         onSelect={() => setType('individual')}
                                         data-test="onboard-type-individual"
                                     />
                                     <ChoiceCard
                                         icon={Building2}
-                                        title="A business or organisation"
-                                        description="You have a team, or bookings run under a company name."
+                                        title={t(
+                                            'gate.type.organisation.title',
+                                        )}
+                                        description={t(
+                                            'gate.type.organisation.description',
+                                        )}
                                         selected={type === 'organisation'}
                                         onSelect={() => setType('organisation')}
                                         data-test="onboard-type-organisation"
@@ -208,7 +200,7 @@ export default function Onboard({
                                     onClick={() => setStep('details')}
                                     data-test="onboard-type-continue"
                                 >
-                                    Continue
+                                    {t('gate.type.continue')}
                                 </Button>
                             </>
                         ) : (
@@ -220,7 +212,7 @@ export default function Onboard({
                                     data-test="onboard-back"
                                 >
                                     <ChevronLeft className="size-4" />
-                                    Back
+                                    {t('gate.details.back')}
                                 </button>
 
                                 <div className="grid gap-2">
@@ -261,11 +253,13 @@ export default function Onboard({
                                         value={businessCategoryOther}
                                     />
                                     <Label htmlFor="business_category">
-                                        Category
+                                        {t('gate.details.category.label')}
                                     </Label>
                                     <SelectDialog
                                         id="business_category"
-                                        title="Choose Category"
+                                        title={t(
+                                            'gate.details.category.dialogTitle',
+                                        )}
                                         options={categoryOptions}
                                         value={businessCategory}
                                         onChange={setBusinessCategory}
@@ -274,11 +268,21 @@ export default function Onboard({
                                         onCustomChange={
                                             setBusinessCategoryOther
                                         }
-                                        customLabel="What do you do?"
-                                        customPlaceholder="e.g. Sound therapist"
-                                        placeholder="Select a category"
-                                        searchPlaceholder="Search categories…"
-                                        emptyMessage="No categories found. Pick “Other” to write your own."
+                                        customLabel={t(
+                                            'gate.details.category.customLabel',
+                                        )}
+                                        customPlaceholder={t(
+                                            'gate.details.category.customPlaceholder',
+                                        )}
+                                        placeholder={t(
+                                            'gate.details.category.placeholder',
+                                        )}
+                                        searchPlaceholder={t(
+                                            'gate.details.category.searchPlaceholder',
+                                        )}
+                                        emptyMessage={t(
+                                            'gate.details.category.emptyMessage',
+                                        )}
                                         invalid={Boolean(
                                             errors.business_category ||
                                             errors.business_category_other,
@@ -298,16 +302,26 @@ export default function Onboard({
                                         name="timezone"
                                         value={timezone}
                                     />
-                                    <Label htmlFor="timezone">Timezone</Label>
+                                    <Label htmlFor="timezone">
+                                        {t('gate.details.timezone.label')}
+                                    </Label>
                                     <SelectDialog
                                         id="timezone"
-                                        title="Choose Timezone"
+                                        title={t(
+                                            'gate.details.timezone.dialogTitle',
+                                        )}
                                         options={timezones}
                                         value={timezone}
                                         onChange={setTimezone}
-                                        placeholder="Select a timezone"
-                                        searchPlaceholder="Search timezones…"
-                                        emptyMessage="No timezones found."
+                                        placeholder={t(
+                                            'gate.details.timezone.placeholder',
+                                        )}
+                                        searchPlaceholder={t(
+                                            'gate.details.timezone.searchPlaceholder',
+                                        )}
+                                        emptyMessage={t(
+                                            'gate.details.timezone.emptyMessage',
+                                        )}
                                         invalid={Boolean(errors.timezone)}
                                     />
                                     {localTime ? (
@@ -315,7 +329,12 @@ export default function Onboard({
                                             className="text-sm text-muted-foreground"
                                             data-test="onboard-timezone-time"
                                         >
-                                            It's {localTime} here right now.
+                                            {t(
+                                                'gate.details.timezone.localTime',
+                                                {
+                                                    time: localTime,
+                                                },
+                                            )}
                                         </p>
                                     ) : null}
                                     <InputError message={errors.timezone} />
@@ -328,7 +347,7 @@ export default function Onboard({
                                     data-test="onboard-submit-button"
                                 >
                                     {processing && <Spinner />}
-                                    Continue
+                                    {t('gate.details.continue')}
                                 </Button>
                             </>
                         )}

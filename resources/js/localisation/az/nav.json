@@ -7,6 +7,7 @@
         "profile": "Profil",
         "schedule": "Cədvəl"
     },
+    "platform": "Platforma",
     "toggleTheme": "Görünüşü dəyiş",
     "pullToRefresh": "Yenilənir",
     "changeLanguage": "Dili dəyiş",
@@ -18,6 +19,8 @@
     "teamSwitcher": {
         "title": "Komandanı dəyiş",
         "description": "Çalışmaq üçün komanda seçin və ya yenisini yaradın.",
+        "teams": "Komandalar",
+        "selectTeam": "Komanda seçin",
         "newTeam": "Yeni komanda"
     },
     "createTeamModal": {

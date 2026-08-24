@@ -62,7 +62,7 @@ export default function CustomerFormDialog({
                                         name="name"
                                         data-test="customer-name-input"
                                         defaultValue={customer?.name ?? ''}
-                                        placeholder="Jane Doe"
+                                        placeholder={t('form.namePlaceholder')}
                                         autoFocus
                                     />
                                     <InputError message={errors.name} />
@@ -78,7 +78,7 @@ export default function CustomerFormDialog({
                                         type="email"
                                         data-test="customer-email-input"
                                         defaultValue={customer?.email ?? ''}
-                                        placeholder="jane@example.com"
+                                        placeholder={t('form.emailPlaceholder')}
                                     />
                                     <InputError message={errors.email} />
                                 </div>
@@ -92,7 +92,7 @@ export default function CustomerFormDialog({
                                         name="phone"
                                         data-test="customer-phone-input"
                                         defaultValue={customer?.phone ?? ''}
-                                        placeholder="+1 555 123 4567"
+                                        placeholder={t('form.phonePlaceholder')}
                                     />
                                     <InputError message={errors.phone} />
                                 </div>

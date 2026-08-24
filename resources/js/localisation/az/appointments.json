@@ -25,6 +25,11 @@
         "updateError": "Görüşü yeniləmək alınmadı. Yenidən cəhd edin."
     },
     "toolbar": {
+        "calendar": {
+            "previous": "Əvvəlki",
+            "next": "Növbəti",
+            "today": "Bu gün"
+        },
         "filters": "Filtrlər",
         "clearAll": "Hamısını təmizlə",
         "clear": "Təmizlə",

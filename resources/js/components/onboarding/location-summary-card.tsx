@@ -2,6 +2,7 @@ import { MapPin, Pencil, Phone } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { Location, SelectOption } from '@/types';
 
@@ -29,11 +30,12 @@ export default function LocationSummaryCard({
     selected,
     onSelectedChange,
 }: Props) {
+    const { t } = useTranslation('onboard');
     const selectable = onSelectedChange !== undefined;
 
     const countryLabel =
-        countries.find((country) => country.value === location.country)?.label ??
-        location.country;
+        countries.find((country) => country.value === location.country)
+            ?.label ?? location.country;
 
     const address = [
         location.street_address,
@@ -75,16 +77,11 @@ export default function LocationSummaryCard({
                     data-test="onboarding-location-edit-button"
                 >
                     <Pencil />
-                    Edit
+                    {t('location.edit')}
                 </Button>
             </div>
 
-            <div
-                className={cn(
-                    'mt-4 space-y-3 text-sm',
-                    selectable && 'ps-7',
-                )}
-            >
+            <div className={cn('mt-4 space-y-3 text-sm', selectable && 'ps-7')}>
                 {address && (
                     <div className="flex items-start gap-2.5">
                         <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />

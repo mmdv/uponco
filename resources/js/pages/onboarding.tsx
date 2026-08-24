@@ -2,12 +2,15 @@ import { Head } from '@inertiajs/react';
 
 import OnboardingWizard from '@/components/onboarding/onboarding-wizard';
 import TermsConsentDialog from '@/components/terms-consent-dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import type { Onboarding } from '@/types';
 
 export default function OnboardingPage(props: Onboarding) {
+    const { t } = useTranslation('onboard');
+
     return (
         <>
-            <Head title="Set up your business" />
+            <Head title={t('headTitle')} />
             <OnboardingWizard onboarding={props} />
 
             {/* The setup flow renders without the app shell, so the consent

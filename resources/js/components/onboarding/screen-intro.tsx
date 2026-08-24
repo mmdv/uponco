@@ -1,43 +1,35 @@
 import { CalendarClock, MapPin, Tag, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
 import OnboardingFooter from './onboarding-footer';
 import OnboardingScreen from './onboarding-screen';
 import ScreenHeader from './screen-header';
 
-const checklist: { icon: LucideIcon; label: string; description: string }[] = [
-    {
-        icon: MapPin,
-        label: 'How and where you work',
-        description: 'In person, online, or both.',
-    },
-    {
-        icon: Tag,
-        label: 'Your first service',
-        description: 'What clients can book with you.',
-    },
-    {
-        icon: UserRound,
-        label: 'Your work profile',
-        description: 'The name and photo clients see.',
-    },
-    {
-        icon: CalendarClock,
-        label: 'Your work hours',
-        description: "When you're open for bookings.",
-    },
+const checklist: { icon: LucideIcon; key: string }[] = [
+    { icon: MapPin, key: 'delivery' },
+    { icon: Tag, key: 'service' },
+    { icon: UserRound, key: 'profile' },
+    { icon: CalendarClock, key: 'schedule' },
 ];
 
 export default function ScreenIntro({ onStart }: { onStart: () => void }) {
+    const { t } = useTranslation('onboard');
+
     return (
         <OnboardingScreen
-            footer={<OnboardingFooter label="Get started" onClick={onStart} />}
+            footer={
+                <OnboardingFooter
+                    label={t('intro.getStarted')}
+                    onClick={onStart}
+                />
+            }
         >
             <ScreenHeader
-                title="Finish setting up your business"
-                description="Four quick things and you're ready to take bookings."
+                title={t('intro.title')}
+                description={t('intro.description')}
             />
 
             {/*
@@ -50,7 +42,7 @@ export default function ScreenIntro({ onStart }: { onStart: () => void }) {
                     const isLast = index === checklist.length - 1;
 
                     return (
-                        <li key={item.label} className="flex gap-4">
+                        <li key={item.key} className="flex gap-4">
                             <div className="flex flex-col items-center">
                                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                                     <item.icon className="size-5" />
@@ -68,10 +60,12 @@ export default function ScreenIntro({ onStart }: { onStart: () => void }) {
                                 )}
                             >
                                 <p className="font-medium text-foreground">
-                                    {item.label}
+                                    {t(`intro.checklist.${item.key}.label`)}
                                 </p>
                                 <p className="mt-0.5 text-sm text-muted-foreground">
-                                    {item.description}
+                                    {t(
+                                        `intro.checklist.${item.key}.description`,
+                                    )}
                                 </p>
                             </button>
                         </li>

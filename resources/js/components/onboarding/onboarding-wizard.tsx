@@ -7,6 +7,7 @@ import AppBackground from '@/components/app-background';
 import { useServiceDraft } from '@/components/services/service-wizard/service-draft';
 import StepOnlineMethod from '@/components/services/service-wizard/step-online-method';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { Onboarding, OnboardingStepKey } from '@/types';
 
@@ -57,16 +58,16 @@ const entryScreen: Record<OnboardingStepKey, ScreenId> = {
     schedule: 'schedule',
 };
 
-/** Short names for the rail that tracks progress on a wide screen. */
-const screenLabels: Record<ScreenId, string> = {
-    intro: 'Welcome',
-    delivery: 'Delivery',
-    location: 'Location',
-    'online-method': 'Meeting links',
-    details: 'Service',
-    profile: 'Profile',
-    schedule: 'Working hours',
-    done: 'Done',
+/** Translation keys for the rail that tracks progress on a wide screen. */
+const screenLabelKeys: Record<ScreenId, string> = {
+    intro: 'wizard.steps.intro',
+    delivery: 'wizard.steps.delivery',
+    location: 'wizard.steps.location',
+    'online-method': 'wizard.steps.onlineMethod',
+    details: 'wizard.steps.details',
+    profile: 'wizard.steps.profile',
+    schedule: 'wizard.steps.schedule',
+    done: 'wizard.steps.done',
 };
 
 /** Screens that carry the progress count; intro and done are chrome. */
@@ -75,6 +76,7 @@ const isCounted = (screen: ScreenId): boolean =>
 
 export default function OnboardingWizard({ onboarding }: Props) {
     const { auth } = usePage().props;
+    const { t } = useTranslation('onboard');
 
     const service = useServiceDraft({
         categoryId: null,
@@ -173,10 +175,13 @@ export default function OnboardingWizard({ onboarding }: Props) {
                     <aside className="hidden w-72 shrink-0 flex-col gap-8 border-r bg-muted/30 p-8 md:flex">
                         <div className="space-y-1.5">
                             <p className="text-sm font-medium text-foreground">
-                                Set up your business
+                                {t('wizard.setupTitle')}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                Step {position} of {countedScreens.length}
+                                {t('wizard.stepProgress', {
+                                    position,
+                                    total: countedScreens.length,
+                                })}
                             </p>
                         </div>
 
@@ -219,7 +224,7 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                                     : 'text-muted-foreground',
                                             )}
                                         >
-                                            {screenLabels[item]}
+                                            {t(screenLabelKeys[item])}
                                         </span>
                                     </li>
                                 );
@@ -245,14 +250,17 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                     size="icon"
                                     onClick={goBack}
                                     disabled={saving}
-                                    aria-label="Back"
+                                    aria-label={t('wizard.back')}
                                     data-test="onboarding-back"
                                 >
                                     <ChevronLeft className="size-5" />
                                 </Button>
 
                                 <span className="flex-1 text-center text-xs text-muted-foreground md:hidden">
-                                    Step {position} of {countedScreens.length}
+                                    {t('wizard.stepProgress', {
+                                        position,
+                                        total: countedScreens.length,
+                                    })}
                                 </span>
 
                                 <div className="size-9 md:hidden" />
@@ -322,8 +330,10 @@ export default function OnboardingWizard({ onboarding }: Props) {
                                     }
                                 >
                                     <ScreenHeader
-                                        title="How are meeting links handled?"
-                                        description="Every online appointment needs a link to join."
+                                        title={t('onlineMethod.title')}
+                                        description={t(
+                                            'onlineMethod.description',
+                                        )}
                                     />
 
                                     <StepOnlineMethod

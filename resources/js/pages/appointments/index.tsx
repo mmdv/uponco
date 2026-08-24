@@ -351,7 +351,7 @@ export default function AppointmentsIndex({
                     type="button"
                     className="fixed bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-50 flex size-14 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"
                     data-test="calendar-today-fab"
-                    aria-label="Today"
+                    aria-label={t('toolbar.calendar.today')}
                     onClick={() => setCursor(new Date())}
                 >
                     <CalendarDays className="size-6" />

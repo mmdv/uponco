@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/hooks/use-translation';
 import { logout } from '@/routes';
 import type { User } from '@/types';
 
@@ -38,6 +39,7 @@ type Props = {
  */
 export default function OnboardingUserMenu({ user }: Props) {
     const getInitials = useInitials();
+    const { t } = useTranslation('onboard');
     const [confirmOpen, setConfirmOpen] = useState(false);
     const hasAvatar = Boolean(user.avatar && user.avatar !== '');
 
@@ -56,7 +58,7 @@ export default function OnboardingUserMenu({ user }: Props) {
                         variant="ghost"
                         size="icon"
                         className="absolute top-2.5 right-2.5 z-30 rounded-full md:top-3 md:right-3"
-                        aria-label="Account"
+                        aria-label={t('userMenu.account')}
                         data-test="onboarding-user-menu"
                     >
                         <Avatar className="size-8 rounded-full">
@@ -87,7 +89,7 @@ export default function OnboardingUserMenu({ user }: Props) {
                         data-test="onboarding-logout"
                     >
                         <LogOut className="mr-2" />
-                        Log out
+                        {t('userMenu.logout')}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -95,17 +97,17 @@ export default function OnboardingUserMenu({ user }: Props) {
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>You are leaving onboarding</DialogTitle>
+                        <DialogTitle>{t('userMenu.leaveTitle')}</DialogTitle>
                         <DialogDescription>
-                            Your progress is saved. You can sign back in and
-                            finish setting up your business whenever you are
-                            ready.
+                            {t('userMenu.leaveDescription')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <DialogFooter className="gap-2">
                         <DialogClose asChild>
-                            <Button variant="secondary">Keep setting up</Button>
+                            <Button variant="secondary">
+                                {t('userMenu.keepSettingUp')}
+                            </Button>
                         </DialogClose>
 
                         <Button
@@ -113,7 +115,7 @@ export default function OnboardingUserMenu({ user }: Props) {
                             onClick={signOut}
                             data-test="onboarding-sign-out-confirm"
                         >
-                            Yes, I&apos;ll continue setup later
+                            {t('userMenu.continueLater')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

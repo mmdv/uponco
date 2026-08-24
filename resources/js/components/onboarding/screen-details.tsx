@@ -54,6 +54,7 @@ export default function ScreenDetails({ data, service, controls }: Props) {
 /** The wizard's final form, which creates the first service. */
 function CreateFirstService({ data, service, controls }: Props) {
     const { t } = useTranslation('company');
+    const { t: onboardT } = useTranslation('onboard');
 
     // Nothing is flagged until the user asks to create the service, so the
     // screen opens clean instead of complaining about untouched fields.
@@ -83,8 +84,8 @@ function CreateFirstService({ data, service, controls }: Props) {
 
                     <ScreenBody>
                         <ScreenHeader
-                            title="Tell us about your service"
-                            description="This is what customers see and book."
+                            title={onboardT('service.create.title')}
+                            description={onboardT('service.create.description')}
                         />
 
                         <StepDetails
@@ -129,6 +130,7 @@ type ReviewProps = {
  * the dashboard uses, before completing the step.
  */
 function ReviewServices({ data, controls }: ReviewProps) {
+    const { t } = useTranslation('onboard');
     const [addOpen, setAddOpen] = useState(false);
     const [editing, setEditing] = useState<Service | null>(null);
 
@@ -149,8 +151,8 @@ function ReviewServices({ data, controls }: ReviewProps) {
             }
         >
             <ScreenHeader
-                title="Your services"
-                description="Review what you offer, then continue. You can add more or edit anytime."
+                title={t('service.review.title')}
+                description={t('service.review.description')}
             />
 
             <div className="space-y-4">
@@ -170,7 +172,7 @@ function ReviewServices({ data, controls }: ReviewProps) {
                 data-test="onboarding-add-service-button"
             >
                 <Plus />
-                Add another service
+                {t('service.addAnother')}
             </Button>
 
             <ServiceWizardDialog

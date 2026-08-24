@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { translate, useTranslation } from '@/hooks/use-translation';
 import { login, privacy, terms } from '@/routes';
 import { store } from '@/routes/register';
 
@@ -23,6 +24,8 @@ export default function Register({
     invitationEmail,
     invitationTeam,
 }: Props) {
+    const { t } = useTranslation('auth');
+
     // Autofocusing on a phone pops the keyboard open before the page has
     // settled, which scrolls the form out from under the user on arrival.
     const isMobile = useIsMobile();
@@ -32,16 +35,15 @@ export default function Register({
 
     return (
         <>
-            <Head title="Register" />
+            <Head title={t('register.headTitle')} />
             <Form
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 onBefore={() => {
                     if (!termsAccepted) {
-                        setTermsError(
-                            'Please accept the Terms & Conditions and Privacy Policy to continue.',
-                        );
+                        setTermsError(t('register.termsError'));
+
                         return false;
                     }
 
@@ -54,13 +56,16 @@ export default function Register({
                         <div className="grid gap-6">
                             {invitationTeam && (
                                 <p className="text-sm text-muted-foreground">
-                                    You've been invited to join {invitationTeam}
-                                    . Create your account to get started.
+                                    {t('register.invited', {
+                                        team: invitationTeam,
+                                    })}
                                 </p>
                             )}
 
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">
+                                    {t('register.name')}
+                                </Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -71,7 +76,7 @@ export default function Register({
                                     autoCapitalize="words"
                                     enterKeyHint="next"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder={t('register.namePlaceholder')}
                                 />
                                 <InputError
                                     message={errors.name}
@@ -80,7 +85,9 @@ export default function Register({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    {t('register.email')}
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -93,7 +100,7 @@ export default function Register({
                                     inputMode="email"
                                     enterKeyHint="next"
                                     name="email"
-                                    placeholder="email@example.com"
+                                    placeholder={t('register.emailPlaceholder')}
                                     defaultValue={invitationEmail}
                                     readOnly={Boolean(invitationEmail)}
                                 />
@@ -101,7 +108,9 @@ export default function Register({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">
+                                    {t('register.password')}
+                                </Label>
                                 <PasswordInput
                                     id="password"
                                     required
@@ -109,7 +118,9 @@ export default function Register({
                                     autoComplete="new-password"
                                     enterKeyHint="next"
                                     name="password"
-                                    placeholder="Password"
+                                    placeholder={t(
+                                        'register.passwordPlaceholder',
+                                    )}
                                     passwordrules={passwordRules}
                                 />
                                 <InputError message={errors.password} />
@@ -117,7 +128,7 @@ export default function Register({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
-                                    Confirm password
+                                    {t('register.confirmPassword')}
                                 </Label>
                                 <PasswordInput
                                     id="password_confirmation"
@@ -126,7 +137,9 @@ export default function Register({
                                     autoComplete="new-password"
                                     enterKeyHint="go"
                                     name="password_confirmation"
-                                    placeholder="Confirm password"
+                                    placeholder={t(
+                                        'register.confirmPasswordPlaceholder',
+                                    )}
                                     passwordrules={passwordRules}
                                 />
                                 <InputError
@@ -156,25 +169,25 @@ export default function Register({
                                         htmlFor="terms"
                                         className="text-sm leading-relaxed font-normal"
                                     >
-                                        I have read and agree to the{' '}
+                                        {t('register.termsBefore')}
                                         <a
                                             href={terms().url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-primary underline underline-offset-4"
                                         >
-                                            Terms &amp; Conditions
-                                        </a>{' '}
-                                        and{' '}
+                                            {t('register.termsLink')}
+                                        </a>
+                                        {t('register.termsSeparator')}
                                         <a
                                             href={privacy().url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-primary underline underline-offset-4"
                                         >
-                                            Privacy Policy
+                                            {t('register.privacyLink')}
                                         </a>
-                                        .
+                                        {t('register.termsAfter')}
                                     </Label>
                                 </div>
                                 <InputError
@@ -189,14 +202,14 @@ export default function Register({
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                Create account
+                                {t('register.submit')}
                             </Button>
                         </div>
 
                         <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
+                            {t('register.haveAccount')}{' '}
                             <TextLink href={login()} tabIndex={7}>
-                                Log in
+                                {t('register.logIn')}
                             </TextLink>
                         </div>
                     </>
@@ -206,7 +219,7 @@ export default function Register({
     );
 }
 
-Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
-};
+Register.layout = (props: { locale?: string }) => ({
+    title: translate('auth', 'register.layoutTitle', props.locale),
+    description: translate('auth', 'register.layoutDescription', props.locale),
+});

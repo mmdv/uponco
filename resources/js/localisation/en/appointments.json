@@ -25,6 +25,11 @@
         "updateError": "Couldn't update the appointment. Please try again."
     },
     "toolbar": {
+        "calendar": {
+            "previous": "Previous",
+            "next": "Next",
+            "today": "Today"
+        },
         "filters": "Filters",
         "clearAll": "Clear all",
         "clear": "Clear",

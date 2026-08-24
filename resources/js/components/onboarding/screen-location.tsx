@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import LocationFormFields from '@/components/locations/location-form-fields';
 import LocationFormModal from '@/components/locations/location-form-modal';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import type { Location, Onboarding } from '@/types';
 
 import LocationSummaryCard from './location-summary-card';
@@ -51,6 +52,7 @@ export default function ScreenLocation(props: Props) {
  * rather than jumping straight to the next screen.
  */
 function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
+    const { t } = useTranslation('onboard');
     const { locations, locationDetails } = data;
     const [saved, setSaved] = useState(false);
     const [editing, setEditing] = useState<Location | null>(null);
@@ -74,8 +76,8 @@ function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
                 }
             >
                 <ScreenHeader
-                    title="Where do you work?"
-                    description="Review the address customers will come to, then continue."
+                    title={t('location.review.title')}
+                    description={t('location.review.description')}
                 />
 
                 <div className="space-y-4">
@@ -112,8 +114,8 @@ function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
             inline
             heading={
                 <ScreenHeader
-                    title="Where do you work?"
-                    description="Add the address customers will come to."
+                    title={t('location.create.title')}
+                    description={t('location.create.description')}
                 />
             }
             showAssignments={false}
@@ -134,6 +136,7 @@ function FirstLocation({ data, onChange, onNext, specialistIds }: Props) {
 
 /** The team already has locations, so this is a choice rather than a form. */
 function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
+    const { t } = useTranslation('onboard');
     const { locations, locationDetails } = data;
 
     // `editing` doubles as the modal's payload: null while adding a new
@@ -189,8 +192,8 @@ function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
             }
         >
             <ScreenHeader
-                title="Where do you work?"
-                description="Pick the places this service is offered at."
+                title={t('location.pick.title')}
+                description={t('location.pick.description')}
             />
 
             <div
@@ -218,7 +221,7 @@ function PickLocation({ data, value, onChange, onNext, specialistIds }: Props) {
                 data-test="wizard-add-location-button"
             >
                 <Plus />
-                Add another location
+                {t('location.addAnother')}
             </Button>
 
             <LocationFormModal

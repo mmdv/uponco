@@ -175,7 +175,7 @@ export function AddressSection({
                         name="city"
                         value={city}
                         onChange={(event) => setCity(event.target.value)}
-                        placeholder="San Francisco"
+                        placeholder={t('form.cityPlaceholder')}
                         aria-invalid={Boolean(errors.city)}
                     />
                     <InputError message={errors.city} />
@@ -192,7 +192,7 @@ export function AddressSection({
                         onChange={(event) =>
                             setStreetAddress(event.target.value)
                         }
-                        placeholder="123 Market St"
+                        placeholder={t('form.streetAddressPlaceholder')}
                         aria-invalid={Boolean(errors.street_address)}
                     />
                     <InputError message={errors.street_address} />
@@ -204,7 +204,7 @@ export function AddressSection({
                         id="unit"
                         name="unit"
                         defaultValue={location?.unit ?? ''}
-                        placeholder="Suite 400"
+                        placeholder={t('form.unitPlaceholder')}
                         aria-invalid={Boolean(errors.unit)}
                     />
                     <InputError message={errors.unit} />
@@ -217,7 +217,7 @@ export function AddressSection({
                         name="postal_code"
                         value={postalCode}
                         onChange={(event) => setPostalCode(event.target.value)}
-                        placeholder="94103"
+                        placeholder={t('form.postalCodePlaceholder')}
                         aria-invalid={Boolean(errors.postal_code)}
                     />
                     <InputError message={errors.postal_code} />
@@ -252,7 +252,7 @@ export function DetailsSection({
                         data-test="location-name-input"
                         value={name}
                         onChange={(event) => setName(event.target.value)}
-                        placeholder="Head office"
+                        placeholder={t('form.namePlaceholder')}
                         aria-invalid={Boolean(errors.name)}
                     />
                     <p className="text-sm text-muted-foreground">
@@ -267,7 +267,7 @@ export function DetailsSection({
                         id="phone"
                         name="phone"
                         defaultValue={location?.phone ?? ''}
-                        placeholder="+1 (555) 123-4567"
+                        placeholder={t('form.phonePlaceholder')}
                         aria-invalid={Boolean(errors.phone)}
                     />
                     <InputError message={errors.phone} />

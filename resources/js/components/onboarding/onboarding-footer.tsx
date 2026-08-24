@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslation } from '@/hooks/use-translation';
 
 type Props = {
     label?: string;
@@ -17,11 +18,13 @@ type Props = {
  * on a phone, and sized to its label once there is room for it.
  */
 export default function OnboardingFooter({
-    label = 'Continue',
+    label,
     disabled = false,
     saving = false,
     onClick,
 }: Props) {
+    const { t } = useTranslation('onboard');
+
     return (
         <div className="flex justify-end">
             <Button
@@ -33,7 +36,7 @@ export default function OnboardingFooter({
                 data-test="onboarding-continue"
             >
                 {saving ? <Spinner /> : null}
-                {label}
+                {label ?? t('wizard.continue')}
             </Button>
         </div>
     );
