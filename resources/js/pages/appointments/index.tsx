@@ -34,7 +34,6 @@ import type {
     AppointmentSlot,
     AppointmentSpecialistOption,
     Customer,
-    WorkingHoursMap,
 } from '@/types';
 
 type Props = {
@@ -44,7 +43,6 @@ type Props = {
     locations: AppointmentLocationOption[];
     specialists: AppointmentSpecialistOption[];
     availableSlots?: AppointmentSlot[];
-    workingHours?: WorkingHoursMap;
 };
 
 export default function AppointmentsIndex({
@@ -54,7 +52,6 @@ export default function AppointmentsIndex({
     locations,
     specialists,
     availableSlots = [],
-    workingHours = {},
 }: Props) {
     const { t } = useTranslation('appointments');
     const { auth, currentTeam } = usePage().props;
@@ -138,7 +135,6 @@ export default function AppointmentsIndex({
         view,
         cursorKey,
         specialists,
-        workingHours,
         specialistFilterIds: filters.specialistIds,
     });
 

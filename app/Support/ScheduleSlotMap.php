@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\ScheduleSlot;
 use App\Models\Team;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
@@ -62,6 +63,43 @@ final class ScheduleSlotMap
             ->groupBy(fn (ScheduleSlot $slot): int => $slot->user_id)
             ->map(fn (Collection $memberSlots): array => self::windows($memberSlots))
             ->all();
+    }
+
+    /**
+     * Every member's working windows across a date range, keyed by `Y-m-d` then
+     * user id.
+     *
+     * Every day in the range is present as a key — a day nobody works maps to an
+     * empty map — so the day view can cache a whole window and tell an already
+     * loaded day off from one it has never fetched. Optionally restrict to a
+     * single member, mirroring {@see forTeamOnDate()}.
+     *
+     * @return array<string, array<int, array<int, array{start: string, end: string}>>>
+     */
+    public static function forTeamBetween(Team $team, string $from, string $to, ?int $onlyUserId = null): array
+    {
+        $byDate = ScheduleSlot::query()
+            ->where('team_id', $team->id)
+            ->whereBetween('date', [$from, $to])
+            ->when($onlyUserId !== null, fn ($query) => $query->where('user_id', $onlyUserId))
+            ->orderBy('date')
+            ->orderBy('user_id')
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy(fn (ScheduleSlot $slot): string => $slot->date->format('Y-m-d'))
+            ->map(fn (Collection $daySlots): array => $daySlots
+                ->groupBy(fn (ScheduleSlot $slot): int => $slot->user_id)
+                ->map(fn (Collection $memberSlots): array => self::windows($memberSlots))
+                ->all());
+
+        $window = [];
+
+        for ($cursor = CarbonImmutable::parse($from), $end = CarbonImmutable::parse($to); $cursor <= $end; $cursor = $cursor->addDay()) {
+            $key = $cursor->format('Y-m-d');
+            $window[$key] = $byDate->get($key, []);
+        }
+
+        return $window;
     }
 
     /**

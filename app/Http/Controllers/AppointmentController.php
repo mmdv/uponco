@@ -46,29 +46,37 @@ class AppointmentController extends Controller
             'locations' => fn (): array => AppointmentOptions::locations($team),
             'specialists' => fn (): array => AppointmentOptions::specialists($team),
             'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $team)),
-            'workingHours' => Inertia::optional(fn (): array => $this->workingHoursForDate($request, $team)),
+            'workingHoursWindow' => Inertia::optional(fn (): array => $this->workingHoursWindow($request, $team)),
         ]);
     }
 
     /**
-     * Each specialist's working windows for the viewed day, keyed by user id.
+     * Each specialist's working windows across a window of days, keyed by `Y-m-d`
+     * then user id.
      *
-     * Drives the day-view grid columns. Fetched on demand (and re-fetched as the
-     * day cursor moves) so a growing date-based schedule is never over-loaded.
-     * Members only ever see their own column — mirroring the appointments audience.
+     * Drives the day-view grid columns. The day view fetches a week at a time and
+     * caches it client-side, so paging back and forth within the window needs no
+     * request. Members only ever see their own column — mirroring the appointments
+     * audience.
      *
-     * @return array<int, array<int, array{start: string, end: string}>>
+     * @return array<string, array<int, array<int, array{start: string, end: string}>>>
      */
-    protected function workingHoursForDate(Request $request, Team $team): array
+    protected function workingHoursWindow(Request $request, Team $team): array
     {
         $timezone = $team->timezone ?: config('app.timezone');
-        $date = $request->date('date')?->format('Y-m-d')
-            ?? CarbonImmutable::now($timezone)->format('Y-m-d');
+
+        $data = $request->validate([
+            'date' => ['nullable', 'date_format:Y-m-d'],
+            'days' => ['nullable', 'integer', 'min:1', 'max:31'],
+        ]);
+
+        $start = CarbonImmutable::parse($data['date'] ?? CarbonImmutable::now($timezone)->format('Y-m-d'));
+        $end = $start->addDays(($data['days'] ?? 7) - 1);
 
         $user = $request->user();
         $onlyUserId = $user->teamRole($team)?->isAtLeast(TeamRole::Admin) ? null : $user->id;
 
-        return ScheduleSlotMap::forTeamOnDate($team, $date, $onlyUserId);
+        return ScheduleSlotMap::forTeamBetween($team, $start->format('Y-m-d'), $end->format('Y-m-d'), $onlyUserId);
     }
 
     /**

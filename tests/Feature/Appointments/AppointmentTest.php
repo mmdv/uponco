@@ -16,6 +16,7 @@ use App\Notifications\Appointments\AppointmentCancelled;
 use App\Support\Appointments\AppointmentCalendar;
 use App\Support\Appointments\SlotGenerator;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
 
 test('the appointments page can be rendered', function () {
     $user = User::factory()->create();
@@ -27,7 +28,23 @@ test('the appointments page can be rendered', function () {
         ->assertOk();
 });
 
-test('the day view partial reload returns each specialist working windows for the date', function () {
+/**
+ * Fetch the day view's optional `workingHoursWindow` prop the way the grid does,
+ * via an Inertia partial reload.
+ */
+function fetchWorkingHoursWindow(User $user, array $query = []): TestResponse
+{
+    return test()
+        ->actingAs($user)
+        ->get(route('appointments.index', $query), [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
+            'X-Inertia-Partial-Component' => 'appointments/index',
+            'X-Inertia-Partial-Data' => 'workingHoursWindow',
+        ]);
+}
+
+test('the day view window returns each specialist working windows keyed by date', function () {
     $setup = bookableSetup();
 
     ScheduleSlot::factory()->for($setup['user'])->create([
@@ -43,19 +60,40 @@ test('the day view partial reload returns each specialist working windows for th
         'end_time' => '18:00',
     ]);
 
-    $this
-        ->actingAs($setup['user'])
-        ->get(route('appointments.index', ['date' => '2026-08-10']), [
-            'X-Inertia' => 'true',
-            'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
-            'X-Inertia-Partial-Component' => 'appointments/index',
-            'X-Inertia-Partial-Data' => 'workingHours',
-        ])
+    fetchWorkingHoursWindow($setup['user'], ['date' => '2026-08-10'])
         ->assertOk()
-        ->assertJsonPath('props.workingHours.'.$setup['user']->id, [
+        ->assertJsonPath('props.workingHoursWindow.2026-08-10.'.$setup['user']->id, [
             ['start' => '09:00', 'end' => '13:00'],
             ['start' => '14:00', 'end' => '18:00'],
         ]);
+});
+
+test('the day view window spans seven days and includes days off as empty', function () {
+    $setup = bookableSetup();
+
+    ScheduleSlot::factory()->for($setup['user'])->create([
+        'team_id' => $setup['team']->id,
+        'date' => '2026-08-10',
+        'start_time' => '09:00',
+        'end_time' => '17:00',
+    ]);
+
+    $window = fetchWorkingHoursWindow($setup['user'], ['date' => '2026-08-10', 'days' => 7])
+        ->assertOk()
+        ->json('props.workingHoursWindow');
+
+    // Seven consecutive Y-m-d keys, the worked day populated and a day off empty.
+    expect(array_keys($window))->toBe([
+        '2026-08-10',
+        '2026-08-11',
+        '2026-08-12',
+        '2026-08-13',
+        '2026-08-14',
+        '2026-08-15',
+        '2026-08-16',
+    ]);
+    expect($window['2026-08-10'])->toHaveKey((string) $setup['user']->id);
+    expect($window['2026-08-11'])->toBe([]);
 });
 
 test('the appointments page still renders after the booked service is deleted', function () {

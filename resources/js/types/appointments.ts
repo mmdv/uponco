@@ -93,6 +93,13 @@ export type WorkingWindow = { start: string; end: string };
  */
 export type WorkingHoursMap = Record<string, WorkingWindow[]>;
 
+/**
+ * A window of working-hour maps keyed by `YYYY-MM-DD`. The day view fetches a
+ * week at a time and caches it, so paging within the window needs no request. A
+ * day present with an empty map is a day nobody works (not an unfetched day).
+ */
+export type WorkingHoursWindow = Record<string, WorkingHoursMap>;
+
 export type Appointment = {
     id: number;
     start_at: string;

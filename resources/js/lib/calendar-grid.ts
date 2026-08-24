@@ -169,6 +169,74 @@ export function monthGridDays(date: Date): Date[] {
     return Array.from({ length: 42 }, (_, index) => addDays(start, index));
 }
 
+/** Whole calendar days from `fromKey` to `toKey` (negative when `toKey` is earlier). */
+export function daysBetweenKeys(fromKey: string, toKey: string): number {
+    return Math.round(
+        (parseDateKey(toKey).getTime() - parseDateKey(fromKey).getTime()) /
+            86_400_000,
+    );
+}
+
+/** The `YYYY-MM-DD` key `count` days after `key` (negative counts go back). */
+export function addDaysKey(key: string, count: number): string {
+    return dateKey(addDays(parseDateKey(key), count));
+}
+
+/** The `YYYY-MM-DD` keys of a `days`-long window starting at `startKey`. */
+export function windowDateKeys(startKey: string, days: number): string[] {
+    return Array.from({ length: days }, (_, offset) =>
+        addDaysKey(startKey, offset),
+    );
+}
+
+/**
+ * The start keys of the windows to prefetch around `cursorKey`, or `null` in a
+ * direction that needs none yet.
+ *
+ * Walks the contiguous run of cached days outward from the cursor. When the
+ * cursor sits within two days of the forward (or backward) edge of what's
+ * cached, the next window in that direction should be fetched: `after` starts
+ * the day past the forward edge, `before` starts a `windowDays`-long window
+ * ending the day before the backward edge. Both are `null` when the cursor day
+ * itself isn't cached — a cold, centered fetch already covers its neighbourhood.
+ */
+export function dayWindowPrefetch(
+    cachedDates: Iterable<string>,
+    cursorKey: string,
+    threshold = 2,
+    windowDays = 7,
+): { before: string | null; after: string | null } {
+    const cached =
+        cachedDates instanceof Set ? cachedDates : new Set(cachedDates);
+
+    if (!cached.has(cursorKey)) {
+        return { before: null, after: null };
+    }
+
+    let forwardEdge = cursorKey;
+
+    while (cached.has(addDaysKey(forwardEdge, 1))) {
+        forwardEdge = addDaysKey(forwardEdge, 1);
+    }
+
+    let backwardEdge = cursorKey;
+
+    while (cached.has(addDaysKey(backwardEdge, -1))) {
+        backwardEdge = addDaysKey(backwardEdge, -1);
+    }
+
+    return {
+        before:
+            daysBetweenKeys(backwardEdge, cursorKey) <= threshold
+                ? addDaysKey(backwardEdge, -windowDays)
+                : null,
+        after:
+            daysBetweenKeys(cursorKey, forwardEdge) <= threshold
+                ? addDaysKey(forwardEdge, 1)
+                : null,
+    };
+}
+
 /**
  * Minutes from midnight for a wall-clock `HH:MM` string (`"09:30"` → `570`).
  */
