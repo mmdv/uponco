@@ -8,19 +8,22 @@ import {
 } from '@/lib/appointments';
 import {
     applySelection,
+    buildBookableDays,
     buildCalendarEvent,
     buildSummary,
-    buildUpcomingDaysWithAvailability,
     cardOrder,
     EMPTY_DETAILS,
     lockedKinds,
     locationIsMandatory,
+    daysBetween,
     nextOpenCard,
+    nextPrefetchStart,
     nothingToChoose,
     resolveBookableDate,
     resolveInitialSelection,
     serviceRequiresLocation,
     slotsKey,
+    SLOT_WINDOW_DAYS,
     stepAnimationClass,
 } from '@/lib/booking';
 import type {
@@ -50,7 +53,8 @@ type Params = {
     services: AppointmentServiceOption[];
     locations: AppointmentLocationDetail[];
     specialists: AppointmentSpecialistOption[];
-    availableSlots: AppointmentSlot[];
+    /** Slots for a window of days keyed by `YYYY-MM-DD`, when the page shipped one. */
+    slotWindow?: Record<string, AppointmentSlot[]>;
     preset: BookingPreset | null;
 };
 
@@ -72,7 +76,7 @@ export function useAppointmentBooking({
     services,
     locations,
     specialists,
-    availableSlots,
+    slotWindow,
     preset,
 }: Params) {
     // Resolved once: the option lists arrive with the page and never change
@@ -129,12 +133,11 @@ export function useAppointmentBooking({
     const [selectedStart, setSelectedStart] = useState('');
     const [selectedEnd, setSelectedEnd] = useState('');
     const [slotsLoading, setSlotsLoading] = useState(false);
-    // Slots live in local state rather than being read straight from the prop:
-    // submitting a booking redirects back to a page render where the optional
-    // `availableSlots` prop is omitted (reset to []), which would otherwise wipe
-    // the picker. Keeping our own copy means the last fetched day survives a
-    // failed submit until the visitor changes the day.
-    const [slots, setSlots] = useState<AppointmentSlot[]>(availableSlots);
+    // The slots for the day currently on screen. Read from the cache below
+    // rather than straight from the prop: a submit redirects back to a page
+    // render where the optional `slotWindow` prop is omitted, which would
+    // otherwise wipe the picker.
+    const [slots, setSlots] = useState<AppointmentSlot[]>([]);
 
     const [details, setDetails] = useState<CustomerDetails>(EMPTY_DETAILS);
     const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
@@ -181,14 +184,11 @@ export function useAppointmentBooking({
         [specialists, specialistId],
     );
 
-    // The day strip covers the next two weeks; only the days the selected
-    // specialist actually has a free slot on are bookable (and clickable).
+    // The day strip runs from today out to the specialist's furthest available
+    // day (at least two weeks); only the days they actually have a free slot on
+    // are bookable (and clickable).
     const upcomingDays = useMemo(
-        () =>
-            buildUpcomingDaysWithAvailability(
-                14,
-                selectedSpecialist?.available_days ?? [],
-            ),
+        () => buildBookableDays(selectedSpecialist?.available_days ?? []),
         [selectedSpecialist],
     );
 
@@ -231,63 +231,207 @@ export function useAppointmentBooking({
         selectionComplete,
     );
 
-    // The slot query the visitor most recently asked for, and the one whose
-    // slots are currently on screen. Comparing against them lets a late
-    // response for a superseded selection be ignored, and an identical
-    // refetch be skipped when the selection hasn't changed.
-    const requestedSlotsKey = useRef<string | null>(null);
-    const loadedSlotsKey = useRef<string | null>(null);
-
-    const requestSlots = (next: {
-        serviceId: number | null;
-        specialistId: number | null;
-        date: string;
-    }) => {
-        setSelectedStart('');
-        setSelectedEnd('');
+    // Fetched days are cached client-side keyed by `service:specialist:date`, so
+    // scrubbing the day strip serves from cache instead of firing a request per
+    // day. `slotWindow` arrives from the server as a `date -> slots` map for one
+    // week; the cache merges every window fetched during the visit.
+    // Seeded once from the optional window prop when the page shipped one.
+    // Usually empty: `slotWindow` is an optional Inertia prop, so it is absent
+    // on the first paint and only present on the client's own window reloads.
+    const [initialSlotCache] = useState(() => {
+        const cache = new Map<string, AppointmentSlot[]>();
 
         if (
-            next.serviceId === null ||
-            next.specialistId === null ||
-            next.date === ''
+            slotWindow &&
+            initialSelection.service !== null &&
+            initialSelection.specialist !== null
         ) {
-            requestedSlotsKey.current = null;
-            loadedSlotsKey.current = null;
+            for (const [day, daySlots] of Object.entries(slotWindow)) {
+                cache.set(
+                    slotsKey(
+                        initialSelection.service,
+                        initialSelection.specialist,
+                        day,
+                    ),
+                    daySlots,
+                );
+            }
+        }
+
+        return cache;
+    });
+    const slotCacheRef = useRef(initialSlotCache);
+    // Window fetches in flight, keyed by their start, so an identical window (a
+    // cold fetch and its prefetch racing) is never requested twice at once.
+    const inFlightWindowsRef = useRef<Set<string>>(new Set());
+    // The day on screen and the current service/specialist, read inside async
+    // reload callbacks where the render's own values would be stale. When the
+    // selection changes mid-flight the token stops the late response applying.
+    const selectedDateRef = useRef('');
+    const selectionToken = (service: number, specialist: number): string =>
+        `${service}:${specialist}`;
+    const activeSelectionRef = useRef(
+        initialSelection.service !== null &&
+            initialSelection.specialist !== null
+            ? selectionToken(
+                  initialSelection.service,
+                  initialSelection.specialist,
+              )
+            : '',
+    );
+
+    /** The `YYYY-MM-DD` of the last day the strip shows, i.e. the fetch horizon. */
+    const horizonEnd = (): string =>
+        upcomingDays[upcomingDays.length - 1]?.date ?? '';
+
+    /** The cached days already loaded for a selection, for the prefetch decision. */
+    const cachedDatesFor = (service: number, specialist: number): string[] => {
+        const prefix = `${selectionToken(service, specialist)}:`;
+
+        return Array.from(slotCacheRef.current.keys())
+            .filter((key) => key.startsWith(prefix))
+            .map((key) => key.slice(prefix.length));
+    };
+
+    /**
+     * Fetch a window of slots starting at `startDate` and merge it into the
+     * cache. A background fetch (the sliding prefetch) never toggles the loading
+     * state, so it can top up the cache without flashing the skeleton.
+     */
+    const requestSlotWindow = (
+        service: number,
+        specialist: number,
+        startDate: string,
+        options: { background?: boolean } = {},
+    ) => {
+        const background = options.background ?? false;
+
+        // Never ask for days past the strip's horizon — the visitor can't reach
+        // them, so there is nothing to show.
+        const end = horizonEnd();
+        const span = Math.min(
+            SLOT_WINDOW_DAYS,
+            end === '' ? SLOT_WINDOW_DAYS : daysBetween(startDate, end) + 1,
+        );
+
+        if (span <= 0) {
+            return;
+        }
+
+        const windowKey = slotsKey(service, specialist, startDate);
+
+        if (inFlightWindowsRef.current.has(windowKey)) {
+            return;
+        }
+
+        inFlightWindowsRef.current.add(windowKey);
+
+        const token = selectionToken(service, specialist);
+
+        if (!background) {
+            setSlotsLoading(true);
+        }
+
+        router.reload({
+            only: ['slotWindow'],
+            data: {
+                service_id: service,
+                specialist_id: specialist,
+                date: startDate,
+                days: span,
+                appointment_id: '',
+            },
+            onSuccess: (page) => {
+                // A change of service/specialist since this fetch started makes
+                // its slots belong to a selection that is no longer on screen.
+                if (activeSelectionRef.current !== token) {
+                    return;
+                }
+
+                const window =
+                    (page.props.slotWindow as
+                        | Record<string, AppointmentSlot[]>
+                        | undefined) ?? {};
+
+                for (const [day, daySlots] of Object.entries(window)) {
+                    slotCacheRef.current.set(
+                        slotsKey(service, specialist, day),
+                        daySlots,
+                    );
+                }
+
+                const current = slotCacheRef.current.get(
+                    slotsKey(service, specialist, selectedDateRef.current),
+                );
+
+                if (current !== undefined) {
+                    setSlots(current);
+                }
+            },
+            onFinish: () => {
+                inFlightWindowsRef.current.delete(windowKey);
+
+                if (!background && activeSelectionRef.current === token) {
+                    setSlotsLoading(false);
+                }
+            },
+        });
+    };
+
+    /**
+     * After settling on a day, prefetch the next window in the background once
+     * the furthest cached day comes within two days of the selection.
+     */
+    const maybePrefetch = (
+        service: number,
+        specialist: number,
+        selectedDate: string,
+    ) => {
+        const start = nextPrefetchStart(
+            cachedDatesFor(service, specialist),
+            selectedDate,
+            horizonEnd(),
+        );
+
+        if (start !== null) {
+            requestSlotWindow(service, specialist, start, { background: true });
+        }
+    };
+
+    /**
+     * Show the slots for a day: instantly from cache when loaded, otherwise
+     * fetch the window that starts on it. Either way, top up the next window if
+     * the visitor is nearing the edge of what's cached.
+     */
+    const showSlotsForDay = (
+        service: number | null,
+        specialist: number | null,
+        value: string,
+    ) => {
+        setSelectedStart('');
+        setSelectedEnd('');
+        setDate(value);
+        selectedDateRef.current = value;
+
+        if (service === null || specialist === null || value === '') {
             setSlots([]);
 
             return;
         }
 
-        const key = slotsKey(next.serviceId, next.specialistId, next.date);
-        requestedSlotsKey.current = key;
+        const cached = slotCacheRef.current.get(
+            slotsKey(service, specialist, value),
+        );
 
-        router.reload({
-            only: ['availableSlots'],
-            data: {
-                service_id: next.serviceId,
-                specialist_id: next.specialistId,
-                date: next.date,
-                appointment_id: '',
-            },
-            onStart: () => setSlotsLoading(true),
-            onSuccess: (page) => {
-                if (requestedSlotsKey.current !== key) {
-                    return;
-                }
+        if (cached !== undefined) {
+            setSlots(cached);
+            setSlotsLoading(false);
+        } else {
+            setSlots([]);
+            requestSlotWindow(service, specialist, value);
+        }
 
-                loadedSlotsKey.current = key;
-                setSlots(
-                    (page.props.availableSlots as
-                        | AppointmentSlot[]
-                        | undefined) ?? [],
-                );
-            },
-            onFinish: () => {
-                if (requestedSlotsKey.current === key) {
-                    setSlotsLoading(false);
-                }
-            },
-        });
+        maybePrefetch(service, specialist, value);
     };
 
     // Selecting one entity keeps each of the other two only while it stays
@@ -303,6 +447,19 @@ export function useAppointmentBooking({
             kind,
             value,
         );
+
+        // A different service or specialist changes what is available on every
+        // day, so the cached windows for the old selection are thrown away.
+        if (next.service !== serviceId || next.specialist !== specialistId) {
+            slotCacheRef.current.clear();
+            inFlightWindowsRef.current.clear();
+            setSlots([]);
+        }
+
+        activeSelectionRef.current =
+            next.service !== null && next.specialist !== null
+                ? selectionToken(next.service, next.specialist)
+                : '';
 
         setServiceId(next.service);
         setLocationId(next.location);
@@ -320,8 +477,7 @@ export function useAppointmentBooking({
         changeSelection('specialist', value);
 
     const handleDateChange = (value: string) => {
-        setDate(value);
-        requestSlots({ serviceId, specialistId, date: value });
+        showSlotsForDay(serviceId, specialistId, value);
     };
 
     const handleSelectSlot = (start: string) => {
@@ -383,27 +539,15 @@ export function useAppointmentBooking({
     const handleContinue = () => {
         if (step === 0) {
             // Keep the chosen day only when the selected specialist can take it,
-            // otherwise fall back to their closest bookable day. Refetch slots
-            // unless the on-screen ones already belong to this exact selection,
-            // so changing the specialist (or service) never leaves the previous
-            // specialist's slots on screen.
+            // otherwise fall back to their closest bookable day. Serving the day
+            // from cache (or fetching it) never leaves a previous specialist's
+            // slots on screen, because changing the selection cleared the cache.
             const nextDate = resolveBookableDate(
                 date,
                 selectedSpecialist?.available_days ?? [],
             );
 
-            setDate(nextDate);
-
-            const alreadyLoaded =
-                serviceId !== null &&
-                specialistId !== null &&
-                nextDate !== '' &&
-                loadedSlotsKey.current ===
-                    slotsKey(serviceId, specialistId, nextDate);
-
-            if (!alreadyLoaded) {
-                requestSlots({ serviceId, specialistId, date: nextDate });
-            }
+            showSlotsForDay(serviceId, specialistId, nextDate);
 
             goToStep(1);
 
@@ -438,10 +582,19 @@ export function useAppointmentBooking({
                         goToStep(0);
                     } else if (formErrors.start_at) {
                         // The slot list on screen is now known to be stale
-                        // (e.g. the slot was just taken), so forget it was
-                        // loaded and refetch when the visitor returns here.
-                        loadedSlotsKey.current = null;
-                        requestSlots({ serviceId, specialistId, date });
+                        // (e.g. the slot was just taken), so drop this day from
+                        // the cache and refetch its window before returning.
+                        if (
+                            serviceId !== null &&
+                            specialistId !== null &&
+                            date !== ''
+                        ) {
+                            slotCacheRef.current.delete(
+                                slotsKey(serviceId, specialistId, date),
+                            );
+                            showSlotsForDay(serviceId, specialistId, date);
+                        }
+
                         goToStep(1);
                     }
                 },
@@ -466,11 +619,20 @@ export function useAppointmentBooking({
         setSpecialistId(initialSelection.specialist);
         setOpenCard(null);
         setDate('');
+        selectedDateRef.current = '';
         setSelectedStart('');
         setSelectedEnd('');
-        // The booking just made means any cached slot list is stale.
-        requestedSlotsKey.current = null;
-        loadedSlotsKey.current = null;
+        // The booking just made means every cached day may now be stale.
+        slotCacheRef.current.clear();
+        inFlightWindowsRef.current.clear();
+        activeSelectionRef.current =
+            initialSelection.service !== null &&
+            initialSelection.specialist !== null
+                ? selectionToken(
+                      initialSelection.service,
+                      initialSelection.specialist,
+                  )
+                : '';
         setSlots([]);
         setDetails(EMPTY_DETAILS);
         setErrors({});

@@ -80,9 +80,27 @@
             "Nov",
             "Dec"
         ],
+        "monthsLong": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
         "noTimes": "No times available on this day. Try another.",
         "fullyBooked": "Fully booked",
-        "left": "{count} left"
+        "left": "{count} left",
+        "showCalendar": "Show calendar",
+        "showAsList": "Show day list",
+        "prevMonth": "Previous month",
+        "nextMonth": "Next month"
     },
     "details": {
         "heading": "Your details",

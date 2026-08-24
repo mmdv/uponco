@@ -17,6 +17,7 @@ use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
 use App\Support\Appointments\SlotGenerator;
 use App\Support\Google\GoogleCalendarService;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -464,5 +465,60 @@ trait InteractsWithAppointmentBooking
             $data['date'],
             $data['appointment_id'] ?? null,
         );
+    }
+
+    /**
+     * Resolve the available slots for a window of consecutive days starting at
+     * the requested date, keyed by day (`Y-m-d`).
+     *
+     * The public booking page fetches slots a week at a time and caches them
+     * client-side, so changing the day within the window needs no request.
+     * Every requested day is present as a key — a day with no schedule maps to
+     * an empty list — so the client knows the whole window is loaded and won't
+     * refetch a day that simply has no slots.
+     *
+     * @return array<string, array<int, array{start: string, end: string, label: string, available: bool, remaining: ?int}>>
+     */
+    protected function availableSlotsWindow(Request $request, Team $team, int $defaultDays = 7): array
+    {
+        $data = $request->validate([
+            'service_id' => ['required', 'integer'],
+            'specialist_id' => ['required', 'integer'],
+            'date' => ['required', 'date_format:Y-m-d'],
+            'days' => ['nullable', 'integer', 'min:1', 'max:14'],
+            'appointment_id' => ['nullable', 'integer'],
+        ]);
+
+        $service = $team->services()->whereKey($data['service_id'])->first();
+        $specialist = $team->members()->whereKey($data['specialist_id'])->first();
+
+        if (! $service instanceof Service || ! $specialist instanceof User) {
+            return [];
+        }
+
+        $timezone = $team->timezone ?: config('app.timezone');
+        $days = $data['days'] ?? $defaultDays;
+
+        // Pure calendar-date arithmetic (no timezone) so adding days can never
+        // drift across a daylight-saving boundary; the generator applies the
+        // team timezone per day.
+        $start = CarbonImmutable::parse($data['date'])->startOfDay();
+
+        $window = [];
+
+        foreach (range(0, $days - 1) as $offset) {
+            $day = $start->addDays($offset)->format('Y-m-d');
+
+            $window[$day] = SlotGenerator::generate(
+                $service,
+                $specialist,
+                $team->id,
+                $timezone,
+                $day,
+                $data['appointment_id'] ?? null,
+            );
+        }
+
+        return $window;
     }
 }

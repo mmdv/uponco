@@ -140,7 +140,7 @@ class PublicAppointmentController extends Controller
             'preset' => $preset === null
                 ? null
                 : $preset + ['back_url' => route('public.appointments.show', $company)],
-            'availableSlots' => Inertia::optional(fn (): array => $this->availableSlots($request, $company)),
+            'slotWindow' => Inertia::optional(fn (): array => $this->availableSlotsWindow($request, $company)),
         ]);
     }
 

@@ -40,7 +40,8 @@ export type PublicBookingProps = {
     specialists: AppointmentSpecialistOption[];
     /** Set when the visitor arrived through a deep-linked booking URL. */
     preset?: BookingPreset | null;
-    availableSlots?: AppointmentSlot[];
+    /** Slots for a window of days keyed by `YYYY-MM-DD`, when the page shipped one. */
+    slotWindow?: Record<string, AppointmentSlot[]>;
 };
 
 type FlowProps = PublicBookingProps & {
@@ -68,7 +69,7 @@ export function PublicBookingFlow({
     locations,
     specialists,
     preset = null,
-    availableSlots = [],
+    slotWindow,
     theme = 'light',
     onThemeChange = () => {},
     embedded = false,
@@ -86,7 +87,7 @@ export function PublicBookingFlow({
         services,
         locations,
         specialists,
-        availableSlots,
+        slotWindow,
         preset,
     });
 

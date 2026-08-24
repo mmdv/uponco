@@ -65,7 +65,10 @@ export type AppointmentSpecialistOption = {
     /** Effective appointment duration (minutes) per offered service id. */
     service_durations: Record<string, number>;
     next_available: SpecialistAvailabilityPreview | null;
-    /** `YYYY-MM-DD` days within the next two weeks that have a free slot. */
+    /**
+     * `YYYY-MM-DD` days that have a free slot, from today out to the specialist's
+     * furthest scheduled day (bounded by the backend availability horizon).
+     */
     available_days: string[];
 };
 

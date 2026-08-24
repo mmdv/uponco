@@ -150,9 +150,22 @@ class SaveAppointmentRequest extends FormRequest
             );
 
             if (! $available) {
+                $this->onSlotUnavailable();
                 $validator->errors()->add('start_at', __('The selected time slot is no longer available.'));
             }
         });
+    }
+
+    /**
+     * Hook invoked when the chosen slot is no longer available at submit time.
+     *
+     * A no-op for the dashboard flow; the public booking request overrides it to
+     * record the conflict for product analytics, since its slots are cached
+     * client-side and can go stale between the page load and the submit.
+     */
+    protected function onSlotUnavailable(): void
+    {
+        //
     }
 
     /**

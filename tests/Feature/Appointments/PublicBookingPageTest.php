@@ -227,24 +227,67 @@ test('a deep link for another company 404s', function () {
         ->assertNotFound();
 });
 
-test('the slot partial reload resolves the optional prop', function () {
-    $setup = bookableSetup();
-
-    $this
-        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]).'?'.http_build_query([
+/**
+ * Fetch the optional `slotWindow` prop the way the picker does, via an Inertia
+ * partial reload.
+ */
+function fetchSlotWindow(array $setup, array $query = []): TestResponse
+{
+    return test()->get(
+        route('public.appointments.show', ['company' => $setup['team']->slug]).'?'.http_build_query(array_merge([
             'service_id' => $setup['service']->id,
             'specialist_id' => $setup['user']->id,
             'date' => $setup['startAt']->format('Y-m-d'),
             'appointment_id' => '',
-        ]), [
+        ], $query)),
+        [
             'X-Inertia' => 'true',
             'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
             'X-Inertia-Partial-Component' => 'public/appointments/book',
-            'X-Inertia-Partial-Data' => 'availableSlots',
-        ])
+            'X-Inertia-Partial-Data' => 'slotWindow',
+        ],
+    );
+}
+
+test('the slot window partial reload resolves the optional prop', function () {
+    $setup = bookableSetup();
+    $day = $setup['startAt']->format('Y-m-d');
+
+    fetchSlotWindow($setup)
         ->assertOk()
         ->assertJsonPath('component', 'public/appointments/book')
-        ->assertJsonPath('props.availableSlots.0.label', '09:00');
+        ->assertJsonPath("props.slotWindow.{$day}.0.label", '09:00');
+});
+
+test('the slot window returns a keyed map for seven consecutive days', function () {
+    $setup = bookableSetup();
+    $start = $setup['startAt'];
+
+    $response = fetchSlotWindow($setup)->assertOk();
+
+    // Seven consecutive Y-m-d keys, each carrying that day's slots.
+    foreach (range(0, 6) as $offset) {
+        $day = $start->addDays($offset)->format('Y-m-d');
+
+        $response->assertJsonPath("props.slotWindow.{$day}.0.label", '09:00');
+    }
+
+    expect(array_keys($response->json('props.slotWindow')))
+        ->toHaveCount(7)
+        ->toBe(collect(range(0, 6))->map(fn (int $offset): string => $start->addDays($offset)->format('Y-m-d'))->all());
+});
+
+test('a day in the window with no schedule is present as an empty list', function () {
+    // The setup seeds a schedule for offsets 0–6 only, so day 7 has none.
+    $setup = bookableSetup();
+    $emptyDay = $setup['startAt']->addDays(7)->format('Y-m-d');
+
+    fetchSlotWindow($setup, [
+        'date' => $setup['startAt']->addDay()->format('Y-m-d'),
+        'days' => 7,
+    ])
+        ->assertOk()
+        ->assertJsonPath("props.slotWindow.{$emptyDay}", []);
 });
 
 test('a booking posts to the store action and persists', function () {

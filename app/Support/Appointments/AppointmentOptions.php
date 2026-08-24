@@ -22,6 +22,13 @@ use Illuminate\Support\Str;
 class AppointmentOptions
 {
     /**
+     * How far ahead availability is scanned. The day strip runs out to the
+     * specialist's furthest scheduled day; this bounds that so a team that has
+     * bulk-published a long schedule can never produce an unbounded payload.
+     */
+    private const AVAILABILITY_HORIZON_DAYS = 120;
+
+    /**
      * Get the bookable services for the team, including their category and relationships.
      *
      * @return array<int, array{id: int, title: string, description: ?string, duration: int, price_type: string, price: ?string, price_min: ?string, price_max: ?string, currency: string, delivery_type: string, service_type: string, capacity: ?int, category_id: ?int, category_name: ?string, location_ids: array<int, int>, specialist_ids: array<int, int>}>
@@ -142,10 +149,11 @@ class AppointmentOptions
     {
         $timezone = $team->timezone ?: config('app.timezone');
 
-        // The availability preview scans a fixed 14-day window; bound the eager
-        // load to it so a growing date-based schedule never over-fetches.
+        // Availability runs out to the specialist's furthest scheduled day;
+        // bound the eager load to the horizon so a growing date-based schedule
+        // never over-fetches.
         $windowStart = CarbonImmutable::now($timezone)->startOfDay();
-        $windowEnd = $windowStart->addDays(13);
+        $windowEnd = $windowStart->addDays(self::AVAILABILITY_HORIZON_DAYS - 1);
 
         return $team->members()
             ->with([
@@ -186,14 +194,16 @@ class AppointmentOptions
     }
 
     /**
-     * Scan the upcoming days for the specialist's genuinely bookable days.
+     * Scan the specialist's scheduled days for the genuinely bookable ones.
      *
      * A day counts as available when the specialist works it and at least one
-     * future half-hour slot is not already taken by an existing appointment.
-     * The first such day also seeds a lightweight "next available" preview with
-     * a handful of free time labels. Both are teasers only — the real bookable
-     * slots are generated per service once a service, specialist and date have
-     * all been chosen.
+     * future half-hour slot is not already taken by an existing appointment. The
+     * scan runs from today out to the furthest day the specialist has published
+     * a schedule for (bounded by the eager-load horizon), so a customer can
+     * reach availability a month or more ahead. The first such day also seeds a
+     * lightweight "next available" preview with a handful of free time labels.
+     * Both are teasers only — the real bookable slots are generated per service
+     * once a service, specialist and date have all been chosen.
      *
      * @return array{days: array<int, string>, preview: ?array{date: string, label: string, slots: array<int, string>}}
      */
@@ -205,34 +215,41 @@ class AppointmentOptions
 
         $now = CarbonImmutable::now($timezone);
         $windowStart = $now->startOfDay();
+        $today = $windowStart->format('Y-m-d');
 
-        $booked = static::bookedIntervals($specialist, $windowStart, $windowStart->addDays(14));
+        $booked = static::bookedIntervals($specialist, $windowStart, $windowStart->addDays(self::AVAILABILITY_HORIZON_DAYS));
+
+        // The eager load already bounds the slots to the horizon; walk only the
+        // distinct dates that actually have a schedule, in order, so the work is
+        // proportional to the schedule rather than to the horizon length.
+        $dates = $specialist->scheduleSlots
+            ->map(fn (ScheduleSlot $slot): string => $slot->date->format('Y-m-d'))
+            ->unique()
+            ->filter(fn (string $date): bool => $date >= $today)
+            ->sort()
+            ->values();
 
         $days = [];
         $preview = null;
 
-        for ($offset = 0; $offset < 14; $offset++) {
-            $day = $windowStart->addDays($offset);
+        foreach ($dates as $date) {
+            $day = CarbonImmutable::parse($date, $timezone)->startOfDay();
 
             $hours = $specialist->scheduleSlots
-                ->filter(fn (ScheduleSlot $slot): bool => $slot->date->format('Y-m-d') === $day->format('Y-m-d'))
+                ->filter(fn (ScheduleSlot $slot): bool => $slot->date->format('Y-m-d') === $date)
                 ->sortBy('start_time');
 
-            if ($hours->isEmpty()) {
-                continue;
-            }
-
-            $slots = static::previewSlots($hours, $day, $now, $booked, $offset === 0);
+            $slots = static::previewSlots($hours, $day, $now, $booked, $date === $today);
 
             if ($slots === []) {
                 continue;
             }
 
-            $days[] = $day->format('Y-m-d');
+            $days[] = $date;
 
             if ($preview === null) {
                 $preview = [
-                    'date' => $day->format('Y-m-d'),
+                    'date' => $date,
                     'label' => $day->isToday() ? 'Today' : ($day->isTomorrow() ? 'Tomorrow' : $day->format('D, j M')),
                     'slots' => $slots,
                 ];

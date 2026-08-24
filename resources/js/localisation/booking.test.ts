@@ -53,6 +53,7 @@ describe('booking localisation', () => {
             'datetime.months.2',
             'datetime.months.3',
             'datetime.months.4',
+            'datetime.monthsLong.4',
         ]);
 
         for (const [key, english] of Object.entries(englishStrings)) {

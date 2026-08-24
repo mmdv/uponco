@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+    addDays,
     applySelection,
+    buildBookableDays,
     buildCalendarEvent,
     buildDateTimeLabel,
     buildMetaLabel,
     buildSummary,
     buildUpcomingDaysWithAvailability,
+    daysBetween,
+    nextPrefetchStart,
     resolveBookableDate,
     serviceRequiresLocation,
     slotsKey,
     stepAnimationClass,
+    windowDates,
 } from '@/lib/booking';
 import type { SelectionIds, SelectionPools } from '@/lib/booking';
 import type {
@@ -94,6 +99,71 @@ describe('slotsKey', () => {
         expect(slotsKey(1, 20, '2026-07-08')).not.toBe(
             slotsKey(2, 20, '2026-07-08'),
         );
+    });
+});
+
+describe('addDays', () => {
+    it('advances a calendar date, rolling over months', () => {
+        expect(addDays('2026-07-08', 3)).toBe('2026-07-11');
+        expect(addDays('2026-07-30', 3)).toBe('2026-08-02');
+    });
+
+    it('crosses a daylight-saving boundary without drifting', () => {
+        // DST in most of Europe ends on the last Sunday of October.
+        expect(addDays('2026-10-24', 3)).toBe('2026-10-27');
+    });
+});
+
+describe('daysBetween', () => {
+    it('counts whole calendar days, signed by direction', () => {
+        expect(daysBetween('2026-07-08', '2026-07-11')).toBe(3);
+        expect(daysBetween('2026-07-11', '2026-07-08')).toBe(-3);
+        expect(daysBetween('2026-07-08', '2026-07-08')).toBe(0);
+    });
+});
+
+describe('windowDates', () => {
+    it('lists the consecutive days of a window', () => {
+        expect(windowDates('2026-07-08', 3)).toEqual([
+            '2026-07-08',
+            '2026-07-09',
+            '2026-07-10',
+        ]);
+    });
+});
+
+describe('nextPrefetchStart', () => {
+    const horizon = '2026-07-21';
+
+    it('prefetches once the cached edge is within two days of the selection', () => {
+        const cached = windowDates('2026-07-08', 7); // …08–14
+
+        // Selecting the 12th leaves the 14th (edge) two days ahead → prefetch.
+        expect(nextPrefetchStart(cached, '2026-07-12', horizon)).toBe(
+            '2026-07-15',
+        );
+    });
+
+    it('does not prefetch while the edge is more than two days away', () => {
+        const cached = windowDates('2026-07-08', 7); // …08–14
+
+        expect(nextPrefetchStart(cached, '2026-07-11', horizon)).toBeNull();
+    });
+
+    it('does not prefetch when the selected day is not cached yet', () => {
+        const cached = windowDates('2026-07-08', 7);
+
+        expect(nextPrefetchStart(cached, '2026-07-20', horizon)).toBeNull();
+    });
+
+    it('does not prefetch past the horizon', () => {
+        const cached = windowDates('2026-07-15', 7); // …15–21 (reaches horizon)
+
+        expect(nextPrefetchStart(cached, '2026-07-21', '2026-07-21')).toBeNull();
+    });
+
+    it('is null with no selection', () => {
+        expect(nextPrefetchStart([], '', horizon)).toBeNull();
     });
 });
 
@@ -245,6 +315,34 @@ describe('buildUpcomingDaysWithAvailability', () => {
         expect(available[0].available).toBe(false);
         expect(available[1].available).toBe(true);
         expect(available[2].available).toBe(false);
+    });
+});
+
+describe('buildBookableDays', () => {
+    const today = buildUpcomingDaysWithAvailability(1, [])[0].date;
+
+    it('extends the strip through the last available day', () => {
+        const lastDay = addDays(today, 30);
+        const days = buildBookableDays([addDays(today, 5), lastDay]);
+
+        expect(days).toHaveLength(31); // today … today+30 inclusive
+        expect(days[days.length - 1].date).toBe(lastDay);
+        expect(days[days.length - 1].available).toBe(true);
+    });
+
+    it('never falls below the minimum floor', () => {
+        // Nearest available day is only two out, but the strip still spans 14.
+        expect(buildBookableDays([addDays(today, 2)])).toHaveLength(14);
+        expect(buildBookableDays([], 14)).toHaveLength(14);
+    });
+
+    it('marks only the available days bookable', () => {
+        const target = addDays(today, 20);
+        const days = buildBookableDays([target]);
+
+        expect(days.filter((day) => day.available).map((day) => day.date)).toEqual([
+            target,
+        ]);
     });
 });
 

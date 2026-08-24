@@ -63,6 +63,85 @@ export function slotsKey(
     return `${serviceId}:${specialistId}:${date}`;
 }
 
+/** How many days of slots a single window fetch covers. */
+export const SLOT_WINDOW_DAYS = 7;
+
+/** Format a `Date` as a `YYYY-MM-DD` calendar-date string. */
+function toDateString(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * The `YYYY-MM-DD` date `count` calendar days after `date`. Built from the
+ * date parts rather than by adding milliseconds, so it can never drift across a
+ * daylight-saving boundary the way adding 24-hour spans would.
+ */
+export function addDays(date: string, count: number): string {
+    const [year, month, day] = date.split('-').map(Number);
+
+    return toDateString(new Date(year, month - 1, day + count));
+}
+
+/** Whole calendar days from `from` to `to` (negative when `to` is earlier). */
+export function daysBetween(from: string, to: string): number {
+    const [fromYear, fromMonth, fromDay] = from.split('-').map(Number);
+    const [toYear, toMonth, toDay] = to.split('-').map(Number);
+
+    return Math.round(
+        (Date.UTC(toYear, toMonth - 1, toDay) -
+            Date.UTC(fromYear, fromMonth - 1, fromDay)) /
+            86_400_000,
+    );
+}
+
+/** The list of `YYYY-MM-DD` dates in a `days`-long window starting at `startDate`. */
+export function windowDates(startDate: string, days: number): string[] {
+    return Array.from({ length: days }, (_, offset) =>
+        addDays(startDate, offset),
+    );
+}
+
+/**
+ * The start date of the next slot window to prefetch, or `null` when none is
+ * needed yet.
+ *
+ * Walks forward over the days already cached from `selectedDate` to find the
+ * furthest contiguous loaded day. When that edge is within two days of the
+ * selection — and still short of the strip's horizon — the day after it starts
+ * the next window: this is the "refetch when the last fetched day is only two
+ * days away or less" rule. Returns `null` when the selected day itself isn't
+ * cached yet (a cold fetch already covers what's ahead) or the horizon is
+ * already loaded.
+ */
+export function nextPrefetchStart(
+    cachedDates: Iterable<string>,
+    selectedDate: string,
+    horizonEnd: string,
+): string | null {
+    if (selectedDate === '') {
+        return null;
+    }
+
+    const cached =
+        cachedDates instanceof Set ? cachedDates : new Set(cachedDates);
+
+    if (!cached.has(selectedDate)) {
+        return null;
+    }
+
+    let edge = selectedDate;
+
+    while (cached.has(addDays(edge, 1))) {
+        edge = addDays(edge, 1);
+    }
+
+    if (edge >= horizonEnd) {
+        return null;
+    }
+
+    return daysBetween(selectedDate, edge) <= 2 ? addDays(edge, 1) : null;
+}
+
 /**
  * Whether a service must be delivered at a physical location. Online services
  * never require one; a missing service can't require one either.
@@ -139,6 +218,25 @@ export function buildUpcomingDaysWithAvailability(
         ...day,
         available: bookable.has(day.date),
     }));
+}
+
+/**
+ * Build the day strip so it runs from today through the specialist's last
+ * available day, never shorter than `minDays`. This lets the strip reach a
+ * schedule published weeks or months ahead instead of stopping at a fixed
+ * two-week horizon. `availableDays` is ascending; the last entry is the furthest
+ * bookable day.
+ */
+export function buildBookableDays(
+    availableDays: string[],
+    minDays = 14,
+): UpcomingDayWithAvailability[] {
+    const last = availableDays[availableDays.length - 1] ?? '';
+    const today = buildUpcomingDays(1)[0].date;
+    const span =
+        last === '' ? minDays : Math.max(minDays, daysBetween(today, last) + 1);
+
+    return buildUpcomingDaysWithAvailability(span, availableDays);
 }
 
 /**

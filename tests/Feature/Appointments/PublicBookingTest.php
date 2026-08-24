@@ -5,6 +5,7 @@ use App\Enums\AppointmentAlert;
 use App\Enums\BusinessCategory;
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
@@ -284,6 +285,30 @@ test('specialist availability excludes fully booked days and reflects only free 
 
     // The preview seeds from the first bookable day.
     expect($specialist['next_available']['date'])->toBe($specialist['available_days'][0]);
+});
+
+test('availability extends beyond two weeks to the last scheduled day', function () {
+    $setup = bookableSetup();
+
+    // A day ~5 weeks out (inside the horizon) and one past the 120-day cap.
+    $farDay = $setup['startAt']->addDays(30);
+    $beyondHorizon = CarbonImmutable::now('UTC')->startOfDay()->addDays(200);
+
+    foreach ([$farDay, $beyondHorizon] as $day) {
+        ScheduleSlot::factory()->for($setup['user'])->create([
+            'team_id' => $setup['team']->id,
+            'date' => $day->format('Y-m-d'),
+            'start_time' => '09:00',
+            'end_time' => '17:00',
+        ]);
+    }
+
+    $specialist = collect(AppointmentOptions::specialists($setup['team']))
+        ->firstWhere('id', $setup['user']->id);
+
+    expect($specialist['available_days'])
+        ->toContain($farDay->format('Y-m-d'))
+        ->not->toContain($beyondHorizon->format('Y-m-d'));
 });
 
 test('a guest can book an appointment and a customer is created', function () {
@@ -569,6 +594,49 @@ test('a guest booking validates availability', function () {
     $this
         ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
         ->assertSessionHasErrors('start_at');
+});
+
+test('a stale public slot records a conflict event for analytics', function () {
+    $setup = bookableSetup();
+
+    // The slot was taken after the visitor's page cached it.
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $this
+        ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
+        ->assertSessionHasErrors('start_at')
+        ->assertSessionHas('analytics_events', fn (array $events): bool => collect($events)->contains(
+            fn (array $event): bool => $event['name'] === 'public_booking_slot_unavailable'
+                && $event['properties']['company'] === $setup['team']->slug,
+        ));
+
+    expect(Appointment::query()->booked()->count())->toBe(1);
+});
+
+test('a stale dashboard slot does not record the public conflict event', function () {
+    $setup = bookableSetup();
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->post(route('appointments.store'), appointmentPayload($setup))
+        ->assertSessionHasErrors('start_at')
+        ->assertSessionMissing('analytics_events');
 });
 
 test('a cancelled appointment does not block its slot for a new booking', function () {

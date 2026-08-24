@@ -80,9 +80,27 @@
             "Noy",
             "Dek"
         ],
+        "monthsLong": [
+            "Yanvar",
+            "Fevral",
+            "Mart",
+            "Aprel",
+            "May",
+            "İyun",
+            "İyul",
+            "Avqust",
+            "Sentyabr",
+            "Oktyabr",
+            "Noyabr",
+            "Dekabr"
+        ],
         "noTimes": "Bu gün üçün mövcud vaxt yoxdur. Başqa gün seçin.",
         "fullyBooked": "Tam doludur",
-        "left": "{count} yer qalıb"
+        "left": "{count} yer qalıb",
+        "showCalendar": "Təqvimi göstər",
+        "showAsList": "Gün siyahısını göstər",
+        "prevMonth": "Əvvəlki ay",
+        "nextMonth": "Növbəti ay"
     },
     "details": {
         "heading": "Məlumatlarınız",
