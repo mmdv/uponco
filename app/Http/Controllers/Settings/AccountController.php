@@ -19,7 +19,7 @@ class AccountController extends Controller
      */
     public function update(AccountUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $request->user()->fill($request->safe()->only('email'));
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;

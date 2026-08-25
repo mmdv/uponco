@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import AppBackground from '@/components/app-background';
-import { BookingDemo } from '@/components/marketing/booking-demo';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { useTranslation } from '@/hooks/use-translation';
@@ -122,7 +121,21 @@ export default function Welcome() {
                         </div>
                     </div>
 
-                    <BookingDemo />
+                    {/* Placeholder for the hero graphic — swap the img src once
+                        the final artwork is ready. */}
+                    <div className="relative mx-auto w-full max-w-sm">
+                        <div
+                            aria-hidden
+                            className="absolute -inset-8 -z-10 rounded-full bg-primary/10 blur-3xl"
+                        />
+                        <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-dashed border-border bg-card">
+                            <img
+                                src="/images/hero-placeholder.svg"
+                                alt=""
+                                className="size-full rounded-2xl object-cover"
+                            />
+                        </div>
+                    </div>
                 </section>
 
                 {/* Three headline benefits, with the detail one click away */}

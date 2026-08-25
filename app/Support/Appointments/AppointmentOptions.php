@@ -160,16 +160,22 @@ class AppointmentOptions
                 'profile:id,user_id,job_title,description',
                 // `duration` (plus the pivot override) resolves each service's
                 // effective duration for this specialist without an extra query.
-                'services:id,duration',
-                'locations:id',
+                // Both relations are global, so a specialist shared with another
+                // company would otherwise expose that company's row ids here.
+                'services' => fn ($query) => $query
+                    ->where('services.team_id', $team->id)
+                    ->select('services.id', 'services.duration'),
+                'locations' => fn ($query) => $query
+                    ->where('locations.team_id', $team->id)
+                    ->select('locations.id'),
                 'scheduleSlots' => fn ($query) => $query
                     ->where('team_id', $team->id)
                     ->whereBetween('date', [$windowStart->format('Y-m-d'), $windowEnd->format('Y-m-d')]),
             ])
             ->orderBy('name')
             ->get()
-            ->map(function (User $member) use ($timezone): array {
-                $availability = static::availability($member, $timezone);
+            ->map(function (User $member) use ($team, $timezone): array {
+                $availability = static::availability($member, $team->id, $timezone);
 
                 return [
                     'id' => $member->id,
@@ -207,7 +213,7 @@ class AppointmentOptions
      *
      * @return array{days: array<int, string>, preview: ?array{date: string, label: string, slots: array<int, string>}}
      */
-    protected static function availability(User $specialist, string $timezone): array
+    protected static function availability(User $specialist, int $teamId, string $timezone): array
     {
         if ($specialist->scheduleSlots->isEmpty()) {
             return ['days' => [], 'preview' => null];
@@ -217,7 +223,7 @@ class AppointmentOptions
         $windowStart = $now->startOfDay();
         $today = $windowStart->format('Y-m-d');
 
-        $booked = static::bookedIntervals($specialist, $windowStart, $windowStart->addDays(self::AVAILABILITY_HORIZON_DAYS));
+        $booked = static::bookedIntervals($specialist, $teamId, $windowStart, $windowStart->addDays(self::AVAILABILITY_HORIZON_DAYS));
 
         // The eager load already bounds the slots to the horizon; walk only the
         // distinct dates that actually have a schedule, in order, so the work is
@@ -299,11 +305,16 @@ class AppointmentOptions
     /**
      * Fetch the specialist's appointment intervals overlapping the given window.
      *
+     * Scoped to the team: this feeds an unauthenticated payload, so a specialist
+     * who works for two companies must not have one company's booked times
+     * inferable from the other company's public booking page.
+     *
      * @return Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>
      */
-    protected static function bookedIntervals(User $specialist, CarbonImmutable $windowStart, CarbonImmutable $windowEnd): Collection
+    protected static function bookedIntervals(User $specialist, int $teamId, CarbonImmutable $windowStart, CarbonImmutable $windowEnd): Collection
     {
         return Appointment::query()
+            ->where('team_id', $teamId)
             ->where('specialist_id', $specialist->id)
             ->where('start_at', '<', $windowEnd->utc())
             ->where('end_at', '>', $windowStart->utc())

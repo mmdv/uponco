@@ -17,6 +17,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * `is_operator` is intentionally absent from the fillable list: it is the sole
+ * gate on the operator backoffice, so it must never be settable from a request.
+ */
 #[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path', 'brand_primary_color', 'default_locale', 'available_locales'])]
 class Team extends Model
 {
@@ -106,6 +110,24 @@ class Team extends Model
         }
 
         return array_values($locales);
+    }
+
+    /**
+     * Determine whether the team's booking page may be served to the public.
+     *
+     * A team that has not been named and given a timezone is a bare shell from
+     * registration, but its page would still list whatever members exist and
+     * render slots in the wrong zone; the operator team is internal and never
+     * bookable. Deliberately looser than needsOnboarding(): a missing business
+     * category is cosmetic and must not take a live booking page offline.
+     * `is_personal` is NOT a disqualifier either — every registrant's first
+     * team is personal, solo practitioners' real businesses included.
+     */
+    public function isPubliclyBookable(): bool
+    {
+        return ! $this->is_operator
+            && filled($this->name)
+            && filled($this->timezone);
     }
 
     /**
@@ -221,6 +243,7 @@ class Team extends Model
     {
         return [
             'is_personal' => 'boolean',
+            'is_operator' => 'boolean',
             'type' => TeamType::class,
             'business_category' => BusinessCategory::class,
             'available_locales' => 'array',

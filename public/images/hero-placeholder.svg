@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Placeholder graphic">
+  <rect width="400" height="400" fill="#f4f4f5" />
+  <g fill="none" stroke="#d4d4d8" stroke-width="2">
+    <rect x="0.5" y="0.5" width="399" height="399" />
+    <path d="M0 0 L400 400 M400 0 L0 400" />
+  </g>
+  <g fill="#a1a1aa" font-family="system-ui, sans-serif" text-anchor="middle">
+    <circle cx="200" cy="170" r="34" fill="#e4e4e7" />
+    <path d="M172 210 h56 l-16 -26 -12 16 -8 -10 z" fill="#d4d4d8" />
+    <circle cx="190" cy="160" r="8" fill="#d4d4d8" />
+    <text x="200" y="270" font-size="18" font-weight="600">Hero graphic</text>
+    <text x="200" y="294" font-size="13">Placeholder — replace me</text>
+  </g>
+</svg>

@@ -2,7 +2,6 @@
 
 use App\Enums\TeamRole;
 use App\Enums\TeamType;
-use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Appointment;
 use App\Models\Location;
 use App\Models\Service;
@@ -63,14 +62,16 @@ function secondService(array $setup, array $overrides = []): Service
     return $service;
 }
 
-test('the platform team is not bookable, by deep link either', function () {
+test('the operator team is not bookable, by deep link either', function () {
     $setup = bookableSetup();
-    $setup['team']->update(['slug' => 'uponco']);
+    $setup['team']->forceFill(['is_operator' => true])->save();
 
-    $this->get(route('public.appointments.show', ['company' => 'uponco']))
+    $slug = $setup['team']->slug;
+
+    $this->get(route('public.appointments.show', ['company' => $slug]))
         ->assertRedirect(route('home'));
 
-    $this->get(route('public.appointments.service', ['company' => 'uponco', 'service' => 'anything']))
+    $this->get(route('public.appointments.service', ['company' => $slug, 'service' => 'anything']))
         ->assertRedirect(route('home'));
 });
 
@@ -226,28 +227,6 @@ test('a deep link for another company 404s', function () {
     ]))
         ->assertNotFound();
 });
-
-/**
- * Fetch the optional `slotWindow` prop the way the picker does, via an Inertia
- * partial reload.
- */
-function fetchSlotWindow(array $setup, array $query = []): TestResponse
-{
-    return test()->get(
-        route('public.appointments.show', ['company' => $setup['team']->slug]).'?'.http_build_query(array_merge([
-            'service_id' => $setup['service']->id,
-            'specialist_id' => $setup['user']->id,
-            'date' => $setup['startAt']->format('Y-m-d'),
-            'appointment_id' => '',
-        ], $query)),
-        [
-            'X-Inertia' => 'true',
-            'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
-            'X-Inertia-Partial-Component' => 'public/appointments/book',
-            'X-Inertia-Partial-Data' => 'slotWindow',
-        ],
-    );
-}
 
 test('the slot window partial reload resolves the optional prop', function () {
     $setup = bookableSetup();

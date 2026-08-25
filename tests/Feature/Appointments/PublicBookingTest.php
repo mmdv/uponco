@@ -106,12 +106,12 @@ test('the public booking page exposes a service without a category', function ()
         );
 });
 
-test('the platform team is not publicly bookable and redirects home', function () {
+test('the operator team is not publicly bookable and redirects home', function () {
     $setup = bookableSetup();
-    $setup['team']->update(['slug' => 'uponco']);
+    $setup['team']->forceFill(['is_operator' => true])->save();
 
     $this
-        ->get(route('public.appointments.show', ['company' => 'uponco']))
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
         ->assertRedirect(route('home'));
 });
 

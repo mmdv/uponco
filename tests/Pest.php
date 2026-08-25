@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TeamRole;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Location;
 use App\Models\ScheduleSlot;
 use App\Models\Service;
@@ -8,6 +9,7 @@ use App\Models\ServiceCategory;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /*
@@ -151,4 +153,29 @@ function appointmentPayload(array $setup, array $overrides = []): array
         'customer_phone' => '+1 555 123 4567',
         'notes' => 'First visit',
     ], $overrides);
+}
+
+/**
+ * Fetch the public booking page's optional `slotWindow` prop the way the picker
+ * does, via an Inertia partial reload.
+ *
+ * @param  array<string, mixed>  $setup
+ * @param  array<string, mixed>  $query
+ */
+function fetchSlotWindow(array $setup, array $query = []): TestResponse
+{
+    return test()->get(
+        route('public.appointments.show', ['company' => $setup['team']->slug]).'?'.http_build_query(array_merge([
+            'service_id' => $setup['service']->id,
+            'specialist_id' => $setup['user']->id,
+            'date' => $setup['startAt']->format('Y-m-d'),
+            'appointment_id' => '',
+        ], $query)),
+        [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => (new HandleInertiaRequests)->version(request()),
+            'X-Inertia-Partial-Component' => 'public/appointments/book',
+            'X-Inertia-Partial-Data' => 'slotWindow',
+        ],
+    );
 }

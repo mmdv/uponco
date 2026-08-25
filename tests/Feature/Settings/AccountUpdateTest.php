@@ -17,6 +17,7 @@ test('the login email can be updated', function () {
     $response = $this
         ->actingAs($user)
         ->patch(route('account.update'), [
+            'current_password' => 'password',
             'email' => 'test@example.com',
         ]);
 
@@ -36,6 +37,7 @@ test('email verification status is unchanged when the email address is unchanged
     $response = $this
         ->actingAs($user)
         ->patch(route('account.update'), [
+            'current_password' => 'password',
             'email' => $user->email,
         ]);
 

@@ -30,6 +30,7 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
+    const accountPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
         <>
@@ -47,6 +48,12 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                 <Form
                     {...AccountController.update.form()}
                     options={{ preserveScroll: true }}
+                    resetOnError={['current_password']}
+                    onError={(errors) => {
+                        if (errors.current_password) {
+                            accountPasswordInput.current?.focus();
+                        }
+                    }}
                     className="space-y-6"
                 >
                     {({ processing, errors }) => (
@@ -96,6 +103,29 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                                     className="mt-2"
                                     message={errors.email}
                                 />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="account_current_password">
+                                    {t('account.currentPassword')}
+                                </Label>
+
+                                <PasswordInput
+                                    id="account_current_password"
+                                    ref={accountPasswordInput}
+                                    name="current_password"
+                                    className="mt-1 block w-full"
+                                    autoComplete="current-password"
+                                    placeholder={t(
+                                        'account.currentPasswordPlaceholder',
+                                    )}
+                                />
+
+                                <p className="text-sm text-muted-foreground">
+                                    {t('account.currentPasswordHint')}
+                                </p>
+
+                                <InputError message={errors.current_password} />
                             </div>
 
                             <div className="flex items-center gap-4">

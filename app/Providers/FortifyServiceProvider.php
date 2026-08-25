@@ -127,7 +127,13 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($throttleKey);
+            // Two limits: the per-account one stops brute forcing a single
+            // password, the per-IP one stops spraying one common password
+            // across many accounts, which the account key alone never sees.
+            return [
+                Limit::perMinute(5)->by($throttleKey),
+                Limit::perMinute(20)->by($request->ip()),
+            ];
         });
 
         RateLimiter::for('passkeys', function (Request $request) {
@@ -145,8 +151,9 @@ class FortifyServiceProvider extends ServiceProvider
      * Registration and password-reset-link requests are both unauthenticated
      * write endpoints (account creation and outbound email) that Fortify does
      * not rate limit by default, leaving them open to automated abuse and
-     * email enumeration. We append a throttle to the named routes once Fortify
-     * has registered them.
+     * email enumeration. Password reset and password confirmation are both
+     * password-guessing surfaces for the same reason. We append a throttle to
+     * the named routes once Fortify has registered them.
      */
     private function configureRouteThrottling(): void
     {
@@ -154,7 +161,7 @@ class FortifyServiceProvider extends ServiceProvider
             $routes = $this->app->make('router')->getRoutes();
             $routes->refreshNameLookups();
 
-            foreach (['register.store', 'password.email'] as $name) {
+            foreach (['register.store', 'password.email', 'password.update', 'password.confirm.store'] as $name) {
                 $routes->getByName($name)?->middleware('throttle:6,1');
             }
         });

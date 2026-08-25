@@ -27,8 +27,7 @@ class PublicAppointmentController extends Controller
      */
     public function show(Request $request, Team $company): Response|RedirectResponse
     {
-        // The platform's own team is not publicly bookable.
-        if ($company->slug === 'uponco') {
+        if (! $company->isPubliclyBookable()) {
             return redirect()->route('home');
         }
 
@@ -90,7 +89,7 @@ class PublicAppointmentController extends Controller
      */
     protected function renderPreset(Request $request, Team $company, callable $resolve): Response|RedirectResponse
     {
-        if ($company->slug === 'uponco') {
+        if (! $company->isPubliclyBookable()) {
             return redirect()->route('home');
         }
 

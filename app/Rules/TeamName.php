@@ -338,6 +338,7 @@ class TeamName implements ValidationRule
                 'undefined',
                 'update',
                 'updates',
+                'uponco',
                 'upstash',
                 'username',
                 'users',

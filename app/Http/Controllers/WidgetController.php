@@ -16,6 +16,8 @@ class WidgetController extends Controller
      */
     public function script(Team $company): Response
     {
+        abort_unless($company->isPubliclyBookable(), 404);
+
         $palette = BrandPalette::forTeam($company);
 
         $config = [

@@ -5,11 +5,14 @@ use App\Models\Team;
 use App\Models\User;
 
 /**
- * Create the single "Uponco" operator team with the given user as owner.
+ * Create the single operator team with the given user as owner.
+ *
+ * Access is granted by the `is_operator` flag, not the name — see the
+ * privilege-escalation coverage in tests/Feature/Security/BackofficeAccessTest.
  */
 function uponcoTeam(User $owner): Team
 {
-    $team = Team::factory()->create(['name' => 'Uponco']);
+    $team = Team::factory()->operator()->create(['name' => 'Uponco']);
     $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
     $owner->switchTeam($team);
 

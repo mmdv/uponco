@@ -68,7 +68,7 @@ class SlotGenerator
         // hour); otherwise it falls back to the smart default of min(duration, 30).
         $grid = $service->slotIntervalFor($duration);
 
-        $booked = static::bookedIntervals($specialist, $day, $ignoreAppointmentId);
+        $booked = static::bookedIntervals($specialist, $teamId, $day, $ignoreAppointmentId);
 
         $slots = [];
 
@@ -187,7 +187,7 @@ class SlotGenerator
             return false;
         }
 
-        $booked = static::bookedIntervals($specialist, $day, $ignoreAppointmentId);
+        $booked = static::bookedIntervals($specialist, $teamId, $day, $ignoreAppointmentId);
         $slotStartIso = $slotStart->utc()->toIso8601String();
 
         if ($service->isGroup()) {
@@ -218,13 +218,18 @@ class SlotGenerator
      * sessions (same specialist/service/start_at) can be told apart from other
      * appointments that simply occupy the specialist's time.
      *
+     * Scoped to the team: this reaches an unauthenticated payload, so a
+     * specialist who works for two companies must not have one company's booked
+     * times inferable from the other company's public booking page.
+     *
      * @return Collection<int, array{start: CarbonInterface, end: CarbonInterface, service_id: int, start_iso: string, break: int}>
      */
-    protected static function bookedIntervals(User $specialist, CarbonImmutable $day, ?int $ignoreAppointmentId): Collection
+    protected static function bookedIntervals(User $specialist, int $teamId, CarbonImmutable $day, ?int $ignoreAppointmentId): Collection
     {
         return Appointment::query()
             ->booked()
             ->with('service:id,technical_break')
+            ->where('team_id', $teamId)
             ->where('specialist_id', $specialist->id)
             ->where('start_at', '<', $day->endOfDay()->utc())
             ->where('end_at', '>', $day->utc())

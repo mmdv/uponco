@@ -66,6 +66,8 @@
             "emailPlaceholder": "aynur@example.com",
             "password": "Şifrə",
             "passwordPlaceholder": "••••••••",
+            "passwordConfirmation": "Şifrəni təsdiqləyin",
+            "passwordConfirmationPlaceholder": "••••••••",
             "cancel": "Ləğv et",
             "submit": "Üzv əlavə et"
         },

@@ -132,6 +132,28 @@ export default function AddMemberModal({ open, onOpenChange }: Props) {
                                     />
                                     <InputError message={errors.password} />
                                 </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password_confirmation">
+                                        {t(
+                                            'business.addMemberModal.passwordConfirmation',
+                                        )}
+                                    </Label>
+                                    <Input
+                                        id="password_confirmation"
+                                        name="password_confirmation"
+                                        type="password"
+                                        data-test="member-password-confirmation"
+                                        placeholder={t(
+                                            'business.addMemberModal.passwordConfirmationPlaceholder',
+                                        )}
+                                        autoComplete="new-password"
+                                        required
+                                    />
+                                    <InputError
+                                        message={errors.password_confirmation}
+                                    />
+                                </div>
                             </div>
 
                             <DialogFooter className="gap-2">

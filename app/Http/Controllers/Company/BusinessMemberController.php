@@ -44,14 +44,12 @@ class BusinessMemberController extends Controller
 
         $name = Str::squish($validated['name'].' '.($validated['surname'] ?? ''));
 
-        DB::transaction(function () use ($team, $validated, $name): void {
+        $member = DB::transaction(function () use ($team, $validated, $name): User {
             $member = User::create([
                 'name' => $name,
                 'email' => $validated['email'],
                 'password' => $validated['password'],
             ]);
-
-            $member->forceFill(['email_verified_at' => now()])->save();
 
             $team->memberships()->create([
                 'user_id' => $member->id,
@@ -75,7 +73,14 @@ class BusinessMemberController extends Controller
             ]);
 
             $member->switchTeam($team);
+
+            return $member;
         });
+
+        // The admin typed this address; nobody has proved they can read it. The
+        // member verifies it themselves like any other account, so an admin
+        // cannot mint a pre-verified account at an address they do not own.
+        $member->sendEmailVerificationNotification();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member added.')]);
 

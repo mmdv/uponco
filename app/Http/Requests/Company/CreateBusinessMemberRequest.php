@@ -24,7 +24,7 @@ class CreateBusinessMemberRequest extends FormRequest
             'surname' => ['nullable', 'string', 'max:255'],
             'job_title' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => $this->passwordRules(),
         ];
     }
 }

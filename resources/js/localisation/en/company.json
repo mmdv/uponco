@@ -66,6 +66,8 @@
             "emailPlaceholder": "jane@example.com",
             "password": "Password",
             "passwordPlaceholder": "••••••••",
+            "passwordConfirmation": "Confirm password",
+            "passwordConfirmationPlaceholder": "••••••••",
             "cancel": "Cancel",
             "submit": "Add member"
         },

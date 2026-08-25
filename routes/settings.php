@@ -15,14 +15,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::patch('settings/account', [AccountController::class, 'update'])->name('account.update');
-
     Route::post('settings/account/avatar', [AccountController::class, 'updateAvatar'])->name('account.avatar.update');
     Route::delete('settings/account/avatar', [AccountController::class, 'destroyAvatar'])->name('account.avatar.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('settings/account', [AccountController::class, 'destroy'])->name('account.destroy');
+
+    // Changing the login email is an account-takeover primitive on its own (the
+    // new address can drive a password reset), so it is gated exactly like the
+    // password change: verified, throttled, and requiring the current password
+    // in the request body (AccountUpdateRequest) rather than the session-scoped
+    // password.confirm, which a PATCH cannot redirect back into.
+    Route::patch('settings/account', [AccountController::class, 'update'])
+        ->middleware('throttle:6,1')
+        ->name('account.update');
 
     Route::get('settings/security', [SecurityController::class, 'edit'])
         ->middleware(RequirePassword::class)

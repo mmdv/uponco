@@ -7,6 +7,8 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Notification;
 
 test('owners can add a team member directly', function () {
     $owner = User::factory()->create();
@@ -24,6 +26,7 @@ test('owners can add a team member directly', function () {
             'job_title' => 'Stylist',
             'email' => 'jane@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ])
         ->assertRedirect()
         ->assertSessionHasNoErrors();
@@ -32,7 +35,9 @@ test('owners can add a team member directly', function () {
 
     expect($member)->not->toBeNull();
     expect($member->name)->toEqual('Jane Doe');
-    expect($member->email_verified_at)->not->toBeNull();
+    // The admin typed this address without proving they can read it, so the
+    // member verifies it themselves rather than being born verified.
+    expect($member->email_verified_at)->toBeNull();
     expect($member->profile->job_title)->toEqual('Stylist');
     expect($member->belongsToTeam($team))->toBeTrue();
     expect($team->members()->where('user_id', $member->id)->first()->pivot->role->value)
@@ -50,7 +55,9 @@ test('owners can add a team member directly', function () {
     expect($progress->completed_at)->not->toBeNull();
 });
 
-test('a directly added member lands on the dashboard on login', function () {
+test('a directly added member must verify their email before reaching the dashboard', function () {
+    Notification::fake();
+
     $owner = User::factory()->create();
     $team = Team::factory()->create();
 
@@ -63,11 +70,23 @@ test('a directly added member lands on the dashboard on login', function () {
             'name' => 'Jane',
             'email' => 'jane@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ])
         ->assertSessionHasNoErrors();
 
     $member = User::where('email', 'jane@example.com')->firstOrFail();
 
+    Notification::assertSentTo($member, VerifyEmail::class);
+
+    $this
+        ->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertRedirect(route('verification.notice'));
+
+    $member->markEmailAsVerified();
+
+    // Nothing else stands in their way: the team is already set up, so the
+    // member has no onboarding of their own to finish.
     $this
         ->actingAs($member)
         ->get(route('dashboard'))
@@ -89,6 +108,7 @@ test('admins can add a team member directly', function () {
             'surname' => 'Smith',
             'email' => 'john@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ])
         ->assertRedirect()
         ->assertSessionHasNoErrors();
@@ -110,6 +130,7 @@ test('members cannot add a team member directly', function () {
             'name' => 'Jane',
             'email' => 'jane@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ])
         ->assertForbidden();
 
@@ -131,6 +152,7 @@ test('a member cannot be added with an existing email', function () {
             'name' => 'Jane',
             'email' => 'taken@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ])
         ->assertSessionHasErrors('email');
 });
@@ -565,6 +587,7 @@ test('a member added directly can be removed without a personal team', function 
             'name' => 'Jane',
             'email' => 'jane@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ])
         ->assertSessionHasNoErrors();
 

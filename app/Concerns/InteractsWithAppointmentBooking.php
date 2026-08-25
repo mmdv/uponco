@@ -463,7 +463,7 @@ trait InteractsWithAppointmentBooking
             $team->id,
             $team->timezone ?: config('app.timezone'),
             $data['date'],
-            $data['appointment_id'] ?? null,
+            $this->ignorableAppointmentId($team, $data['appointment_id'] ?? null),
         );
     }
 
@@ -498,6 +498,7 @@ trait InteractsWithAppointmentBooking
 
         $timezone = $team->timezone ?: config('app.timezone');
         $days = $data['days'] ?? $defaultDays;
+        $ignoreAppointmentId = $this->ignorableAppointmentId($team, $data['appointment_id'] ?? null);
 
         // Pure calendar-date arithmetic (no timezone) so adding days can never
         // drift across a daylight-saving boundary; the generator applies the
@@ -515,10 +516,28 @@ trait InteractsWithAppointmentBooking
                 $team->id,
                 $timezone,
                 $day,
-                $data['appointment_id'] ?? null,
+                $ignoreAppointmentId,
             );
         }
 
         return $window;
+    }
+
+    /**
+     * Resolve the appointment a slot lookup may exclude from the busy set.
+     *
+     * The id arrives straight from the request and the public booking page is
+     * unauthenticated, so an arbitrary integer must not be able to steer the
+     * query: anything that is not this team's own appointment is dropped.
+     */
+    protected function ignorableAppointmentId(Team $team, ?int $appointmentId): ?int
+    {
+        if ($appointmentId === null) {
+            return null;
+        }
+
+        return $team->appointments()->whereKey($appointmentId)->exists()
+            ? $appointmentId
+            : null;
     }
 }
