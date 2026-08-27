@@ -8,10 +8,19 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { translate, useTranslation } from '@/hooks/use-translation';
+import {
+    email as isEmail,
+    firstErrors,
+    minLength,
+    required,
+} from '@/lib/validation';
 import { login, privacy, terms } from '@/routes';
 import { store } from '@/routes/register';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 type Props = {
     passwordRules: string;
@@ -25,6 +34,7 @@ export default function Register({
     invitationTeam,
 }: Props) {
     const { t } = useTranslation('auth');
+    const { t: tError } = useTranslation('errors');
 
     // Autofocusing on a phone pops the keyboard open before the page has
     // settled, which scrolls the form out from under the user on arrival.
@@ -33,21 +43,67 @@ export default function Register({
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [termsError, setTermsError] = useState<string | null>(null);
 
+    // Mirrors CreateNewUser's rules so a submission already known to fail never
+    // leaves the browser. Terms is checked alongside these below rather than
+    // here: an unticked box is absent from FormData, so its state is the truth.
+    const validation = useClientValidation('register-form', (data) =>
+        firstErrors([
+            {
+                field: 'name',
+                passes: required(data.name),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: required(data.email),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: isEmail(data.email),
+                message: tError('validation.email'),
+            },
+            {
+                field: 'password',
+                passes: required(data.password),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'password',
+                passes: minLength(data.password, MIN_PASSWORD_LENGTH),
+                message: tError('validation.passwordLength', {
+                    min: MIN_PASSWORD_LENGTH,
+                }),
+            },
+            {
+                field: 'password_confirmation',
+                passes: data.password === data.password_confirmation,
+                message: tError('validation.passwordConfirmation'),
+            },
+        ]),
+    );
+
     return (
         <>
             <Head title={t('register.headTitle')} />
             <Form
                 {...store.form()}
+                id="register-form"
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
+                onChange={validation.onChange}
                 onBefore={() => {
-                    if (!termsAccepted) {
-                        setTermsError(t('register.termsError'));
+                    // Evaluate both so every problem is reported at once, rather
+                    // than making the user fix the fields and the box in turn.
+                    const fieldsValid = validation.onBefore();
 
-                        return false;
+                    const termsValid = termsAccepted;
+
+                    if (!termsValid) {
+                        setTermsError(t('register.termsError'));
                     }
 
-                    return true;
+                    return fieldsValid && termsValid;
                 }}
                 className="flex flex-col gap-6"
             >
@@ -79,7 +135,10 @@ export default function Register({
                                     placeholder={t('register.namePlaceholder')}
                                 />
                                 <InputError
-                                    message={errors.name}
+                                    message={validation.error(
+                                        'name',
+                                        errors.name,
+                                    )}
                                     className="mt-2"
                                 />
                             </div>
@@ -104,7 +163,12 @@ export default function Register({
                                     defaultValue={invitationEmail}
                                     readOnly={Boolean(invitationEmail)}
                                 />
-                                <InputError message={errors.email} />
+                                <InputError
+                                    message={validation.error(
+                                        'email',
+                                        errors.email,
+                                    )}
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -123,7 +187,12 @@ export default function Register({
                                     )}
                                     passwordrules={passwordRules}
                                 />
-                                <InputError message={errors.password} />
+                                <InputError
+                                    message={validation.error(
+                                        'password',
+                                        errors.password,
+                                    )}
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -143,7 +212,10 @@ export default function Register({
                                     passwordrules={passwordRules}
                                 />
                                 <InputError
-                                    message={errors.password_confirmation}
+                                    message={validation.error(
+                                        'password_confirmation',
+                                        errors.password_confirmation,
+                                    )}
                                 />
                             </div>
 

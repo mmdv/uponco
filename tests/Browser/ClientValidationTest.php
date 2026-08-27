@@ -77,3 +77,76 @@ test('a malformed email is rejected in the browser rather than posted', function
         ->assertDontSee('Too many attempts')
         ->assertNoJavascriptErrors();
 });
+
+test('the login form still blocks an empty submit with required stripped', function () {
+    $page = visit(route('login'));
+
+    $page->script(<<<'JS'
+        document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
+    JS);
+
+    // Press submit repeatedly. Each press must be rejected in the browser, so
+    // the login throttle is never touched.
+    foreach (range(1, 8) as $attempt) {
+        $page->click('@login-button');
+    }
+
+    $page->assertSee('This field is required.')
+        ->assertDontSee('Too many attempts')
+        ->assertNoJavascriptErrors();
+});
+
+test('the login form rejects a malformed email in the browser rather than posting', function () {
+    $page = visit(route('login'));
+
+    $page->script(<<<'JS'
+        document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
+        document.getElementById('login-form').noValidate = true;
+    JS);
+
+    $page->fill('email', 'not-an-address')
+        ->fill('password', 'whatever-password')
+        ->click('@login-button')
+        ->assertSee('Please enter a valid email address.')
+        ->assertDontSee('Too many attempts')
+        ->assertNoJavascriptErrors();
+});
+
+test('the register form still blocks an empty submit with required stripped', function () {
+    $page = visit(route('register'));
+
+    $page->script(<<<'JS'
+        document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
+    JS);
+
+    foreach (range(1, 8) as $attempt) {
+        $page->click('@register-user-button');
+    }
+
+    $page->assertSee('This field is required.')
+        ->assertDontSee('Too many attempts')
+        ->assertNoJavascriptErrors();
+
+    // Nothing left the browser, so no account was created.
+    expect(User::count())->toBe(0);
+});
+
+test('the register form blocks a submit until the terms are accepted', function () {
+    $page = visit(route('register'));
+
+    $page->script(<<<'JS'
+        document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
+        document.getElementById('register-form').noValidate = true;
+    JS);
+
+    $page->fill('name', 'Ada Lovelace')
+        ->fill('email', 'ada@example.com')
+        ->fill('password', 'super-secret-password')
+        ->fill('password_confirmation', 'super-secret-password')
+        ->click('@register-user-button')
+        ->assertSee('Please accept the Terms & Conditions and Privacy Policy to continue.')
+        ->assertDontSee('Too many attempts')
+        ->assertNoJavascriptErrors();
+
+    expect(User::count())->toBe(0);
+});

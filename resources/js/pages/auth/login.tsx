@@ -8,7 +8,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { translate, useTranslation } from '@/hooks/use-translation';
+import { email as isEmail, firstErrors, required } from '@/lib/validation';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
@@ -20,6 +22,29 @@ type Props = {
 
 export default function Login({ status, canResetPassword }: Props) {
     const { t } = useTranslation('auth');
+    const { t: tError } = useTranslation('errors');
+
+    // Mirrors Fortify's login rules so an empty or malformed submission never
+    // spends the route's throttle budget only to bounce back as a 422.
+    const validation = useClientValidation('login-form', (data) =>
+        firstErrors([
+            {
+                field: 'email',
+                passes: required(data.email),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: isEmail(data.email),
+                message: tError('validation.email'),
+            },
+            {
+                field: 'password',
+                passes: required(data.password),
+                message: tError('validation.required'),
+            },
+        ]),
+    );
 
     return (
         <>
@@ -29,6 +54,9 @@ export default function Login({ status, canResetPassword }: Props) {
 
             <Form
                 {...store.form()}
+                id="login-form"
+                onBefore={validation.onBefore}
+                onChange={validation.onChange}
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >
@@ -49,7 +77,12 @@ export default function Login({ status, canResetPassword }: Props) {
                                     autoComplete="email"
                                     placeholder={t('login.emailPlaceholder')}
                                 />
-                                <InputError message={errors.email} />
+                                <InputError
+                                    message={validation.error(
+                                        'email',
+                                        errors.email,
+                                    )}
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -75,7 +108,12 @@ export default function Login({ status, canResetPassword }: Props) {
                                     autoComplete="current-password"
                                     placeholder={t('login.passwordPlaceholder')}
                                 />
-                                <InputError message={errors.password} />
+                                <InputError
+                                    message={validation.error(
+                                        'password',
+                                        errors.password,
+                                    )}
+                                />
                             </div>
 
                             <div className="flex items-center space-x-3">
