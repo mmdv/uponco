@@ -36,11 +36,15 @@ export function SiteHeader() {
         { href: pricing(), label: t('nav.pricing') },
     ];
 
-    // The header carries no background of its own so the page backdrop runs
-    // behind it; the blur alone keeps the links readable once content scrolls
-    // underneath.
+    // On desktop the header carries no background of its own so the page
+    // backdrop (the blooms) runs behind it, and the blur alone keeps the links
+    // readable once content scrolls underneath. Phones don't render the blooms,
+    // so a sticky backdrop-blur there would re-rasterise the blurred strip on
+    // every scroll frame — the main cause of janky mobile scrolling — for no
+    // visual gain. Below md we use a solid background instead and only turn the
+    // blur on from md up.
     return (
-        <header className="sticky top-0 z-50 border-b border-border/60 backdrop-blur">
+        <header className="sticky top-0 z-50 border-b border-border/60 bg-background md:bg-transparent md:backdrop-blur">
             <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
                 <Link href={home()} className="flex items-center">
                     <img
