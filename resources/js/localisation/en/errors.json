@@ -1,0 +1,13 @@
+{
+    "tooManyRequests": {
+        "title": "Too many attempts",
+        "description": "Please wait a moment before trying again."
+    },
+    "validation": {
+        "required": "This field is required.",
+        "email": "Please enter a valid email address.",
+        "passwordLength": "Your password must be at least {min} characters.",
+        "passwordConfirmation": "The two passwords do not match.",
+        "otpLength": "Enter all {length} digits of your code."
+    }
+}

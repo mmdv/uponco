@@ -9,6 +9,12 @@ import {
 } from '@/lib/appointments';
 import type { UpcomingDay } from '@/lib/appointments';
 import type { CalendarEvent } from '@/lib/calendar';
+import {
+    email,
+    firstErrors,
+    required,
+    requiredWithout,
+} from '@/lib/validation';
 import type {
     AppointmentLocationOption,
     AppointmentServiceOption,
@@ -361,6 +367,57 @@ export const EMPTY_DETAILS: CustomerDetails = {
     customer_phone: '',
     notes: '',
 };
+
+/** The user-facing copy `validateDetails` needs, resolved by the caller. */
+export type DetailMessages = {
+    nameRequired: string;
+    contactRequired: string;
+    emailInvalid: string;
+};
+
+/**
+ * Check the customer details the way BookPublicAppointmentRequest will.
+ *
+ * Mirrors `customer_name` required plus the `required_without` pair on
+ * `customer_email`/`customer_phone`, so a submission that the server is
+ * certain to reject never leaves the browser. The booking POST is rate
+ * limited, and the step's own `<form>` deliberately swallows native submit
+ * (its `onSubmit` is a `preventDefault`, so autofill still works), which means
+ * `required` attributes on those inputs would never fire — this is the only
+ * place the check can live.
+ *
+ * Returns an Inertia-shaped bag, so the same `<InputError>` renders whichever
+ * side produced the error.
+ */
+export function validateDetails(
+    details: CustomerDetails,
+    messages: DetailMessages,
+): Partial<Record<string, string>> {
+    return firstErrors([
+        {
+            field: 'customer_name',
+            passes: required(details.customer_name),
+            message: messages.nameRequired,
+        },
+        {
+            field: 'customer_email',
+            passes: requiredWithout(
+                details.customer_email,
+                details.customer_phone,
+            ),
+            message: messages.contactRequired,
+        },
+        {
+            field: 'customer_email',
+            // Only meaningful once something was typed; an empty email is
+            // legitimate when a phone number was given instead.
+            passes:
+                !required(details.customer_email) ||
+                email(details.customer_email),
+            message: messages.emailInvalid,
+        },
+    ]);
+}
 
 /** A choice the visitor arrived with, from a deep-linked booking URL. */
 export type BookingPreset = {

@@ -1,0 +1,13 @@
+{
+    "tooManyRequests": {
+        "title": "Çox sayda cəhd",
+        "description": "Yenidən cəhd etməzdən əvvəl bir az gözləyin."
+    },
+    "validation": {
+        "required": "Bu sahə tələb olunur.",
+        "email": "Zəhmət olmasa düzgün e-poçt ünvanı daxil edin.",
+        "passwordLength": "Şifrəniz ən azı {min} simvoldan ibarət olmalıdır.",
+        "passwordConfirmation": "Şifrələr uyğun gəlmir.",
+        "otpLength": "Kodunuzun bütün {length} rəqəmini daxil edin."
+    }
+}

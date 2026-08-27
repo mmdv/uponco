@@ -111,14 +111,41 @@ test('the flow blocks a submission with no customer details', function () {
 
     $page = advanceToDetails($setup);
 
-    // Confirm with every field blank: the server rejects it, so the wizard
-    // stays on the details step and nothing is persisted.
-    $page->click('Confirm booking')
-        ->assertSee('Your details')
-        ->assertDontSee("You're booked in");
+    // Confirm stays clickable — a dead button explains nothing — but pressing
+    // it validates in the browser and reports what is missing instead of
+    // posting. It used to post and let the server reject it, which meant an
+    // impatient visitor could spend the route's 10/min budget in ten taps and
+    // meet a 429 rendered as a full-screen error dialog.
+    foreach (range(1, 12) as $attempt) {
+        $page->click('@appointment-save-button');
+    }
+
+    $page->assertSee('Your details')
+        ->assertSee('Please enter your name.')
+        ->assertDontSee("You're booked in")
+        ->assertDontSee('Too many attempts')
+        ->assertNoJavascriptErrors();
 
     expect(Appointment::query()->count())->toBe(0);
     expect(Customer::query()->count())->toBe(0);
+});
+
+test('a name alone is not enough to confirm: a contact method is required', function () {
+    $setup = bookableTomorrowSetup();
+
+    $page = advanceToDetails($setup);
+
+    // Mirrors `customer_email` required_without `customer_phone`: a name on its
+    // own leaves no way to reach the customer, so the server would reject it.
+    $page->fill('customer_name', 'Jane Doe')
+        ->click('@appointment-save-button')
+        ->assertSee('Please add an email address or a phone number');
+
+    expect(Appointment::query()->count())->toBe(0);
+
+    // Correcting the field clears its message without another round trip.
+    $page->fill('customer_email', 'jane@example.com')
+        ->assertDontSee('Please add an email address or a phone number');
 });
 
 test('a guest picks from the cards when the team offers a real choice', function () {

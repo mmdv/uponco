@@ -111,7 +111,10 @@
         "phone": "Telefon",
         "phonePlaceholder": "055 123 45 67",
         "notes": "Qeydlər",
-        "notesPlaceholder": "Görüşdən əvvəl bilməli olduğumuz nə isə varmı…"
+        "notesPlaceholder": "Görüşdən əvvəl bilməli olduğumuz nə isə varmı…",
+        "nameRequired": "Zəhmət olmasa adınızı daxil edin.",
+        "contactRequired": "Sizinlə əlaqə saxlaya bilməyimiz üçün e-poçt ünvanı və ya telefon nömrəsi əlavə edin.",
+        "emailInvalid": "Zəhmət olmasa düzgün e-poçt ünvanı daxil edin."
     },
     "success": {
         "title": "Rezervasiyanız təsdiqləndi",

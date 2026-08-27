@@ -1,12 +1,17 @@
 import { Form, Head } from '@inertiajs/react';
+
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { translate, useTranslation } from '@/hooks/use-translation';
+import { firstErrors, minLength, required } from '@/lib/validation';
 import { update } from '@/routes/password';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 type Props = {
     token: string;
@@ -16,6 +21,32 @@ type Props = {
 
 export default function ResetPassword({ token, email, passwordRules }: Props) {
     const { t } = useTranslation('auth');
+    const { t: tError } = useTranslation('errors');
+
+    // Mirrors ResetUserPassword's rules. Runs in JS rather than relying on the
+    // inputs' `required`, which is only a hint: it can be deleted from the DOM,
+    // and the route allows six attempts a minute.
+    const validation = useClientValidation('reset-password-form', (data) =>
+        firstErrors([
+            {
+                field: 'password',
+                passes: required(data.password),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'password',
+                passes: minLength(data.password, MIN_PASSWORD_LENGTH),
+                message: tError('validation.passwordLength', {
+                    min: MIN_PASSWORD_LENGTH,
+                }),
+            },
+            {
+                field: 'password_confirmation',
+                passes: data.password === data.password_confirmation,
+                message: tError('validation.passwordConfirmation'),
+            },
+        ]),
+    );
 
     return (
         <>
@@ -23,6 +54,9 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
 
             <Form
                 {...update.form()}
+                id="reset-password-form"
+                onBefore={validation.onBefore}
+                onChange={validation.onChange}
                 transform={(data) => ({ ...data, token, email })}
                 resetOnSuccess={['password', 'password_confirmation']}
             >
@@ -56,13 +90,20 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 name="password"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
+                                required
+                                minLength={8}
                                 autoFocus
                                 placeholder={t(
                                     'resetPassword.passwordPlaceholder',
                                 )}
                                 passwordrules={passwordRules}
                             />
-                            <InputError message={errors.password} />
+                            <InputError
+                                message={validation.error(
+                                    'password',
+                                    errors.password,
+                                )}
+                            />
                         </div>
 
                         <div className="grid gap-2">
@@ -74,13 +115,18 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 name="password_confirmation"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
+                                required
+                                minLength={8}
                                 placeholder={t(
                                     'resetPassword.confirmPasswordPlaceholder',
                                 )}
                                 passwordrules={passwordRules}
                             />
                             <InputError
-                                message={errors.password_confirmation}
+                                message={validation.error(
+                                    'password_confirmation',
+                                    errors.password_confirmation,
+                                )}
                                 className="mt-2"
                             />
                         </div>

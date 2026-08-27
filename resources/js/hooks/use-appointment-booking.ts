@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useMemo, useRef, useState } from 'react';
 
 import type { CustomerDetails } from '@/components/public-booking/step-details';
+import { useTranslation } from '@/hooks/use-translation';
 import {
     getAvailableOptions,
     groupServicesByCategory,
@@ -25,6 +26,7 @@ import {
     slotsKey,
     SLOT_WINDOW_DAYS,
     stepAnimationClass,
+    validateDetails,
 } from '@/lib/booking';
 import type {
     BookingPreset,
@@ -142,6 +144,18 @@ export function useAppointmentBooking({
     const [details, setDetails] = useState<CustomerDetails>(EMPTY_DETAILS);
     const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
     const [processing, setProcessing] = useState(false);
+    // `processing` is state, so it only disables the button on the next render.
+    // A fast double-tap lands inside that gap, so the guard that actually stops
+    // a duplicate POST has to be a ref we can read and set synchronously.
+    const submittingRef = useRef(false);
+
+    const { t } = useTranslation('booking');
+
+    const detailMessages = {
+        nameRequired: t('details.nameRequired'),
+        contactRequired: t('details.contactRequired'),
+        emailInvalid: t('details.emailInvalid'),
+    };
     const [confirmed, setConfirmed] = useState<ConfirmedSummary | null>(null);
 
     const {
@@ -558,6 +572,24 @@ export function useAppointmentBooking({
     };
 
     const handleSubmit = () => {
+        // Two guards before anything leaves the browser. The POST is rate
+        // limited at 10/min, and a rejected submission round-trips in
+        // milliseconds, so without these an impatient visitor can spend the
+        // whole budget and get a 429 that reads like a crash.
+        if (submittingRef.current) {
+            return;
+        }
+
+        const detailErrors = validateDetails(details, detailMessages);
+
+        if (Object.keys(detailErrors).length > 0) {
+            setErrors(detailErrors);
+
+            return;
+        }
+
+        submittingRef.current = true;
+
         router.post(
             store.url(company.slug),
             {
@@ -605,7 +637,10 @@ export function useAppointmentBooking({
                         calendar: calendarEvent,
                     });
                 },
-                onFinish: () => setProcessing(false),
+                onFinish: () => {
+                    submittingRef.current = false;
+                    setProcessing(false);
+                },
             },
         );
     };

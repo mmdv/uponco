@@ -13,10 +13,19 @@ import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
+import {
+    email as isEmail,
+    firstErrors,
+    minLength,
+    required,
+} from '@/lib/validation';
 import { edit } from '@/routes/security';
 import { send } from '@/routes/verification';
 import type { Auth } from '@/types';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 type Props = {
     passwordRules: string;
@@ -31,6 +40,63 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
     const accountPasswordInput = useRef<HTMLInputElement>(null);
+
+    const { t: tError } = useTranslation('errors');
+
+    // Both forms below are throttled at six a minute, and both are reachable
+    // from a page the user already had to confirm their password to open — so
+    // burning those attempts on a blank field is a real way to lock yourself
+    // out. Checked in JS rather than via `required`, which is only a hint.
+    const accountValidation = useClientValidation(
+        'account-email-form',
+        (data) =>
+            firstErrors([
+                {
+                    field: 'email',
+                    passes: required(data.email),
+                    message: tError('validation.required'),
+                },
+                {
+                    field: 'email',
+                    passes: isEmail(data.email),
+                    message: tError('validation.email'),
+                },
+                {
+                    field: 'current_password',
+                    passes: required(data.current_password),
+                    message: tError('validation.required'),
+                },
+            ]),
+    );
+
+    const passwordValidation = useClientValidation(
+        'update-password-form',
+        (data) =>
+            firstErrors([
+                {
+                    field: 'current_password',
+                    passes: required(data.current_password),
+                    message: tError('validation.required'),
+                },
+                {
+                    field: 'password',
+                    passes: required(data.password),
+                    message: tError('validation.required'),
+                },
+                {
+                    field: 'password',
+                    passes: minLength(data.password, MIN_PASSWORD_LENGTH),
+                    message: tError('validation.passwordLength', {
+                        min: MIN_PASSWORD_LENGTH,
+                    }),
+                },
+                {
+                    field: 'password_confirmation',
+                    passes: data.password === data.password_confirmation,
+                    message: tError('validation.passwordConfirmation'),
+                },
+            ]),
+    );
 
     return (
         <>
@@ -47,6 +113,9 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
 
                 <Form
                     {...AccountController.update.form()}
+                    id="account-email-form"
+                    onBefore={accountValidation.onBefore}
+                    onChange={accountValidation.onChange}
                     options={{ preserveScroll: true }}
                     resetOnError={['current_password']}
                     onError={(errors) => {
@@ -101,7 +170,10 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
 
                                 <InputError
                                     className="mt-2"
-                                    message={errors.email}
+                                    message={accountValidation.error(
+                                        'email',
+                                        errors.email,
+                                    )}
                                 />
                             </div>
 
@@ -119,13 +191,19 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                                     placeholder={t(
                                         'account.currentPasswordPlaceholder',
                                     )}
+                                    required
                                 />
 
                                 <p className="text-sm text-muted-foreground">
                                     {t('account.currentPasswordHint')}
                                 </p>
 
-                                <InputError message={errors.current_password} />
+                                <InputError
+                                    message={accountValidation.error(
+                                        'current_password',
+                                        errors.current_password,
+                                    )}
+                                />
                             </div>
 
                             <div className="flex items-center gap-4">
@@ -150,6 +228,9 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
 
                 <Form
                     {...SecurityController.update.form()}
+                    id="update-password-form"
+                    onBefore={passwordValidation.onBefore}
+                    onChange={passwordValidation.onChange}
                     options={{
                         preserveScroll: true,
                     }}
@@ -186,9 +267,15 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                                     placeholder={t(
                                         'security.currentPasswordPlaceholder',
                                     )}
+                                    required
                                 />
 
-                                <InputError message={errors.current_password} />
+                                <InputError
+                                    message={passwordValidation.error(
+                                        'current_password',
+                                        errors.current_password,
+                                    )}
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -206,9 +293,16 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                                         'security.newPasswordPlaceholder',
                                     )}
                                     passwordrules={props.passwordRules}
+                                    required
+                                    minLength={8}
                                 />
 
-                                <InputError message={errors.password} />
+                                <InputError
+                                    message={passwordValidation.error(
+                                        'password',
+                                        errors.password,
+                                    )}
+                                />
                             </div>
 
                             <div className="grid gap-2">
@@ -225,10 +319,15 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                                         'security.confirmPasswordPlaceholder',
                                     )}
                                     passwordrules={props.passwordRules}
+                                    required
+                                    minLength={8}
                                 />
 
                                 <InputError
-                                    message={errors.password_confirmation}
+                                    message={passwordValidation.error(
+                                        'password_confirmation',
+                                        errors.password_confirmation,
+                                    )}
                                 />
                             </div>
 

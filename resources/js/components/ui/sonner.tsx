@@ -1,4 +1,5 @@
 import { useFlashToast } from '@/hooks/use-flash-toast';
+import { useHttpExceptionToast } from '@/hooks/use-http-exception-toast';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useEffect, useState } from 'react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
@@ -7,6 +8,7 @@ function Toaster({ ...props }: ToasterProps) {
     const { appearance } = useAppearance();
 
     useFlashToast();
+    useHttpExceptionToast();
 
     // Sonner renders its notifications region into the DOM, but the app shell
     // only mounts the Toaster on the client — the SSR pass omits it. Painting

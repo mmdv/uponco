@@ -9,14 +9,47 @@ import {
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
+import { firstErrors, minLength, required } from '@/lib/validation';
 import { store } from '@/routes/two-factor/login';
 
 export default function TwoFactorChallenge() {
     const { t } = useTranslation('auth');
     const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
     const [code, setCode] = useState<string>('');
+    const { t: tError } = useTranslation('errors');
+
+    // Five attempts a minute, and a partial code can only ever be rejected —
+    // so a half-typed one must not cost an attempt. Which field carries the
+    // answer depends on the mode the user toggled into.
+    const validation = useClientValidation(
+        'two-factor-challenge-form',
+        (data) =>
+            showRecoveryInput
+                ? firstErrors([
+                      {
+                          field: 'recovery_code',
+                          passes: required(data.recovery_code),
+                          message: tError('validation.required'),
+                      },
+                  ])
+                : firstErrors([
+                      {
+                          field: 'code',
+                          passes: required(data.code),
+                          message: tError('validation.required'),
+                      },
+                      {
+                          field: 'code',
+                          passes: minLength(data.code, OTP_MAX_LENGTH),
+                          message: tError('validation.otpLength', {
+                              length: OTP_MAX_LENGTH,
+                          }),
+                      },
+                  ]),
+    );
 
     const authConfigContent = useMemo<{
         title: string;
@@ -56,6 +89,9 @@ export default function TwoFactorChallenge() {
             <div className="space-y-6">
                 <Form
                     {...store.form()}
+                    id="two-factor-challenge-form"
+                    onBefore={validation.onBefore}
+                    onChange={validation.onChange}
                     className="space-y-4"
                     resetOnError
                     resetOnSuccess={!showRecoveryInput}
@@ -74,7 +110,10 @@ export default function TwoFactorChallenge() {
                                         required
                                     />
                                     <InputError
-                                        message={errors.recovery_code}
+                                        message={validation.error(
+                                            'recovery_code',
+                                            errors.recovery_code,
+                                        )}
                                     />
                                 </>
                             ) : (
@@ -102,7 +141,12 @@ export default function TwoFactorChallenge() {
                                             </InputOTPGroup>
                                         </InputOTP>
                                     </div>
-                                    <InputError message={errors.code} />
+                                    <InputError
+                                        message={validation.error(
+                                            'code',
+                                            errors.code,
+                                        )}
+                                    />
                                 </div>
                             )}
 

@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+
 import {
     index as confirmOptions,
     store as confirmStore,
@@ -9,11 +10,26 @@ import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { translate, useTranslation } from '@/hooks/use-translation';
+import { firstErrors, required } from '@/lib/validation';
 import { store } from '@/routes/password/confirm';
 
 export default function ConfirmPassword() {
     const { t } = useTranslation('auth');
+    const { t: tError } = useTranslation('errors');
+
+    // This gate stands in front of the security settings and allows six
+    // attempts a minute, so an empty submit must not spend one of them.
+    const validation = useClientValidation('confirm-password-form', (data) =>
+        firstErrors([
+            {
+                field: 'password',
+                passes: required(data.password),
+                message: tError('validation.required'),
+            },
+        ]),
+    );
 
     return (
         <>
@@ -29,7 +45,13 @@ export default function ConfirmPassword() {
                 separator={t('confirmPassword.passkeySeparator')}
             />
 
-            <Form {...store.form()} resetOnSuccess={['password']}>
+            <Form
+                {...store.form()}
+                id="confirm-password-form"
+                onBefore={validation.onBefore}
+                onChange={validation.onChange}
+                resetOnSuccess={['password']}
+            >
                 {({ processing, errors }) => (
                     <div className="space-y-6">
                         <div className="grid gap-2">
@@ -43,10 +65,16 @@ export default function ConfirmPassword() {
                                     'confirmPassword.passwordPlaceholder',
                                 )}
                                 autoComplete="current-password"
+                                required
                                 autoFocus
                             />
 
-                            <InputError message={errors.password} />
+                            <InputError
+                                message={validation.error(
+                                    'password',
+                                    errors.password,
+                                )}
+                            />
                         </div>
 
                         <div className="flex items-center">

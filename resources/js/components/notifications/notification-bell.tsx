@@ -1,6 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import NotificationsDrawer from '@/components/notifications/notifications-drawer';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ export default function NotificationBell() {
     const { t } = useTranslation('notifications');
     const { notificationBell, auth } = usePage().props;
     const [open, setOpen] = useState(false);
+    const markingReadRef = useRef(false);
 
     const unread = notificationBell?.unread ?? 0;
     const items = notificationBell?.items ?? [];
@@ -38,6 +39,14 @@ export default function NotificationBell() {
      * app. Never call this while a navigation is in flight; see `handleSeeAll`.
      */
     const markAllRead = () => {
+        // `unread` only drops once the response lands, so toggling the popover
+        // quickly can fire this twice for the same notifications.
+        if (markingReadRef.current) {
+            return;
+        }
+
+        markingReadRef.current = true;
+
         router.post(
             read.url(),
             {},
@@ -45,6 +54,9 @@ export default function NotificationBell() {
                 preserveScroll: true,
                 preserveState: true,
                 only: ['notificationBell'],
+                onFinish: () => {
+                    markingReadRef.current = false;
+                },
             },
         );
     };

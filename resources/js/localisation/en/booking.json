@@ -111,7 +111,10 @@
         "phone": "Phone",
         "phonePlaceholder": "555 123 4567",
         "notes": "Notes",
-        "notesPlaceholder": "Anything we should know before your visit…"
+        "notesPlaceholder": "Anything we should know before your visit…",
+        "nameRequired": "Please enter your name.",
+        "contactRequired": "Please add an email address or a phone number so we can reach you.",
+        "emailInvalid": "Please enter a valid email address."
     },
     "success": {
         "title": "You're booked in",

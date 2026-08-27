@@ -6,6 +6,11 @@ import { cn } from '@/lib/utils';
 
 type Props = {
     step: number;
+    /**
+     * Whether the current step is complete. Gates Continue on steps 0–1 only:
+     * the final Confirm stays clickable so pressing it can explain what is
+     * missing, rather than going dead with no reason given.
+     */
     canContinue: boolean;
     processing: boolean;
     onBack: () => void;
