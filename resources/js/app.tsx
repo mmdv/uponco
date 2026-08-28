@@ -1,3 +1,5 @@
+import './sentry';
+
 import { createInertiaApp, router } from '@inertiajs/react';
 import PullToRefresh from '@/components/pull-to-refresh';
 import { Toaster } from '@/components/ui/sonner';
