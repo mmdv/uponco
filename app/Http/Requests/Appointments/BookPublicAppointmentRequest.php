@@ -77,6 +77,7 @@ class BookPublicAppointmentRequest extends SaveAppointmentRequest
             'specialist_id' => $this->integer('specialist_id'),
             'start_at' => $startAt->toIso8601String(),
             'date' => $startAt->setTimezone($this->teamTimezone())->format('Y-m-d'),
+            'stage' => 'validation',
         ]);
     }
 }

@@ -20,7 +20,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
+import { email as isEmail, firstErrors, required } from '@/lib/validation';
 import { store as storeInvitation } from '@/routes/company/business/invitations';
 import type { RoleOption } from '@/types';
 
@@ -36,13 +38,31 @@ export default function InviteMemberModal({
     onOpenChange,
 }: Props) {
     const { t } = useTranslation('company');
+    const { t: tError } = useTranslation('errors');
     const [inviteRole, setInviteRole] = useState<RoleOption['value']>('member');
+
+    // Mirrors CreateBusinessInvitationRequest; role is always set below.
+    const validation = useClientValidation('invite-member-form', (data) =>
+        firstErrors([
+            {
+                field: 'email',
+                passes: required(data.email),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: isEmail(data.email),
+                message: tError('validation.email'),
+            },
+        ]),
+    );
 
     const handleOpenChange = (nextOpen: boolean) => {
         onOpenChange(nextOpen);
 
         if (!nextOpen) {
             setInviteRole('member');
+            validation.reset();
         }
     };
 
@@ -52,7 +72,10 @@ export default function InviteMemberModal({
                 <Form
                     key={String(open)}
                     {...storeInvitation.form()}
+                    id="invite-member-form"
                     className="space-y-6"
+                    onChange={validation.onChange}
+                    onBefore={validation.onBefore}
                     onSuccess={() => onOpenChange(false)}
                 >
                     {({ errors, processing }) => (
@@ -83,7 +106,12 @@ export default function InviteMemberModal({
                                         )}
                                         required
                                     />
-                                    <InputError message={errors.email} />
+                                    <InputError
+                                        message={validation.error(
+                                            'email',
+                                            errors.email,
+                                        )}
+                                    />
                                 </div>
 
                                 <div className="grid gap-2">

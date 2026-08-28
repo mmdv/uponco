@@ -12,8 +12,17 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
+import {
+    email as isEmail,
+    firstErrors,
+    minLength,
+    required,
+} from '@/lib/validation';
 import { store as storeMember } from '@/routes/company/business/members';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 type Props = {
     open: boolean;
@@ -22,14 +31,65 @@ type Props = {
 
 export default function AddMemberModal({ open, onOpenChange }: Props) {
     const { t } = useTranslation('company');
+    const { t: tError } = useTranslation('errors');
+
+    // Mirrors CreateBusinessMemberRequest so a submission already known to fail
+    // never leaves the browser. Surname and job title are optional server-side.
+    const validation = useClientValidation('add-member-form', (data) =>
+        firstErrors([
+            {
+                field: 'name',
+                passes: required(data.name),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: required(data.email),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: isEmail(data.email),
+                message: tError('validation.email'),
+            },
+            {
+                field: 'password',
+                passes: required(data.password),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'password',
+                passes: minLength(data.password, MIN_PASSWORD_LENGTH),
+                message: tError('validation.passwordLength', {
+                    min: MIN_PASSWORD_LENGTH,
+                }),
+            },
+            {
+                field: 'password_confirmation',
+                passes: data.password === data.password_confirmation,
+                message: tError('validation.passwordConfirmation'),
+            },
+        ]),
+    );
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        onOpenChange(nextOpen);
+
+        if (!nextOpen) {
+            validation.reset();
+        }
+    };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent>
                 <Form
                     key={String(open)}
                     {...storeMember.form()}
+                    id="add-member-form"
                     className="space-y-6"
+                    onChange={validation.onChange}
+                    onBefore={validation.onBefore}
                     onSuccess={() => onOpenChange(false)}
                 >
                     {({ errors, processing }) => (
@@ -59,7 +119,12 @@ export default function AddMemberModal({ open, onOpenChange }: Props) {
                                             autoComplete="off"
                                             required
                                         />
-                                        <InputError message={errors.name} />
+                                        <InputError
+                                            message={validation.error(
+                                                'name',
+                                                errors.name,
+                                            )}
+                                        />
                                     </div>
 
                                     <div className="grid gap-2">
@@ -112,7 +177,12 @@ export default function AddMemberModal({ open, onOpenChange }: Props) {
                                         autoComplete="off"
                                         required
                                     />
-                                    <InputError message={errors.email} />
+                                    <InputError
+                                        message={validation.error(
+                                            'email',
+                                            errors.email,
+                                        )}
+                                    />
                                 </div>
 
                                 <div className="grid gap-2">
@@ -130,7 +200,12 @@ export default function AddMemberModal({ open, onOpenChange }: Props) {
                                         autoComplete="new-password"
                                         required
                                     />
-                                    <InputError message={errors.password} />
+                                    <InputError
+                                        message={validation.error(
+                                            'password',
+                                            errors.password,
+                                        )}
+                                    />
                                 </div>
 
                                 <div className="grid gap-2">
@@ -151,7 +226,10 @@ export default function AddMemberModal({ open, onOpenChange }: Props) {
                                         required
                                     />
                                     <InputError
-                                        message={errors.password_confirmation}
+                                        message={validation.error(
+                                            'password_confirmation',
+                                            errors.password_confirmation,
+                                        )}
                                     />
                                 </div>
                             </div>

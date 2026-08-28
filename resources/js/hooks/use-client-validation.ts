@@ -13,6 +13,12 @@ export type ClientValidation = {
      * to whatever the server last said about it.
      */
     error: (field: string, serverError?: string) => string | undefined;
+    /**
+     * Drop every client error. A page-level form never needs this, but a modal
+     * outlives the `<Form>` it wraps, so its errors have to be cleared when it
+     * closes or they reappear over the empty fields on the next open.
+     */
+    reset: () => void;
 };
 
 /**
@@ -109,8 +115,12 @@ export function useClientValidation(
         [clientErrors],
     );
 
+    const reset = useCallback(() => {
+        setClientErrors({});
+    }, []);
+
     return useMemo(
-        () => ({ onBefore, onChange, error }),
-        [onBefore, onChange, error],
+        () => ({ onBefore, onChange, error, reset }),
+        [onBefore, onChange, error, reset],
     );
 }

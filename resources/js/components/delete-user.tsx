@@ -15,11 +15,26 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
+import { firstErrors, required } from '@/lib/validation';
 
 export default function DeleteUser() {
     const { t } = useTranslation('settings');
+    const { t: tError } = useTranslation('errors');
     const passwordInput = useRef<HTMLInputElement>(null);
+
+    // Mirrors AccountDeleteRequest: the current password must be present before
+    // the request is worth making.
+    const validation = useClientValidation('delete-user-form', (data) =>
+        firstErrors([
+            {
+                field: 'password',
+                passes: required(data.password),
+                message: tError('validation.required'),
+            },
+        ]),
+    );
 
     return (
         <div className="space-y-6">
@@ -38,7 +53,13 @@ export default function DeleteUser() {
                     </p>
                 </div>
 
-                <Dialog>
+                <Dialog
+                    onOpenChange={(nextOpen) => {
+                        if (!nextOpen) {
+                            validation.reset();
+                        }
+                    }}
+                >
                     <DialogTrigger asChild>
                         <Button
                             variant="destructive"
@@ -57,9 +78,12 @@ export default function DeleteUser() {
 
                         <Form
                             {...AccountController.destroy.form()}
+                            id="delete-user-form"
                             options={{
                                 preserveScroll: true,
                             }}
+                            onChange={validation.onChange}
+                            onBefore={validation.onBefore}
                             onError={() => passwordInput.current?.focus()}
                             resetOnSuccess
                             className="space-y-6"
@@ -84,7 +108,12 @@ export default function DeleteUser() {
                                             autoComplete="current-password"
                                         />
 
-                                        <InputError message={errors.password} />
+                                        <InputError
+                                            message={validation.error(
+                                                'password',
+                                                errors.password,
+                                            )}
+                                        />
                                     </div>
 
                                     <DialogFooter className="gap-2">

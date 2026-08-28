@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
+use App\Support\Analytics;
 use App\Support\Appointments\SlotGenerator;
 use App\Support\Google\GoogleCalendarService;
 use Carbon\CarbonImmutable;
@@ -143,6 +144,8 @@ trait InteractsWithAppointmentBooking
                 ->exists();
 
             if ($taken) {
+                $this->recordDoubleBooking($service, $specialistId, $startAt, 'slot_taken');
+
                 throw ValidationException::withMessages([
                     'start_at' => __('The selected time slot is no longer available.'),
                 ]);
@@ -166,10 +169,42 @@ trait InteractsWithAppointmentBooking
         }
 
         if ($session->count() >= $service->capacity) {
+            $this->recordDoubleBooking($service, $specialistId, $startAt, 'session_full');
+
             throw ValidationException::withMessages([
                 'start_at' => __('This session is now fully booked.'),
             ]);
         }
+    }
+
+    /**
+     * Record a double booking caught by the in-transaction guard.
+     *
+     * This is the true concurrency race — two visitors each saw the slot as free
+     * and only the row lock separated them — as opposed to the stale cached slot
+     * the request validation rejects up front (recorded there as `validation`).
+     * Recording both under the same event, tagged by stage, keeps the whole
+     * double-booking rate readable as one number in the funnel.
+     *
+     * Only the public flow feeds the funnel: the event rides to the browser
+     * through the shared analytics prop and is captured under the visitor's
+     * anonymous PostHog identity, so it is skipped for the authenticated
+     * dashboard flow, which has no such visitor.
+     */
+    protected function recordDoubleBooking(Service $service, int $specialistId, CarbonInterface $startAt, string $reason): void
+    {
+        if (! request()?->routeIs('public.*')) {
+            return;
+        }
+
+        Analytics::record('public_booking_slot_unavailable', [
+            'company' => $service->team->slug,
+            'service_id' => $service->id,
+            'specialist_id' => $specialistId,
+            'start_at' => $startAt->toIso8601String(),
+            'stage' => 'guard',
+            'reason' => $reason,
+        ]);
     }
 
     /**

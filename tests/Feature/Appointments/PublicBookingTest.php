@@ -54,6 +54,21 @@ function onlineOnlySetup(): array
     return [...$setup, 'location' => null];
 }
 
+/**
+ * Bind the container's current request to a given named route, so code that
+ * branches on `request()->routeIs(...)` (the funnel's public/dashboard split)
+ * can be exercised without a full HTTP round trip.
+ *
+ * @param  array<string, mixed>  $parameters
+ */
+function withPublicRoute(string $name, array $parameters = []): void
+{
+    $route = Route::getRoutes()->getByName($name);
+    $request = Illuminate\Http\Request::create(route($name, $parameters), $route->methods()[0]);
+    $request->setRouteResolver(fn () => $route);
+    app()->instance('request', $request);
+}
+
 test('the public booking page can be rendered', function () {
     $setup = bookableSetup();
 
@@ -637,6 +652,99 @@ test('a stale dashboard slot does not record the public conflict event', functio
         ->post(route('appointments.store'), appointmentPayload($setup))
         ->assertSessionHasErrors('start_at')
         ->assertSessionMissing('analytics_events');
+});
+
+test('a completed public booking records the finished-funnel event', function () {
+    $setup = bookableSetup();
+
+    $this
+        ->post(route('public.appointments.store', ['company' => $setup['team']->slug]), appointmentPayload($setup))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect()
+        ->assertSessionHas('analytics_events', fn (array $events): bool => collect($events)->contains(
+            fn (array $event): bool => $event['name'] === 'public_booking_completed'
+                && $event['properties']['company'] === $setup['team']->slug
+                && $event['properties']['service_id'] === $setup['service']->id,
+        ));
+});
+
+test('the in-transaction guard records a double booking for analytics on the public route', function () {
+    $setup = bookableSetup();
+
+    // The slot is already taken; only the row-locked guard would catch a
+    // collision that slipped past request validation — the true concurrency race.
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    // Bind a request resolved to the public store route so the guard sees the
+    // public flow (and records), rather than treating it as the dashboard.
+    withPublicRoute('public.appointments.store', ['company' => $setup['team']->slug]);
+
+    $booker = new class
+    {
+        use InteractsWithAppointmentBooking;
+
+        public function guard(Service $service, CarbonInterface $startAt, CarbonInterface $endAt, int $specialistId, int $customerId): void
+        {
+            $this->guardSlotAvailability($service, $startAt, $endAt, $specialistId, $customerId);
+        }
+    };
+
+    expect(fn () => $booker->guard(
+        $setup['service'],
+        $setup['startAt'],
+        $setup['startAt']->addMinutes(60),
+        $setup['user']->id,
+        Customer::factory()->for($setup['team'])->create()->id,
+    ))->toThrow(ValidationException::class, 'The selected time slot is no longer available.');
+
+    expect(collect(App\Support\Analytics::pending())->contains(
+        fn (array $event): bool => $event['name'] === 'public_booking_slot_unavailable'
+            && $event['properties']['stage'] === 'guard'
+            && $event['properties']['reason'] === 'slot_taken'
+            && $event['properties']['company'] === $setup['team']->slug,
+    ))->toBeTrue();
+});
+
+test('the in-transaction guard does not record a double booking on the dashboard route', function () {
+    $setup = bookableSetup();
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addMinutes(60),
+    ]);
+
+    withPublicRoute('appointments.store');
+
+    $booker = new class
+    {
+        use InteractsWithAppointmentBooking;
+
+        public function guard(Service $service, CarbonInterface $startAt, CarbonInterface $endAt, int $specialistId, int $customerId): void
+        {
+            $this->guardSlotAvailability($service, $startAt, $endAt, $specialistId, $customerId);
+        }
+    };
+
+    expect(fn () => $booker->guard(
+        $setup['service'],
+        $setup['startAt'],
+        $setup['startAt']->addMinutes(60),
+        $setup['user']->id,
+        Customer::factory()->for($setup['team'])->create()->id,
+    ))->toThrow(ValidationException::class);
+
+    expect(App\Support\Analytics::pending())->toBe([]);
 });
 
 test('a cancelled appointment does not block its slot for a new booking', function () {

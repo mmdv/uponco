@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import type { CustomerDetails } from '@/components/public-booking/step-details';
 import { useTranslation } from '@/hooks/use-translation';
+import { captureEvent } from '@/lib/analytics';
 import {
     getAvailableOptions,
     groupServicesByCategory,
@@ -148,6 +149,11 @@ export function useAppointmentBooking({
     // A fast double-tap lands inside that gap, so the guard that actually stops
     // a duplicate POST has to be a ref we can read and set synchronously.
     const submittingRef = useRef(false);
+    // The "started" end of the booking funnel is reaching the date & time
+    // screen. Logged once per attempt: stepping back and forth between the
+    // selection and this screen is one started booking, not several, and
+    // "book another" (which resets the flow) starts a fresh count.
+    const secondScreenLoggedRef = useRef(false);
 
     const { t } = useTranslation('booking');
 
@@ -563,6 +569,15 @@ export function useAppointmentBooking({
 
             showSlotsForDay(serviceId, specialistId, nextDate);
 
+            if (!secondScreenLoggedRef.current) {
+                secondScreenLoggedRef.current = true;
+                captureEvent('public_booking_second_screen', {
+                    company: company.slug,
+                    service_id: serviceId,
+                    specialist_id: specialistId,
+                });
+            }
+
             goToStep(1);
 
             return;
@@ -673,6 +688,7 @@ export function useAppointmentBooking({
         setErrors({});
         setDirection('back');
         setStep(0);
+        secondScreenLoggedRef.current = false;
     };
 
     const stepClass = stepAnimationClass(hasNavigated, direction);

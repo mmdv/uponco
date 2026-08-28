@@ -24,7 +24,9 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
+import { email as isEmail, firstErrors, required } from '@/lib/validation';
 import type { RoleOption } from '@/types';
 
 export function ProfileSection({
@@ -37,6 +39,24 @@ export function ProfileSection({
     arg: SectionArg;
 }) {
     const { t } = useTranslation('company');
+    const { t: tError } = useTranslation('errors');
+
+    // Mirrors UpdateBusinessMemberProfileRequest: name is required, and a public
+    // email is optional but must look like one when given.
+    const validation = useClientValidation('member-profile-form', (data) =>
+        firstErrors([
+            {
+                field: 'name',
+                passes: required(data.name),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: !required(data.email) || isEmail(data.email),
+                message: tError('validation.email'),
+            },
+        ]),
+    );
 
     return (
         <div className="space-y-6">
@@ -62,7 +82,10 @@ export function ProfileSection({
 
             <Form
                 {...updateProfile.form(arg)}
+                id="member-profile-form"
                 options={{ preserveScroll: true }}
+                onChange={validation.onChange}
+                onBefore={validation.onBefore}
                 className="space-y-6"
             >
                 {({ processing, errors }) => (
@@ -84,7 +107,7 @@ export function ProfileSection({
                             />
                             <InputError
                                 className="mt-2"
-                                message={errors.name}
+                                message={validation.error('name', errors.name)}
                             />
                         </div>
 
@@ -109,7 +132,10 @@ export function ProfileSection({
                             </p>
                             <InputError
                                 className="mt-2"
-                                message={errors.email}
+                                message={validation.error(
+                                    'email',
+                                    errors.email,
+                                )}
                             />
                         </div>
 
@@ -195,8 +221,25 @@ export function AccessSection({
     arg: SectionArg;
 }) {
     const { t } = useTranslation('company');
+    const { t: tError } = useTranslation('errors');
     const [role, setRole] = useState(
         member.role ?? availableRoles[0]?.value ?? '',
+    );
+
+    // Mirrors UpdateBusinessMemberAccountRequest's email rules.
+    const validation = useClientValidation('member-account-form', (data) =>
+        firstErrors([
+            {
+                field: 'email',
+                passes: required(data.email),
+                message: tError('validation.required'),
+            },
+            {
+                field: 'email',
+                passes: isEmail(data.email),
+                message: tError('validation.email'),
+            },
+        ]),
     );
 
     return (
@@ -209,7 +252,10 @@ export function AccessSection({
 
             <Form
                 {...updateAccount.form(arg)}
+                id="member-account-form"
                 options={{ preserveScroll: true }}
+                onChange={validation.onChange}
+                onBefore={validation.onBefore}
                 className="space-y-6"
             >
                 {({ processing, errors }) => (
@@ -232,7 +278,10 @@ export function AccessSection({
                             />
                             <InputError
                                 className="mt-2"
-                                message={errors.email}
+                                message={validation.error(
+                                    'email',
+                                    errors.email,
+                                )}
                             />
                         </div>
 

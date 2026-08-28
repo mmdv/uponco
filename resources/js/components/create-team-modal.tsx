@@ -15,21 +15,46 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useClientValidation } from '@/hooks/use-client-validation';
 import { useTranslation } from '@/hooks/use-translation';
+import { firstErrors, required } from '@/lib/validation';
 import { store } from '@/routes/teams';
 
 export default function CreateTeamModal({ children }: PropsWithChildren) {
     const { t } = useTranslation('nav');
+    const { t: tError } = useTranslation('errors');
     const [open, setOpen] = useState(false);
 
+    // Mirrors SaveTeamRequest so an empty name never spends a request.
+    const validation = useClientValidation('create-team-form', (data) =>
+        firstErrors([
+            {
+                field: 'name',
+                passes: required(data.name),
+                message: tError('validation.required'),
+            },
+        ]),
+    );
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        setOpen(nextOpen);
+
+        if (!nextOpen) {
+            validation.reset();
+        }
+    };
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent>
                 <Form
                     key={String(open)}
                     {...store.form()}
+                    id="create-team-form"
                     className="space-y-6"
+                    onChange={validation.onChange}
+                    onBefore={validation.onBefore}
                     onSuccess={() => setOpen(false)}
                 >
                     {({ errors, processing }) => (
@@ -56,7 +81,12 @@ export default function CreateTeamModal({ children }: PropsWithChildren) {
                                     )}
                                     required
                                 />
-                                <InputError message={errors.name} />
+                                <InputError
+                                    message={validation.error(
+                                        'name',
+                                        errors.name,
+                                    )}
+                                />
                             </div>
 
                             <DialogFooter className="gap-2">

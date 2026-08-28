@@ -8,6 +8,7 @@ use App\Enums\TeamType;
 use App\Http\Requests\Appointments\BookPublicAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
+use App\Support\Analytics;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\BrandPalette;
 use App\Support\Localization;
@@ -176,7 +177,18 @@ class PublicAppointmentController extends Controller
      */
     public function store(BookPublicAppointmentRequest $request, Team $company): RedirectResponse
     {
-        $this->createAppointment($company, $request);
+        $appointment = $this->createAppointment($company, $request);
+
+        // The finished end of the booking funnel. Paired with the second-screen
+        // event the page fires client-side, this measures how many visitors who
+        // started actually completed a booking; the company slug matches the
+        // pageview breakdown. Captured under the visitor's anonymous PostHog
+        // identity on the redirect that follows.
+        Analytics::record('public_booking_completed', [
+            'company' => $company->slug,
+            'service_id' => $appointment->service_id,
+            'specialist_id' => $appointment->specialist_id,
+        ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your appointment has been booked.')]);
 
