@@ -44,102 +44,133 @@ export default function Welcome() {
             <Head title={t('metaTitle')} />
 
             <AppBackground className="min-h-screen w-full max-w-full overflow-x-hidden text-foreground">
-                <SiteHeader />
+                <SiteHeader transparent maxWidth="max-w-7xl" />
 
-                {/* Hero */}
-                <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pt-14 pb-14 sm:pt-20 lg:grid-cols-2 lg:gap-8">
-                    <div className="text-center lg:text-left">
-                        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-                            <span className="relative flex size-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
-                                <span className="relative inline-flex size-2 rounded-full bg-primary" />
-                            </span>
-                            {t('hero.badge')}
-                        </span>
-
-                        <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
-                            {t('hero.titleLead')}{' '}
-                            <span className="text-primary">
-                                {t('hero.titleHighlight')}
-                            </span>
-                        </h1>
-
-                        <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-muted-foreground lg:mx-0">
-                            {t('hero.subtitle')}
-                        </p>
-
-                        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-                            {auth.user ? (
-                                <Link
-                                    href={dashboardUrl}
-                                    className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
-                                >
-                                    {t('hero.ctaGoDashboard')}
-                                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                                </Link>
-                            ) : (
-                                <>
-                                    <Link
-                                        href={register()}
-                                        onClick={() =>
-                                            captureEvent(
-                                                'get_started_clicked',
-                                                {
-                                                    placement: 'hero',
-                                                },
-                                            )
-                                        }
-                                        className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
-                                    >
-                                        {t('hero.ctaStartFree')}
-                                        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                                    </Link>
-                                    <Link
-                                        href={features()}
-                                        className="inline-flex w-full items-center justify-center rounded-md border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary sm:w-auto"
-                                    >
-                                        {t('hero.ctaSeeHow')}
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-
-                        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground lg:justify-start">
-                            {[
-                                t('hero.trust.noCreditCard'),
-                                t('hero.trust.fiveMinuteSetup'),
-                                t('hero.trust.cancelAnytime'),
-                            ].map((item) => (
-                                <span
-                                    key={item}
-                                    className="inline-flex items-center gap-1.5"
-                                >
-                                    <Check className="size-3.5 text-primary" />
-                                    {item}
-                                </span>
-                            ))}
-                        </div>
+                {/* Hero. Pulled up under the (transparent) header with -mt-16 so
+                    the artwork starts at the very top of the page. The desktop
+                    ratio is dynamic, getting taller as the viewport narrows so
+                    the copy keeps its room: 16:12 on lg (1024–1279), 16:9 on xl
+                    (1280–1439), and a wide 16:8 from 1440px up. On smaller
+                    screens the copy drives the height and the right-aligned art
+                    fills it. Content is vertically centered.
+                    The `!` is required: Tailwind emits the arbitrary min-[1440px]
+                    rule before the lg/xl rules, so without it the xl ratio would
+                    win the cascade at >=1440px. */}
+                <section className="relative isolate -mt-16 flex min-h-[85svh] items-center py-16 min-[1440px]:aspect-[16/8]! sm:min-h-[80svh] lg:aspect-[16/12] lg:min-h-0 lg:py-0 xl:aspect-[16/9]">
+                    {/* Full-bleed hero art covering the header and hero copy.
+                        Light/dark variants swap with the theme; the
+                        left-to-right fade keeps the copy legible over it. */}
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+                    >
+                        {/* The mask fades the image's own alpha to transparent
+                            across its bottom fifth, so the artwork dissolves into
+                            the page background instead of being covered by a dark
+                            overlay — no visible seam in either theme. */}
+                        <img
+                            src="/images/light.jpg"
+                            alt=""
+                            className="size-full [mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] object-cover object-right dark:hidden"
+                        />
+                        <img
+                            src="/images/dark.jpg"
+                            alt=""
+                            className="hidden size-full [mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] object-cover object-right dark:block"
+                        />
+                        {/* Legibility overlay for the copy. On desktop it runs
+                            diagonally from the opaque top-left and is fully
+                            transparent by 60%, so the artwork in the lower-right
+                            stays clear. */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent lg:bg-gradient-to-br lg:via-background/0 lg:via-60% lg:to-transparent" />
                     </div>
 
-                    {/* Placeholder for the hero graphic — swap the img src once
-                        the final artwork is ready. */}
-                    <div className="relative mx-auto w-full max-w-sm">
-                        <div
-                            aria-hidden
-                            className="absolute -inset-8 -z-10 rounded-full bg-primary/10 blur-3xl"
-                        />
-                        <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-dashed border-border bg-card">
-                            <img
-                                src="/images/hero-placeholder.svg"
-                                alt=""
-                                className="size-full rounded-2xl object-cover"
-                            />
+                    <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
+                        {/* Desktop only: a mild glass panel keeps the copy
+                            readable where the artwork shows through. On mobile
+                            the copy sits directly on the full-bleed overlay,
+                            with no panel or blur. */}
+                        <div className="text-center lg:rounded-3xl lg:border lg:border-border/50 lg:bg-background/25 lg:py-20 lg:pr-10 lg:pl-12 lg:text-left lg:shadow-sm lg:backdrop-blur-sm">
+                            <span className="inline-flex items-center gap-2 rounded-sm border border-border bg-secondary px-3 py-1 text-sm font-medium text-muted-foreground">
+                                <span className="relative flex size-2">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
+                                    <span className="relative inline-flex size-2 rounded-full bg-primary" />
+                                </span>
+                                {t('hero.badge')}
+                            </span>
+
+                            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
+                                {t('hero.titleLead')}{' '}
+                                <span className="text-primary">
+                                    {t('hero.titleHighlight')}
+                                </span>
+                            </h1>
+
+                            <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-foreground/80 lg:mx-0">
+                                {t('hero.subtitle')}
+                            </p>
+
+                            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                                {auth.user ? (
+                                    <Link
+                                        href={dashboardUrl}
+                                        className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-7 py-3.5 text-base font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
+                                    >
+                                        {t('hero.ctaGoDashboard')}
+                                        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                    </Link>
+                                ) : (
+                                    <>
+                                        <Link
+                                            href={register()}
+                                            onClick={() =>
+                                                captureEvent(
+                                                    'get_started_clicked',
+                                                    {
+                                                        placement: 'hero',
+                                                    },
+                                                )
+                                            }
+                                            className="group inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-7 py-3.5 text-base font-medium text-white transition-opacity hover:opacity-90 sm:w-auto"
+                                        >
+                                            {t('hero.ctaStartFree')}
+                                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                        </Link>
+                                        <Link
+                                            href={features()}
+                                            className="inline-flex w-full items-center justify-center rounded-md border border-border px-7 py-3.5 text-base font-medium transition-colors hover:bg-secondary sm:w-auto"
+                                        >
+                                            {t('hero.ctaSeeHow')}
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground lg:justify-start">
+                                {[
+                                    t('hero.trust.noCreditCard'),
+                                    t('hero.trust.fiveMinuteSetup'),
+                                    t('hero.trust.cancelAnytime'),
+                                ].map((item) => (
+                                    <span
+                                        key={item}
+                                        className="inline-flex items-center gap-1.5"
+                                    >
+                                        <Check className="size-4 text-primary" />
+                                        {item}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
+
+                        {/* Right column is intentionally empty on desktop so the
+                        hero artwork (the section background) reads through. */}
+                        <div aria-hidden className="hidden lg:block" />
                     </div>
                 </section>
 
                 {/* Three headline benefits, with the detail one click away */}
-                <section className="mx-auto w-full max-w-6xl px-6 py-14 sm:py-20">
+                <section className="mx-auto w-full max-w-7xl px-6 py-14 sm:py-20">
                     <div className="mx-auto max-w-2xl text-center">
                         <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
                             {t('value.heading')}
@@ -182,7 +213,7 @@ export default function Welcome() {
                 </section>
 
                 {/* Setup in three lines — the "is this a lot of work?" answer */}
-                <section className="mx-auto w-full max-w-6xl px-6 pb-14">
+                <section className="mx-auto w-full max-w-7xl px-6 pb-14">
                     <div className="rounded-2xl border border-border bg-secondary/40 p-6 sm:p-10">
                         <div className="text-center">
                             <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
@@ -224,7 +255,7 @@ export default function Welcome() {
                 </section>
 
                 {/* Free 100 highlight */}
-                <section className="mx-auto w-full max-w-6xl px-6 pb-14">
+                <section className="mx-auto w-full max-w-7xl px-6 pb-14">
                     <div className="flex flex-col items-center gap-8 rounded-2xl bg-primary-gradient px-6 py-10 text-white sm:px-12 lg:flex-row lg:justify-between">
                         <div className="text-center lg:text-left">
                             <p className="text-5xl font-semibold tracking-tight sm:text-6xl">
@@ -277,7 +308,7 @@ export default function Welcome() {
                 </section>
 
                 {/* One-line data promise, with the full detail on /your-data */}
-                <section className="mx-auto w-full max-w-6xl px-6 pb-14">
+                <section className="mx-auto w-full max-w-7xl px-6 pb-14">
                     <div className="flex flex-col items-start gap-5 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
                         <div className="flex items-start gap-4">
                             <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -302,7 +333,7 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                <SiteFooter />
+                <SiteFooter maxWidth="max-w-7xl" />
             </AppBackground>
         </>
     );

@@ -24,7 +24,13 @@ import { dashboard, features, home, login, pricing, register } from '@/routes';
  * Desktop shows the full nav inline; mobile collapses everything except the
  * logo and theme toggle into a hamburger-triggered drawer.
  */
-export function SiteHeader() {
+export function SiteHeader({
+    transparent = false,
+    maxWidth = 'max-w-6xl',
+}: {
+    transparent?: boolean;
+    maxWidth?: string;
+}) {
     const { t } = useTranslation('welcome');
     const { auth, currentTeam } = usePage().props;
     const dashboardUrl = currentTeam ? dashboard() : '/';
@@ -36,16 +42,22 @@ export function SiteHeader() {
         { href: pricing(), label: t('nav.pricing') },
     ];
 
-    // On desktop the header carries no background of its own so the page
-    // backdrop (the blooms) runs behind it, and the blur alone keeps the links
-    // readable once content scrolls underneath. Phones don't render the blooms,
-    // so a sticky backdrop-blur there would re-rasterise the blurred strip on
-    // every scroll frame — the main cause of janky mobile scrolling — for no
-    // visual gain. Below md we use a solid background instead and only turn the
-    // blur on from md up.
+    // The transparent variant (welcome hero) uses a top-to-bottom gradient
+    // scrim instead of a backdrop-blur: a sticky blurred strip re-rasterises on
+    // every scroll frame — janky on phones — so the gradient keeps the links
+    // readable over the hero art with zero per-frame cost. The default variant
+    // still uses a solid background below md and blur from md up.
     return (
-        <header className="sticky top-0 z-50 border-b border-border/60 bg-background md:bg-transparent md:backdrop-blur">
-            <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
+        <header
+            className={
+                transparent
+                    ? 'sticky top-0 z-50 bg-gradient-to-b from-background via-background/70 to-transparent'
+                    : 'sticky top-0 z-50 border-b border-border/60 bg-background md:bg-transparent md:backdrop-blur'
+            }
+        >
+            <nav
+                className={`mx-auto flex h-16 w-full ${maxWidth} items-center justify-between px-6`}
+            >
                 <Link href={home()} className="flex items-center">
                     <img
                         src="/icons/horizontal-logo.svg"
@@ -60,7 +72,7 @@ export function SiteHeader() {
                         <Link
                             key={link.href.url}
                             href={link.href}
-                            className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                            className="inline-flex items-center rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
                         >
                             {link.label}
                         </Link>
@@ -74,7 +86,7 @@ export function SiteHeader() {
                     {auth.user ? (
                         <Link
                             href={dashboardUrl}
-                            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-5 py-2.5 text-base font-medium text-primary-foreground transition-opacity hover:opacity-90"
                         >
                             {t('nav.dashboard')}
                             <ArrowRight className="size-4" />
@@ -83,7 +95,7 @@ export function SiteHeader() {
                         <>
                             <Link
                                 href={login()}
-                                className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                className="inline-flex items-center rounded-md px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
                             >
                                 {t('nav.signIn')}
                             </Link>
@@ -94,7 +106,7 @@ export function SiteHeader() {
                                         placement: 'nav',
                                     })
                                 }
-                                className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                                className="inline-flex items-center rounded-md bg-primary px-5 py-2.5 text-base font-medium text-primary-foreground transition-opacity hover:opacity-90"
                             >
                                 {t('nav.getStarted')}
                             </Link>
