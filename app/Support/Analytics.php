@@ -45,4 +45,19 @@ class Analytics
     {
         return array_values(session()->get(self::SESSION_KEY, []));
     }
+
+    /**
+     * Preserve the queued events for one more request.
+     *
+     * Flash data lives for a single request, but an event is often queued a
+     * redirect (or several) before the browser reaches a page that renders it:
+     * a fresh sign-up bounces register -> onboarding -> email verification, and
+     * only that last page carries the event to the client. Reflashing on each
+     * redirect hop keeps the events alive until a page finally renders them,
+     * mirroring how Inertia itself carries validation errors across redirects.
+     */
+    public static function keepForNextRequest(): void
+    {
+        session()->keep([self::SESSION_KEY]);
+    }
 }

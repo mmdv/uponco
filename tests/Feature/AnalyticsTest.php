@@ -105,6 +105,28 @@ test('registering queues a signup event', function () {
     expect(queuedEventNames())->toContain('signup_completed');
 });
 
+test('signup_completed survives the post-registration redirect chain to the rendered page', function () {
+    $this->post(route('register.store'), [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'terms' => 'on',
+    ])->assertRedirect(route('onboard.show'));
+
+    // A fresh, unverified sign-up bounces register -> /onboard -> /email/verify,
+    // and only that last page renders. The queued event must ride the whole
+    // chain: the onboarding hop is a bare redirect that renders no Inertia page,
+    // so the flash would age out there without the reflash-on-redirect guard.
+    $this->get(route('onboard.show'))
+        ->assertRedirect(route('verification.notice'));
+
+    $this->get(route('verification.notice'))
+        ->assertInertia(fn ($page) => $page
+            ->where('analytics.events.0.name', 'signup_completed')
+        );
+});
+
 test('completing the onboarding gate queues an event carrying the category', function () {
     [$user, $team] = analyticsGateOwner();
 

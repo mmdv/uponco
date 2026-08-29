@@ -5,9 +5,12 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use App\Support\Analytics;
 use App\Support\Localization;
+use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -15,6 +18,27 @@ class HandleInertiaRequests extends Middleware
      * How many notifications the header drawer shows before "See all".
      */
     protected const RECENT_NOTIFICATIONS = 10;
+
+    /**
+     * Handle the request, keeping queued analytics events alive across redirects.
+     *
+     * Only a rendered Inertia page shares the events to the browser (via the
+     * `analytics` prop below). A redirect renders nothing, so without this the
+     * one-request flash ages out on any auth/verification hop between the event
+     * and the page that shows it — e.g. register -> /onboard -> /email/verify —
+     * and the event never reaches PostHog. Reflashing on each redirect carries
+     * it through to the first page that renders.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        if ($response instanceof RedirectResponse && Analytics::pending() !== []) {
+            Analytics::keepForNextRequest();
+        }
+
+        return $response;
+    }
 
     /**
      * The root template that's loaded on the first page visit.
