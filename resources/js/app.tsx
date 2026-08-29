@@ -9,7 +9,7 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import BusinessLayout from '@/layouts/business/layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { startAnalytics, trackPageVisit } from '@/lib/analytics';
+import { flushServerEvents, startAnalytics, trackPageVisit } from '@/lib/analytics';
 import { registerServiceWorker } from '@/lib/push';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -96,6 +96,14 @@ createInertiaApp({
 
 router.on('navigate', (event) => {
     trackPageVisit(event.detail.page);
+});
+
+// Flush server-queued events on every page set, including the same-URL
+// redirect-back that carries validation errors (e.g. a booking whose slot was
+// taken between load and submit). That response never fires `navigate`, so
+// `trackPageVisit` alone would drop its `public_booking_slot_unavailable` event.
+router.on('beforeUpdate', (event) => {
+    flushServerEvents(event.detail.page);
 });
 
 // This will set light / dark mode on load...

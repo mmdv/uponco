@@ -60,11 +60,36 @@ function analyticsPropsFor(page: AnalyticsPage): AnalyticsProps | null {
     return (page.props.analytics as AnalyticsProps | undefined) ?? null;
 }
 
+/**
+ * Read the events the server queued into a page's shared analytics prop.
+ */
+export function analyticsEventsFrom(page: AnalyticsPage): AnalyticsEvent[] {
+    return analyticsPropsFor(page)?.events ?? [];
+}
+
 function captureServerEvents(events: AnalyticsEvent[]): void {
     for (const event of unseenEvents(events, capturedEventIds)) {
         capturedEventIds.add(event.id);
         posthog.capture(event.name, event.properties);
     }
+}
+
+/**
+ * Capture anything the server queued for this visit.
+ *
+ * Bound to Inertia's `beforeUpdate`, which fires for every page set — new
+ * navigations, and the same-URL redirect-back that carries validation errors.
+ * `navigate` alone misses that error case: a redirect to the current URL takes
+ * Inertia's history `replace` path and never fires `navigate`, so a queued
+ * event like `public_booking_slot_unavailable` would otherwise never capture.
+ * The seen-id guard keeps this idempotent alongside the pageview path.
+ */
+export function flushServerEvents(page: AnalyticsPage): void {
+    if (!started) {
+        return;
+    }
+
+    captureServerEvents(analyticsEventsFrom(page));
 }
 
 /**
@@ -75,10 +100,8 @@ export function trackPageVisit(page: AnalyticsPage): void {
         return;
     }
 
-    const analytics = analyticsPropsFor(page);
-
     posthog.capture('$pageview', pageviewProperties(page));
-    captureServerEvents(analytics?.events ?? []);
+    captureServerEvents(analyticsEventsFrom(page));
 }
 
 /**

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import type { AnalyticsEvent } from '@/lib/analytics';
-import { pageviewProperties, unseenEvents } from '@/lib/analytics';
+import {
+    analyticsEventsFrom,
+    pageviewProperties,
+    unseenEvents,
+} from '@/lib/analytics';
 
 function event(id: string): AnalyticsEvent {
     return { id, name: 'signup_completed', properties: {} };
@@ -20,6 +24,26 @@ describe('unseenEvents', () => {
         expect(unseenEvents([event('a'), event('b')], new Set())).toHaveLength(
             2,
         );
+    });
+});
+
+describe('analyticsEventsFrom', () => {
+    it('reads the events the server queued into the analytics prop', () => {
+        expect(
+            analyticsEventsFrom({
+                component: 'public/appointments/book',
+                props: { analytics: { events: [event('a'), event('b')] } },
+            }),
+        ).toEqual([event('a'), event('b')]);
+    });
+
+    it('returns an empty list when a page has no analytics prop', () => {
+        expect(
+            analyticsEventsFrom({
+                component: 'public/appointments/book',
+                props: {},
+            }),
+        ).toEqual([]);
     });
 });
 

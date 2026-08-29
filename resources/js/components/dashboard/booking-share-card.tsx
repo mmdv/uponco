@@ -6,6 +6,7 @@ import {
     Copy,
     Link2,
     Share2,
+    SquareArrowOutUpRight,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -86,6 +87,7 @@ export default function BookingShareCard({
                 thing to do with the booking link.
             */}
             <Button
+                size="lg"
                 className="w-full"
                 onClick={onAddAppointment}
                 data-test="dashboard-add-appointment"
@@ -106,7 +108,7 @@ export default function BookingShareCard({
                 </div>
 
                 <div className="flex items-start gap-3">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-gradient text-white shadow-[0_8px_18px_-8px_rgba(0,99,255,0.75)]">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-gradient text-white shadow-[0_8px_18px_-8px_rgba(0,99,255,0.75)]">
                         <Link2 className="size-5" />
                     </span>
                     <div className="min-w-0 space-y-1">
@@ -139,7 +141,7 @@ export default function BookingShareCard({
                 <div className="mt-3 flex items-center gap-2">
                     <Button
                         variant="outline"
-                        size="sm"
+                        // size="sm"
                         className="flex-1"
                         onClick={handleCopy}
                         data-test="dashboard-booking-page-copy"
@@ -153,7 +155,7 @@ export default function BookingShareCard({
                     {canNativeShare && (
                         <Button
                             variant="outline"
-                            size="sm"
+                            // size="sm"
                             className="flex-1"
                             onClick={handleNativeShare}
                         >
@@ -164,7 +166,7 @@ export default function BookingShareCard({
                     <Button
                         asChild
                         variant="outline"
-                        size="sm"
+                        // size="sm"
                         className="flex-1"
                         data-test="dashboard-booking-page"
                     >
@@ -173,6 +175,7 @@ export default function BookingShareCard({
                             target="_blank"
                             rel="noopener noreferrer"
                         >
+                            <SquareArrowOutUpRight />
                             {t('bookingPage.open')}
                         </a>
                     </Button>

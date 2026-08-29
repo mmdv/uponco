@@ -12,6 +12,7 @@ type Props = {
  * Which backdrop the whole app wears. Swap this one value to change every
  * surface at once:
  *
+ * - `none`  — no blooms at all; the page rests on the flat `--app-base` colour.
  * - `bloom` — still. A single wide bloom of brand blue resting in the bottom
  *   right, with a faint counterweight top left.
  * - `drift` — the same two blooms, breathing slowly in and out of the corners
@@ -19,7 +20,7 @@ type Props = {
  * - `mesh`  — three small blooms spread across the page, fading gently in and
  *   out together.
  */
-const VARIANT: 'bloom' | 'drift' | 'mesh' = 'drift';
+const VARIANT: 'none' | 'bloom' | 'drift' | 'mesh' = 'none';
 
 /**
  * The single place the app's page backdrop is defined. Every major surface —
@@ -44,14 +45,16 @@ export default function AppBackground({ children, className }: Props) {
                 className,
             )}
         >
-            <div
-                aria-hidden
-                className="pointer-events-none fixed inset-0 -z-10 hidden overflow-hidden md:block"
-            >
-                {VARIANT === 'bloom' && <BloomLayers />}
-                {VARIANT === 'drift' && <DriftLayers />}
-                {VARIANT === 'mesh' && <MeshLayers />}
-            </div>
+            {VARIANT !== 'none' && (
+                <div
+                    aria-hidden
+                    className="pointer-events-none fixed inset-0 -z-10 hidden overflow-hidden md:block"
+                >
+                    {VARIANT === 'bloom' && <BloomLayers />}
+                    {VARIANT === 'drift' && <DriftLayers />}
+                    {VARIANT === 'mesh' && <MeshLayers />}
+                </div>
+            )}
 
             {children}
         </div>

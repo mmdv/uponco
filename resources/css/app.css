@@ -92,7 +92,7 @@
      * colour. The blooms over it are barely-there brand blue — present if you
      * look for them, never enough to tint the page.
      */
-    --app-base: #f6f7f9;
+    --app-base: #ffffff;
     --app-tint-strong: rgba(0, 99, 255, 0.024);
     --app-tint-soft: rgba(56, 132, 254, 0.016);
     --app-tint-faint: rgba(0, 99, 255, 0.009);
