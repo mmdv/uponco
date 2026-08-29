@@ -18,15 +18,15 @@ import { dashboard, features, pricing, register, yourData } from '@/routes';
 
 /** The three things worth knowing before clicking through to /features. */
 const valueItems: { icon: ReactNode; i18nKey: string }[] = [
-    { icon: <Link2 className="size-5" />, i18nKey: 'bookingPage' },
-    { icon: <CalendarCheck className="size-5" />, i18nKey: 'sharedCalendar' },
-    { icon: <BellRing className="size-5" />, i18nKey: 'reminders' },
+    { icon: <Link2 className="size-6" />, i18nKey: 'bookingPage' },
+    { icon: <CalendarCheck className="size-6" />, i18nKey: 'sharedCalendar' },
+    { icon: <BellRing className="size-6" />, i18nKey: 'reminders' },
 ];
 
 const setupSteps: { icon: ReactNode; i18nKey: string }[] = [
-    { icon: <Settings2 className="size-5" />, i18nKey: 'setUp' },
-    { icon: <Link2 className="size-5" />, i18nKey: 'share' },
-    { icon: <CalendarCheck className="size-5" />, i18nKey: 'run' },
+    { icon: <Settings2 className="size-6" />, i18nKey: 'setUp' },
+    { icon: <Link2 className="size-6" />, i18nKey: 'share' },
+    { icon: <CalendarCheck className="size-6" />, i18nKey: 'run' },
 ];
 
 /**
@@ -91,13 +91,26 @@ export default function Welcome() {
                             the copy sits directly on the full-bleed overlay,
                             with no panel or blur. */}
                         <div className="text-center lg:rounded-3xl lg:border lg:border-border/50 lg:bg-background/25 lg:py-20 lg:pr-10 lg:pl-12 lg:text-left lg:shadow-sm lg:backdrop-blur-sm">
-                            <span className="inline-flex items-center gap-2 rounded-sm border border-border bg-secondary px-3 py-1 text-sm font-medium text-muted-foreground">
+                            <span className="inline-flex items-center gap-2 text-base font-medium text-muted-foreground">
                                 <span className="relative flex size-2">
                                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
                                     <span className="relative inline-flex size-2 rounded-full bg-primary" />
                                 </span>
-                                {t('hero.badge')}
+                                <span>
+                                    {t('hero.badgeLead')}
+                                    <span className="font-semibold text-primary">
+                                        {t('hero.badgeHighlight')}
+                                    </span>
+                                    {t('hero.badgeTrail')}
+                                </span>
                             </span>
+                            {/* Small primary accent line under the badge: 75px
+                                wide, centered on mobile and left-aligned on
+                                desktop to follow the copy. */}
+                            <span
+                                aria-hidden
+                                className="mx-auto mt-2 block h-0.5 w-full max-w-[75px] rounded-full bg-primary lg:mx-0"
+                            />
 
                             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
                                 {t('hero.titleLead')}{' '}
@@ -172,27 +185,27 @@ export default function Welcome() {
                 {/* Three headline benefits, with the detail one click away */}
                 <section className="mx-auto w-full max-w-7xl px-6 py-14 sm:py-20">
                     <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                        <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                             {t('value.heading')}
                         </h2>
-                        <p className="mt-3 text-muted-foreground">
+                        <p className="mt-4 text-lg text-foreground/80">
                             {t('value.subheading')}
                         </p>
                     </div>
 
-                    <div className="mt-10 grid gap-4 md:grid-cols-3">
+                    <div className="mt-12 grid gap-5 md:grid-cols-3">
                         {valueItems.map((item) => (
                             <div
                                 key={item.i18nKey}
-                                className="group rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft motion-reduce:hover:translate-y-0"
+                                className="group rounded-3xl border border-border/50 bg-card/60 p-8 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft motion-reduce:hover:translate-y-0"
                             >
-                                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                                <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                                     {item.icon}
                                 </span>
-                                <h3 className="mt-5 font-semibold">
+                                <h3 className="mt-6 text-lg font-semibold">
                                     {t(`value.items.${item.i18nKey}.title`)}
                                 </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                <p className="mt-2 text-base leading-relaxed text-foreground/70">
                                     {t(
                                         `value.items.${item.i18nKey}.description`,
                                     )}
@@ -201,48 +214,48 @@ export default function Welcome() {
                         ))}
                     </div>
 
-                    <div className="mt-8 text-center">
+                    <div className="mt-10 text-center">
                         <Link
                             href={features()}
-                            className="group inline-flex items-center gap-1.5 rounded-md border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-secondary"
+                            className="group inline-flex items-center gap-1.5 rounded-md border border-border px-6 py-3 text-base font-medium transition-colors hover:bg-secondary"
                         >
                             {t('value.cta')}
-                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
                         </Link>
                     </div>
                 </section>
 
                 {/* Setup in three lines — the "is this a lot of work?" answer */}
                 <section className="mx-auto w-full max-w-7xl px-6 pb-14">
-                    <div className="rounded-2xl border border-border bg-secondary/40 p-6 sm:p-10">
+                    <div className="rounded-3xl border border-border/50 bg-secondary/30 p-8 shadow-sm backdrop-blur-md sm:p-12">
                         <div className="text-center">
-                            <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                            <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                                 {t('setup.heading')}
                             </h2>
-                            <p className="mt-3 text-muted-foreground">
+                            <p className="mt-4 text-lg text-foreground/80">
                                 {t('setup.subheading')}
                             </p>
                         </div>
 
-                        <ol className="mt-8 grid gap-4 md:grid-cols-3">
+                        <ol className="mt-10 grid gap-5 md:grid-cols-3">
                             {setupSteps.map((step, i) => (
                                 <li
                                     key={step.i18nKey}
-                                    className="flex items-start gap-3.5 rounded-xl border border-border bg-background p-5"
+                                    className="flex items-start gap-4"
                                 >
-                                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                         {step.icon}
                                     </span>
                                     <div>
-                                        <p className="text-xs font-semibold text-primary tabular-nums">
+                                        <p className="text-sm font-semibold text-primary tabular-nums">
                                             {`0${i + 1}`}
                                         </p>
-                                        <h3 className="mt-0.5 font-semibold">
+                                        <h3 className="mt-0.5 text-lg font-semibold">
                                             {t(
                                                 `setup.steps.${step.i18nKey}.title`,
                                             )}
                                         </h3>
-                                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                        <p className="mt-1 text-base leading-relaxed text-foreground/70">
                                             {t(
                                                 `setup.steps.${step.i18nKey}.description`,
                                             )}
@@ -261,10 +274,10 @@ export default function Welcome() {
                             <p className="text-5xl font-semibold tracking-tight sm:text-6xl">
                                 100
                             </p>
-                            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                                 {t('free100.heading')}
                             </h2>
-                            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/90 lg:justify-start">
+                            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-base text-white/90 lg:justify-start">
                                 {[
                                     t('free100.items.noPayment'),
                                     t('free100.items.allFeatures'),
@@ -274,7 +287,7 @@ export default function Welcome() {
                                         key={item}
                                         className="inline-flex items-center gap-1.5"
                                     >
-                                        <Check className="size-4" />
+                                        <Check className="size-5" />
                                         {item}
                                     </span>
                                 ))}
@@ -290,7 +303,7 @@ export default function Welcome() {
                                         });
                                     }
                                 }}
-                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
+                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-7 py-3.5 text-base font-semibold text-primary transition-opacity hover:opacity-90"
                             >
                                 {auth.user
                                     ? t('free100.ctaGoDashboard')
@@ -299,7 +312,7 @@ export default function Welcome() {
                             </Link>
                             <Link
                                 href={pricing()}
-                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-7 py-3.5 text-base font-medium text-white transition-colors hover:bg-white/10"
                             >
                                 {t('free100.ctaPricing')}
                             </Link>
@@ -309,26 +322,26 @@ export default function Welcome() {
 
                 {/* One-line data promise, with the full detail on /your-data */}
                 <section className="mx-auto w-full max-w-7xl px-6 pb-14">
-                    <div className="flex flex-col items-start gap-5 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                    <div className="flex flex-col items-start gap-5 rounded-3xl border border-border/50 bg-card/60 p-8 shadow-sm backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-10">
                         <div className="flex items-start gap-4">
-                            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                                <ShieldCheck className="size-5" />
+                            <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <ShieldCheck className="size-7" />
                             </span>
                             <div>
-                                <h2 className="font-semibold">
+                                <h2 className="text-lg font-semibold">
                                     {t('dataStrip.heading')}
                                 </h2>
-                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                <p className="mt-1 text-base leading-relaxed text-foreground/70">
                                     {t('dataStrip.description')}
                                 </p>
                             </div>
                         </div>
                         <Link
                             href={yourData()}
-                            className="group inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-5 py-2.5 text-sm font-medium transition-colors hover:bg-secondary"
+                            className="group inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-6 py-3 text-base font-medium transition-colors hover:bg-secondary"
                         >
                             {t('dataStrip.cta')}
-                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
                         </Link>
                     </div>
                 </section>

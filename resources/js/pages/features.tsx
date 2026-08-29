@@ -16,9 +16,9 @@ import { captureEvent } from '@/lib/analytics';
 import { dashboard, pricing, register } from '@/routes';
 
 const howItWorksSteps: { icon: ReactNode; i18nKey: string }[] = [
-    { icon: <Settings2 className="size-5" />, i18nKey: 'setUp' },
-    { icon: <Link2 className="size-5" />, i18nKey: 'share' },
-    { icon: <CalendarCheck className="size-5" />, i18nKey: 'run' },
+    { icon: <Settings2 className="size-6" />, i18nKey: 'setUp' },
+    { icon: <Link2 className="size-6" />, i18nKey: 'share' },
+    { icon: <CalendarCheck className="size-6" />, i18nKey: 'run' },
 ];
 
 /**
@@ -36,18 +36,18 @@ export default function Features() {
             <Head title={t('meta.title')} />
 
             <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
-                <SiteHeader />
+                <SiteHeader maxWidth="max-w-7xl" />
 
                 {/* Hero */}
                 <section className="mx-auto w-full max-w-3xl px-6 pt-14 pb-10 text-center sm:pt-20">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-                        <Sparkles className="size-3.5 text-primary" />
+                    <span className="inline-flex items-center gap-2 rounded-sm border border-border bg-secondary px-3 py-1 text-sm font-medium text-muted-foreground">
+                        <Sparkles className="size-4 text-primary" />
                         Uponco
                     </span>
-                    <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+                    <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
                         {t('hero.heading')}
                     </h1>
-                    <p className="mx-auto mt-5 max-w-2xl text-lg text-balance text-muted-foreground">
+                    <p className="mx-auto mt-5 max-w-2xl text-xl text-balance text-foreground/80">
                         {t('hero.lead')}
                     </p>
                 </section>
@@ -57,35 +57,35 @@ export default function Features() {
                 <FeatureBento />
 
                 {/* How Uponco works */}
-                <section className="mx-auto w-full max-w-6xl px-6 py-14 sm:py-20">
+                <section className="mx-auto w-full max-w-7xl px-6 py-14 sm:py-20">
                     <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                        <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                             {t('how.heading')}
                         </h2>
-                        <p className="mt-3 text-muted-foreground">
+                        <p className="mt-4 text-lg text-foreground/80">
                             {t('how.subheading')}
                         </p>
                     </div>
 
-                    <ol className="mt-10 grid gap-6 md:grid-cols-3">
+                    <ol className="mt-12 grid gap-6 md:grid-cols-3">
                         {howItWorksSteps.map((step, i) => (
                             <li
                                 key={step.i18nKey}
                                 className="relative flex flex-col"
                             >
-                                <div className="group flex-1 rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft motion-reduce:hover:translate-y-0">
+                                <div className="group flex-1 rounded-3xl border border-border/50 bg-card/60 p-8 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft motion-reduce:hover:translate-y-0">
                                     <div className="flex items-start justify-between">
-                                        <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                                        <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                                             {step.icon}
                                         </span>
-                                        <span className="text-4xl leading-none font-semibold text-primary/15 tabular-nums transition-colors duration-300 group-hover:text-primary/30">
+                                        <span className="text-5xl leading-none font-semibold text-primary/15 tabular-nums transition-colors duration-300 group-hover:text-primary/30">
                                             {`0${i + 1}`}
                                         </span>
                                     </div>
-                                    <h3 className="mt-5 font-semibold">
+                                    <h3 className="mt-6 text-lg font-semibold">
                                         {t(`how.steps.${step.i18nKey}.title`)}
                                     </h3>
-                                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                    <p className="mt-2 text-base leading-relaxed text-foreground/70">
                                         {t(
                                             `how.steps.${step.i18nKey}.description`,
                                         )}
@@ -117,13 +117,13 @@ export default function Features() {
                 </section>
 
                 {/* Closing call to action */}
-                <section className="mx-auto w-full max-w-6xl px-6 pb-14">
-                    <div className="flex flex-col items-center gap-6 rounded-2xl bg-primary-gradient px-6 py-10 text-center text-white sm:px-12">
+                <section className="mx-auto w-full max-w-7xl px-6 pb-14">
+                    <div className="flex flex-col items-center gap-6 rounded-3xl bg-primary-gradient px-6 py-12 text-center text-white sm:px-12">
                         <div>
-                            <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                            <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                                 {t('cta.heading')}
                             </h2>
-                            <p className="mt-3 text-white/90">
+                            <p className="mt-4 text-lg text-white/90">
                                 {t('cta.subheading')}
                             </p>
                         </div>
@@ -137,16 +137,16 @@ export default function Features() {
                                         });
                                     }
                                 }}
-                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
+                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-7 py-3.5 text-base font-semibold text-primary transition-opacity hover:opacity-90"
                             >
                                 {auth.user
                                     ? t('cta.ctaGoDashboard')
                                     : t('cta.ctaStartFree')}
-                                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
                             </Link>
                             <Link
                                 href={pricing()}
-                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-7 py-3.5 text-base font-medium text-white transition-colors hover:bg-white/10"
                             >
                                 {t('cta.ctaPricing')}
                             </Link>
@@ -154,7 +154,7 @@ export default function Features() {
                     </div>
                 </section>
 
-                <SiteFooter />
+                <SiteFooter maxWidth="max-w-7xl" />
             </div>
         </>
     );

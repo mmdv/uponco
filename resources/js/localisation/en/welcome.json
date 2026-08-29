@@ -10,7 +10,9 @@
         "menu": "Menu"
     },
     "hero": {
-        "badge": "First 100 appointments free — no card required",
+        "badgeLead": "First ",
+        "badgeHighlight": "100 appointments",
+        "badgeTrail": " free — no card required",
         "titleLead": "Your digital bridge to your",
         "titleHighlight": "customers",
         "subtitle": "Uponco is appointment booking software for your business — every location, every service, online or onsite. Set up in five minutes and let customers book in seconds.",

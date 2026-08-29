@@ -34,13 +34,13 @@ function BentoCard({
 
     const copy = (
         <div className={split ? 'lg:w-72 lg:shrink-0' : ''}>
-            <h3 className="flex items-center gap-2.5 font-semibold">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+            <h3 className="flex items-center gap-3 text-lg font-semibold">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                     {icon}
                 </span>
                 {t(`bento.items.${i18nKey}.title`)}
             </h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-base leading-relaxed text-foreground/70">
                 {t(`bento.items.${i18nKey}.description`)}
             </p>
         </div>
@@ -48,7 +48,7 @@ function BentoCard({
 
     return (
         <div
-            className={`group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-colors duration-300 hover:border-primary/30 ${className}`}
+            className={`group relative flex flex-col overflow-hidden rounded-3xl border border-border/50 bg-card/60 p-8 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary/30 ${className}`}
         >
             <div
                 aria-hidden
@@ -96,19 +96,19 @@ export function FeatureBento() {
     const { t } = useTranslation('features');
 
     return (
-        <section className="mx-auto w-full max-w-6xl px-6 py-14 sm:py-20">
+        <section className="mx-auto w-full max-w-7xl px-6 py-14 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
-                <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                     {t('bento.heading')}
                 </h2>
-                <p className="mt-3 text-muted-foreground">
+                <p className="mt-4 text-lg text-foreground/80">
                     {t('bento.subheading')}
                 </p>
             </div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                 <BentoCard
-                    icon={<MapPin className="size-4" />}
+                    icon={<MapPin className="size-5" />}
                     i18nKey="multiLocation"
                     className="md:col-span-2"
                     split
@@ -136,7 +136,7 @@ export function FeatureBento() {
                 </BentoCard>
 
                 <BentoCard
-                    icon={<BellRing className="size-4" />}
+                    icon={<BellRing className="size-5" />}
                     i18nKey="reminders"
                 >
                     <div className="w-full space-y-2.5">
@@ -170,7 +170,7 @@ export function FeatureBento() {
                 </BentoCard>
 
                 <BentoCard
-                    icon={<Layers className="size-4" />}
+                    icon={<Layers className="size-5" />}
                     i18nKey="multiService"
                 >
                     <div className="flex flex-wrap gap-2">
@@ -191,12 +191,14 @@ export function FeatureBento() {
                 </BentoCard>
 
                 <BentoCard
-                    icon={<Users className="size-4" />}
+                    icon={<Users className="size-5" />}
                     i18nKey="individualGroup"
                 >
                     <div className="w-full rounded-lg border border-border bg-background p-4">
                         <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold">Morning yoga</p>
+                            <p className="text-sm font-semibold">
+                                Morning yoga
+                            </p>
                             <span className="text-xs text-muted-foreground">
                                 Wed · 08:00
                             </span>
@@ -223,7 +225,7 @@ export function FeatureBento() {
                 </BentoCard>
 
                 <BentoCard
-                    icon={<Globe className="size-4" />}
+                    icon={<Globe className="size-5" />}
                     i18nKey="onlineOnsite"
                 >
                     <div className="grid w-full grid-cols-2 gap-2.5">
@@ -249,7 +251,7 @@ export function FeatureBento() {
                 </BentoCard>
 
                 <BentoCard
-                    icon={<Rocket className="size-4" />}
+                    icon={<Rocket className="size-5" />}
                     i18nKey="onboarding"
                     className="md:col-span-2 lg:col-span-3"
                     split

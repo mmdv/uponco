@@ -47,48 +47,48 @@ export default function Pricing() {
             <Head title={t('meta.title')} />
 
             <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
-                <SiteHeader />
+                <SiteHeader maxWidth="max-w-7xl" />
 
                 {/* Hero */}
                 <section className="mx-auto w-full max-w-3xl px-6 pt-14 pb-10 text-center sm:pt-20">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-                        <Sparkles className="size-3.5 text-primary" />
+                    <span className="inline-flex items-center gap-2 rounded-sm border border-border bg-secondary px-3 py-1 text-sm font-medium text-muted-foreground">
+                        <Sparkles className="size-4 text-primary" />
                         {t('hero.badge')}
                     </span>
-                    <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+                    <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
                         {t('hero.heading')}
                     </h1>
-                    <p className="mx-auto mt-5 max-w-2xl text-lg text-balance text-muted-foreground">
+                    <p className="mx-auto mt-5 max-w-2xl text-xl text-balance text-foreground/80">
                         {t('hero.subtitle')}
                     </p>
                 </section>
 
                 {/* Plans */}
-                <section className="mx-auto w-full max-w-5xl px-6 pb-10">
+                <section className="mx-auto w-full max-w-6xl px-6 pb-10">
                     <div className="grid gap-5 lg:grid-cols-2">
                         {/* Free */}
-                        <div className="flex flex-col rounded-2xl border border-primary/40 bg-card p-8 shadow-soft">
-                            <p className="text-sm font-semibold text-primary">
+                        <div className="flex flex-col rounded-3xl border border-primary/40 bg-card/60 p-10 shadow-soft backdrop-blur-md">
+                            <p className="text-base font-semibold text-primary">
                                 {t('plans.free.name')}
                             </p>
                             <p className="mt-3 flex items-baseline gap-2">
-                                <span className="text-4xl font-semibold tracking-tight">
+                                <span className="text-5xl font-semibold tracking-tight">
                                     {t('plans.free.price')}
                                 </span>
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-base text-foreground/70">
                                     {t('plans.free.period')}
                                 </span>
                             </p>
-                            <p className="mt-3 text-sm text-muted-foreground">
+                            <p className="mt-3 text-base text-foreground/70">
                                 {t('plans.free.tagline')}
                             </p>
-                            <ul className="mt-6 flex-1 space-y-3 text-sm">
+                            <ul className="mt-6 flex-1 space-y-3 text-base">
                                 {freePlanFeatures.map((key) => (
                                     <li
                                         key={key}
                                         className="flex items-start gap-2.5"
                                     >
-                                        <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                                        <Check className="mt-0.5 size-5 shrink-0 text-primary" />
                                         {t(`plans.free.features.${key}`)}
                                     </li>
                                 ))}
@@ -102,38 +102,38 @@ export default function Pricing() {
                                         });
                                     }
                                 }}
-                                className="group mt-8 inline-flex items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                                className="group mt-8 inline-flex items-center justify-center gap-1.5 rounded-md bg-primary-gradient px-7 py-3.5 text-base font-medium text-white transition-opacity hover:opacity-90"
                             >
                                 {auth.user
                                     ? t('cta.dashboard')
                                     : t('plans.free.cta')}
-                                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
                             </Link>
                         </div>
 
                         {/* Per user */}
-                        <div className="flex flex-col rounded-2xl border border-border bg-card p-8">
-                            <p className="text-sm font-semibold text-muted-foreground">
+                        <div className="flex flex-col rounded-3xl border border-border/50 bg-card/60 p-10 shadow-sm backdrop-blur-md">
+                            <p className="text-base font-semibold text-muted-foreground">
                                 {t('plans.growth.name')}
                             </p>
                             <p className="mt-3 flex items-baseline gap-2">
-                                <span className="text-4xl font-semibold tracking-tight">
+                                <span className="text-5xl font-semibold tracking-tight">
                                     {t('plans.growth.price')}
                                 </span>
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-base text-foreground/70">
                                     {t('plans.growth.period')}
                                 </span>
                             </p>
-                            <p className="mt-3 text-sm text-muted-foreground">
+                            <p className="mt-3 text-base text-foreground/70">
                                 {t('plans.growth.tagline')}
                             </p>
-                            <ul className="mt-6 flex-1 space-y-3 text-sm">
+                            <ul className="mt-6 flex-1 space-y-3 text-base">
                                 {growthPlanFeatures.map((key) => (
                                     <li
                                         key={key}
                                         className="flex items-start gap-2.5"
                                     >
-                                        <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                                        <Check className="mt-0.5 size-5 shrink-0 text-primary" />
                                         {t(`plans.growth.features.${key}`)}
                                     </li>
                                 ))}
@@ -147,7 +147,7 @@ export default function Pricing() {
                                         });
                                     }
                                 }}
-                                className="mt-8 inline-flex items-center justify-center gap-1.5 rounded-md border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
+                                className="mt-8 inline-flex items-center justify-center gap-1.5 rounded-md border border-border px-7 py-3.5 text-base font-medium transition-colors hover:bg-secondary"
                             >
                                 {auth.user
                                     ? t('cta.dashboard')
@@ -157,28 +157,28 @@ export default function Pricing() {
                     </div>
 
                     {/* Beta disclosure — keeps the page accurate while nobody is billed */}
-                    <div className="mt-5 rounded-2xl border border-border bg-secondary/50 p-6 sm:p-8">
-                        <h2 className="text-lg font-semibold tracking-tight">
+                    <div className="mt-5 rounded-3xl border border-border/50 bg-secondary/30 p-8 shadow-sm backdrop-blur-md sm:p-10">
+                        <h2 className="text-xl font-semibold tracking-tight">
                             {t('beta.heading')}
                         </h2>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        <p className="mt-2 text-base leading-relaxed text-foreground/70">
                             {t('beta.description')}
                         </p>
                     </div>
                 </section>
 
                 {/* Included in every plan */}
-                <section className="mx-auto w-full max-w-5xl px-6 py-10">
-                    <h2 className="text-2xl font-semibold tracking-tight">
+                <section className="mx-auto w-full max-w-6xl px-6 py-10">
+                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                         {t('included.heading')}
                     </h2>
-                    <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                    <ul className="mt-8 grid gap-3 sm:grid-cols-2">
                         {includedKeys.map((key) => (
                             <li
                                 key={key}
-                                className="flex items-start gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-sm"
+                                className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-card/60 px-5 py-4 text-base backdrop-blur-sm"
                             >
-                                <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                                <Check className="mt-0.5 size-5 shrink-0 text-primary" />
                                 {t(`included.items.${key}`)}
                             </li>
                         ))}
@@ -187,19 +187,19 @@ export default function Pricing() {
 
                 {/* FAQ */}
                 <section className="mx-auto w-full max-w-3xl px-6 py-10">
-                    <h2 className="text-2xl font-semibold tracking-tight">
+                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                         {t('faq.heading')}
                     </h2>
-                    <dl className="mt-6 space-y-6">
+                    <dl className="mt-8 space-y-6">
                         {faqKeys.map((key) => (
                             <div
                                 key={key}
                                 className="border-b border-border/60 pb-6 last:border-b-0 last:pb-0"
                             >
-                                <dt className="text-base font-medium">
+                                <dt className="text-lg font-medium">
                                     {t(`faq.items.${key}.question`)}
                                 </dt>
-                                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                <dd className="mt-2 text-base leading-relaxed text-foreground/70">
                                     {t(`faq.items.${key}.answer`)}
                                 </dd>
                             </div>
@@ -208,13 +208,13 @@ export default function Pricing() {
                 </section>
 
                 {/* Closing CTA */}
-                <section className="mx-auto w-full max-w-5xl px-6 py-14">
-                    <div className="flex flex-col items-center gap-6 rounded-2xl bg-primary-gradient px-6 py-10 text-center text-white sm:px-12">
+                <section className="mx-auto w-full max-w-7xl px-6 py-14">
+                    <div className="flex flex-col items-center gap-6 rounded-3xl bg-primary-gradient px-6 py-12 text-center text-white sm:px-12">
                         <div>
-                            <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                            <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                                 {t('cta.heading')}
                             </h2>
-                            <p className="mt-2 text-sm text-white/90">
+                            <p className="mt-3 text-lg text-white/90">
                                 {t('cta.subtitle')}
                             </p>
                         </div>
@@ -228,16 +228,16 @@ export default function Pricing() {
                                         });
                                     }
                                 }}
-                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary transition-opacity hover:opacity-90"
+                                className="group inline-flex items-center justify-center gap-1.5 rounded-md bg-white px-7 py-3.5 text-base font-semibold text-primary transition-opacity hover:opacity-90"
                             >
                                 {auth.user
                                     ? t('cta.dashboard')
                                     : t('cta.primary')}
-                                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                                <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
                             </Link>
                             <Link
                                 href={home()}
-                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                                className="inline-flex items-center justify-center rounded-md border border-white/40 px-7 py-3.5 text-base font-medium text-white transition-colors hover:bg-white/10"
                             >
                                 {t('cta.secondary')}
                             </Link>
@@ -245,7 +245,7 @@ export default function Pricing() {
                     </div>
                 </section>
 
-                <SiteFooter />
+                <SiteFooter maxWidth="max-w-7xl" />
             </div>
         </>
     );

@@ -160,19 +160,19 @@ const pillars: {
     sketch: ReactNode;
 }[] = [
     {
-        icon: <Link2 className="size-5" />,
+        icon: <Link2 className="size-6" />,
         i18nKey: 'bookingPage',
         paragraphKey: 'paragraphOne',
         sketch: <BookingLinkSketch />,
     },
     {
-        icon: <CalendarCheck className="size-5" />,
+        icon: <CalendarCheck className="size-6" />,
         i18nKey: 'sharedCalendar',
         paragraphKey: 'paragraphTwo',
         sketch: <SharedCalendarSketch />,
     },
     {
-        icon: <Sparkles className="size-5" />,
+        icon: <Sparkles className="size-6" />,
         i18nKey: 'lessAdmin',
         paragraphKey: 'paragraphThree',
         sketch: <LessAdminSketch />,
@@ -184,7 +184,7 @@ export function FeaturePillars() {
     const { t } = useTranslation('features');
 
     return (
-        <section className="relative mx-auto w-full max-w-6xl px-6 py-10 sm:py-14">
+        <section className="relative mx-auto w-full max-w-7xl px-6 py-10 sm:py-14">
             <div
                 aria-hidden
                 className="pointer-events-none absolute top-10 left-1/2 -z-10 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl"
@@ -216,17 +216,17 @@ export function FeaturePillars() {
                                 />
 
                                 <div
-                                    className={`relative rounded-2xl border border-border bg-card p-6 transition-colors duration-300 hover:border-primary/30 sm:pl-20 ${
+                                    className={`relative rounded-3xl border border-border/50 bg-card/60 p-8 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary/30 sm:pl-24 ${
                                         flipped ? 'lg:order-2' : ''
                                     }`}
                                 >
-                                    <span className="relative flex size-11 items-center justify-center rounded-xl border border-border bg-background text-primary shadow-xs transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary group-hover:text-primary-foreground sm:absolute sm:top-6 sm:left-5">
+                                    <span className="relative flex size-14 items-center justify-center rounded-2xl border border-border bg-background text-primary shadow-xs transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary group-hover:text-primary-foreground sm:absolute sm:top-8 sm:left-6">
                                         {pillar.icon}
                                     </span>
-                                    <h2 className="mt-4 font-semibold sm:mt-0">
+                                    <h2 className="mt-5 text-xl font-semibold sm:mt-0">
                                         {t(`pillars.${pillar.i18nKey}`)}
                                     </h2>
-                                    <p className="mt-2 leading-relaxed text-muted-foreground">
+                                    <p className="mt-2 text-base leading-relaxed text-foreground/70">
                                         {t(pillar.paragraphKey)}
                                     </p>
                                 </div>
