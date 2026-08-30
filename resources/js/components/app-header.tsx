@@ -2,8 +2,8 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     CalendarClock,
     CalendarDays,
-    LayoutGrid,
-    SlidersVertical,
+    House,
+    Settings,
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -78,7 +78,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
         {
             title: t('main.dashboard'),
             href: dashboardUrl,
-            icon: LayoutGrid,
+            icon: House,
         },
         ...(currentTeam
             ? [
@@ -96,7 +96,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                       ? {
                             title: t('main.company'),
                             href: company(),
-                            icon: SlidersVertical,
+                            icon: Settings,
                         }
                       : {
                             title: t('main.schedule'),
@@ -137,11 +137,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                                     item.href,
                                                     activeItemStyles,
                                                 ),
-                                                'h-10 cursor-pointer rounded-full px-4',
+                                                'h-10 cursor-pointer rounded-sm px-4',
                                             )}
                                         >
                                             {item.icon && (
-                                                <item.icon className="mr-2 h-4 w-4" />
+                                                <item.icon className="mr-2 h-5 w-5" />
                                             )}
                                             {item.title}
                                         </Link>

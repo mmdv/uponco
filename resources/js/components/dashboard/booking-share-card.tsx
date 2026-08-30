@@ -6,7 +6,6 @@ import {
     Copy,
     Link2,
     Share2,
-    SquareArrowOutUpRight,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -162,23 +161,6 @@ export default function BookingShareCard({
                             <Share2 /> {t('bookingPage.share')}
                         </Button>
                     )}
-
-                    <Button
-                        asChild
-                        variant="outline"
-                        // size="sm"
-                        className="flex-1"
-                        data-test="dashboard-booking-page"
-                    >
-                        <a
-                            href={path}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <SquareArrowOutUpRight />
-                            {t('bookingPage.open')}
-                        </a>
-                    </Button>
                 </div>
             </section>
         </div>
