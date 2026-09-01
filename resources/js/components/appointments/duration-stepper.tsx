@@ -34,8 +34,10 @@ export default function DurationStepper({
     const clamp = (next: number) => Math.min(Math.max(next, min), max);
 
     // Next/previous 15-minute mark strictly beyond the current value.
-    const increment = () => onChange(clamp(Math.floor(value / STEP) * STEP + STEP));
-    const decrement = () => onChange(clamp(Math.ceil(value / STEP) * STEP - STEP));
+    const increment = () =>
+        onChange(clamp(Math.floor(value / STEP) * STEP + STEP));
+    const decrement = () =>
+        onChange(clamp(Math.ceil(value / STEP) * STEP - STEP));
 
     return (
         <div className="flex items-center gap-2">

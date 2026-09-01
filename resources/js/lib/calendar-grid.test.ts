@@ -34,36 +34,45 @@ describe('windowDateKeys', () => {
 
 describe('dayWindowPrefetch', () => {
     // A cold, centered 7-day window: cursor − 3 … cursor + 3.
-    const centered = (cursor: string) => windowDateKeys(addDaysKey(cursor, -3), 7);
+    const centered = (cursor: string) =>
+        windowDateKeys(addDaysKey(cursor, -3), 7);
 
     it('prefetches forward once the cursor is within two days of the edge', () => {
         // Cached 08-07 … 08-13; at 08-11 the forward edge (08-13) is two out.
-        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-08-11')).toEqual({
-            before: null,
-            after: '2026-08-14',
-        });
+        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-08-11')).toEqual(
+            {
+                before: null,
+                after: '2026-08-14',
+            },
+        );
     });
 
     it('prefetches backward once the cursor is within two days of the edge', () => {
         // Cached 08-07 … 08-13; at 08-09 the backward edge (08-07) is two out.
-        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-08-09')).toEqual({
-            before: '2026-07-31',
-            after: null,
-        });
+        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-08-09')).toEqual(
+            {
+                before: '2026-07-31',
+                after: null,
+            },
+        );
     });
 
     it('does not prefetch from the interior of a cached window', () => {
-        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-08-10')).toEqual({
-            before: null,
-            after: null,
-        });
+        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-08-10')).toEqual(
+            {
+                before: null,
+                after: null,
+            },
+        );
     });
 
     it('does not prefetch when the cursor day is not cached', () => {
-        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-09-01')).toEqual({
-            before: null,
-            after: null,
-        });
+        expect(dayWindowPrefetch(centered('2026-08-10'), '2026-09-01')).toEqual(
+            {
+                before: null,
+                after: null,
+            },
+        );
     });
 });
 
@@ -77,13 +86,19 @@ describe('timeToMinutes', () => {
 
 describe('windowRect', () => {
     it('positions a window that sits inside the grid', () => {
-        const rect = windowRect(GRID_START_MINUTES + 60, GRID_START_MINUTES + 180);
+        const rect = windowRect(
+            GRID_START_MINUTES + 60,
+            GRID_START_MINUTES + 180,
+        );
 
         expect(rect).toEqual({ top: HOUR_HEIGHT, height: 2 * HOUR_HEIGHT });
     });
 
     it('clamps a window that overflows the grid edges', () => {
-        const rect = windowRect(GRID_START_MINUTES - 120, GRID_END_MINUTES + 120);
+        const rect = windowRect(
+            GRID_START_MINUTES - 120,
+            GRID_END_MINUTES + 120,
+        );
 
         expect(rect).toEqual({ top: 0, height: GRID_HEIGHT });
     });

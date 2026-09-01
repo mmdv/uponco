@@ -6,10 +6,7 @@ import ServiceWizardDialog from '@/components/services/service-wizard/service-wi
 import type { AppointmentSlot, DashboardFormOptions } from '@/types';
 
 export type QuickCreateForm =
-    | 'appointment'
-    | 'customer'
-    | 'service'
-    | 'location';
+    'appointment' | 'customer' | 'service' | 'location';
 
 type Props = {
     open: QuickCreateForm | null;

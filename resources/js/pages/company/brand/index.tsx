@@ -284,7 +284,9 @@ export default function BrandIndex({
                                 <>
                                     <div className="grid gap-3">
                                         <Label>
-                                            {t('brand.languages.availableLabel')}
+                                            {t(
+                                                'brand.languages.availableLabel',
+                                            )}
                                         </Label>
 
                                         <div className="grid gap-2">
@@ -320,7 +322,7 @@ export default function BrandIndex({
                                                         <span className="font-medium">
                                                             {locale.native}
                                                         </span>
-                                                        <span className="text-xs uppercase text-muted-foreground">
+                                                        <span className="text-xs text-muted-foreground uppercase">
                                                             {locale.code}
                                                         </span>
                                                     </label>

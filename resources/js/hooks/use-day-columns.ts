@@ -81,8 +81,7 @@ export function useDayColumns({
                 onSuccess: (page) => {
                     const window =
                         (page.props.workingHoursWindow as
-                            | WorkingHoursWindow
-                            | undefined) ?? {};
+                            WorkingHoursWindow | undefined) ?? {};
 
                     for (const [day, map] of Object.entries(window)) {
                         cacheRef.current.set(day, map);

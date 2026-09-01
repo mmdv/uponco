@@ -3,7 +3,12 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { addMonths, dateKey, monthGridDays, parseDateKey } from '@/lib/calendar-grid';
+import {
+    addMonths,
+    dateKey,
+    monthGridDays,
+    parseDateKey,
+} from '@/lib/calendar-grid';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -48,7 +53,9 @@ export default function BookingCalendar({
 
     const todayMonth = monthOrdinal(parseDateKey(todayKey));
     const lastMonth =
-        lastAvailable === '' ? todayMonth : monthOrdinal(parseDateKey(lastAvailable));
+        lastAvailable === ''
+            ? todayMonth
+            : monthOrdinal(parseDateKey(lastAvailable));
     const shownMonth = monthOrdinal(month);
 
     const prevDisabled = shownMonth <= todayMonth;
@@ -66,7 +73,9 @@ export default function BookingCalendar({
                     className="size-8"
                     disabled={prevDisabled}
                     aria-label={t('datetime.prevMonth')}
-                    onClick={() => setMonth((current) => addMonths(current, -1))}
+                    onClick={() =>
+                        setMonth((current) => addMonths(current, -1))
+                    }
                 >
                     <ChevronLeft className="size-4" />
                 </Button>

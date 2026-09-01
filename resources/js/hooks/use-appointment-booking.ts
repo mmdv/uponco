@@ -370,8 +370,7 @@ export function useAppointmentBooking({
 
                 const window =
                     (page.props.slotWindow as
-                        | Record<string, AppointmentSlot[]>
-                        | undefined) ?? {};
+                        Record<string, AppointmentSlot[]> | undefined) ?? {};
 
                 for (const [day, daySlots] of Object.entries(window)) {
                     slotCacheRef.current.set(

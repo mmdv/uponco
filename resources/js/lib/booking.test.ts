@@ -159,7 +159,9 @@ describe('nextPrefetchStart', () => {
     it('does not prefetch past the horizon', () => {
         const cached = windowDates('2026-07-15', 7); // …15–21 (reaches horizon)
 
-        expect(nextPrefetchStart(cached, '2026-07-21', '2026-07-21')).toBeNull();
+        expect(
+            nextPrefetchStart(cached, '2026-07-21', '2026-07-21'),
+        ).toBeNull();
     });
 
     it('is null with no selection', () => {
@@ -340,9 +342,9 @@ describe('buildBookableDays', () => {
         const target = addDays(today, 20);
         const days = buildBookableDays([target]);
 
-        expect(days.filter((day) => day.available).map((day) => day.date)).toEqual([
-            target,
-        ]);
+        expect(
+            days.filter((day) => day.available).map((day) => day.date),
+        ).toEqual([target]);
     });
 });
 

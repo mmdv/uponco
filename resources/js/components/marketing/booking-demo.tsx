@@ -1,10 +1,4 @@
-import {
-    BellRing,
-    CalendarClock,
-    Check,
-    Scissors,
-    User,
-} from 'lucide-react';
+import { BellRing, CalendarClock, Check, Scissors, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { useTranslation } from '@/hooks/use-translation';

@@ -68,7 +68,8 @@ export function useMemberSchedule({
 }: UseMemberScheduleOptions): MemberScheduleController {
     const { t } = useTranslation('schedule');
 
-    const [view, setViewState] = React.useState<MemberScheduleView>(initialView);
+    const [view, setViewState] =
+        React.useState<MemberScheduleView>(initialView);
     const [anchor, setAnchor] = React.useState(() => new Date());
     const [selectedDays, setSelectedDays] = React.useState<Set<string>>(
         () => new Set(),

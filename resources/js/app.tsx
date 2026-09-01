@@ -9,7 +9,11 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import BusinessLayout from '@/layouts/business/layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { flushServerEvents, startAnalytics, trackPageVisit } from '@/lib/analytics';
+import {
+    flushServerEvents,
+    startAnalytics,
+    trackPageVisit,
+} from '@/lib/analytics';
 import { registerServiceWorker } from '@/lib/push';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
