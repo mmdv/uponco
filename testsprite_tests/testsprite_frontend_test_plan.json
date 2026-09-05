@@ -1,0 +1,1470 @@
+[
+  {
+    "id": "TC001",
+    "title": "Complete an on-site booking end to end",
+    "description": "A visitor can choose a service, specialist, location, date, time, and contact details, then confirm the appointment successfully.",
+    "category": "Public booking page with company services",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an on-site service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select the location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer phone field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Book an appointment from service selection to confirmation",
+    "description": "A customer can choose an available service, continue through date, time, and details, and complete a booking successfully.",
+    "category": "Enter customer details and confirm a booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary action to confirm the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the option to book another appointment is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Complete a signed cancellation from the cancellation page",
+    "description": "A recipient using a valid signed cancellation link can review the appointment, confirm the cancellation in the dialog, and see the appointment marked cancelled.",
+    "category": "Signed appointment cancellation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/cancel/{appointment}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment details are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Open the cancellation confirmation dialog"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the cancellation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment is marked cancelled"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Continue a deep-linked booking with a locked service",
+    "description": "A customer opening a service deep link can keep the preselected service locked and finish the booking flow successfully.",
+    "category": "Enter customer details and confirm a booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/mens-haircut"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary action to confirm the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking was completed from a preselected service"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Complete an individual appointment booking",
+    "description": "A visitor can choose an individual service, select an eligible specialist and location, pick a time, enter details, and successfully reach the booking success screen.",
+    "category": "Individual slot availability",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Click an individual service"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success screen is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Cancel an appointment from a signed link",
+    "description": "This verifies that a customer can open a valid signed cancellation page, review the appointment, confirm cancellation in the dialog, and see the appointment marked as cancelled.",
+    "category": "Appointment cancellation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/cancel/{appointment}"
+      },
+      {
+        "type": "action",
+        "description": "Click the cancellation action"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the cancellation in the dialog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment is marked as cancelled"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cancellation confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Finish a deep-linked booking with preselected service",
+    "description": "A visitor opening a service deep link can keep the service locked in place and complete the remaining booking steps successfully.",
+    "category": "Public booking page with company services",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/mens-haircut"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the preselected service is shown as locked"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select the location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer phone field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Book an online appointment without choosing a location",
+    "description": "A customer can book the online Latvian lecture without selecting a physical location and complete the appointment successfully.",
+    "category": "Enter customer details and confirm a booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/online-lecture-latvian"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary action to confirm the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment was completed without selecting a physical location"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Keep a service deep link locked through booking",
+    "description": "A service deep link opens with the service preselected and locked, and the visitor can continue through the rest of the booking flow successfully.",
+    "category": "Deep-linked booking pages",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/mens-haircut"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the service is preselected and locked"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success screen is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Book the online appointment without a physical location",
+    "description": "A visitor can book the online Latvian lecture without being asked to choose a physical location and complete the appointment successfully.",
+    "category": "Choose location and view location details",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/online-lecture-latvian"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no physical location is requested"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer phone field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Browse active services and choose one",
+    "description": "A visitor can open the public booking page, review the active services with their details, and select a service that becomes part of the booking summary.",
+    "category": "Public booking page with company services",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Expand the service section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the available services with prices and durations are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chosen service is shown in the booking summary"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "View appointment details before cancelling",
+    "description": "This verifies that the signed cancellation page shows the booked appointment details before any cancellation is confirmed.",
+    "category": "Appointment cancellation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/cancel/{appointment}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cancellation action is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Choose a specialist for the selected service",
+    "description": "A visitor can narrow the booking to an eligible specialist, review their profile, and select them so the specialist is reflected in the summary.",
+    "category": "Choose specialist",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select a service"
+      },
+      {
+        "type": "action",
+        "description": "Open the specialist section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only eligible specialists are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Open a specialist profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the specialist profile dialog is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Close the specialist profile dialog"
+      },
+      {
+        "type": "action",
+        "description": "Select a specialist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chosen specialist is shown in the booking summary"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Prevent rebooking the same individual slot",
+    "description": "A previously booked individual time slot is no longer offered when the visitor returns to book the same service, specialist, and day again.",
+    "category": "Individual slot availability",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Click an individual service"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select the first available time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking form"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the booking page for the same service, specialist, and date"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously booked time is no longer available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Keep selected date and time when returning to the previous step",
+    "description": "A customer can go back from the details step and keep the previously chosen date and time selections intact.",
+    "category": "Pick a date and time",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the customer details step"
+      },
+      {
+        "type": "action",
+        "description": "Go back to the previous step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously selected date is still chosen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously selected time is still chosen"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Choose a location for an on-site appointment",
+    "description": "A visitor can review location details for an eligible service, select the on-site location, and see it added to the booking summary.",
+    "category": "Choose location and view location details",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an on-site service"
+      },
+      {
+        "type": "action",
+        "description": "Open the location section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the available location is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Open the location details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the location details dialog is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Close the location details dialog"
+      },
+      {
+        "type": "action",
+        "description": "Select the location"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chosen location is shown in the booking summary"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Switch between the day strip and calendar while choosing a time",
+    "description": "A customer can toggle between calendar and day strip views, pick a time, and continue the booking flow.",
+    "category": "Pick a date and time",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Toggle the calendar view"
+      },
+      {
+        "type": "action",
+        "description": "Return to the day strip view"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chosen time remains selected after switching views"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the continue action is available for advancing to customer details"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Complete a booking on a mobile viewport without horizontal scrolling",
+    "description": "Verifies that a visitor can use the booking wizard on a narrow mobile viewport and complete the selection flow without horizontal scrolling.",
+    "category": "Responsive booking flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Resize the browser to a mobile viewport"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Pick a valid date and time"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid customer details and confirm the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking success screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page does not require horizontal scrolling"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Dismiss cancellation and keep the appointment active",
+    "description": "This verifies that opening the cancellation dialog and dismissing it leaves the appointment unchanged.",
+    "category": "Appointment cancellation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/cancel/{appointment}"
+      },
+      {
+        "type": "action",
+        "description": "Click the cancellation action"
+      },
+      {
+        "type": "action",
+        "description": "Dismiss the confirmation dialog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment is not marked as cancelled"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment details remain visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Show the no-availability state and recover by choosing another day",
+    "description": "A customer selecting a day with no availability sees the empty state and can choose another day to proceed.",
+    "category": "Pick a date and time",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a day with no availability"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a no-times-available message is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Select another day with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify available times are displayed for the new day"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC021",
+    "title": "Complete a booking with a valid cancellation link later available",
+    "description": "A customer can book an appointment successfully so that the appointment can later be managed through a signed cancellation link.",
+    "category": "Online delivery booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Click an individual service"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a booking success screen is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC022",
+    "title": "Keep Azerbaijani selected after reload",
+    "description": "Verifies that a visitor's Azerbaijani language choice remains applied after reloading the booking page.",
+    "category": "Language and theme controls",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Open the header menu"
+      },
+      {
+        "type": "action",
+        "description": "Switch the language to Azerbaijani"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking wizard copy is displayed in Azerbaijani"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking page remains displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC023",
+    "title": "Require a contact method before confirming a booking",
+    "description": "A customer who only enters a name is prevented from confirming until an email address or phone number is provided.",
+    "category": "Enter customer details and confirm a booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the customer details step"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary action to confirm the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a contact-required validation message is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC024",
+    "title": "Change the booking language to Azerbaijani",
+    "description": "Verifies that a visitor can switch the booking page copy to Azerbaijani and see the localized wizard content update.",
+    "category": "Language and theme controls",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Open the header menu"
+      },
+      {
+        "type": "action",
+        "description": "Switch the language to Azerbaijani"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking wizard copy is displayed in Azerbaijani"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking page remains displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC025",
+    "title": "Keep the first booking slot unavailable after booking",
+    "description": "A visitor who books an individual service can return to book again and see that the previously taken slot is no longer available.",
+    "category": "Public booking page with company services",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an individual service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select the location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer phone field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking"
+      },
+      {
+        "type": "action",
+        "description": "Start a new booking from the success screen"
+      },
+      {
+        "type": "action",
+        "description": "Select the same service again"
+      },
+      {
+        "type": "action",
+        "description": "Select the same specialist again"
+      },
+      {
+        "type": "action",
+        "description": "Select the same date again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously booked time slot is no longer available"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Book a group class and keep the slot available with fewer spots",
+    "description": "After booking one place in a group class, the same time remains available with a reduced remaining-spots count.",
+    "category": "Group service capacity",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/group-pilates-class"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary action to confirm the booking"
+      },
+      {
+        "type": "action",
+        "description": "Open the same group class day and time again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the slot is still available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the remaining spots count is lower"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Preserve the ability to proceed after changing the booking step selection",
+    "description": "A visitor can move from browsing services to choosing a specialist and location, then continue to date and time selection without losing the booking context.",
+    "category": "Individual slot availability",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Click an individual service"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Click an eligible location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chosen service specialist and location remain selected"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify available appointment times are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Switch the booking page theme and return it to light",
+    "description": "Verifies that a visitor can change the booking page theme to dark and then back to light without leaving the wizard.",
+    "category": "Language and theme controls",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Open the header menu"
+      },
+      {
+        "type": "action",
+        "description": "Switch the theme to dark"
+      },
+      {
+        "type": "action",
+        "description": "Switch the theme back to light"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking page remains displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the light theme is active"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "See the cancellation page from a valid link after returning later",
+    "description": "This verifies that a customer can reopen the signed cancellation page later and still review the same appointment before deciding to cancel.",
+    "category": "Appointment cancellation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/cancel/{appointment}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the appointment details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page offers the cancellation action"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Reject an invalid email during booking details entry",
+    "description": "A customer entering an invalid email address is shown an email validation error and cannot complete the booking.",
+    "category": "Enter customer details and confirm a booking",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the customer details step"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with an invalid email address"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary action to confirm the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an email validation error is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Show reduced capacity for a group class after one booking",
+    "description": "A visitor can book a group Pilates class and then see that the same class remains available with fewer remaining spots.",
+    "category": "Public booking page with company services",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Select the group Pilates class"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select the location"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid date"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid time slot"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the customer phone field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking"
+      },
+      {
+        "type": "action",
+        "description": "Start a new booking from the success screen"
+      },
+      {
+        "type": "action",
+        "description": "Select the group Pilates class again"
+      },
+      {
+        "type": "action",
+        "description": "Select the same date again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the class remains available with reduced remaining spots"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Copy the booking link from the share menu",
+    "description": "Verifies that a visitor can open the sharing controls and copy the booking link for reuse.",
+    "category": "Copy booking link sharing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Open the share menu"
+      },
+      {
+        "type": "action",
+        "description": "Copy the booking link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a copy confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking page remains displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Preserve booking progress on a narrow viewport",
+    "description": "A mobile visitor can complete the booking flow on a narrow screen without losing access to the selected date, time, or next-step controls.",
+    "category": "Pick a date and time",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview"
+      },
+      {
+        "type": "action",
+        "description": "Resize the viewport to a narrow mobile width"
+      },
+      {
+        "type": "action",
+        "description": "Select an active service"
+      },
+      {
+        "type": "action",
+        "description": "Select an eligible specialist"
+      },
+      {
+        "type": "action",
+        "description": "Select a location"
+      },
+      {
+        "type": "action",
+        "description": "Select a date with availability"
+      },
+      {
+        "type": "action",
+        "description": "Select an available time"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected time remains visible in the narrow layout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the continue action remains accessible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC034",
+    "title": "Open a cancellation link with an invalid signature",
+    "description": "This verifies that a tampered cancellation link does not open the cancellation page and instead shows an invalid-link outcome.",
+    "category": "Appointment cancellation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/cancel/{appointment}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the invalid link state is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC035",
+    "title": "Show a 404 for an unknown booking slug",
+    "description": "An unknown deep-link slug opens a 404 page instead of the booking wizard.",
+    "category": "Deep-linked booking pages",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/does-not-exist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a 404 page is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC036",
+    "title": "Reject an unknown deep-linked service",
+    "description": "A visitor opening an unknown service deep link sees a 404 page instead of the booking wizard.",
+    "category": "Public booking page with company services",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /appointments/zz-schedule-preview/service/does-not-exist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a 404 page is displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

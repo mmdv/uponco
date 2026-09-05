@@ -1,5 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
+import GoogleLoginButton from '@/components/google-login-button';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -86,6 +87,18 @@ export default function Register({
     return (
         <>
             <Head title={t('register.headTitle')} />
+
+            {/* <div className="mb-6 flex flex-col gap-6">
+                <GoogleLoginButton />
+
+                <div className="relative text-center text-sm">
+                    <span className="absolute inset-x-0 top-1/2 border-t" />
+                    <span className="relative bg-background px-2 text-muted-foreground">
+                        {t('register.orContinueWith')}
+                    </span>
+                </div>
+            </div> */}
+
             <Form
                 {...store.form()}
                 id="register-form"

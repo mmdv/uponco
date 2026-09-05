@@ -2,6 +2,7 @@
 
 use App\Enums\TeamRole;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BackofficeController;
 use App\Http\Controllers\Company\AddressLookupController;
 use App\Http\Controllers\Company\BrandController;
@@ -38,6 +39,17 @@ Route::inertia('/your-data', 'your-data')->name('yourData');
 
 Route::inertia('/pricing', 'pricing')->name('pricing');
 
+// Social login/signup. Guest-only; the callback creates the account and team
+// on first sign-in and lands new users on onboarding.
+Route::middleware('guest')->group(function () {
+    Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+        ->middleware('throttle:10,1')
+        ->name('auth.google.redirect');
+    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+        ->middleware('throttle:10,1')
+        ->name('auth.google.callback');
+});
+
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
@@ -52,23 +64,23 @@ Route::post('/legal/accept', [LegalConsentController::class, 'store'])
     ->name('legal.accept');
 
 Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'])
-    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
     ->name('public.appointments.show');
 Route::post('appointments/{company}', [PublicAppointmentController::class, 'store'])
-    ->middleware('throttle:10,1')
+    ->middleware('throttle:5000,1')
     ->name('public.appointments.store');
 
 // Dedicated v2 entry points a business can advertise, each arriving with one
 // choice already made. The literal middle segment keeps them clear of both
 // `appointments/cancel/{appointment}` and the authed `appointments/*` routes.
 Route::get('appointments/{company}/service/{service}', [PublicAppointmentController::class, 'showService'])
-    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
     ->name('public.appointments.service');
 Route::get('appointments/{company}/specialist/{specialist}', [PublicAppointmentController::class, 'showSpecialist'])
-    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
     ->name('public.appointments.specialist');
 Route::get('appointments/{company}/location/{location}', [PublicAppointmentController::class, 'showLocation'])
-    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
     ->name('public.appointments.location');
 
 Route::get('appointments/cancel/{appointment}', [PublicAppointmentController::class, 'showCancel'])

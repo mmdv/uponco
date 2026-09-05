@@ -20,7 +20,7 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-#[Fillable(['name', 'email', 'password', 'current_team_id', 'avatar_path', 'google_account_email', 'google_access_token', 'google_refresh_token', 'google_token_expires_at'])]
+#[Fillable(['name', 'email', 'password', 'current_team_id', 'avatar_path', 'google_id', 'google_account_email', 'google_access_token', 'google_refresh_token', 'google_token_expires_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'avatar_path', 'google_access_token', 'google_refresh_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
