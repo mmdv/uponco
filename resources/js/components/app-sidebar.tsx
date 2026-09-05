@@ -5,7 +5,6 @@ import {
     CalendarRange,
     FolderGit2,
     LayoutGrid,
-    ShieldCheck,
     SlidersHorizontal,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -24,7 +23,6 @@ import {
 } from '@/components/ui/sidebar';
 import { isTeamManager } from '@/lib/teams';
 import { dashboard } from '@/routes';
-import { index as backoffice } from '@/routes/backoffice';
 import { index as company } from '@/routes/company';
 import { index as schedule, my as mySchedule } from '@/routes/schedule';
 import type { NavItem } from '@/types';
@@ -56,15 +54,6 @@ export function AppSidebar() {
                       title: 'My Schedule',
                       href: mySchedule(),
                       icon: CalendarRange,
-                  },
-              ]
-            : []),
-        ...(page.props.currentTeam?.name === 'Uponco'
-            ? [
-                  {
-                      title: 'Backoffice',
-                      href: backoffice(),
-                      icon: ShieldCheck,
                   },
               ]
             : []),

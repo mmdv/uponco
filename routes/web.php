@@ -3,7 +3,6 @@
 use App\Enums\TeamRole;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\GoogleAuthController;
-use App\Http\Controllers\BackofficeController;
 use App\Http\Controllers\Company\AddressLookupController;
 use App\Http\Controllers\Company\BrandController;
 use App\Http\Controllers\Company\BusinessController;
@@ -28,7 +27,6 @@ use App\Http\Controllers\WidgetController;
 use App\Http\Middleware\AllowIframeEmbedding;
 use App\Http\Middleware\EnsureTeamMembership;
 use App\Http\Middleware\EnsureTeamOnboarded;
-use App\Http\Middleware\EnsureUponcoTeam;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -64,23 +62,23 @@ Route::post('/legal/accept', [LegalConsentController::class, 'store'])
     ->name('legal.accept');
 
 Route::get('appointments/{company}', [PublicAppointmentController::class, 'show'])
-    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
     ->name('public.appointments.show');
 Route::post('appointments/{company}', [PublicAppointmentController::class, 'store'])
-    ->middleware('throttle:5000,1')
+    ->middleware('throttle:10,1')
     ->name('public.appointments.store');
 
 // Dedicated v2 entry points a business can advertise, each arriving with one
 // choice already made. The literal middle segment keeps them clear of both
 // `appointments/cancel/{appointment}` and the authed `appointments/*` routes.
 Route::get('appointments/{company}/service/{service}', [PublicAppointmentController::class, 'showService'])
-    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
     ->name('public.appointments.service');
 Route::get('appointments/{company}/specialist/{specialist}', [PublicAppointmentController::class, 'showSpecialist'])
-    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
     ->name('public.appointments.specialist');
 Route::get('appointments/{company}/location/{location}', [PublicAppointmentController::class, 'showLocation'])
-    ->middleware(['throttle:5000,1', AllowIframeEmbedding::class])
+    ->middleware(['throttle:60,1', AllowIframeEmbedding::class])
     ->name('public.appointments.location');
 
 Route::get('appointments/cancel/{appointment}', [PublicAppointmentController::class, 'showCancel'])
@@ -98,14 +96,6 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class])
     ->group(function () {
         Route::get('onboard', [OnboardController::class, 'show'])->name('onboard.show');
         Route::patch('onboard', [OnboardController::class, 'update'])->name('onboard.update');
-    });
-
-// Operator backoffice, restricted to members of the "Uponco" team.
-Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureUponcoTeam::class])
-    ->group(function () {
-        Route::get('backoffice', [BackofficeController::class, 'index'])->name('backoffice.index');
-        Route::delete('backoffice/teams/{team}', [BackofficeController::class, 'destroyTeam'])->name('backoffice.teams.destroy');
-        Route::delete('backoffice/users/{user}', [BackofficeController::class, 'destroyUser'])->name('backoffice.users.destroy');
     });
 
 Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOnboarded::class])

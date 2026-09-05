@@ -62,19 +62,6 @@ function secondService(array $setup, array $overrides = []): Service
     return $service;
 }
 
-test('the operator team is not bookable, by deep link either', function () {
-    $setup = bookableSetup();
-    $setup['team']->forceFill(['is_operator' => true])->save();
-
-    $slug = $setup['team']->slug;
-
-    $this->get(route('public.appointments.show', ['company' => $slug]))
-        ->assertRedirect(route('home'));
-
-    $this->get(route('public.appointments.service', ['company' => $slug, 'service' => 'anything']))
-        ->assertRedirect(route('home'));
-});
-
 test('the page ships the address, phone and directions link for each location', function () {
     $setup = bookableSetup();
     $setup['location']->update([

@@ -10,10 +10,12 @@ use App\Models\Service;
 use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
+use App\Support\Analytics;
 use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Notifications\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
@@ -64,7 +66,7 @@ function onlineOnlySetup(): array
 function withPublicRoute(string $name, array $parameters = []): void
 {
     $route = Route::getRoutes()->getByName($name);
-    $request = Illuminate\Http\Request::create(route($name, $parameters), $route->methods()[0]);
+    $request = Request::create(route($name, $parameters), $route->methods()[0]);
     $request->setRouteResolver(fn () => $route);
     app()->instance('request', $request);
 }
@@ -119,15 +121,6 @@ test('the public booking page exposes a service without a category', function ()
             ->where('services.0.category_name', null)
             ->etc(),
         );
-});
-
-test('the operator team is not publicly bookable and redirects home', function () {
-    $setup = bookableSetup();
-    $setup['team']->forceFill(['is_operator' => true])->save();
-
-    $this
-        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
-        ->assertRedirect(route('home'));
 });
 
 test('the booking page exposes the business category behind the service icon', function () {
@@ -704,7 +697,7 @@ test('the in-transaction guard records a double booking for analytics on the pub
         Customer::factory()->for($setup['team'])->create()->id,
     ))->toThrow(ValidationException::class, 'The selected time slot is no longer available.');
 
-    expect(collect(App\Support\Analytics::pending())->contains(
+    expect(collect(Analytics::pending())->contains(
         fn (array $event): bool => $event['name'] === 'public_booking_slot_unavailable'
             && $event['properties']['stage'] === 'guard'
             && $event['properties']['reason'] === 'slot_taken'
@@ -744,7 +737,7 @@ test('the in-transaction guard does not record a double booking on the dashboard
         Customer::factory()->for($setup['team'])->create()->id,
     ))->toThrow(ValidationException::class);
 
-    expect(App\Support\Analytics::pending())->toBe([]);
+    expect(Analytics::pending())->toBe([]);
 });
 
 test('a cancelled appointment does not block its slot for a new booking', function () {

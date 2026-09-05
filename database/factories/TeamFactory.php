@@ -35,17 +35,6 @@ class TeamFactory extends Factory
     }
 
     /**
-     * Indicate that the team is the platform operator team.
-     *
-     * `is_operator` is deliberately not fillable, so it is force-filled rather
-     * than passed as a state attribute (which mass assignment would drop).
-     */
-    public function operator(): static
-    {
-        return $this->afterMaking(fn (Team $team) => $team->forceFill(['is_operator' => true]));
-    }
-
-    /**
      * Indicate that the team is a personal team.
      */
     public function personal(): static

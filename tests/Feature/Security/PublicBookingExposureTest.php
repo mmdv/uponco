@@ -57,7 +57,8 @@ test('the widget script is not served for an unbookable team', function () {
 
     $this->get(route('public.widget.script', ['company' => $slug]))->assertOk();
 
-    $setup['team']->forceFill(['is_operator' => true])->save();
+    // Clearing the timezone drops the team below isPubliclyBookable().
+    $setup['team']->update(['timezone' => null]);
 
     $this->get(route('public.widget.script', ['company' => $slug]))->assertNotFound();
 });
