@@ -12,13 +12,19 @@ import { useTranslation } from '@/hooks/use-translation';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
-import type { SelectOption, Team, TeamPermissions } from '@/types';
+import type {
+    SelectOption,
+    Team,
+    TeamDeletionSummary,
+    TeamPermissions,
+} from '@/types';
 
 type Props = {
     team: Team;
     permissions: TeamPermissions;
     timezones: SelectOption[];
     businessCategories: SelectOption[];
+    deletionSummary: TeamDeletionSummary;
 };
 
 export default function BusinessGeneral({
@@ -26,6 +32,7 @@ export default function BusinessGeneral({
     permissions,
     timezones,
     businessCategories,
+    deletionSummary,
 }: Props) {
     const { t } = useTranslation('company');
 
@@ -229,6 +236,7 @@ export default function BusinessGeneral({
             {permissions.canDeleteTeam && !team.isPersonal ? (
                 <DeleteTeamModal
                     team={team}
+                    deletionSummary={deletionSummary}
                     open={deleteDialogOpen}
                     onOpenChange={setDeleteDialogOpen}
                 />

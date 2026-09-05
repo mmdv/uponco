@@ -1,11 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { Mail, UserPlus, UserRoundPlus, X } from 'lucide-react';
+import { Crown, Mail, UserPlus, UserRoundPlus, X } from 'lucide-react';
 import { useState } from 'react';
 import AddMemberModal from '@/components/add-member-modal';
 import CancelInvitationModal from '@/components/cancel-invitation-modal';
 import Heading from '@/components/heading';
 import InviteMemberModal from '@/components/invite-member-modal';
 import RemoveMemberModal from '@/components/remove-member-modal';
+import TransferOwnershipModal from '@/components/transfer-ownership-modal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ type Props = {
     invitations: TeamInvitation[];
     permissions: TeamPermissions;
     availableRoles: RoleOption[];
+    isOwner: boolean;
 };
 
 export default function BusinessMembers({
@@ -44,6 +46,7 @@ export default function BusinessMembers({
     invitations,
     permissions,
     availableRoles,
+    isOwner,
 }: Props) {
     const { t } = useTranslation('company');
     const getInitials = useInitials();
@@ -54,6 +57,10 @@ export default function BusinessMembers({
     const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(
         null,
     );
+    const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+    const [memberToPromote, setMemberToPromote] = useState<TeamMember | null>(
+        null,
+    );
     const [cancelInvitationDialogOpen, setCancelInvitationDialogOpen] =
         useState(false);
     const [invitationToCancel, setInvitationToCancel] =
@@ -62,6 +69,11 @@ export default function BusinessMembers({
     const confirmRemoveMember = (member: TeamMember) => {
         setMemberToRemove(member);
         setRemoveMemberDialogOpen(true);
+    };
+
+    const confirmTransferOwnership = (member: TeamMember) => {
+        setMemberToPromote(member);
+        setTransferDialogOpen(true);
     };
 
     const confirmCancelInvitation = (invitation: TeamInvitation) => {
@@ -156,6 +168,34 @@ export default function BusinessMembers({
                                     <Badge variant="secondary">
                                         {member.role_label}
                                     </Badge>
+
+                                    {member.role !== 'owner' && isOwner ? (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        data-test="member-transfer-button"
+                                                        onClick={() =>
+                                                            confirmTransferOwnership(
+                                                                member,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Crown className="h-4 w-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>
+                                                        {t(
+                                                            'business.transferOwnership.tooltip',
+                                                        )}
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    ) : null}
 
                                     {member.role !== 'owner' &&
                                     permissions.canRemoveMember ? (
@@ -276,6 +316,14 @@ export default function BusinessMembers({
                 open={removeMemberDialogOpen}
                 onOpenChange={setRemoveMemberDialogOpen}
             />
+
+            {isOwner ? (
+                <TransferOwnershipModal
+                    member={memberToPromote}
+                    open={transferDialogOpen}
+                    onOpenChange={setTransferDialogOpen}
+                />
+            ) : null}
 
             <CancelInvitationModal
                 invitation={invitationToCancel}

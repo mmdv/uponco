@@ -158,6 +158,8 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
             Route::patch('company/business/members/{user}', [BusinessMemberController::class, 'update'])->name('company.business.members.update');
             Route::delete('company/business/members/{user}', [BusinessMemberController::class, 'destroy'])->name('company.business.members.destroy');
 
+            Route::post('company/business/owner', [BusinessMemberController::class, 'transferOwnership'])->name('company.business.owner.transfer');
+
             Route::post('company/business/invitations', [BusinessInvitationController::class, 'store'])->name('company.business.invitations.store');
             Route::delete('company/business/invitations/{invitation}', [BusinessInvitationController::class, 'destroy'])->name('company.business.invitations.destroy');
 

@@ -87,4 +87,12 @@ class TeamPolicy
     {
         return ! $team->is_personal && $user->hasTeamPermission($team, TeamPermission::DeleteTeam);
     }
+
+    /**
+     * Determine whether the user can hand ownership of the team to another member.
+     */
+    public function transferOwnership(User $user, Team $team): bool
+    {
+        return $user->ownsTeam($team);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Actions\Teams\DeleteTeam;
 use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
@@ -19,6 +20,8 @@ use Inertia\Response;
 
 class BusinessController extends Controller
 {
+    public function __construct(private DeleteTeam $deleteTeam) {}
+
     /**
      * Show the current team's general business settings.
      */
@@ -32,6 +35,7 @@ class BusinessController extends Controller
             'permissions' => $user->toTeamPermissions($team),
             'timezones' => LocationOptions::timezones(),
             'businessCategories' => BusinessCategory::options(),
+            'deletionSummary' => DeleteTeam::summary($team),
         ]);
     }
 
@@ -67,23 +71,11 @@ class BusinessController extends Controller
 
         $fallbackTeam = $user->fallbackTeam($team);
 
-        DB::transaction(function () use ($user, $team): void {
-            User::where('current_team_id', $team->id)
-                ->where('id', '!=', $user->id)
-                ->each(function (User $affectedUser) use ($team): void {
-                    $fallback = $affectedUser->fallbackTeam($team);
+        $this->deleteTeam->handle($team, $user);
 
-                    if ($fallback) {
-                        $affectedUser->switchTeam($fallback);
-                    }
-                });
-
-            $team->invitations()->delete();
-            $team->memberships()->delete();
-            $team->delete();
-        });
-
-        $user->switchTeam($fallbackTeam);
+        if ($fallbackTeam) {
+            $user->switchTeam($fallbackTeam);
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team deleted.')]);
 
@@ -120,6 +112,7 @@ class BusinessController extends Controller
                 ]),
             'permissions' => $user->toTeamPermissions($team),
             'availableRoles' => TeamRole::assignable(),
+            'isOwner' => $user->ownsTeam($team),
         ]);
     }
 

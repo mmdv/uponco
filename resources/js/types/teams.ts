@@ -25,6 +25,22 @@ export type TeamMember = {
     role_label: string;
 };
 
+export type TeamDeletionSummary = {
+    members: number;
+    services: number;
+    customers: number;
+    appointments: number;
+    locations: number;
+    serviceCategories: number;
+    scheduleSlots: number;
+    invitations: number;
+};
+
+export type OwnedTeamsImpact = {
+    solo: { name: string; summary: TeamDeletionSummary }[];
+    shared: { name: string; memberCount: number }[];
+};
+
 export type TeamInvitation = {
     code: string;
     email: string;

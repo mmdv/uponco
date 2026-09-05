@@ -51,6 +51,17 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * Whether the account has a local password set.
+     *
+     * OAuth-only accounts (e.g. Google sign-up) have a null password, so every
+     * password-gated flow treats the live session as sufficient for them.
+     */
+    public function hasPassword(): bool
+    {
+        return filled($this->password);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

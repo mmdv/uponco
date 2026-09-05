@@ -40,7 +40,26 @@
             "confirmLabel": "Təsdiq etmək üçün \"{name}\" yazın",
             "confirmPlaceholder": "Komanda adını daxil edin",
             "cancel": "Ləğv et",
-            "confirm": "Komandanı sil"
+            "confirm": "Komandanı sil",
+            "summary": {
+                "title": "Bu, həmişəlik siləcək:",
+                "members": "{count} komanda üzvü",
+                "services": "{count} xidmət",
+                "serviceCategories": "{count} xidmət kateqoriyası",
+                "customers": "{count} müştəri",
+                "appointments": "{count} görüş",
+                "locations": "{count} məkan",
+                "scheduleSlots": "{count} cədvəl vaxtı",
+                "invitations": "{count} gözləyən dəvət"
+            }
+        },
+        "transferOwnership": {
+            "tooltip": "Sahib et",
+            "modalTitle": "Sahibliyi köçür",
+            "modalDescription": "{name} bu komandanın sahibi olacaq, siz isə admin olacaqsınız. Təsdiq üçün parolunuzu daxil edin.",
+            "passwordLabel": "Parolunuz",
+            "cancel": "Ləğv et",
+            "confirm": "Sahibliyi köçür"
         },
         "members": {
             "title": "Komanda üzvləri",

@@ -30,20 +30,20 @@ test('security page is displayed', function () {
         );
 });
 
-test('security page requires password confirmation when enabled', function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+test('the security page is not gated behind password confirmation', function () {
+    config(['fortify.features' => []]);
 
+    // A password account reaches the page without a prior password-confirm hop:
+    // the sensitive actions on it confirm the password in their own request.
     $user = User::factory()->create();
 
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
-    $response = $this->actingAs($user)
-        ->get(route('security.edit'));
-
-    $response->assertRedirect(route('password.confirm'));
+    $this->actingAs($user)
+        ->get(route('security.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/security')
+            ->where('auth.hasPassword', true),
+        );
 });
 
 test('security page renders without two factor when feature is disabled', function () {
@@ -64,6 +64,23 @@ test('security page renders without two factor when feature is disabled', functi
             ->where('canManageTwoFactor', false)
             ->missing('twoFactorEnabled')
             ->missing('requiresConfirmation'),
+        );
+});
+
+test('a passwordless account reaches security settings without confirming a password', function () {
+    config(['fortify.features' => []]);
+
+    $user = User::factory()->create([
+        'password' => null,
+        'google_id' => fake()->uuid(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('security.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/security')
+            ->where('auth.hasPassword', false),
         );
 });
 

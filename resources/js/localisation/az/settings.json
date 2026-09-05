@@ -151,6 +151,9 @@
         "modalDescription": "Hesabınız silindikdən sonra bütün resurslarınız və məlumatlarınız da həmişəlik silinəcək. Hesabınızı həmişəlik silmək istədiyinizi təsdiqləmək üçün şifrənizi daxil edin.",
         "passwordLabel": "Şifrə",
         "passwordPlaceholder": "Şifrə",
+        "soloTeamsTitle": "Bu komandalar və onların bütün məlumatları hesabınızla birlikdə silinəcək:",
+        "sharedTeamsTitle": "Hələ də digər üzvləri olan bu komandaların sahibisiniz. Hesabınızı silmədən əvvəl sahibliyi köçürün:",
+        "sharedTeamsAction": "Komanda üzvlərini idarə et",
         "cancel": "Ləğv et",
         "confirm": "Hesabı sil"
     },

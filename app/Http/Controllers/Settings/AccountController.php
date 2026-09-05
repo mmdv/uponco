@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\Teams\DeleteTeam;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\AccountDeleteRequest;
 use App\Http\Requests\Settings\AccountUpdateRequest;
@@ -9,6 +10,7 @@ use App\Http\Requests\Settings\AvatarUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -77,13 +79,25 @@ class AccountController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(AccountDeleteRequest $request): RedirectResponse
+    public function destroy(AccountDeleteRequest $request, DeleteTeam $deleteTeam): RedirectResponse
     {
         $user = $request->user();
 
+        // Teams the user solely owns have nobody to inherit them, so they are
+        // deleted along with the account. Shared teams were blocked in the
+        // request until the user transferred ownership.
+        $soloOwnedTeams = $user->ownedTeams()
+            ->withCount('memberships')
+            ->get()
+            ->filter(fn ($team): bool => $team->memberships_count === 1);
+
         Auth::logout();
 
-        $user->delete();
+        DB::transaction(function () use ($user, $soloOwnedTeams, $deleteTeam): void {
+            $soloOwnedTeams->each(fn ($team) => $deleteTeam->handle($team, $user));
+
+            $user->delete();
+        });
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

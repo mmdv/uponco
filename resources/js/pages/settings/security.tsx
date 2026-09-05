@@ -23,7 +23,7 @@ import {
 } from '@/lib/validation';
 import { edit } from '@/routes/security';
 import { send } from '@/routes/verification';
-import type { Auth } from '@/types';
+import type { Auth, OwnedTeamsImpact } from '@/types';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -31,22 +31,28 @@ type Props = {
     passwordRules: string;
     mustVerifyEmail: boolean;
     status?: string;
+    ownedTeams: OwnedTeamsImpact;
 } & ManagePasskeysProps &
     ManageTwoFactorProps;
 
-export default function Security({ mustVerifyEmail, status, ...props }: Props) {
+export default function Security({
+    mustVerifyEmail,
+    status,
+    ownedTeams,
+    ...props
+}: Props) {
     const { t } = useTranslation('settings');
     const { auth } = usePage<{ auth: Auth }>().props;
+    const hasPassword = auth.hasPassword;
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
     const accountPasswordInput = useRef<HTMLInputElement>(null);
 
     const { t: tError } = useTranslation('errors');
 
-    // Both forms below are throttled at six a minute, and both are reachable
-    // from a page the user already had to confirm their password to open — so
-    // burning those attempts on a blank field is a real way to lock yourself
-    // out. Checked in JS rather than via `required`, which is only a hint.
+    // Both forms below are throttled at six a minute, so burning those attempts
+    // on a blank field is a real way to lock yourself out. Checked in JS rather
+    // than via `required`, which is only a hint.
     const accountValidation = useClientValidation(
         'account-email-form',
         (data) =>
@@ -61,11 +67,16 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                     passes: isEmail(data.email),
                     message: tError('validation.email'),
                 },
-                {
-                    field: 'current_password',
-                    passes: required(data.current_password),
-                    message: tError('validation.required'),
-                },
+                // OAuth-only accounts have no password to confirm.
+                ...(hasPassword
+                    ? [
+                          {
+                              field: 'current_password',
+                              passes: required(data.current_password),
+                              message: tError('validation.required'),
+                          },
+                      ]
+                    : []),
             ]),
     );
 
@@ -177,34 +188,36 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                                 />
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="account_current_password">
-                                    {t('account.currentPassword')}
-                                </Label>
+                            {hasPassword ? (
+                                <div className="grid gap-2">
+                                    <Label htmlFor="account_current_password">
+                                        {t('account.currentPassword')}
+                                    </Label>
 
-                                <PasswordInput
-                                    id="account_current_password"
-                                    ref={accountPasswordInput}
-                                    name="current_password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="current-password"
-                                    placeholder={t(
-                                        'account.currentPasswordPlaceholder',
-                                    )}
-                                    required
-                                />
+                                    <PasswordInput
+                                        id="account_current_password"
+                                        ref={accountPasswordInput}
+                                        name="current_password"
+                                        className="mt-1 block w-full"
+                                        autoComplete="current-password"
+                                        placeholder={t(
+                                            'account.currentPasswordPlaceholder',
+                                        )}
+                                        required
+                                    />
 
-                                <p className="text-sm text-muted-foreground">
-                                    {t('account.currentPasswordHint')}
-                                </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('account.currentPasswordHint')}
+                                    </p>
 
-                                <InputError
-                                    message={accountValidation.error(
-                                        'current_password',
-                                        errors.current_password,
-                                    )}
-                                />
-                            </div>
+                                    <InputError
+                                        message={accountValidation.error(
+                                            'current_password',
+                                            errors.current_password,
+                                        )}
+                                    />
+                                </div>
+                            ) : null}
 
                             <div className="flex items-center gap-4">
                                 <Button
@@ -219,7 +232,7 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                 </Form>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6" hidden={!hasPassword}>
                 <Heading
                     variant="small"
                     title={t('security.title')}
@@ -355,7 +368,7 @@ export default function Security({ mustVerifyEmail, status, ...props }: Props) {
                 passkeys={props.passkeys}
             />
 
-            <DeleteUser />
+            <DeleteUser ownedTeams={ownedTeams} />
         </>
     );
 }

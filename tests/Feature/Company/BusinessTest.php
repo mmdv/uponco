@@ -2,8 +2,12 @@
 
 use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
+use App\Models\Customer;
+use App\Models\Location;
+use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Build a business route. The acting user's current team is implicit.
@@ -131,7 +135,39 @@ test('the team can be deleted by owners', function () {
         ])
         ->assertRedirect();
 
-    $this->assertSoftDeleted('teams', ['id' => $team->id]);
+    $this->assertDatabaseMissing('teams', ['id' => $team->id]);
+});
+
+test('deleting a team permanently removes all of its data and logo', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create([
+        'logo_path' => 'logos/business.png',
+    ]);
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    Storage::disk('public')->put('logos/business.png', 'binary');
+
+    $customer = Customer::factory()->for($team)->create();
+    $location = Location::factory()->for($team)->create();
+    $service = Service::factory()->for($team)->create();
+
+    $this
+        ->actingAs($user)
+        ->delete(businessRoute('company.business.destroy'), [
+            'name' => $team->name,
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('teams', ['id' => $team->id]);
+    $this->assertDatabaseMissing('customers', ['id' => $customer->id]);
+    $this->assertDatabaseMissing('locations', ['id' => $location->id]);
+    $this->assertDatabaseMissing('services', ['id' => $service->id]);
+    $this->assertDatabaseMissing('team_members', ['team_id' => $team->id]);
+
+    Storage::disk('public')->assertMissing('logos/business.png');
 });
 
 test('team deletion requires name confirmation', function () {
@@ -173,7 +209,7 @@ test('deleting the current team switches to alphabetically first remaining team'
         ])
         ->assertRedirect();
 
-    $this->assertSoftDeleted('teams', ['id' => $zuluTeam->id]);
+    $this->assertDatabaseMissing('teams', ['id' => $zuluTeam->id]);
 
     expect($user->fresh()->current_team_id)->toEqual($alphaTeam->id);
 });

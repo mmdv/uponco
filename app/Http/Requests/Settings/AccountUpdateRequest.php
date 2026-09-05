@@ -18,9 +18,16 @@ class AccountUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'current_password' => $this->currentPasswordRules(),
+        $rules = [
             'email' => $this->emailRules($this->user()->id),
         ];
+
+        // OAuth-only accounts have no password to confirm; the live session
+        // stands in for re-authentication.
+        if ($this->user()->hasPassword()) {
+            $rules['current_password'] = $this->currentPasswordRules();
+        }
+
+        return $rules;
     }
 }

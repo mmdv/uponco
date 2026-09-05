@@ -40,7 +40,26 @@
             "confirmLabel": "Type \"{name}\" to confirm",
             "confirmPlaceholder": "Enter team name",
             "cancel": "Cancel",
-            "confirm": "Delete team"
+            "confirm": "Delete team",
+            "summary": {
+                "title": "This will permanently delete:",
+                "members": "{count} team member(s)",
+                "services": "{count} service(s)",
+                "serviceCategories": "{count} service category(ies)",
+                "customers": "{count} customer(s)",
+                "appointments": "{count} appointment(s)",
+                "locations": "{count} location(s)",
+                "scheduleSlots": "{count} schedule slot(s)",
+                "invitations": "{count} pending invitation(s)"
+            }
+        },
+        "transferOwnership": {
+            "tooltip": "Make owner",
+            "modalTitle": "Transfer ownership",
+            "modalDescription": "{name} will become the owner of this team and you will become an admin. Enter your password to confirm.",
+            "passwordLabel": "Your password",
+            "cancel": "Cancel",
+            "confirm": "Transfer ownership"
         },
         "members": {
             "title": "Team members",

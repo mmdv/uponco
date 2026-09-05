@@ -13,6 +13,7 @@ use App\Http\Requests\Company\SyncMemberServicesRequest;
 use App\Http\Requests\Company\UpdateBusinessMemberAccountRequest;
 use App\Http\Requests\Company\UpdateBusinessMemberProfileRequest;
 use App\Http\Requests\Settings\AvatarUpdateRequest;
+use App\Http\Requests\Teams\TransferTeamOwnershipRequest;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
 use App\Models\Location;
 use App\Models\OnboardingProgress;
@@ -102,6 +103,35 @@ class BusinessMemberController extends Controller
             ->update(['role' => $newRole]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member role updated.')]);
+
+        return back();
+    }
+
+    /**
+     * Hand ownership of the current team to another member.
+     *
+     * The acting owner is demoted to Admin so the team always has exactly one
+     * owner. Guarded by password confirmation via the form request.
+     */
+    public function transferOwnership(TransferTeamOwnershipRequest $request): RedirectResponse
+    {
+        $actor = $request->user();
+        $team = $actor->currentTeam;
+        $newOwner = $request->newOwner();
+
+        DB::transaction(function () use ($team, $actor, $newOwner): void {
+            $team->memberships()
+                ->where('user_id', $newOwner->id)
+                ->firstOrFail()
+                ->update(['role' => TeamRole::Owner]);
+
+            $team->memberships()
+                ->where('user_id', $actor->id)
+                ->firstOrFail()
+                ->update(['role' => TeamRole::Admin]);
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Ownership transferred.')]);
 
         return back();
     }

@@ -151,6 +151,9 @@
         "modalDescription": "Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.",
         "passwordLabel": "Password",
         "passwordPlaceholder": "Password",
+        "soloTeamsTitle": "These teams and all their data will be deleted with your account:",
+        "sharedTeamsTitle": "You still own these teams with other members. Transfer ownership before deleting your account:",
+        "sharedTeamsAction": "Manage team members",
         "cancel": "Cancel",
         "confirm": "Delete account"
     },

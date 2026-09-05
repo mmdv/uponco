@@ -51,9 +51,9 @@ export default function Login({ status, canResetPassword }: Props) {
         <>
             <Head title={t('login.headTitle')} />
 
-            {/* <div className="mb-6">
+            <div className="mb-6">
                 <GoogleLoginButton />
-            </div> */}
+            </div>
 
             <PasskeyVerify />
 
