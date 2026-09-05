@@ -40,30 +40,32 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Select the "Men's Haircut" service from the Service list.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
+        # -> Expand the "Service" card and select the "Men's Haircut" service.
+        # Service Choose a treatment button
+        elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Specialist' card so the list of available specialists is visible.
-        # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Men's Haircut' service button to ensure the service selection is applied.
+        # -> Final action — this is where the agent failed
+        # Error observed by agent: Failed to click element <button index=175>. The element may not be interactable or visible. If the page changed after navigation/interaction, the index [175] may be stale. Get fresh browser state befo
         # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
+        elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[1]/div/div/div/div/div[1]/div/button[3]").nth(0)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> Booking could not complete because selecting "Men's Haircut" did not narrow the specialist list to only Specialist A and Specialist B.
+        # --> A booking success screen is not displayed because the page returned '429 Too Many Requests'.
         # Assert-outcome: failed
-        # Assert: Expected 'Preview Owner' to be removed from the specialist list after selecting "Men's Haircut".
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[2]/div/div/div/div/div[1]").nth(0)).not_to_be_visible(timeout=15000), "Expected 'Preview Owner' to be removed from the specialist list after selecting \"Men's Haircut\"."
+        # Assert: Expected booking success screen to be displayed.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/button").nth(0)).to_contain_text("429 Too Many Requests", timeout=15000), "Expected booking success screen to be displayed."
+        
+        # --> The option to book another appointment is not available because the booking UI did not load (rate-limited 429 response).
         # Assert-outcome: failed
-        # Assert: Expected 'Sam Idris' to be removed from the specialist list after selecting "Men's Haircut".
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[2]/div/div/div/div/div[2]").nth(0)).not_to_be_visible(timeout=15000), "Expected 'Sam Idris' to be removed from the specialist list after selecting \"Men's Haircut\"."
+        # Assert: Expected the option to book another appointment to be available.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div[1]/div/div/div/div/div[1]/div/button[3]").nth(0)).not_to_be_visible(timeout=15000), "Expected the option to book another appointment to be available."
+        
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The test could not be run — the public booking page returned an HTTP 429 rate-limit response and the booking SPA did not load, preventing any interaction. Observations: - The page displays '429 Too Many Requests' centered on the screen. - No interactive booking controls (service, specialist, location, date, or time inputs) are present on the page. - A prior attempt to click the Ser...
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The test could not be run \u2014 the public booking page returned an HTTP 429 rate-limit response and the booking SPA did not load, preventing any interaction. Observations: - The page displays '429 Too Many Requests' centered on the screen. - No interactive booking controls (service, specialist, location, date, or time inputs) are present on the page. - A prior attempt to click the Ser..." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

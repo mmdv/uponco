@@ -40,66 +40,27 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Reload the 'Uponco — Appointment Booking S' booking page and wait for the booking wizard to load
-        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=5000)
-        except Exception:
-            pass
-        
-        # -> Reload the 'Uponco — Appointment Booking S' booking page and wait for the booking wizard to load
-        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=5000)
-        except Exception:
-            pass
-        
-        # -> Click the "Men's Haircut" service button to choose that treatment.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Specialist A' specialist button to choose Specialist A.
-        # SA Specialist A Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SA Specialist A Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Scroll down to reveal the 'Location' card and the date/time selection so 'Preview studio' and an available day/time can be selected.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Scroll down to reveal the 'Location' card and the date & time selection so 'Preview studio' and available days/times can be chosen.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Scroll the page to reveal the 'Location' card and the date & time selection so 'Preview studio' and available days/times can be chosen.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Click the 'Service' card header (the card labeled 'Service - Choose a treatment') to expand the Service options so dependent controls can appear.
+        # -> Click the 'Service' card and choose 'Men's Haircut', then select 'Specialist A' from the specialist list.
         # Service Choose a treatment button
         elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Scroll the page to reveal the 'Location' card and the date & time selection so 'Preview studio' and available days/times can be chosen.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Reveal the 'Location' card and the date & time selection so 'Preview studio' and available days/times can be chosen.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Click the 'Specialist' card header labeled 'Specialist — Choose who you'll see' to reveal dependent controls (Location and date/time).
-        # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
+        # -> Final action — this is where the agent failed
+        # Error observed by agent: Failed to click element <button index=172>. The element may not be interactable or visible. If the page changed after navigation/interaction, the index [172] may be stale. Get fresh browser state befo
+        # Men's Haircut 30 min · €20 button
+        elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[1]/div/div/div/div/div[1]/div/button[3]").nth(0)
         await elem.click(timeout=10000)
         
-        # -> Reveal the 'Location' card and the date & time selection so 'Preview studio' and available days/times can be chosen.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Scroll the page down to reveal the 'Location' card header so the 'Preview studio' option can be selected.
-        await page.mouse.wheel(0, 300)
-        
         # --> Assertions to verify final state
-        current_url = await page.evaluate("() => window.location.href")
-        # Assert-outcome: passed
-        # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
-        assert current_url, 'Page should have loaded with a URL'
+        
+        # --> Could not verify the contact-required validation because the booking page is rate-limited and the booking UI did not load.
+        # Assert-outcome: failed
+        # Assert: Expected the Service 'Choose a treatment' button to be visible so the booking form could be used.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/button").nth(0)).not_to_be_visible(timeout=15000), "Expected the Service 'Choose a treatment' button to be visible so the booking form could be used."
+        
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The test could not be run — the booking page is rate-limited and the booking wizard did not load. Observations: - The page displays "429 Too Many Requests" and no booking UI is present. - The SPA did not load (0 interactive elements), so the service/specialist/date/time/customer steps cannot be exercised.
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The test could not be run \u2014 the booking page is rate-limited and the booking wizard did not load. Observations: - The page displays \"429 Too Many Requests\" and no booking UI is present. - The SPA did not load (0 interactive elements), so the service/specialist/date/time/customer steps cannot be exercised." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

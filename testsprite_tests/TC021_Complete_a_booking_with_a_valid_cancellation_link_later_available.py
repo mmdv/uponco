@@ -40,91 +40,27 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Reload the booking page and wait for the booking wizard to load so the "Choose your booking details" wizard appears.
-        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=5000)
-        except Exception:
-            pass
-        
-        # -> Click the 'Service' card header, choose the 'Men's Haircut' service, expand the 'Specialist' card, choose 'Specialist A', then click the 'Continue' button to go to the date & time step.
+        # -> Click the 'Service' card to expand it, then choose the "Men's Haircut" service.
         # Service Choose a treatment button
         elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Service' card header, choose the 'Men's Haircut' service, expand the 'Specialist' card, choose 'Specialist A', then click the 'Continue' button to go to the date & time step.
+        # -> Final action — this is where the agent failed
+        # Error observed by agent: Failed to click element <button index=172>. The element may not be interactable or visible. If the page changed after navigation/interaction, the index [172] may be stale. Get fresh browser state befo
         # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Service' card header, choose the 'Men's Haircut' service, expand the 'Specialist' card, choose 'Specialist A', then click the 'Continue' button to go to the date & time step.
-        # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name="Service Men's Haircut", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Service' card header, choose the 'Men's Haircut' service, expand the 'Specialist' card, choose 'Specialist A', then click the 'Continue' button to go to the date & time step.
-        # SA Specialist A Next available · Tomorrow 09:00... button
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div[2]/div/div/div/div/div[3]')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Service' card header, choose the 'Men's Haircut' service, expand the 'Specialist' card, choose 'Specialist A', then click the 'Continue' button to go to the date & time step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Specialist B' entry to select Specialist B and check whether the 'Continue' button becomes enabled or the wizard advances.
-        # SB Specialist B Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SB Specialist B Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Preview studio' location and then click the 'Continue' button to proceed to the date & time step.
-        # Preview studio 80668 Maverick Trail Apt. 341... button
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Preview studio' location and then click the 'Continue' button to proceed to the date & time step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the '11:00 AM' time slot, then click the 'Continue' button to open the customer details form.
-        # 11:00 AM button
-        elem = page.get_by_role('button', name='11:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the '11:00 AM' time slot, then click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Fill the 'Name surname' and 'Email' fields, then click the 'Confirm booking' button to submit the booking.
-        # Jane Doe text field
-        elem = page.locator('[id="customer_name"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("TS ZZ Test")
-        
-        # -> Fill the 'Name surname' and 'Email' fields, then click the 'Confirm booking' button to submit the booking.
-        # jane@example.com email field
-        elem = page.locator('[id="customer_email"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("ts-zz-8372@example.com")
-        
-        # -> Fill the 'Name surname' and 'Email' fields, then click the 'Confirm booking' button to submit the booking.
-        # Confirm booking button
-        elem = page.get_by_role('button', name='Confirm booking', exact=True)
+        elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[1]/div/div/div/div/div[1]/div/button[3]").nth(0)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The booking success header 'You're booked in' is shown.
-        # Assert-outcome: passed
-        # Assert: The success header reads "You're booked in".
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_have_text("You're booked in", timeout=15000), "The success header reads \"You're booked in\"."
+        # --> Booking success screen was not displayed because the booking page returned '429 Too Many Requests' and the booking wizard was not available.
+        # Assert-outcome: failed
+        # Assert: Expected the Service card to be visible.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/button").nth(0)).not_to_be_visible(timeout=15000), "Expected the Service card to be visible."
         
-        # --> A 'Book another appointment' button is visible on the success screen.
-        # Assert-outcome: passed
-        # Assert: The 'Book another appointment' button is present.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/button").nth(0)).to_have_text("Book another appointment", timeout=15000), "The 'Book another appointment' button is present."
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The booking page could not be reached — the server is rate-limiting requests (HTTP 429), so the booking wizard cannot be loaded and the test cannot proceed. Observations: - The page displays the message: "429 Too Many Requests". - No interactive booking-wizard elements (Service / Specialist / Location cards or booking controls) are visible on the page. - A prior click attempt on th...
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The booking page could not be reached \u2014 the server is rate-limiting requests (HTTP 429), so the booking wizard cannot be loaded and the test cannot proceed. Observations: - The page displays the message: \"429 Too Many Requests\". - No interactive booking-wizard elements (Service / Specialist / Location cards or booking controls) are visible on the page. - A prior click attempt on th..." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

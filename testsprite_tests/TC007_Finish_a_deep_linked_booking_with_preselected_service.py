@@ -40,101 +40,95 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the service deep link '/appointments/zz-schedule-preview/service/mens-haircut' and wait for the booking UI to load.
+        # -> Open the deep link for the Men's Haircut service by navigating to /appointments/zz-schedule-preview/service/mens-haircut.
         await page.goto("http://localhost:8000/appointments/zz-schedule-preview/service/mens-haircut")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Expand the 'Specialist' card so the list of specialists (e.g., 'Specialist A' and 'Specialist B') is visible for selection.
-        # Specialist Specialist B button
-        elem = page.get_by_role('button', name='Specialist Specialist B', exact=True)
+        # -> Open the 'ZZ Schedule Preview' public booking page (the /appointments/zz-schedule-preview landing page) and verify it loads without the 429 error.
+        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Navigate to the deep link URL for the "Men's Haircut" service and verify the preselected service is shown as locked.
+        await page.goto("http://localhost:8000/appointments/zz-schedule-preview/service/mens-haircut")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Click the 'Specialist' card header to expand the Specialist list so the available specialists (should be Specialist A and Specialist B only) can be verified.
+        # Specialist Choose who you'll see button
+        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Continue' button to move to the date & time picker (after enumerating visible specialists).
+        # -> Select 'Specialist A' from the Specialist list so the Continue button becomes enabled.
+        # SA Specialist A Next available · Today 09:00... button
+        elem = page.get_by_role('button', name='SA Specialist A Next available · Today 09:00 09:30 10:00 10:30', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Select 'Specialist A' from the Specialist list so the Continue button becomes enabled.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the '10:00 AM' time slot and click the 'Continue' button to open the customer details form.
+        # -> Select the day chip labeled 'Sat 12 Sep' and then pick the '10:00 AM' time slot, then click the 'Continue' button to go to the customer details form.
+        # Sat 12 Sep button
+        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Select the day chip labeled 'Sat 12 Sep' and then pick the '10:00 AM' time slot, then click the 'Continue' button to go to the customer details form.
         # 10:00 AM button
         elem = page.get_by_role('button', name='10:00 AM', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the '10:00 AM' time slot and click the 'Continue' button to open the customer details form.
+        # -> Select the day chip labeled 'Sat 12 Sep' and then pick the '10:00 AM' time slot, then click the 'Continue' button to go to the customer details form.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Fill the 'Name' and 'Email' fields and click the 'Confirm booking' button.
+        # -> Click the '10:00 AM' time slot to select a time and then click the 'Continue' button to proceed to the customer details form.
+        # 10:00 AM button
+        elem = page.get_by_role('button', name='10:00 AM', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the '10:00 AM' time slot to select a time and then click the 'Continue' button to proceed to the customer details form.
+        # Continue button
+        elem = page.get_by_role('button', name='Continue', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Fill the Name field with a valid name and the Email field with a unique email, then click the 'Confirm booking' button.
         # Jane Doe text field
         elem = page.locator('[id="customer_name"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("Test User")
         
-        # -> Fill the 'Name' and 'Email' fields and click the 'Confirm booking' button.
+        # -> Fill the Name field with a valid name and the Email field with a unique email, then click the 'Confirm booking' button.
         # jane@example.com email field
         elem = page.locator('[id="customer_email"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("ts-zz-0905-1234@example.com")
+        await elem.fill("ts3-TC013-12345@example.com")
         
-        # -> Fill the 'Name' and 'Email' fields and click the 'Confirm booking' button.
-        # Confirm booking button
-        elem = page.get_by_role('button', name='Confirm booking', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the '09:00 AM' time slot and click the 'Continue' button to open the customer details form.
-        # 09:00 AM button
-        elem = page.get_by_role('button', name='09:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the '09:00 AM' time slot and click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Confirm booking' button to submit the booking and verify the 'You're booked in' confirmation appears.
-        # Confirm booking button
-        elem = page.get_by_role('button', name='Confirm booking', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the '6 Sep' day chip, choose the '12:00 PM' time slot, then click the 'Continue' button to open the customer details form.
-        # Sun 6 Sep button
-        elem = page.get_by_role('button', name='Sun 6 Sep', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the '6 Sep' day chip, choose the '12:00 PM' time slot, then click the 'Continue' button to open the customer details form.
-        # 12:00 PM button
-        elem = page.get_by_role('button', name='09:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the '6 Sep' day chip, choose the '12:00 PM' time slot, then click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the '12:00 PM' time slot and then click the 'Continue' button to open the customer details form.
-        # 12:00 PM button
-        elem = page.get_by_role('button', name='12:00 PM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the '12:00 PM' time slot and then click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Confirm booking' button to submit the booking and verify a 'You're booked in' confirmation appears.
+        # -> Fill the Name field with a valid name and the Email field with a unique email, then click the 'Confirm booking' button.
         # Confirm booking button
         elem = page.get_by_role('button', name='Confirm booking', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> A booking confirmation reading "You're booked in" is visible on the page.
+        # --> The booking confirmation heading "You're booked in" is visible.
         # Assert-outcome: passed
-        # Assert: Booking confirmation heading equals "You're booked in".
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_have_text("You're booked in", timeout=15000), "Booking confirmation heading equals \"You're booked in\"."
+        # Assert: The confirmation heading 'You're booked in' is shown.
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_contain_text("You're booked in", timeout=15000), "The confirmation heading 'You're booked in' is shown."
+        
+        # --> The final booking summary shows the service remained set to "Men's Haircut".
+        # Assert-outcome: passed
+        # Assert: The booking summary displays the service 'Men's Haircut'.
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[1]/span").nth(0)).to_contain_text("Men's Haircut", timeout=15000), "The booking summary displays the service 'Men's Haircut'."
         await asyncio.sleep(5)
 
     finally:

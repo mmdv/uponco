@@ -63,7 +63,12 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
+/*
+ * The light palette. `.theme-light` re-declares it so a subtree can be pinned
+ * to light while the document is dark — see the `.theme-*` note below.
+ */
+:root,
+.theme-light {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -128,7 +133,8 @@
     --sidebar-ring: #3884fe;
 }
 
-.dark {
+.dark,
+.theme-dark {
     /*
      * A softer, faintly warm dark rather than near-black — matches the feel of
      * Claude's dark theme so large surfaces don't read as a harsh void.
@@ -177,6 +183,42 @@
     --sidebar-accent-foreground: oklch(0.97 0.004 80);
     --sidebar-border: oklch(0.34 0.004 75);
     --sidebar-ring: #3884fe;
+}
+
+/*
+ * Pins a subtree to one theme regardless of the document's own — used by the
+ * brand preview, which has to show the light and the dark booking page from
+ * inside a dashboard that is itself one or the other.
+ *
+ * The `--color-*` twins are the catch. `@theme` declares them on `:root` as
+ * `var(--background)` and friends, which resolve *there* and inherit down as
+ * already-computed colours, so re-declaring `--background` deeper in the tree
+ * never reaches `bg-background`. Re-deriving the twins on the same element is
+ * what makes the swap take. (The `dark:` utility variant still keys off an
+ * ancestor `.dark`, so a pinned subtree must style with tokens, not `dark:`.)
+ */
+.theme-light,
+.theme-dark {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-brand-accent: var(--brand-accent);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
 }
 
 @theme {

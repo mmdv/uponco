@@ -40,56 +40,66 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the 'Online Lecture (Latvian)' service page (navigate to the Online Lecture (Latvian) deep link).
+        # -> Click the "Online Lecture (Latvian)" service button to select the online lecture.
+        # Online Lecture (Latvian) 1h · €25 Online lecture... button
+        elem = page.get_by_role('button', name='Online Lecture (Latvian) 1h · €25 Online lecture delivered in Latvian by Specialist D.', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Open the 'Online Lecture (Latvian)' service page at /appointments/zz-schedule-preview/service/online-lecture-latvian to load the booking wizard.
         await page.goto("http://localhost:8000/appointments/zz-schedule-preview/service/online-lecture-latvian")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Click the 'Continue' button to move from 'Choose your booking details' to the 'Pick a date & time' step
+        # -> Click the 'Continue' button to go to the 'Pick a date & time' step.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 09:00 AM time slot and click the 'Continue' button to open the customer details form.
-        # 09:00 AM button
-        elem = page.get_by_role('button', name='09:00 AM', exact=True)
+        # -> Verify the specialist list shows only 'Specialist D' (and not Specialist A/B/C, Sam Idris, or Preview Owner), then select the day chip for 12 Sep.
+        # Sat 12 Sep button
+        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 09:00 AM time slot and click the 'Continue' button to open the customer details form.
+        # -> Select the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
+        # 10:00 AM button
+        elem = page.get_by_role('button', name='10:00 AM', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Select the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Fill the 'Name surname' and 'Email' fields, then click the 'Confirm booking' button to submit the booking.
+        # -> Fill the 'Name surname' field with 'Test User' and the 'Email' field with a unique address, then click the 'Confirm booking' button.
         # Jane Doe text field
         elem = page.locator('[id="customer_name"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("Test User")
         
-        # -> Fill the 'Name surname' and 'Email' fields, then click the 'Confirm booking' button to submit the booking.
+        # -> Fill the 'Name surname' field with 'Test User' and the 'Email' field with a unique address, then click the 'Confirm booking' button.
         # jane@example.com email field
         elem = page.locator('[id="customer_email"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("ts-onlinelecture-20260904-001@example.com")
+        await elem.fill("ts3-tc013-12345@example.com")
         
-        # -> Fill the 'Name surname' and 'Email' fields, then click the 'Confirm booking' button to submit the booking.
+        # -> Fill the 'Name surname' field with 'Test User' and the 'Email' field with a unique address, then click the 'Confirm booking' button.
         # Confirm booking button
         elem = page.get_by_role('button', name='Confirm booking', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> A booking success screen is shown with the header "You're booked in".
+        # --> A booking confirmation is shown with the heading “You're booked in”.
         # Assert-outcome: passed
-        # Assert: Verifies the booking success header text is visible.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_have_text("You're booked in", timeout=15000), "Verifies the booking success header text is visible."
+        # Assert: Confirmation heading contains "You're booked in".
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_contain_text("You're booked in", timeout=15000), "Confirmation heading contains \"You're booked in\"."
         
-        # --> The appointment recap shows the Online Lecture (Latvian) service, confirming the booking was for an online (no-location) service.
+        # --> The appointment was completed for the Online Lecture (Latvian) and no physical location is shown.
         # Assert-outcome: passed
-        # Assert: Verifies the appointment recap shows the Online Lecture (Latvian) service (an online service with no physical location).
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[1]/span").nth(0)).to_have_text("Online Lecture (Latvian) \u00b7 1h \u00b7 \u20ac25", timeout=15000), "Verifies the appointment recap shows the Online Lecture (Latvian) service (an online service with no physical location)."
+        # Assert: Confirmation shows the booked service is Online Lecture (Latvian) · 1h · €25.
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[1]/span").nth(0)).to_contain_text("Online Lecture (Latvian) \u00b7 1h \u00b7 \u20ac25", timeout=15000), "Confirmation shows the booked service is Online Lecture (Latvian) \u00b7 1h \u00b7 \u20ac25."
         await asyncio.sleep(5)
 
     finally:

@@ -40,114 +40,26 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Click the 'Men's Haircut' service to choose that on-site service.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the 'Specialist' card and check that only 'Specialist A' and 'Specialist B' are listed (other specialists must be absent).
-        # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Service' card and select the 'Men's Haircut' service so the Specialist list should be narrowed to Specialist A and Specialist B.
+        # -> Click the 'Service' card header to expand the service list so a treatment (e.g., "Men's Haircut") can be selected.
         # Service Choose a treatment button
         elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Service' card and select the 'Men's Haircut' service so the Specialist list should be narrowed to Specialist A and Specialist B.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the 'Specialist' card and select 'Specialist A', then click the 'Continue' button to go to the date & time step.
-        # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the 'Specialist' card and select 'Specialist A', then click the 'Continue' button to go to the date & time step.
-        # SA Specialist A Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SA Specialist A Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the 'Specialist' card and select 'Specialist A', then click the 'Continue' button to go to the date & time step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the location option labeled 'Preview studio' to select it, then click the 'Continue' button to go to the date & time step.
-        # Preview studio 80668 Maverick Trail Apt. 341... button
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Click the location option labeled 'Preview studio' to select it, then click the 'Continue' button to go to the date & time step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the date '12 Sep' and the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
-        # Sat 12 Sep button
-        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the date '12 Sep' and the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
-        # 10:00 AM button
-        elem = page.get_by_role('button', name='10:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the date '12 Sep' and the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the '10:00 AM' time slot and then click the 'Continue' button to open the customer details form.
-        # 10:00 AM button
-        elem = page.get_by_role('button', name='10:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the '10:00 AM' time slot and then click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Fill the 'Name surname' field with a valid name and the 'Email' field with a unique email, then click the 'Confirm booking' button.
-        # Jane Doe text field
-        elem = page.locator('[id="customer_name"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("TS2 TestUser")
-        
-        # -> Fill the 'Name surname' field with a valid name and the 'Email' field with a unique email, then click the 'Confirm booking' button.
-        # jane@example.com email field
-        elem = page.locator('[id="customer_email"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("ts2-tc013-20260904-2300@example.com")
-        
-        # -> Fill the 'Name surname' field with a valid name and the 'Email' field with a unique email, then click the 'Confirm booking' button.
-        # Confirm booking button
-        elem = page.get_by_role('button', name='Confirm booking', exact=True)
-        await elem.click(timeout=10000)
-        
         # --> Assertions to verify final state
         
-        # --> A booking success message is shown on the confirmation page.
-        # Assert-outcome: passed
-        # Assert: Confirms the booking success message is visible.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_have_text("You're booked in", timeout=15000), "Confirms the booking success message is visible."
+        # --> Booking confirmation is not visible because the booking page returned a rate-limit error ('429 Too Many Requests').
+        # Assert-outcome: failed
+        # Assert: Expected booking success confirmation to be visible.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/button").nth(0)).to_contain_text("429 Too Many Requests", timeout=15000), "Expected booking success confirmation to be visible."
         
-        # --> The confirmed service is shown as "Men's Haircut · 30 min · €20".
-        # Assert-outcome: passed
-        # Assert: Verifies the service line shows the selected service and duration/price.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[1]/span").nth(0)).to_have_text("Service Men's Haircut \u00b7 30 min \u00b7 \u20ac20", timeout=15000), "Verifies the service line shows the selected service and duration/price."
+        # --> Appointment details are not displayed because the SPA booking UI did not render and the page shows a '429 Too Many Requests' error.
+        # Assert-outcome: failed
+        # Assert: Expected appointment details to be displayed.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/button").nth(0)).to_contain_text("429 Too Many Requests", timeout=15000), "Expected appointment details to be displayed."
         
-        # --> The confirmed specialist is shown as "Specialist A".
-        # Assert-outcome: passed
-        # Assert: Verifies the confirmation lists the chosen specialist.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[2]/span").nth(0)).to_have_text("Specialist Specialist A", timeout=15000), "Verifies the confirmation lists the chosen specialist."
-        
-        # --> The confirmed location and appointment time are displayed on the confirmation card.
-        # Assert-outcome: passed
-        # Assert: Verifies the confirmation shows the selected location.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[3]/span").nth(0)).to_have_text("Location Preview studio", timeout=15000), "Verifies the confirmation shows the selected location."
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The test could not be run — the booking page did not load because the server returned a rate-limit error. Observations: - The page displays '429 Too Many Requests'. - The SPA booking UI did not render and no booking interactive elements (service/specialist/location/day/time/customer form) are present.
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The test could not be run \u2014 the booking page did not load because the server returned a rate-limit error. Observations: - The page displays '429 Too Many Requests'. - The SPA booking UI did not render and no booking interactive elements (service/specialist/location/day/time/customer form) are present." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

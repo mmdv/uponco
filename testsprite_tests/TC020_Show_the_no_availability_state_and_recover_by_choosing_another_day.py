@@ -40,98 +40,124 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the 'Service' card and select the 'Preview haircut' service so the specialist and location options can appear.
+        # -> Click the "Service — Choose a treatment" card header to expand the Service selection.
         # Service Choose a treatment button
         elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 'Preview haircut' service from the Service card so the eligible specialists and location appear.
-        # Preview haircut 1h · €30 button
-        elem = page.get_by_role('button', name='Preview haircut 1h · €30', exact=True)
+        # -> Reload the 'ZZ Schedule Preview' booking page and wait for the booking wizard to load (resolve the 429 error if transient).
+        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Click the 'Service — Choose a treatment' card header to expand the Service selection.
+        # Service Choose a treatment button
+        elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 'Preview Owner' specialist and click the 'Continue' button to go to the 'Pick a date & time' step.
-        # PO Preview Owner Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='PO Preview Owner Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
+        # -> Click the 'Men's Haircut' service to select it.
+        # Men's Haircut 30 min · €20 button
+        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 'Preview Owner' specialist and click the 'Continue' button to go to the 'Pick a date & time' step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Preview Owner' specialist to select them so the Continue button can enable.
-        # PO Preview Owner Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='PO Preview Owner Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Specialist' card, select the 'Preview Owner' specialist, and click the 'Continue' button to go to the 'Pick a date & time' step.
+        # -> Click the 'Specialist — Choose who you'll see' card header to expand the Specialist selection and reveal the specialist list.
         # Specialist Choose who you'll see button
         elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Specialist' card, select the 'Preview Owner' specialist, and click the 'Continue' button to go to the 'Pick a date & time' step.
-        # PO Preview Owner Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='PO Preview Owner Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
+        # -> Select 'Specialist A' from the Specialist list after confirming only Specialist A and Specialist B are shown and Specialist C / Specialist D / Sam Idris / Preview Owner are not present.
+        # SA Specialist A Next available · Today 09:00... button
+        elem = page.get_by_role('button', name='SA Specialist A Next available · Today 09:00 09:30 10:00 10:30', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Specialist' card, select the 'Preview Owner' specialist, and click the 'Continue' button to go to the 'Pick a date & time' step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Specialist' card (label: 'Specialist') to reveal available specialists.
-        # Specialist Preview Owner button
-        elem = page.get_by_role('button', name='Specialist Preview Owner', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Location' card, select 'Preview studio', then click the 'Continue' button to go to the 'Pick a date & time' step.
-        # Location Pick where to visit button
-        elem = page.get_by_role('button', name='Location Pick where to visit', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Location' card, select 'Preview studio', then click the 'Continue' button to go to the 'Pick a date & time' step.
+        # -> Select the location 'Preview studio' to enable date selection and proceed to the Pick a date & time step.
         # Preview studio 80668 Maverick Trail Apt. 341... button
         elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div')
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Location' card, select 'Preview studio', then click the 'Continue' button to go to the 'Pick a date & time' step.
+        # -> Click the 'Continue' button to go to the 'Pick a date & time' step.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the calendar (calendar icon) to expose and choose 11 September.
-        # Show calendar button
-        elem = page.get_by_role('button', name='Show calendar', exact=True)
+        # -> Select the day 'Fri 11 Sep' and verify the page shows the empty 'no times available' state (or that the day is disabled), then pick 'Sat 12 Sep' and choose the 09:00 AM slot.
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the calendar cell labelled '11' (11 September 2026) and verify the page shows the no-times-available empty-state message.
-        # 11 button
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/section/div[2]/div[2]/button[12]')
+        # -> Select the day 'Fri 11 Sep' and verify the page shows the empty 'no times available' state (or that the day is disabled), then pick 'Sat 12 Sep' and choose the 09:00 AM slot.
+        # Sat 12 Sep button
+        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the calendar day '12' (12 September 2026) and then select the '09:00 AM' time slot to verify available times are shown.
-        # 12 button
-        elem = page.get_by_role('button', name='12', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the calendar day '12' (12 September 2026) and then select the '09:00 AM' time slot to verify available times are shown.
+        # -> Select the day 'Fri 11 Sep' and verify the page shows the empty 'no times available' state (or that the day is disabled), then pick 'Sat 12 Sep' and choose the 09:00 AM slot.
         # 09:00 AM button
         elem = page.get_by_role('button', name='09:00 AM', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the '09:00 AM' time slot to select it and confirm that available times are shown for 12 September (verify the selection by observing the Continue button enabling or other selected-time UI feedback).
+        # -> Verify that the 'Fri 11 Sep' day chip shows no availability, then select 'Sat 12 Sep' and click the '09:00 AM' time slot.
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Verify that the 'Fri 11 Sep' day chip shows no availability, then select 'Sat 12 Sep' and click the '09:00 AM' time slot.
+        # Sat 12 Sep button
+        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Verify that the 'Fri 11 Sep' day chip shows no availability, then select 'Sat 12 Sep' and click the '09:00 AM' time slot.
         # 09:00 AM button
         elem = page.get_by_role('button', name='09:00 AM', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and confirm it shows no availability, then select 'Sat 12 Sep' and choose the '09:00 AM' time slot.
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and confirm it shows no availability, then select 'Sat 12 Sep' and choose the '09:00 AM' time slot.
+        # Sat 12 Sep button
+        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and confirm it shows no availability, then select 'Sat 12 Sep' and choose the '09:00 AM' time slot.
+        # 09:00 AM button
+        elem = page.get_by_role('button', name='09:00 AM', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and verify that the page shows a no-availability/empty-times state (look for text like 'no times', 'no availability', or 'try another').
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and confirm the UI shows the empty/no-times-available state (either by an empty time list or an explicit no-times message).
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and observe whether the page displays an empty/no-times-available state (empty time list or an explicit no-availability message).
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Fri 11 Sep' day chip and then verify the time list is empty (no available time slots shown) to confirm the no-availability empty state.
+        # Fri 11 Sep button
+        elem = page.get_by_role('button', name='Fri 11 Sep', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> Available times are shown for 12 September and include a 09:00 AM slot.
-        await page.locator("xpath=/html/body/div/div/div/main/div/div/section[2]/div/button[1]").nth(0).scroll_into_view_if_needed()
+        # --> The Fri 11 Sep day chip is shown disabled, indicating no availability for that day.
         # Assert-outcome: passed
-        # Assert: The 09:00 AM time slot is visible.
-        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/section[2]/div/button[1]").nth(0)).to_be_visible(timeout=15000), "The 09:00 AM time slot is visible."
+        # Assert: Verifies the Fri 11 Sep day chip is marked disabled (no availability).
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/section[1]/div[2]/button[7]").nth(0)).to_have_attribute("aria-disabled", "true", timeout=15000), "Verifies the Fri 11 Sep day chip is marked disabled (no availability)."
+        
+        # --> Available time slots are displayed for the selected day (the first visible slot is 09:00 AM).
+        # Assert-outcome: passed
+        # Assert: Verifies the 09:00 AM time slot is visible in the time list.
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/section[2]/div/button[1]").nth(0)).to_have_text("09:00 AM", timeout=15000), "Verifies the 09:00 AM time slot is visible in the time list."
         await asyncio.sleep(5)
 
     finally:

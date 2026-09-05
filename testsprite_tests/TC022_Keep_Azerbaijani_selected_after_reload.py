@@ -40,54 +40,27 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the header menu (click the header control/gear area) to reveal language options.
+        # -> Open the header settings (gear) menu in the page header to reveal language options.
         # Share and appearance button
         elem = page.get_by_role('button', name='Share and appearance', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'Language' dropdown in the header menu (the control currently showing 'English').
-        # English button
-        elem = page.locator('xpath=/html/body/div[2]/div/div[2]/button')
-        await elem.click(timeout=10000)
-        
-        # -> Select 'Azərbaycan' from the Language dropdown to change the page language to Azerbaijani.
-        # Azərbaycan option
-        elem = page.get_by_role('option', name='Azərbaycan', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Reload the booking page (the "Görüş təyin edin · ZZ Schedule" page) to verify the Azerbaijani language choice persists after a refresh.
-        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=5000)
-        except Exception:
-            pass
-        
-        # -> Open the header menu (gear/share control) to access the language selector and switch the site back to English.
-        # Paylaş və görünüş button
-        elem = page.get_by_role('button', name='Paylaş və görünüş', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the 'Dil' (Language) dropdown in the header menu so the 'English' option can be selected.
-        # Azərbaycan button
-        elem = page.locator('xpath=/html/body/div[2]/div/div[2]/button')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'English' option in the language dropdown to switch the booking page back to English and verify the UI updates.
-        # English option
-        elem = page.get_by_role('option', name='English', exact=True)
-        await elem.click(timeout=10000)
-        
         # --> Assertions to verify final state
         
-        # --> Azerbaijani language persisted and the booking wizard showed Azerbaijani copy after the page was reloaded.
-        # Assert-outcome: passed
-        # Assert: Booking wizard header contains the Azerbaijani phrase 'Görüş təyin edin'.
-        await expect(page.locator("xpath=/html/body/div[1]").nth(0)).to_contain_text("G\u00f6r\u00fc\u015f t\u0259yin edin", timeout=15000), "Booking wizard header contains the Azerbaijani phrase 'G\u00f6r\u00fc\u015f t\u0259yin edin'."
+        # --> Could not verify the booking wizard copy is Azerbaijani because the booking UI did not load due to rate limiting.
+        await page.locator("xpath=/html/body/div/div/div/header/div/button").nth(0).scroll_into_view_if_needed()
+        # Assert-outcome: failed
+        # Assert: Expected the header settings button to be visible so the language could be changed.
+        await expect(page.locator("xpath=/html/body/div/div/div/header/div/button").nth(0)).to_be_visible(timeout=15000), "Expected the header settings button to be visible so the language could be changed."
         
-        # --> The booking page (wizard with Service and Specialist cards) remained displayed throughout the test.
-        # Assert-outcome: passed
-        # Assert: The Service card (booking wizard) is visible with the 'Choose a treatment' label.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[1]/button").nth(0)).to_contain_text("Choose a treatment", timeout=15000), "The Service card (booking wizard) is visible with the 'Choose a treatment' label."
+        # --> The booking page URL remains /appointments/zz-schedule-preview but the interactive booking UI did not load.
+        # Assert-outcome: failed
+        # Assert: Expected the URL to contain '/appointments/zz-schedule-preview'.
+        await expect(page).to_have_url(re.compile("appointments/zz\\-schedule\\-preview"), timeout=15000), "Expected the URL to contain '/appointments/zz-schedule-preview'."
+        
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The Azerbaijani language persistence test could not be run because the booking page is rate-limited and the required UI did not load. Observations: - The page displays '429 Too Many Requests' and no interactive booking UI is present. - The header/settings menu and booking wizard are not available, preventing language selection and verification.
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The Azerbaijani language persistence test could not be run because the booking page is rate-limited and the required UI did not load. Observations: - The page displays '429 Too Many Requests' and no interactive booking UI is present. - The header/settings menu and booking wizard are not available, preventing language selection and verification." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

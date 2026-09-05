@@ -386,11 +386,23 @@
             "accentLabel": "Vurğu rəngi",
             "accentHint": "Əsas rəngdən 10% şəffaflıqla avtomatik yaradılır.",
             "hint": "Rezervasiya səhifənizdə və rezervasiya vidcetində istifadə olunur.",
-            "preview": "Önbaxış",
-            "previewButton": "İndi rezerv et",
-            "previewChip": "Seçilmiş",
+            "presets": "Sürətli seçimlər",
             "reset": "Standart rəngə qaytar",
             "save": "Rəngləri yadda saxla"
+        },
+        "preview": {
+            "title": "Canlı önbaxış",
+            "description": "Rezervasiya səhifəniz müştərilərə belə görünür",
+            "tagline": "Görüş üçün rezerv edin",
+            "heading": "Rezervasiya təfərrüatlarını seçin",
+            "location": "Məkan",
+            "service": "Xidmət",
+            "specialist": "Mütəxəssis",
+            "directions": "Yol göstər",
+            "continue": "Davam et",
+            "light": "İşıqlı",
+            "dark": "Qaranlıq",
+            "open": "Rezervasiya səhifənizi açın"
         },
         "languages": {
             "title": "Dillər",

@@ -40,44 +40,50 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Click the gear/settings header button to open the header menu (the header menu at top of the booking page).
+        # -> Open the header 'Share and appearance' menu by clicking the gear icon to reveal theme options.
         # Share and appearance button
         elem = page.get_by_role('button', name='Share and appearance', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Dark' button in the header Theme menu to switch the booking page to Dark theme.
+        # -> Reload the 'ZZ Schedule Preview' booking page to recover from the 'Too Many Requests' error and restore the booking wizard.
+        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Open the 'Share and appearance' header menu by clicking the gear icon to reveal theme options.
+        # Share and appearance button
+        elem = page.get_by_role('button', name='Share and appearance', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Open the 'Share and appearance' menu by clicking the gear icon labeled 'Share and appearance'.
+        # Share and appearance button
+        elem = page.get_by_role('button', name='Share and appearance', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Dark' button in the Theme menu to switch the booking page theme to dark.
         # Dark button
         elem = page.get_by_role('button', name='Dark', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Dark' button in the header Theme menu to switch the booking page to Dark theme.
-        # Light button
-        elem = page.get_by_role('button', name='Light', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Dark' button in the header Theme menu to switch the booking page to Dark theme.
-        # Dark button
-        elem = page.get_by_role('button', name='Dark', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Light' button in the Theme dialog to switch the booking page back to Light and confirm the wizard remains visible.
+        # -> Click the 'Light' button in the Theme dialog to switch the booking page back to the light theme.
         # Light button
         elem = page.get_by_role('button', name='Light', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The booking wizard remained displayed (the 'Choose your booking details' heading is visible).
-        await page.locator("xpath=/html/body/div[1]").nth(0).scroll_into_view_if_needed()
+        # --> The booking wizard remains displayed on the booking page (Service & Specialist cards and Continue button are visible).
         # Assert-outcome: passed
-        # Assert: Booking wizard is visible.
-        await expect(page.locator("xpath=/html/body/div[1]").nth(0)).to_be_visible(timeout=15000), "Booking wizard is visible."
+        # Assert: The booking wizard heading 'Choose your booking details' is visible on the page.
+        await expect(page.locator("xpath=/html/body/div[1]").nth(0)).to_contain_text("Choose your booking details", timeout=15000), "The booking wizard heading 'Choose your booking details' is visible on the page."
         
-        # --> The Light theme is active after toggling (Light button shown active in the Theme dialog).
+        # --> The Light theme is active in the Theme dialog after toggling back.
         await page.locator("xpath=/html/body/div[2]/div/div[1]/div/button[1]").nth(0).scroll_into_view_if_needed()
         # Assert-outcome: passed
-        # Assert: Light theme button is visible in the Theme dialog.
-        await expect(page.locator("xpath=/html/body/div[2]/div/div[1]/div/button[1]").nth(0)).to_be_visible(timeout=15000), "Light theme button is visible in the Theme dialog."
+        # Assert: The Theme dialog's 'Light' button is visible (indicating the dialog shows the Light option).
+        await expect(page.locator("xpath=/html/body/div[2]/div/div[1]/div/button[1]").nth(0)).to_be_visible(timeout=15000), "The Theme dialog's 'Light' button is visible (indicating the dialog shows the Light option)."
         await asyncio.sleep(5)
 
     finally:

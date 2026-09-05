@@ -40,21 +40,21 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Click the 'Service' card to expand the list of services.
-        # Service Choose a treatment button
-        elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
-        await elem.click(timeout=10000)
-        
         # --> Assertions to verify final state
         
-        # --> Could not verify the email validation error because the booking page is rate-limited and the booking wizard cannot be reached.
+        # --> Appointment details are displayed on the page.
         # Assert-outcome: failed
-        # Assert: Expected the booking wizard service card button to be visible so the booking flow (and email validation) could be reached.
-        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/button").nth(0)).not_to_be_visible(timeout=15000), "Expected the booking wizard service card button to be visible so the booking flow (and email validation) could be reached."
+        # Assert: Expected the main booking area to contain appointment details or a 'cancel' link.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div[1]/button").nth(0)).to_contain_text("cancel", timeout=15000), "Expected the main booking area to contain appointment details or a 'cancel' link."
+        
+        # --> The appointment is marked cancelled.
+        # Assert-outcome: failed
+        # Assert: Expected the appointment to be marked 'cancelled' on the page.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div[1]/button").nth(0)).to_contain_text("cancelled", timeout=15000), "Expected the appointment to be marked 'cancelled' on the page."
         
         # --> Test blocked by environment/access constraints during agent run
-        # Reason: TEST BLOCKED The test could not be run — the booking page is rate-limited and the booking wizard cannot be reached. Observations: - The page displays '429 Too Many Requests' with no interactive elements present - The booking wizard UI (service/specialist/location/time/customer form) is not accessible due to the rate limit
-        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The test could not be run \u2014 the booking page is rate-limited and the booking wizard cannot be reached. Observations: - The page displays '429 Too Many Requests' with no interactive elements present - The booking wizard UI (service/specialist/location/time/customer form) is not accessible due to the rate limit" + " — the exported script cannot reproduce a PASS in this environment.")
+        # Reason: TEST BLOCKED The cancellation flow could not be exercised because the public booking preview page does not expose a signed cancellation link or any cancellation UI necessary to run the test. Observations: - The preview booking page displays service and specialist selection but no 'cancel' or 'cancellation' links or buttons. - A page search for the text "cancel" returned zero matches. - No appoi...
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The cancellation flow could not be exercised because the public booking preview page does not expose a signed cancellation link or any cancellation UI necessary to run the test. Observations: - The preview booking page displays service and specialist selection but no 'cancel' or 'cancellation' links or buttons. - A page search for the text \"cancel\" returned zero matches. - No appoi..." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

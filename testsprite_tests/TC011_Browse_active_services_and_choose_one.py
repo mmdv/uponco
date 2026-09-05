@@ -40,54 +40,61 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Expand the 'Service' section by clicking the 'Service' card header labeled "Service - Choose a treatment".
+        # -> Click the 'Service' card to expand the list of available services so their names, durations and prices can be reviewed.
         # Service Choose a treatment button
         elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Men's Haircut' service
+        # -> Reload the 'ZZ Schedule Preview' public booking page and wait for the booking wizard and Service/Specialist cards to load.
+        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Click the 'Service' card (label: 'Service — Choose a treatment') to expand the list of services.
+        # Service Choose a treatment button
+        elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Men's Haircut' service button to select that service for the booking.
         # Men's Haircut 30 min · €20 button
         elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select 'Specialist A' in the Specialist card so the booking summary can remain showing the service and the Continue button can become enabled.
-        # SA Specialist A Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SA Specialist A Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
+        # -> Click the 'Men's Haircut' service button (label: "Men's Haircut 30 min · €20") to select it so the UI will filter specialists and update the booking summary.
+        # Men's Haircut 30 min · €20 button
+        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Specialist' card and select 'Specialist A' so the booking summary shows 'Men's Haircut' and the 'Continue' button becomes enabled.
-        # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
+        # -> Click the 'Men's Haircut 30 min · €20' service button to select it.
+        # Men's Haircut 30 min · €20 button
+        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Specialist' card and select 'Specialist A' so the booking summary shows 'Men's Haircut' and the 'Continue' button becomes enabled.
-        # SA Specialist A Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SA Specialist A Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
+        # -> Click the 'Men's Haircut 30 min · €20' service button to select the service so the UI can filter specialists.
+        # Men's Haircut 30 min · €20 button
+        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Expand the 'Specialist' card and click the 'Specialist A' option so the booking summary shows the chosen service and the 'Continue' button becomes enabled.
-        # Specialist Specialist A button
-        elem = page.get_by_role('button', name='Specialist Specialist A', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Specialist' card and click the 'Specialist A' option so the booking summary shows the chosen service and the 'Continue' button becomes enabled.
-        # SA Specialist A Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SA Specialist A Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
+        # -> Click the 'Men's Haircut' service button once and then verify the Specialist list updates to only show Specialist A and Specialist B.
+        # Men's Haircut 30 min · €20 button
+        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The services list is visible and includes the 'Men's Haircut' entry with its details.
-        await page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div/div/div/div/div/div/button[3]").nth(0).scroll_into_view_if_needed()
-        # Assert-outcome: passed
-        # Assert: Men's Haircut service entry is visible on the services list.
-        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div/div/div/div/div/div/button[3]").nth(0)).to_be_visible(timeout=15000), "Men's Haircut service entry is visible on the services list."
+        # --> The Services list displays the available services with durations and prices (e.g. Men's Haircut is visible).
+        await page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[1]/div/div/div/div/div[1]/div/button[3]").nth(0).scroll_into_view_if_needed()
+        # Assert-outcome: failed
+        # Assert: Expected the service 'Men's Haircut 30 min · €20' to be visible in the Services list.
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[1]/div/div/div/div/div[1]/div/button[3]").nth(0)).to_be_visible(timeout=15000), "Expected the service 'Men's Haircut 30 min \u00b7 \u20ac20' to be visible in the Services list."
         
-        # --> The chosen service 'Men's Haircut' is shown in the Service card header (booking summary).
-        await page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/button").nth(0).scroll_into_view_if_needed()
-        # Assert-outcome: passed
-        # Assert: Service card header displays the chosen service 'Men's Haircut'.
-        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/button").nth(0)).to_be_visible(timeout=15000), "Service card header displays the chosen service 'Men's Haircut'."
+        # --> Selecting the service did not update the booking: the Specialist list was not filtered and still shows specialists that should have been removed.
+        await page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[2]/div/div/div/div/div[5]").nth(0).scroll_into_view_if_needed()
+        # Assert-outcome: failed
+        # Assert: Expected the Specialist list to be filtered to only eligible specialists after selecting the service.
+        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[2]/div/div/div/div/div[5]").nth(0)).to_be_visible(timeout=15000), "Expected the Specialist list to be filtered to only eligible specialists after selecting the service."
         await asyncio.sleep(5)
 
     finally:

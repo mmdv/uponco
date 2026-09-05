@@ -40,76 +40,28 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the 'Men's Haircut' deep link so the service is preselected and locked (navigate to the Men's Haircut deep link).
+        # -> Open the deep link for the 'Men's Haircut' service by navigating to the service deep-link URL.
         await page.goto("http://localhost:8000/appointments/zz-schedule-preview/service/mens-haircut")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Click the 'Continue' button at the bottom of the wizard to open the "Pick a date & time" step.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the day '5 September', choose the 10:00 AM time slot, and click the 'Continue' button to open the customer details form.
-        # Tmrw 5 Sep button
-        elem = page.get_by_role('button', name='Tmrw 5 Sep', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the day '5 September', choose the 10:00 AM time slot, and click the 'Continue' button to open the customer details form.
-        # 10:00 AM button
-        elem = page.get_by_role('button', name='10:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the day '5 September', choose the 10:00 AM time slot, and click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Fill the 'Name surname' field, fill the 'Email' field with a unique test email, then click the 'Confirm booking' button.
-        # Jane Doe text field
-        elem = page.locator('[id="customer_name"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("TS Test")
-        
-        # -> Fill the 'Name surname' field, fill the 'Email' field with a unique test email, then click the 'Confirm booking' button.
-        # jane@example.com email field
-        elem = page.locator('[id="customer_email"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("ts-mens-090426-827@example.com")
-        
-        # -> Fill the 'Name surname' field, fill the 'Email' field with a unique test email, then click the 'Confirm booking' button.
-        # Confirm booking button
-        elem = page.get_by_role('button', name='Confirm booking', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the available time '09:00 AM' and click the 'Continue' button to open the customer details form.
-        # 09:00 AM button
-        elem = page.get_by_role('button', name='09:00 AM', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the available time '09:00 AM' and click the 'Continue' button to open the customer details form.
-        # Continue button
-        elem = page.get_by_role('button', name='Continue', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Confirm booking' button to submit the booking and verify the success screen shows "You're booked in" and that the booking came from the preselected Men's Haircut.
-        # Confirm booking button
-        elem = page.get_by_role('button', name='Confirm booking', exact=True)
-        await elem.click(timeout=10000)
-        
         # --> Assertions to verify final state
         
-        # --> Confirmation page shows the booking success header "You're booked in".
-        # Assert-outcome: passed
-        # Assert: Booking success header 'You're booked in' is shown.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[1]/span").nth(0)).to_have_text("You're booked in", timeout=15000), "Booking success header 'You're booked in' is shown."
+        # --> Booking success screen is not displayed because the deep-link page returned a '429 Too Many Requests' error.
+        # Assert-outcome: failed
+        # Assert: Expected the booking success screen to be displayed.
+        await expect(page.locator("xpath=//*[@data-test=\"appointment-save-button\"]").nth(0)).not_to_be_visible(timeout=15000), "Expected the booking success screen to be displayed."
         
-        # --> Confirmation shows the booked service as "Service Men's Haircut · 30 min · €20", matching the deep-linked service.
-        # Assert-outcome: passed
-        # Assert: Confirmation lists the booked service, duration, and price.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div[2]/div/div[1]/span").nth(0)).to_have_text("Service Men's Haircut \u00b7 30 min \u00b7 \u20ac20", timeout=15000), "Confirmation lists the booked service, duration, and price."
+        # --> The preselected service is not present/locked on the page, so the booking could not be completed from the deep-linked service.
+        # Assert-outcome: failed
+        # Assert: Expected the preselected service to be present and locked on the booking page.
+        await expect(page.locator("xpath=//*[@data-test=\"booking-locked-service\"]").nth(0)).not_to_be_visible(timeout=15000), "Expected the preselected service to be present and locked on the booking page."
+        
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The deep-link booking page cannot be reached due to a rate-limiting error, so the booking flow cannot be executed. Observations: - Navigating to /appointments/zz-schedule-preview/service/mens-haircut returned a page showing '429 Too Many Requests'. - The booking UI is not present and there are no interactive elements available on the page, preventing selection of specialist, date/t...
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The deep-link booking page cannot be reached due to a rate-limiting error, so the booking flow cannot be executed. Observations: - Navigating to /appointments/zz-schedule-preview/service/mens-haircut returned a page showing '429 Too Many Requests'. - The booking UI is not present and there are no interactive elements available on the page, preventing selection of specialist, date/t..." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

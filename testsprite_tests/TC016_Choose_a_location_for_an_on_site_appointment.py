@@ -40,88 +40,31 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Click the 'Men's Haircut' service button to choose an on-site service.
+        # -> Click the 'Men's Haircut' service
         # Men's Haircut 30 min · €20 button
         elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Men's Haircut' service button to choose an on-site service.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the "Men's Haircut" service button to select the on-site service.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Men's Haircut' service button to select the on-site service.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Men's Haircut' service button to select an on-site service.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Expand the 'Service' card by clicking the 'Service' header so the service options are revealed.
-        # Service Choose a treatment button
-        elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Men's Haircut' service card to select the on-site service.
-        # Men's Haircut 30 min · €20 button
-        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the 'Preview studio' location details by clicking the location item and verify the location details dialog appears.
-        # Preview studio 80668 Maverick Trail Apt. 341... button
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Open the location details dialog by clicking the 'About Preview studio' info button.
-        # About Preview studio button
-        elem = page.get_by_role('button', name='About Preview studio', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Close' button in the Preview studio dialog to close the location details.
-        # Close button
-        elem = page.locator('xpath=/html/body/div[3]/button')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Preview studio' location card to select it and verify that 'Preview studio' appears in the booking summary.
-        # Click the 'Preview studio' location card to select it and verify that 'Preview studio' appears in the booking summary.
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Preview studio' location card and confirm that the text 'Preview studio' appears in the booking summary/recap.
-        # Click the 'Preview studio' location card and confirm that the text 'Preview studio' appears in the booking summary/recap.
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Preview studio' location card to select it so the chosen location appears in the booking summary.
-        # Click the 'Preview studio' location card to select it so the chosen location appears in the booking summary.
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Preview studio' location card to select it so 'Preview studio' appears in the booking summary/recap.
-        # Click the 'Preview studio' location card to select it so 'Preview studio' appears in the booking summary/recap.
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div')
-        await elem.click(timeout=10000)
-        
-        # -> Click the visible 'Preview studio' location card to select it so the chosen location appears in the booking summary/recap.
-        # Click the visible 'Preview studio' location card to select it so the chosen location appears in the booking summary/recap.
-        elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div')
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The available location card 'Preview studio' is visible on the page.
-        await page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[1]/div[1]/div[1]").nth(0).scroll_into_view_if_needed()
-        # Assert-outcome: passed
-        # Assert: The 'Preview studio' location card is visible.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/main/div/div/div[1]/div[1]/div[1]").nth(0)).to_be_visible(timeout=15000), "The 'Preview studio' location card is visible."
+        # --> Available location is not displayed because the booking page returned '429 Too Many Requests'.
+        # Assert-outcome: failed
+        # Assert: Expected the available location to be displayed.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div/div/button[3]").nth(0)).not_to_be_visible(timeout=15000), "Expected the available location to be displayed."
+        
+        # --> Location details dialog is not displayed because the booking UI is unavailable (HTTP 429).
+        # Assert-outcome: failed
+        # Assert: Expected the location details dialog to be visible.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div/div/button[3]").nth(0)).not_to_be_visible(timeout=15000), "Expected the location details dialog to be visible."
+        
+        # --> Chosen location is not shown in the booking summary because the booking wizard did not load (HTTP 429).
+        # Assert-outcome: failed
+        # Assert: Expected the chosen location to be shown in the booking summary.
+        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div/div/button[3]").nth(0)).not_to_be_visible(timeout=15000), "Expected the chosen location to be shown in the booking summary."
+        
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The test could not be run — the public booking page returned an HTTP 429 Too Many Requests response and the booking wizard UI was inaccessible. Observations: - The page displays '429 Too Many Requests' in the center of the viewport. - The page contains no interactive booking elements (0 interactive booking controls), so the service/specialist/location cards cannot be inspected or s...
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The test could not be run \u2014 the public booking page returned an HTTP 429 Too Many Requests response and the booking wizard UI was inaccessible. Observations: - The page displays '429 Too Many Requests' in the center of the viewport. - The page contains no interactive booking elements (0 interactive booking controls), so the service/specialist/location cards cannot be inspected or s..." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

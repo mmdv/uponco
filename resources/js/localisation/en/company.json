@@ -386,11 +386,23 @@
             "accentLabel": "Accent",
             "accentHint": "Generated automatically from your primary colour, at 10%.",
             "hint": "Used on your booking page and the booking widget.",
-            "preview": "Preview",
-            "previewButton": "Book now",
-            "previewChip": "Selected",
+            "presets": "Quick picks",
             "reset": "Reset to default",
             "save": "Save colours"
+        },
+        "preview": {
+            "title": "Live preview",
+            "description": "How your booking page looks to customers",
+            "tagline": "Book an appointment",
+            "heading": "Choose your booking details",
+            "location": "Location",
+            "service": "Service",
+            "specialist": "Specialist",
+            "directions": "Get directions",
+            "continue": "Continue",
+            "light": "Light",
+            "dark": "Dark",
+            "open": "Open your booking page"
         },
         "languages": {
             "title": "Languages",

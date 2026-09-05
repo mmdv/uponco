@@ -40,49 +40,21 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the header menu by clicking the gear/settings button in the page header to reveal language and theme options.
+        # -> Open the header settings menu (the gear/settings button) to access the language switch.
         # Share and appearance button
         elem = page.get_by_role('button', name='Share and appearance', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'English' language selector in the header menu so the language options (including Azerbaijani) appear.
-        # English button
-        elem = page.locator('xpath=/html/body/div[2]/div/div[2]/button')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Azərbaycan' option in the language selector to switch the booking page to Azerbaijani and verify the wizard text updates.
-        # Azərbaycan option
-        elem = page.get_by_role('option', name='Azərbaycan', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the language combobox labeled 'Azərbaycan' in the header settings so the language options (including English) appear.
-        # Azərbaycan button
-        elem = page.locator('xpath=/html/body/div[2]/div/div[2]/button')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'English' option in the language list to switch the booking page copy back to English.
-        # English option
-        elem = page.get_by_role('option', name='English', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Verify the booking wizard copy is restored to English by checking for the heading 'Choose your booking details' (and absence of Azerbaijani text), then reload the booking page to confirm the English selection persists.
-        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=5000)
-        except Exception:
-            pass
-        
         # --> Assertions to verify final state
         
-        # --> The booking wizard copy updated to Azerbaijani when the language was switched.
-        # Assert-outcome: passed
-        # Assert: Booking wizard heading is shown in Azerbaijani.
-        await expect(page.locator("xpath=/html/body/div").nth(0)).to_contain_text("Bron detallar\u0131n\u0131z\u0131 se\u00e7in", timeout=15000), "Booking wizard heading is shown in Azerbaijani."
+        # --> Could not verify the booking wizard copy in Azerbaijani because the booking page returned '429 Too Many Requests' and the language UI was not reachable.
+        # Assert-outcome: failed
+        # Assert: Expected header settings button to be visible to open language options.
+        await expect(page.locator("xpath=/html/body/div/div/div/header/div/button").nth(0)).not_to_be_visible(timeout=15000), "Expected header settings button to be visible to open language options."
         
-        # --> The booking page (wizard) remained displayed and the primary 'Continue' button is present.
-        # Assert-outcome: passed
-        # Assert: Primary wizard button 'Continue' is visible.
-        await expect(page.locator("xpath=/html/body/div/div/div/footer/button").nth(0)).to_contain_text("Continue", timeout=15000), "Primary wizard button 'Continue' is visible."
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The test could not be run — the public booking page could not be loaded due to rate limiting (HTTP 429), so the language switch UI was not reachable. Observations: - The page displays '429 Too Many Requests' in the viewport. - The SPA did not load and no interactive elements (for example the header/settings gear or wizard controls) are present.
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The test could not be run \u2014 the public booking page could not be loaded due to rate limiting (HTTP 429), so the language switch UI was not reachable. Observations: - The page displays '429 Too Many Requests' in the viewport. - The SPA did not load and no interactive elements (for example the header/settings gear or wizard controls) are present." + " — the exported script cannot reproduce a PASS in this environment.")
         await asyncio.sleep(5)
 
     finally:

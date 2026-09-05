@@ -40,145 +40,111 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Click the 'Private Pilates Lesson' service option to choose that individual service.
-        # Private Pilates Lesson 1h · €40 One-on-one... button
-        elem = page.get_by_role('button', name='Private Pilates Lesson 1h · €40 One-on-one pilates lesson with Specialist C.', exact=True)
-        await elem.click(timeout=10000)
+        # -> Reload the 'ZZ Schedule Preview' booking page to recover from the 'Too Many Requests' error and load the booking wizard.
+        await page.goto("http://localhost:8000/appointments/zz-schedule-preview")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
         
-        # -> Click the 'Specialist C' option in the Specialist list to select Specialist C.
-        # SC Specialist C Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SC Specialist C Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Scroll down to reveal the Location card or the date & time picker so the 'Pick a date & time' controls can be selected.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Scroll down to reveal the 'Location' card so 'Preview studio' can be selected.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Open the 'Service' card, select 'Private Pilates Lesson', then open the 'Specialist' card and select 'Specialist C' so the Location card appears.
+        # -> Expand the 'Service' card and click the 'Men's Haircut' service option.
         # Service Choose a treatment button
         elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'Service' card, select 'Private Pilates Lesson', then open the 'Specialist' card and select 'Specialist C' so the Location card appears.
-        # Private Pilates Lesson 1h · €40 One-on-one... button
-        elem = page.get_by_role('button', name='Private Pilates Lesson 1h · €40 One-on-one pilates lesson with Specialist C.', exact=True)
+        # -> Expand the 'Service' card and click the 'Men's Haircut' service option.
+        # Men's Haircut 30 min · €20 button
+        elem = page.get_by_role('button', name="Men's Haircut 30 min · €20", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'Service' card, select 'Private Pilates Lesson', then open the 'Specialist' card and select 'Specialist C' so the Location card appears.
+        # -> Expand the 'Specialist' card header so the specialist options are visible and can be verified (expect only 'Specialist A' and 'Specialist B').
         # Specialist Choose who you'll see button
-        elem = page.get_by_role('button', name='Service Private Pilates Lesson', exact=True)
+        elem = page.get_by_role('button', name="Specialist Choose who you'll see", exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'Service' card, select 'Private Pilates Lesson', then open the 'Specialist' card and select 'Specialist C' so the Location card appears.
-        # SC Specialist C Next available · Tomorrow 09:00... button
-        elem = page.get_by_role('button', name='SC Specialist C Next available · Tomorrow 09:00 09:30 10:00 10:30', exact=True)
+        # -> Select 'Specialist A' from the Specialist list and click the 'Continue' button to proceed to the Pick a date & time step.
+        # SA Specialist A Next available · Today 09:00... button
+        elem = page.get_by_role('button', name='SA Specialist A Next available · Today 09:00 09:30 10:00 10:30', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'Service' card, select 'Private Pilates Lesson', then open the 'Specialist' card and select 'Specialist C' so the Location card appears.
-        await page.mouse.wheel(0, 300)
+        # -> Select 'Specialist A' from the Specialist list and click the 'Continue' button to proceed to the Pick a date & time step.
+        # Continue button
+        elem = page.get_by_role('button', name='Continue', exact=True)
+        await elem.click(timeout=10000)
         
-        # -> Select the 'Preview studio' location and then click the 'Continue' button to proceed to the 'Pick a date & time' step.
+        # -> Select the 'Preview studio' location so the Continue button enables, then click the 'Continue' button to go to Pick a date & time.
         # Preview studio 80668 Maverick Trail Apt. 341... button
         elem = page.locator('xpath=/html/body/div/div/div/main/div/div/div/div/div/div/div/div')
         await elem.click(timeout=10000)
         
-        # -> Select the 'Preview studio' location and then click the 'Continue' button to proceed to the 'Pick a date & time' step.
+        # -> Select the 'Preview studio' location so the Continue button enables, then click the 'Continue' button to go to Pick a date & time.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the '09:00 AM' time slot and click the 'Continue' button to open the customer details form.
-        # 09:00 AM button
-        elem = page.get_by_role('button', name='09:00 AM', exact=True)
+        # -> Click the '12 Sep' day chip (label '12 Sep'), choose the '10:00 AM' time slot, then click the 'Continue' button to go to the customer details step.
+        # Sat 12 Sep button
+        elem = page.get_by_role('button', name='Sat 12 Sep', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the '09:00 AM' time slot and click the 'Continue' button to open the customer details form.
+        # -> Click the '12 Sep' day chip (label '12 Sep'), choose the '10:00 AM' time slot, then click the 'Continue' button to go to the customer details step.
+        # 10:00 AM button
+        elem = page.get_by_role('button', name='10:00 AM', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the '12 Sep' day chip (label '12 Sep'), choose the '10:00 AM' time slot, then click the 'Continue' button to go to the customer details step.
         # Continue button
         elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Fill the 'Name surname' and 'Email' fields with a valid name and unique email, then click the 'Confirm booking' button.
+        # -> Click the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
+        # 10:00 AM button
+        elem = page.get_by_role('button', name='10:00 AM', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the '10:00 AM' time slot, then click the 'Continue' button to open the customer details form.
+        # Continue button
+        elem = page.get_by_role('button', name='Continue', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Fill the Name field with 'Test User', fill the Email field with 'ts3-zz-4721@example.com', then click the 'Confirm booking' button to submit the booking.
         # Jane Doe text field
         elem = page.locator('[id="customer_name"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("TS Testuser")
+        await elem.fill("Test User")
         
-        # -> Fill the 'Name surname' and 'Email' fields with a valid name and unique email, then click the 'Confirm booking' button.
+        # -> Fill the Name field with 'Test User', fill the Email field with 'ts3-zz-4721@example.com', then click the 'Confirm booking' button to submit the booking.
         # jane@example.com email field
         elem = page.locator('[id="customer_email"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("ts-zz-0904-8462@example.com")
+        await elem.fill("ts3-zz-4721@example.com")
         
-        # -> Fill the 'Name surname' and 'Email' fields with a valid name and unique email, then click the 'Confirm booking' button.
+        # -> Fill the Name field with 'Test User', fill the Email field with 'ts3-zz-4721@example.com', then click the 'Confirm booking' button to submit the booking.
         # Confirm booking button
         elem = page.get_by_role('button', name='Confirm booking', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Book another appointment' button on the success screen to start a new booking.
-        # Book another appointment button
-        elem = page.get_by_role('button', name='Book another appointment', exact=True)
+        # -> Click the 'Confirm booking' button to submit the booking and reach the "You're booked in" success screen.
+        # Confirm booking button
+        elem = page.get_by_role('button', name='Confirm booking', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 'Private Pilates Lesson' service and then select 'Specialist C' so the Location card appears and the flow can proceed to pick the same date.
-        # Private Pilates Lesson 1h · €40 One-on-one... button
-        elem = page.get_by_role('button', name='Private Pilates Lesson 1h · €40 One-on-one pilates lesson with Specialist C.', exact=True)
+        # -> Click the back arrow button to return to the start of the booking wizard so a new booking can be started.
+        # Back button
+        elem = page.get_by_role('button', name='Back', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 'Private Pilates Lesson' service and then select 'Specialist C' so the Location card appears and the flow can proceed to pick the same date.
-        # SC Specialist C Next available · Tomorrow 11:00... button
-        elem = page.get_by_role('button', name='SC Specialist C Next available · Tomorrow 11:00 11:30 12:00 12:30', exact=True)
+        # -> Click the 'Continue' button to go to the 'Pick a date & time' step and verify available times for 12 Sep 2026.
+        # Continue button
+        elem = page.get_by_role('button', name='Continue', exact=True)
         await elem.click(timeout=10000)
-        
-        # -> Select the 'Private Pilates Lesson' service and then select 'Specialist C' so the Location card appears and the flow can proceed to pick the same date.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Select the 'Private Pilates Lesson' service and then choose 'Specialist C' so the Location and date/time controls appear.
-        # Private Pilates Lesson 1h · €40 One-on-one... button
-        elem = page.get_by_role('button', name='Private Pilates Lesson 1h · €40 One-on-one pilates lesson with Specialist C.', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Private Pilates Lesson' service and then choose 'Specialist C' so the Location and date/time controls appear.
-        # SC Specialist C Next available · Tomorrow 11:00... button
-        elem = page.get_by_role('button', name='SC Specialist C Next available · Tomorrow 11:00 11:30 12:00 12:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Private Pilates Lesson' service and then choose 'Specialist C' so the Location and date/time controls appear.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Select the 'Private Pilates Lesson' service, choose 'Specialist C', reveal the location/date controls, and proceed to the 'Pick a date & time' step.
-        # Service Choose a treatment button
-        elem = page.get_by_role('button', name='Service Choose a treatment', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Private Pilates Lesson' service, choose 'Specialist C', reveal the location/date controls, and proceed to the 'Pick a date & time' step.
-        # Private Pilates Lesson 1h · €40 One-on-one... button
-        elem = page.get_by_role('button', name='Private Pilates Lesson 1h · €40 One-on-one pilates lesson with Specialist C.', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Private Pilates Lesson' service, choose 'Specialist C', reveal the location/date controls, and proceed to the 'Pick a date & time' step.
-        # SC Specialist C Next available · Tomorrow 11:00... button
-        elem = page.get_by_role('button', name='SC Specialist C Next available · Tomorrow 11:00 11:30 12:00 12:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the 'Private Pilates Lesson' service, choose 'Specialist C', reveal the location/date controls, and proceed to the 'Pick a date & time' step.
-        await page.mouse.wheel(0, 300)
-        
-        # -> Click the 'Specialist C' option to reveal the date & time controls.
-        # SC Specialist C Next available · Tomorrow 11:00... button
-        elem = page.get_by_role('button', name='SC Specialist C Next available · Tomorrow 11:00 11:30 12:00 12:30', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Specialist C' option to reveal the date & time controls.
-        await page.mouse.wheel(0, 300)
         
         # --> Assertions to verify final state
         
-        # --> The previously booked 09:00 slot for Specialist C is no longer listed in the specialist's next-available times.
+        # --> The booking page displays the message "The selected time slot is no longer available." indicating the previously booked slot is unavailable.
         # Assert-outcome: passed
-        # Assert: Specialist C's summary shows next-available times starting at 11:00, which does not include 09:00.
-        await expect(page.locator("xpath=/html/body/div/div/div/main/div/div/div[3]/div/div/div/div/div").nth(0)).to_have_text("SC\nSpecialist C\nNext available \u00b7 Tomorrow\n11:00\n11:30\n12:00\n", timeout=15000), "Specialist C's summary shows next-available times starting at 11:00, which does not include 09:00."
+        # Assert: The page displays the slot-unavailable notification.
+        await expect(page.locator("xpath=/html/body/div/section").nth(0)).to_contain_text("The selected time slot is no longer available.", timeout=15000), "The page displays the slot-unavailable notification."
         await asyncio.sleep(5)
 
     finally:
