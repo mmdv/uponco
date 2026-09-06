@@ -27,12 +27,12 @@
         },
         "growth": {
             "name": "Per user",
-            "price": "€5.00",
-            "period": "per user / month",
+            "price": "€7.99",
+            "period": "+ VAT · per user / month",
             "tagline": "After your free 100 appointments, pay only for the people who take bookings.",
             "features": {
                 "unlimited": "Unlimited appointments",
-                "perUser": "€5.00 per month for each team member who takes bookings",
+                "perUser": "€7.99 + VAT per month for each team member who takes bookings",
                 "everything": "Everything in Free, with no feature limits",
                 "cancel": "Cancel any time — no contract, no lock-in"
             },

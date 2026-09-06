@@ -27,12 +27,12 @@
         },
         "growth": {
             "name": "İstifadəçi başına",
-            "price": "€5.00",
-            "period": "istifadəçi / ay",
+            "price": "€7.99",
+            "period": "+ ƏDV · istifadəçi / ay",
             "tagline": "Pulsuz 100 görüşdən sonra yalnız rezervasiya qəbul edən şəxslər üçün ödəyin.",
             "features": {
                 "unlimited": "Limitsiz görüş",
-                "perUser": "Rezervasiya qəbul edən hər komanda üzvü üçün ayda €5.00",
+                "perUser": "Rezervasiya qəbul edən hər komanda üzvü üçün ayda €7.99 + ƏDV",
                 "everything": "Pulsuz plandakı hər şey, funksiya məhdudiyyəti olmadan",
                 "cancel": "İstənilən vaxt ləğv edin — müqavilə və öhdəlik yoxdur"
             },

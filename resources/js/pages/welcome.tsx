@@ -14,7 +14,7 @@ import { SiteFooter } from '@/components/marketing/site-footer';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { useTranslation } from '@/hooks/use-translation';
 import { captureEvent } from '@/lib/analytics';
-import { dashboard, features, pricing, register, yourData } from '@/routes';
+import { dashboard, features, login, pricing, register, yourData } from '@/routes';
 
 /** The three things worth knowing before clicking through to /features. */
 const valueItems: { icon: ReactNode; i18nKey: string }[] = [
@@ -150,10 +150,10 @@ export default function Welcome() {
                                             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                                         </Link>
                                         <Link
-                                            href={features()}
-                                            className="inline-flex w-full items-center justify-center rounded-md border border-border px-7 py-3.5 text-base font-medium transition-colors hover:bg-secondary sm:w-auto"
+                                            href={login()}
+                                            className="inline-flex w-full items-center justify-center rounded-md border border-primary px-7 py-[13px] text-base font-medium text-primary transition-colors hover:bg-primary hover:text-white sm:w-auto"
                                         >
-                                            {t('hero.ctaSeeHow')}
+                                            {t('hero.ctaLogin')}
                                         </Link>
                                     </>
                                 )}
