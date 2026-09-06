@@ -6,7 +6,6 @@ use App\Jobs\SendAppointmentReminder;
 use App\Models\AppointmentReminder;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Dispatches every reminder whose send time has arrived.
@@ -44,10 +43,6 @@ class SendAppointmentReminders extends Command
                     $dispatched++;
                 }
             });
-
-        // A per-minute heartbeat: its presence in the logs proves the scheduler
-        // is invoking this command, and `dispatched` shows how much it sent.
-        Log::info('appointments:send-reminders ran', ['dispatched' => $dispatched]);
 
         $this->info("Dispatched {$dispatched} appointment reminder(s).");
 
