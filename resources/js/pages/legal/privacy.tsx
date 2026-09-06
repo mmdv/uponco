@@ -197,6 +197,25 @@ export default function Privacy() {
                         protect our rights and the safety of users.
                     </li>
                 </ul>
+                <p className="mt-4">
+                    Uponco's use and transfer of information received from Google
+                    APIs to any other app will adhere to the{' '}
+                    <a
+                        href="https://developers.google.com/terms/api-services-user-data-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-primary hover:underline"
+                    >
+                        Google API Services User Data Policy
+                    </a>
+                    , including the Limited Use requirements. Specifically,
+                    Uponco only accesses the Google Calendar events scope to
+                    create appointment events with Google Meet links on a
+                    connected account; we do not use this data for advertising,
+                    do not sell it, and do not transfer it to others except as
+                    needed to provide or improve this feature, to comply with
+                    the law, or as part of a merger or acquisition.
+                </p>
             </LegalSection>
 
             <LegalSection id="transfers" heading="7. International transfers">
