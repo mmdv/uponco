@@ -16,6 +16,7 @@ import {
     cardOrder,
     EMPTY_DETAILS,
     lockedKinds,
+    REMINDER_NONE,
     locationIsMandatory,
     daysBetween,
     nextOpenCard,
@@ -604,6 +605,8 @@ export function useAppointmentBooking({
 
         submittingRef.current = true;
 
+        const { reminder_offset_minutes, ...customer } = details;
+
         router.post(
             store.url(company.slug),
             {
@@ -611,7 +614,13 @@ export function useAppointmentBooking({
                 location_id: locationId,
                 specialist_id: specialistId,
                 start_at: selectedStart,
-                ...details,
+                ...customer,
+                // The "don't remind me" choice becomes a null the server reads
+                // as no reminder; any other choice is the lead time in minutes.
+                reminder_offset_minutes:
+                    reminder_offset_minutes === REMINDER_NONE
+                        ? null
+                        : Number(reminder_offset_minutes),
             },
             {
                 preserveScroll: true,

@@ -5,9 +5,13 @@ namespace App\Concerns;
 use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentChange;
 use App\Enums\DeliveryType;
+use App\Enums\ReminderChannel;
+use App\Enums\ReminderStatus;
 use App\Enums\TeamRole;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
+use App\Jobs\SendAppointmentReminder;
 use App\Models\Appointment;
+use App\Models\AppointmentReminder;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Team;
@@ -77,6 +81,42 @@ trait InteractsWithAppointmentBooking
         $this->notifyAppointmentAudience($appointment, AppointmentAlert::Booked);
 
         return $appointment;
+    }
+
+    /**
+     * Schedule a reminder for the appointment at the customer's chosen lead time.
+     *
+     * The "schedule" is a persisted {@see AppointmentReminder} row
+     * plus a delayed {@see SendAppointmentReminder} job that fires it. Nothing is
+     * scheduled when the customer chose not to be reminded, when there is no
+     * email to reach them on (email is the only channel today — a future SMS
+     * channel would relax this), or when the chosen lead time has already
+     * elapsed by the time the booking is made.
+     */
+    protected function scheduleAppointmentReminder(Appointment $appointment, ?int $offsetMinutes): void
+    {
+        if ($offsetMinutes === null) {
+            return;
+        }
+
+        if (blank($appointment->customer?->email)) {
+            return;
+        }
+
+        $sendAt = $appointment->start_at->copy()->subMinutes($offsetMinutes);
+
+        if ($sendAt->isPast()) {
+            return;
+        }
+
+        $reminder = $appointment->reminders()->create([
+            'channel' => ReminderChannel::Email,
+            'offset_minutes' => $offsetMinutes,
+            'send_at' => $sendAt,
+            'status' => ReminderStatus::Pending,
+        ]);
+
+        SendAppointmentReminder::dispatch($reminder)->delay($sendAt);
     }
 
     /**

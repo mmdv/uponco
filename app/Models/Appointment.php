@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\DeliveryType;
+use App\Enums\ReminderStatus;
 use Database\Factories\AppointmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -94,6 +96,16 @@ class Appointment extends Model
     }
 
     /**
+     * Get the scheduled reminders for the appointment.
+     *
+     * @return HasMany<AppointmentReminder, $this>
+     */
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(AppointmentReminder::class);
+    }
+
+    /**
      * Determine whether the appointment has already started.
      *
      * Past appointments are read-only: they can be previewed but not edited,
@@ -126,6 +138,13 @@ class Appointment extends Model
             'status' => AppointmentStatus::Cancelled,
             'cancelled_at' => now(),
         ]);
+
+        // A cancelled appointment must never send a reminder, so any that are
+        // still pending are cancelled with it. The sending job re-checks this
+        // too, but clearing them here stops a redundant send being attempted.
+        $this->reminders()
+            ->where('status', ReminderStatus::Pending)
+            ->update(['status' => ReminderStatus::Cancelled]);
     }
 
     /**

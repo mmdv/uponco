@@ -114,7 +114,29 @@
         "notesPlaceholder": "Anything we should know before your visit…",
         "nameRequired": "Please enter your name.",
         "contactRequired": "Please add an email address or a phone number so we can reach you.",
-        "emailInvalid": "Please enter a valid email address."
+        "emailInvalid": "Please enter a valid email address.",
+        "reminder": {
+            "label": "Reminder",
+            "options": {
+                "none": "Don't send a reminder",
+                "h1": "1 hour before the visit",
+                "h2": "2 hours before the visit",
+                "h3": "3 hours before the visit",
+                "h4": "4 hours before the visit",
+                "h5": "5 hours before the visit",
+                "h6": "6 hours before the visit",
+                "h9": "9 hours before the visit",
+                "h12": "12 hours before the visit",
+                "h15": "15 hours before the visit",
+                "h18": "18 hours before the visit",
+                "h21": "21 hours before the visit",
+                "h24": "24 hours before the visit",
+                "d2": "2 days before the visit",
+                "d3": "3 days before the visit",
+                "d5": "5 days before the visit",
+                "d7": "7 days before the visit"
+            }
+        }
     },
     "success": {
         "title": "You're booked in",

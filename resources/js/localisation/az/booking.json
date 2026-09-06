@@ -114,7 +114,29 @@
         "notesPlaceholder": "Görüşdən əvvəl bilməli olduğumuz nə isə varmı…",
         "nameRequired": "Zəhmət olmasa adınızı daxil edin.",
         "contactRequired": "Sizinlə əlaqə saxlaya bilməyimiz üçün e-poçt ünvanı və ya telefon nömrəsi əlavə edin.",
-        "emailInvalid": "Zəhmət olmasa düzgün e-poçt ünvanı daxil edin."
+        "emailInvalid": "Zəhmət olmasa düzgün e-poçt ünvanı daxil edin.",
+        "reminder": {
+            "label": "Xatırlatma",
+            "options": {
+                "none": "Xatırlatma göndərilməsin",
+                "h1": "Ziyarətdən 1 saat əvvəl",
+                "h2": "Ziyarətdən 2 saat əvvəl",
+                "h3": "Ziyarətdən 3 saat əvvəl",
+                "h4": "Ziyarətdən 4 saat əvvəl",
+                "h5": "Ziyarətdən 5 saat əvvəl",
+                "h6": "Ziyarətdən 6 saat əvvəl",
+                "h9": "Ziyarətdən 9 saat əvvəl",
+                "h12": "Ziyarətdən 12 saat əvvəl",
+                "h15": "Ziyarətdən 15 saat əvvəl",
+                "h18": "Ziyarətdən 18 saat əvvəl",
+                "h21": "Ziyarətdən 21 saat əvvəl",
+                "h24": "Ziyarətdən 24 saat əvvəl",
+                "d2": "Ziyarətdən 2 gün əvvəl",
+                "d3": "Ziyarətdən 3 gün əvvəl",
+                "d5": "Ziyarətdən 5 gün əvvəl",
+                "d7": "Ziyarətdən 7 gün əvvəl"
+            }
+        }
     },
     "success": {
         "title": "Rezervasiyanız təsdiqləndi",

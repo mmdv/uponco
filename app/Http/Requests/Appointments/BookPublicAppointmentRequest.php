@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests\Appointments;
 
+use App\Enums\ReminderOffset;
 use App\Models\Team;
 use App\Support\Analytics;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Validation\Rule;
 
 /**
  * Validates a booking submitted from the public, unauthenticated booking page.
@@ -28,6 +31,23 @@ class BookPublicAppointmentRequest extends SaveAppointmentRequest
     protected function team(): Team
     {
         return $this->route('company');
+    }
+
+    /**
+     * Add the optional reminder choice to the base booking rules.
+     *
+     * The field carries the reminder lead time in minutes, constrained to the
+     * fixed set the booking page offers; a null/absent value means the customer
+     * chose not to be reminded.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            ...parent::rules(),
+            'reminder_offset_minutes' => ['nullable', 'integer', Rule::in(ReminderOffset::minutes())],
+        ];
     }
 
     /**
@@ -56,6 +76,17 @@ class BookPublicAppointmentRequest extends SaveAppointmentRequest
             'customer_email.required_without' => __('Enter an email or a phone number for the customer.'),
             'customer_phone.required_without' => __('Enter a phone number or an email for the customer.'),
         ];
+    }
+
+    /**
+     * Get the chosen reminder lead time in minutes, or null when the customer
+     * chose not to be reminded.
+     */
+    public function reminderOffsetMinutes(): ?int
+    {
+        $minutes = $this->validated('reminder_offset_minutes');
+
+        return $minutes === null ? null : (int) $minutes;
     }
 
     /**

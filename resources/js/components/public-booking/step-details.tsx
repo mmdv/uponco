@@ -2,14 +2,27 @@ import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
+import { REMINDER_OFFSETS } from '@/lib/booking';
 
 export type CustomerDetails = {
     customer_name: string;
     customer_email: string;
     customer_phone: string;
     notes: string;
+    /**
+     * The reminder lead time in minutes (as a string), or `REMINDER_NONE`.
+     * Converted to a nullable integer when the booking is submitted.
+     */
+    reminder_offset_minutes: string;
 };
 
 type Props = {
@@ -116,6 +129,40 @@ export default function StepDetails({ values, onChange, errors }: Props) {
                         data-test="appointment-notes-input"
                     />
                     <InputError message={errors.notes} />
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="reminder_offset_minutes">
+                        {t('details.reminder.label')}
+                    </Label>
+                    <Select
+                        value={values.reminder_offset_minutes}
+                        onValueChange={(next) =>
+                            onChange('reminder_offset_minutes', next)
+                        }
+                    >
+                        <SelectTrigger
+                            id="reminder_offset_minutes"
+                            className="h-12 w-full"
+                            data-test="appointment-reminder-select"
+                        >
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {REMINDER_OFFSETS.map((option) => (
+                                <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                    data-test={`appointment-reminder-${option.key}`}
+                                >
+                                    {t(
+                                        `details.reminder.options.${option.key}`,
+                                    )}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <InputError message={errors.reminder_offset_minutes} />
                 </div>
             </form>
         </div>

@@ -361,11 +361,46 @@ export function stepAnimationClass(
         : 'animate-in fade-in-0 slide-in-from-left-8 duration-300';
 }
 
+/** The select value that means "don't schedule a reminder". */
+export const REMINDER_NONE = 'none';
+
+/** The reminder lead time (in minutes) preselected on the details step. */
+export const DEFAULT_REMINDER = '1440';
+
+/**
+ * The reminder lead-time choices, in the order they appear in the select.
+ *
+ * `value` is either the lead time in minutes (as a string, to sit in the
+ * form state) or {@link REMINDER_NONE}; `key` names its localised label under
+ * `booking.details.reminder.options`. Keep the minute values in step with
+ * `App\Enums\ReminderOffset`, which validates the submitted choice.
+ */
+export const REMINDER_OFFSETS: { value: string; key: string }[] = [
+    { value: REMINDER_NONE, key: 'none' },
+    { value: '60', key: 'h1' },
+    { value: '120', key: 'h2' },
+    { value: '180', key: 'h3' },
+    { value: '240', key: 'h4' },
+    { value: '300', key: 'h5' },
+    { value: '360', key: 'h6' },
+    { value: '540', key: 'h9' },
+    { value: '720', key: 'h12' },
+    { value: '900', key: 'h15' },
+    { value: '1080', key: 'h18' },
+    { value: '1260', key: 'h21' },
+    { value: '1440', key: 'h24' },
+    { value: '2880', key: 'd2' },
+    { value: '4320', key: 'd3' },
+    { value: '7200', key: 'd5' },
+    { value: '10080', key: 'd7' },
+];
+
 export const EMPTY_DETAILS: CustomerDetails = {
     customer_name: '',
     customer_email: '',
     customer_phone: '',
     notes: '',
+    reminder_offset_minutes: DEFAULT_REMINDER,
 };
 
 /** The user-facing copy `validateDetails` needs, resolved by the caller. */

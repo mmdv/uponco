@@ -179,6 +179,10 @@ class PublicAppointmentController extends Controller
     {
         $appointment = $this->createAppointment($company, $request);
 
+        // Schedule the reminder the customer asked for (if any) now that the
+        // appointment exists.
+        $this->scheduleAppointmentReminder($appointment, $request->reminderOffsetMinutes());
+
         // The finished end of the booking funnel. Paired with the second-screen
         // event the page fires client-side, this measures how many visitors who
         // started actually completed a booking; the company slug matches the
