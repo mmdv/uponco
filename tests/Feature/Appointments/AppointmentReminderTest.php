@@ -23,11 +23,13 @@ function bookWith(array $setup, array $overrides = [])
     );
 }
 
-test('booking with a reminder choice schedules an email reminder', function () {
+test('booking with a reminder choice persists a pending reminder and queues nothing', function () {
     Bus::fake();
     $setup = bookableSetup();
 
-    bookWith($setup, ['reminder_offset_minutes' => ReminderOffset::TwentyOneHours->value])
+    // A one-hour lead time keeps send_at safely in the future regardless of how
+    // close the fixture's bookable slot sits to "now".
+    bookWith($setup, ['reminder_offset_minutes' => ReminderOffset::OneHour->value])
         ->assertSessionHasNoErrors()
         ->assertRedirect();
 
@@ -35,13 +37,12 @@ test('booking with a reminder choice schedules an email reminder', function () {
 
     expect($reminder->channel)->toBe(ReminderChannel::Email)
         ->and($reminder->status)->toBe(ReminderStatus::Pending)
-        ->and($reminder->offset_minutes)->toBe(1260)
-        ->and($reminder->send_at->equalTo($setup['startAt']->subMinutes(1260)))->toBeTrue();
+        ->and($reminder->offset_minutes)->toBe(60)
+        ->and($reminder->send_at->equalTo($setup['startAt']->subMinutes(60)))->toBeTrue();
 
-    Bus::assertDispatched(
-        SendAppointmentReminder::class,
-        fn (SendAppointmentReminder $job): bool => $job->reminder->is($reminder),
-    );
+    // The wait lives on the row's send_at; the scheduler dispatches it later, so
+    // booking itself queues no job (which is what keeps it within the SQS cap).
+    Bus::assertNotDispatched(SendAppointmentReminder::class);
 });
 
 test('booking without a reminder choice schedules nothing', function () {
@@ -132,15 +133,20 @@ test('the job re-arms a reminder when the appointment moved later', function () 
     Bus::fake();
     Notification::fake();
 
-    // The appointment is now far enough out that the 21-hour lead time is still
+    // The appointment is now far enough out that the 24-hour lead time is still
     // in the future, so the due reminder is early and must be deferred.
     $reminder = dueReminder(['start_at' => now()->addDays(3), 'end_at' => now()->addDays(3)->addHour()]);
 
     (new SendAppointmentReminder($reminder))->handle(app(ReminderChannelManager::class));
 
     Notification::assertNothingSent();
-    expect($reminder->fresh()->status)->toBe(ReminderStatus::Pending);
-    Bus::assertDispatched(SendAppointmentReminder::class);
+
+    // Left pending with its send time pushed out to the new lead time; the
+    // scheduler will pick it up again, so nothing is queued now.
+    $fresh = $reminder->fresh();
+    expect($fresh->status)->toBe(ReminderStatus::Pending)
+        ->and($fresh->send_at->equalTo($fresh->appointment->start_at->copy()->subMinutes($fresh->offset_minutes)))->toBeTrue();
+    Bus::assertNotDispatched(SendAppointmentReminder::class);
 });
 
 test('cancelling an appointment cancels its pending reminders', function () {
@@ -149,4 +155,32 @@ test('cancelling an appointment cancels its pending reminders', function () {
     $reminder->appointment->cancel();
 
     expect($reminder->fresh()->status)->toBe(ReminderStatus::Cancelled);
+});
+
+test('the scheduler command dispatches only due reminders', function () {
+    Bus::fake();
+
+    $due = dueReminder();
+    $future = AppointmentReminder::factory()->create([
+        'appointment_id' => $due->appointment_id,
+        'send_at' => now()->addDay(),
+    ]);
+
+    $this->artisan('appointments:send-reminders')->assertSuccessful();
+
+    Bus::assertDispatchedTimes(SendAppointmentReminder::class, 1);
+    Bus::assertDispatched(
+        SendAppointmentReminder::class,
+        fn (SendAppointmentReminder $job): bool => $job->reminder->is($due),
+    );
+});
+
+test('the scheduler command sends a due reminder end to end', function () {
+    Notification::fake();
+    $reminder = dueReminder();
+
+    $this->artisan('appointments:send-reminders')->assertSuccessful();
+
+    Notification::assertSentOnDemand(AppointmentReminderNotification::class);
+    expect($reminder->fresh()->status)->toBe(ReminderStatus::Sent);
 });

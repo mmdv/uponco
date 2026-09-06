@@ -59,12 +59,13 @@ class SendAppointmentReminder implements ShouldQueue
         }
 
         // The appointment was rescheduled to a later time, so the reminder is
-        // early: reset its send time and re-arm it for the new lead time.
+        // early: reset its send time and leave it pending. The scheduler poll
+        // picks it up again once the new send time arrives — we never re-arm it
+        // with a queue delay, since SQS caps that at 15 minutes.
         $target = $appointment->start_at->copy()->subMinutes($reminder->offset_minutes);
 
         if ($target->isFuture()) {
             $reminder->update(['send_at' => $target]);
-            self::dispatch($reminder)->delay($target);
 
             return;
         }
