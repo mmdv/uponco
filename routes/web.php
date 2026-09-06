@@ -21,6 +21,7 @@ use App\Http\Controllers\OnboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicAppointmentController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\ServiceWorkerController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Controllers\WidgetController;
@@ -50,6 +51,10 @@ Route::middleware('guest')->group(function () {
 
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+
+// The PWA service worker, registered at the root so its scope covers the whole
+// app. The file lives under /build; this route exposes it at /sw.js.
+Route::get('/sw.js', [ServiceWorkerController::class, 'script'])->name('service-worker');
 
 Route::inertia('/privacy', 'legal/privacy')->name('privacy');
 Route::inertia('/terms', 'legal/terms')->name('terms');

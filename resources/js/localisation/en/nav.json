@@ -11,6 +11,16 @@
     "toggleTheme": "Toggle theme",
     "pullToRefresh": "Refreshing",
     "changeLanguage": "Change language",
+    "offline": {
+        "banner": "You're offline — showing saved data",
+        "unavailable": "This page isn't available offline",
+        "writeBlocked": "You're offline — changes aren't available"
+    },
+    "update": {
+        "title": "A new version is available",
+        "description": "Reload to get the latest updates.",
+        "action": "Reload"
+    },
     "userMenu": {
         "settings": "Settings",
         "teams": "Teams",

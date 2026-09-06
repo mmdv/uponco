@@ -1,10 +1,13 @@
 import './sentry';
 
 import { createInertiaApp, router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import PullToRefresh from '@/components/pull-to-refresh';
+import PwaUpdatePrompt from '@/components/pwa-update-prompt';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import { FALLBACK_LOCALE, translate } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import BusinessLayout from '@/layouts/business/layout';
@@ -14,7 +17,6 @@ import {
     startAnalytics,
     trackPageVisit,
 } from '@/lib/analytics';
-import { registerServiceWorker } from '@/lib/push';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -73,19 +75,16 @@ createInertiaApp({
         // one, so the initial pageview is captured from the page we boot with.
         startAnalytics(page);
 
-        // The service worker only handles push notifications — it caches
-        // nothing — so registering it on every load is cheap and keeps an
-        // installed PWA able to receive notifications while it is closed.
-        registerServiceWorker();
-
         // These extras are client-only: the SSR pass renders `app` alone, so
         // each must emit no DOM at first paint or hydration mismatches. The
         // Toaster gates itself to mount; PullToRefresh renders nothing until a
-        // gesture.
+        // gesture. PwaUpdatePrompt registers the service worker (which handles
+        // both push and offline caching) and only ever renders a toast.
         return (
             <TooltipProvider delayDuration={0}>
                 {app}
                 <PullToRefresh />
+                <PwaUpdatePrompt />
                 <Toaster />
             </TooltipProvider>
         );
@@ -100,6 +99,20 @@ createInertiaApp({
 
 router.on('navigate', (event) => {
     trackPageVisit(event.detail.page);
+});
+
+// Dashboard and Appointments are served from the service-worker cache offline,
+// but every other page needs the network. When a visit fails purely because we
+// are offline, tell the user why and leave them on the working page they came
+// from rather than surfacing a raw error.
+router.on('networkError', () => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const locale =
+            (typeof document !== 'undefined' && document.documentElement.lang) ||
+            FALLBACK_LOCALE;
+
+        toast.error(translate('nav', 'offline.unavailable', locale));
+    }
 });
 
 // Flush server-queued events on every page set, including the same-URL

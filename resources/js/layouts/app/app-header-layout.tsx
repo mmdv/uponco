@@ -3,6 +3,7 @@ import { AppBottomNav } from '@/components/app-bottom-nav';
 import { AppContent } from '@/components/app-content';
 import { AppHeader } from '@/components/app-header';
 import { AppShell } from '@/components/app-shell';
+import OfflineBanner from '@/components/offline-banner';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppHeaderLayout({
@@ -17,6 +18,7 @@ export default function AppHeaderLayout({
             */}
             <AppBackground className="flex min-h-svh w-full flex-1 flex-col">
                 <AppHeader breadcrumbs={breadcrumbs} />
+                <OfflineBanner />
                 <AppContent
                     variant="header"
                     className="safe-area-inset-left safe-area-inset-right pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0"

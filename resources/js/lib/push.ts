@@ -41,17 +41,6 @@ export const isIos = (): boolean =>
         // iPadOS reports itself as a Mac, but a Mac never has a touch screen.
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
-/** Register the push service worker. Safe to call on every page load. */
-export const registerServiceWorker = (): void => {
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-        return;
-    }
-
-    navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
-        .catch(() => undefined);
-};
-
 /**
  * The VAPID public key is base64url-encoded; `pushManager.subscribe` wants the
  * raw bytes.

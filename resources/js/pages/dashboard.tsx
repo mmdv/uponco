@@ -16,6 +16,7 @@ import type { QuickCreateForm } from '@/components/dashboard/quick-create-forms'
 import ScheduleCard from '@/components/dashboard/schedule-card';
 import UpcomingAppointments from '@/components/dashboard/upcoming-appointments';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useOfflineGuard } from '@/hooks/use-offline-guard';
 import { useTranslation } from '@/hooks/use-translation';
 import { toDateInputValue } from '@/lib/appointments';
 import { dashboard } from '@/routes';
@@ -59,6 +60,11 @@ export default function Dashboard({
 }: Props) {
     const { t } = useTranslation('dashboard');
     const { auth, currentTeam } = usePage().props;
+
+    // Offline the dashboard shows only the cached upcoming appointments; every
+    // quick-create and edit is blocked at its entry point with a toast. Viewing
+    // an appointment's details stays available.
+    const { blockWhenOffline } = useOfflineGuard();
     const companyName = currentTeam?.name ?? '';
     const firstName = auth.user.name.split(' ')[0];
     const isMobile = useIsMobile();
@@ -89,7 +95,19 @@ export default function Dashboard({
         return () => cancelAnimationFrame(frame);
     }, []);
 
+    const openQuickCreate = (form: QuickCreateForm) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
+        setOpenForm(form);
+    };
+
     const openEditAppointment = (appointment: UpcomingAppointment) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
         setDetailsOpen(false);
         setEditingAppointment(appointment);
         setEditOpen(true);
@@ -103,6 +121,10 @@ export default function Dashboard({
     };
 
     const confirmCancelAppointment = (appointment: UpcomingAppointment) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
         setCancellingAppointment(appointment);
         setCancelOpen(true);
     };
@@ -148,7 +170,7 @@ export default function Dashboard({
     const bookingShareCard = (
         <BookingShareCard
             companyName={companyName}
-            onAddAppointment={() => setOpenForm('appointment')}
+            onAddAppointment={() => openQuickCreate('appointment')}
         />
     );
     /*
@@ -180,7 +202,7 @@ export default function Dashboard({
                     <div className="flex min-w-0 flex-col gap-6 lg:col-span-2 lg:col-start-1 lg:row-start-1">
                         <UpcomingAppointments
                             appointments={upcoming}
-                            onAddAppointment={() => setOpenForm('appointment')}
+                            onAddAppointment={() => openQuickCreate('appointment')}
                             onView={(appointment) => {
                                 setViewingAppointment(appointment);
                                 setDetailsOpen(true);
@@ -208,10 +230,10 @@ export default function Dashboard({
             </div>
 
             <QuickActions
-                onAddAppointment={() => setOpenForm('appointment')}
-                onAddCustomer={() => setOpenForm('customer')}
-                onAddService={() => setOpenForm('service')}
-                onAddLocation={() => setOpenForm('location')}
+                onAddAppointment={() => openQuickCreate('appointment')}
+                onAddCustomer={() => openQuickCreate('customer')}
+                onAddService={() => openQuickCreate('service')}
+                onAddLocation={() => openQuickCreate('location')}
             />
 
             <AppointmentDetailsModal

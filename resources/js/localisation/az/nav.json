@@ -11,6 +11,16 @@
     "toggleTheme": "Görünüşü dəyiş",
     "pullToRefresh": "Yenilənir",
     "changeLanguage": "Dili dəyiş",
+    "offline": {
+        "banner": "Oflaynsınız — saxlanmış məlumat göstərilir",
+        "unavailable": "Bu səhifə oflayn əlçatan deyil",
+        "writeBlocked": "Oflaynsınız — dəyişikliklər əlçatan deyil"
+    },
+    "update": {
+        "title": "Yeni versiya mövcuddur",
+        "description": "Ən son yeniliklər üçün yenidən yükləyin.",
+        "action": "Yenidən yüklə"
+    },
     "userMenu": {
         "settings": "Tənzimləmələr",
         "teams": "Komandalar",

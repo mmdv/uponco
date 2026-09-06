@@ -21,6 +21,7 @@ import CancelAppointmentModal from '@/components/appointments/cancel-appointment
 import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
 import { useDayColumns } from '@/hooks/use-day-columns';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useOfflineGuard } from '@/hooks/use-offline-guard';
 import { useOptimisticAppointments } from '@/hooks/use-optimistic-appointments';
 import { useTranslation } from '@/hooks/use-translation';
 import { partitionAppointments } from '@/lib/appointment-partition';
@@ -55,6 +56,11 @@ export default function AppointmentsIndex({
 }: Props) {
     const { t } = useTranslation('appointments');
     const { auth, currentTeam } = usePage().props;
+
+    // Offline the page shows only the cached appointments, so every write is
+    // blocked at its entry point (a toast explains why). Viewing details and
+    // customer previews stay available.
+    const { isOnline, blockWhenOffline } = useOfflineGuard();
 
     // Admins and owners may edit any appointment; members only the ones where
     // they are the assigned specialist. Mirrors the backend authorization.
@@ -153,6 +159,10 @@ export default function AppointmentsIndex({
     };
 
     const openCreate = () => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
         setEditing(null);
         setFormOpen(true);
     };
@@ -163,6 +173,10 @@ export default function AppointmentsIndex({
         if (isPastAppointment(appointment)) {
             openDetails(appointment);
 
+            return;
+        }
+
+        if (blockWhenOffline()) {
             return;
         }
 
@@ -201,6 +215,10 @@ export default function AppointmentsIndex({
     };
 
     const confirmCancel = (appointment: Appointment) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
         setCancelling(appointment);
         setCancelOpen(true);
     };
@@ -234,6 +252,10 @@ export default function AppointmentsIndex({
     };
 
     const handleCreateSlot = (specialistId: number, startIso: string) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
         const specialist = specialists.find((item) => item.id === specialistId);
 
         if (!specialist) {
@@ -246,7 +268,19 @@ export default function AppointmentsIndex({
         setDayFormOpen(true);
     };
 
+    const handleReschedule = (appointment: Appointment, startIso: string) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
+        reschedule(appointment, startIso);
+    };
+
     const hasBookableResources = services.length > 0 && specialists.length > 0;
+
+    // No writes offline: the create affordances are disabled outright rather
+    // than firing a toast, since there is nothing to create against offline.
+    const canCreate = hasBookableResources && isOnline;
 
     // Mobile: the inline "Today" button is hidden; it reappears as a bottom-left
     // FAB only when the viewed period isn't the current one for the active view.
@@ -285,7 +319,7 @@ export default function AppointmentsIndex({
                     view={view}
                     onViewChange={setView}
                     onCreate={openCreate}
-                    canCreate={hasBookableResources}
+                    canCreate={canCreate}
                     showLocation={showLocation}
                     showSpecialist={showSpecialist}
                 />
@@ -319,7 +353,7 @@ export default function AppointmentsIndex({
                         dayColumns={dayColumns}
                         workingHoursLoading={workingHoursLoading}
                         onSelectAppointment={openDetails}
-                        onReschedule={reschedule}
+                        onReschedule={handleReschedule}
                         onCreateSlot={handleCreateSlot}
                     />
                 )}
@@ -333,7 +367,7 @@ export default function AppointmentsIndex({
                 className="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] z-50 flex size-14 items-center justify-center rounded-full bg-primary-gradient text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-50 sm:hidden"
                 data-test="add-appointment-fab"
                 aria-label={t('newAppointment')}
-                disabled={!hasBookableResources}
+                disabled={!canCreate}
                 onClick={openCreate}
             >
                 <CalendarPlus className="size-6" />
