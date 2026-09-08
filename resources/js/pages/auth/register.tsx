@@ -88,7 +88,7 @@ export default function Register({
         <>
             <Head title={t('register.headTitle')} />
 
-            {/* <div className="mb-6 flex flex-col gap-6">
+            <div className="mb-6 flex flex-col gap-6">
                 <GoogleLoginButton />
 
                 <div className="relative text-center text-sm">
@@ -97,7 +97,7 @@ export default function Register({
                         {t('register.orContinueWith')}
                     </span>
                 </div>
-            </div> */}
+            </div>
 
             <Form
                 {...store.form()}
