@@ -49,6 +49,22 @@ test('the correct current password does change the login email', function () {
         ->and($user->email_verified_at)->toBeNull();
 });
 
+test('a social-login account cannot change its login email', function () {
+    $user = User::factory()->create([
+        'email' => 'owner@example.com',
+        'password' => null,
+        'google_id' => fake()->uuid(),
+    ]);
+
+    actingAs($user)
+        ->patch(route('account.update'), [
+            'email' => 'attacker@example.com',
+        ])
+        ->assertSessionHasErrors('email');
+
+    expect($user->refresh()->email)->toBe('owner@example.com');
+});
+
 test('an unverified user cannot change their login email', function () {
     $user = User::factory()->unverified()->create(['email' => 'owner@example.com']);
 

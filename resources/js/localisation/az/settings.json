@@ -36,6 +36,7 @@
         "currentPassword": "Cari şifrə",
         "currentPasswordPlaceholder": "Cari şifrə",
         "currentPasswordHint": "Giriş e-poçtunuzu dəyişmək üçün şifrənizi təsdiqləyin.",
+        "socialManagedNote": "Giriş e-poçtunuz Google hesabınıza bağlıdır və hələlik burada dəyişdirilə bilməz.",
         "unverified": "E-poçt ünvanınız təsdiqlənməyib.",
         "resend": "Təsdiq e-poçtunu yenidən göndərmək üçün buraya klikləyin.",
         "verificationSent": "E-poçt ünvanınıza yeni təsdiq linki göndərildi.",

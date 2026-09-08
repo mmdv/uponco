@@ -36,6 +36,7 @@
         "currentPassword": "Current password",
         "currentPasswordPlaceholder": "Current password",
         "currentPasswordHint": "Confirm your password to change the email you log in with.",
+        "socialManagedNote": "Your login email is managed by your Google sign-in and can't be changed here yet.",
         "unverified": "Your email address is unverified.",
         "resend": "Click here to re-send the verification email.",
         "verificationSent": "A new verification link has been sent to your email address.",

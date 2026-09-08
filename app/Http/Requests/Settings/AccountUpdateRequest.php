@@ -18,16 +18,16 @@ class AccountUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'email' => $this->emailRules($this->user()->id),
-        ];
-
-        // OAuth-only accounts have no password to confirm; the live session
-        // stands in for re-authentication.
-        if ($this->user()->hasPassword()) {
-            $rules['current_password'] = $this->currentPasswordRules();
+        // Social-login accounts can't change their login email yet; the address
+        // is tied to the OAuth provider. Reject any attempt outright until a
+        // dedicated OAuth email-change flow exists.
+        if (! $this->user()->hasPassword()) {
+            return ['email' => ['prohibited']];
         }
 
-        return $rules;
+        return [
+            'email' => $this->emailRules($this->user()->id),
+            'current_password' => $this->currentPasswordRules(),
+        ];
     }
 }

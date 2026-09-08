@@ -149,10 +149,17 @@ export default function Security({
                                     className="mt-1 block w-full"
                                     defaultValue={auth.user.email}
                                     name="email"
-                                    required
+                                    required={hasPassword}
+                                    disabled={!hasPassword}
                                     autoComplete="username"
                                     placeholder={t('account.emailPlaceholder')}
                                 />
+
+                                {!hasPassword && (
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('account.socialManagedNote')}
+                                    </p>
+                                )}
 
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
@@ -219,14 +226,16 @@ export default function Security({
                                 </div>
                             ) : null}
 
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    disabled={processing}
-                                    data-test="update-account-button"
-                                >
-                                    {t('account.save')}
-                                </Button>
-                            </div>
+                            {hasPassword && (
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        disabled={processing}
+                                        data-test="update-account-button"
+                                    >
+                                        {t('account.save')}
+                                    </Button>
+                                </div>
+                            )}
                         </>
                     )}
                 </Form>
