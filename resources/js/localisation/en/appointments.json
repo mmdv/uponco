@@ -2,8 +2,7 @@
     "title": "Appointments",
     "newAppointment": "New appointment",
     "empty": {
-        "upcoming": "No upcoming appointments.",
-        "past": "No past appointments."
+        "day": "No appointments on this day."
     },
     "dayView": {
         "loading": "Loading the day's schedule…",
@@ -39,9 +38,6 @@
         "allLocations": "All locations",
         "allServices": "All services",
         "allSpecialists": "All specialists",
-        "upcoming": "Upcoming",
-        "past": "Past",
-        "timeframe": "Timeframe",
         "views": {
             "minimal": "Minimal",
             "day": "Day",

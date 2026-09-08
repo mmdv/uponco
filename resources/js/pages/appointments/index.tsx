@@ -13,10 +13,10 @@ import AppointmentsToolbar, {
 } from '@/components/appointments/appointments-toolbar';
 import type {
     AppointmentFilters,
-    AppointmentTab,
     AppointmentView,
 } from '@/components/appointments/appointments-toolbar';
 import AppointmentCalendar from '@/components/appointments/calendar/appointment-calendar';
+import CalendarDateNav from '@/components/appointments/calendar/calendar-date-nav';
 import CancelAppointmentModal from '@/components/appointments/cancel-appointment-modal';
 import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
 import { useDayColumns } from '@/hooks/use-day-columns';
@@ -24,9 +24,9 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useOfflineGuard } from '@/hooks/use-offline-guard';
 import { useOptimisticAppointments } from '@/hooks/use-optimistic-appointments';
 import { useTranslation } from '@/hooks/use-translation';
-import { partitionAppointments } from '@/lib/appointment-partition';
+import { filterAppointments } from '@/lib/appointment-filters';
 import { isPastAppointment, toDateInputValue } from '@/lib/appointments';
-import { dateKey, weekDays } from '@/lib/calendar-grid';
+import { appointmentDateKey, dateKey, weekDays } from '@/lib/calendar-grid';
 import { index as appointmentsIndex } from '@/routes/appointments';
 import type {
     Appointment,
@@ -72,10 +72,6 @@ export default function AppointmentsIndex({
         !isPastAppointment(appointment) &&
         (isTeamAdmin || appointment.specialist_id === auth.user.id);
 
-    const [tab, setTab] = useLocalStorage<AppointmentTab>(
-        'appointments:tab',
-        'upcoming',
-    );
     const [view, setView] = useLocalStorage<AppointmentView>(
         'appointments:view',
         'minimal',
@@ -126,16 +122,25 @@ export default function AppointmentsIndex({
     const showLocation = locations.length > 1;
     const showSpecialist = specialists.length > 1;
 
-    // Apply the toolbar facet filters, then split into upcoming and past so every
-    // view — minimal and calendar — sees the same set.
-    const { upcoming, past } = useMemo(
-        () => partitionAppointments(localAppointments, filters),
+    // Apply the toolbar facet filters once; every view — minimal and calendar —
+    // sees the same set and resolves its own date range from it.
+    const filteredAppointments = useMemo(
+        () => filterAppointments(localAppointments, filters),
         [localAppointments, filters],
     );
 
-    const activeAppointments = tab === 'upcoming' ? upcoming : past;
-
     const cursorKey = dateKey(cursor);
+
+    // The minimal view is now day-based: show only the appointments on the day
+    // the switcher points at. The calendar views slice by date themselves.
+    const dayAppointments = useMemo(
+        () =>
+            filteredAppointments.filter(
+                (appointment) =>
+                    appointmentDateKey(appointment, timezone) === cursorKey,
+            ),
+        [filteredAppointments, timezone, cursorKey],
+    );
 
     const { dayColumns, workingHoursLoading } = useDayColumns({
         view,
@@ -312,10 +317,6 @@ export default function AppointmentsIndex({
                     services={services}
                     locations={locations}
                     specialists={specialists}
-                    tab={tab}
-                    onTabChange={setTab}
-                    upcomingCount={upcoming.length}
-                    pastCount={past.length}
                     view={view}
                     onViewChange={setView}
                     onCreate={openCreate}
@@ -325,30 +326,34 @@ export default function AppointmentsIndex({
                 />
 
                 {view === 'minimal' ? (
-                    <AppointmentsTable
-                        appointments={activeAppointments}
-                        onView={openDetails}
-                        onEdit={openEdit}
-                        onCancel={confirmCancel}
-                        onViewCustomer={openCustomer}
-                        canModify={(appointment) =>
-                            !isPastAppointment(appointment)
-                        }
-                        showLocation={showLocation}
-                        showSpecialist={showSpecialist}
-                        emptyMessage={
-                            tab === 'upcoming'
-                                ? t('empty.upcoming')
-                                : t('empty.past')
-                        }
-                    />
+                    <div className="space-y-4">
+                        <CalendarDateNav
+                            view="day"
+                            date={cursor}
+                            onDateChange={setCursor}
+                        />
+                        <AppointmentsTable
+                            appointments={dayAppointments}
+                            onView={openDetails}
+                            onEdit={openEdit}
+                            onCancel={confirmCancel}
+                            onViewCustomer={openCustomer}
+                            canModify={(appointment) =>
+                                !isPastAppointment(appointment)
+                            }
+                            showLocation={showLocation}
+                            showSpecialist={showSpecialist}
+                            groupByDay={false}
+                            emptyMessage={t('empty.day')}
+                        />
+                    </div>
                 ) : (
                     <AppointmentCalendar
                         view={view}
                         date={cursor}
                         onDateChange={setCursor}
                         onViewChange={setView}
-                        appointments={activeAppointments}
+                        appointments={filteredAppointments}
                         timezone={timezone}
                         dayColumns={dayColumns}
                         workingHoursLoading={workingHoursLoading}
@@ -374,9 +379,9 @@ export default function AppointmentsIndex({
             </button>
 
             {/* Mobile: jump back to today. Mirrors the create FAB on the opposite
-                side (same line/height), shown only in a calendar view when the
+                side (same line/height), shown in any day-navigable view when the
                 viewed period isn't already the current one. */}
-            {view !== 'minimal' && !isViewingToday && (
+            {!isViewingToday && (
                 <button
                     type="button"
                     className="fixed bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-50 flex size-14 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"

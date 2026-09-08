@@ -8,47 +8,36 @@ type FacetFilters = {
 };
 
 /**
- * Apply the toolbar facet filters, then split into upcoming and past.
- *
- * Appointments arrive ordered ascending by start. Upcoming keeps that order
- * (closest future first); past is reversed so it reads closest-to-now first.
+ * Apply the toolbar facet filters (location, service, specialist), preserving
+ * the input order. Appointments arrive ordered ascending by start, so the
+ * result stays chronological for every view to slice by date.
  */
-export function partitionAppointments(
+export function filterAppointments(
     appointments: Appointment[],
     filters: FacetFilters,
-): { upcoming: Appointment[]; past: Appointment[] } {
-    const now = Date.now();
-    const upcoming: Appointment[] = [];
-    const past: Appointment[] = [];
-
-    for (const appointment of appointments) {
+): Appointment[] {
+    return appointments.filter((appointment) => {
         if (
             filters.locationIds.length > 0 &&
             !filters.locationIds.includes(String(appointment.location_id))
         ) {
-            continue;
+            return false;
         }
 
         if (
             filters.serviceIds.length > 0 &&
             !filters.serviceIds.includes(String(appointment.service_id))
         ) {
-            continue;
+            return false;
         }
 
         if (
             filters.specialistIds.length > 0 &&
             !filters.specialistIds.includes(String(appointment.specialist_id))
         ) {
-            continue;
+            return false;
         }
 
-        if (new Date(appointment.start_at).getTime() >= now) {
-            upcoming.push(appointment);
-        } else {
-            past.push(appointment);
-        }
-    }
-
-    return { upcoming, past: past.reverse() };
+        return true;
+    });
 }

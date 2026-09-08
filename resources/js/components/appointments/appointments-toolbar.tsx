@@ -26,7 +26,6 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type {
@@ -47,7 +46,6 @@ export const EMPTY_FILTERS: AppointmentFilters = {
     specialistIds: [],
 };
 
-export type AppointmentTab = 'upcoming' | 'past';
 export type AppointmentView = 'minimal' | 'day' | 'week' | 'month';
 
 const VIEW_OPTIONS: AppointmentView[] = ['minimal', 'day', 'week', 'month'];
@@ -65,10 +63,6 @@ type Props = {
     services: AppointmentServiceOption[];
     locations: AppointmentLocationOption[];
     specialists: AppointmentSpecialistOption[];
-    tab: AppointmentTab;
-    onTabChange: (tab: AppointmentTab) => void;
-    upcomingCount: number;
-    pastCount: number;
     view: AppointmentView;
     onViewChange: (view: AppointmentView) => void;
     onCreate: () => void;
@@ -85,10 +79,6 @@ export default function AppointmentsToolbar({
     services,
     locations,
     specialists,
-    tab,
-    onTabChange,
-    upcomingCount,
-    pastCount,
     view,
     onViewChange,
     onCreate,
@@ -135,7 +125,7 @@ export default function AppointmentsToolbar({
 
     return (
         <div className="flex items-center justify-between gap-2">
-            {/* Filters — timeframe + facets live inside a single popover. */}
+            {/* Filters — facets live inside a single popover. */}
             <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
                 <PopoverTrigger asChild>
                     <Button
@@ -174,45 +164,6 @@ export default function AppointmentsToolbar({
                                 <X className="size-4" /> {t('toolbar.clearAll')}
                             </Button>
                         ) : null}
-                    </div>
-
-                    {/* Timeframe comes first inside the filters. */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-xs font-medium text-muted-foreground">
-                            {t('toolbar.timeframe')}
-                        </span>
-                        <ToggleGroup
-                            type="single"
-                            variant="outline"
-                            value={tab}
-                            onValueChange={(value) => {
-                                if (value) {
-                                    onTabChange(value as AppointmentTab);
-                                }
-                            }}
-                            className="w-full"
-                        >
-                            <ToggleGroupItem
-                                value="upcoming"
-                                className="flex-1 gap-2"
-                                data-test="appointments-tab-upcoming"
-                            >
-                                {t('toolbar.upcoming')}
-                                <CountBadge active={tab === 'upcoming'}>
-                                    {upcomingCount}
-                                </CountBadge>
-                            </ToggleGroupItem>
-                            <ToggleGroupItem
-                                value="past"
-                                className="flex-1 gap-2"
-                                data-test="appointments-tab-past"
-                            >
-                                {t('toolbar.past')}
-                                <CountBadge active={tab === 'past'}>
-                                    {pastCount}
-                                </CountBadge>
-                            </ToggleGroupItem>
-                        </ToggleGroup>
                     </div>
 
                     {showLocation ? (
@@ -390,26 +341,5 @@ function FilterField({
             </div>
             {children}
         </div>
-    );
-}
-
-function CountBadge({
-    active,
-    children,
-}: {
-    active: boolean;
-    children: React.ReactNode;
-}) {
-    return (
-        <span
-            className={cn(
-                'rounded-full px-1.5 py-0.5 text-xs',
-                active
-                    ? 'bg-primary/10 text-primary'
-                    : 'bg-muted text-muted-foreground',
-            )}
-        >
-            {children}
-        </span>
     );
 }

@@ -2,8 +2,7 @@
     "title": "Görüşlər",
     "newAppointment": "Yeni görüş",
     "empty": {
-        "upcoming": "Qarşıdan gələn görüş yoxdur.",
-        "past": "Keçmiş görüş yoxdur."
+        "day": "Bu gün görüş yoxdur."
     },
     "dayView": {
         "loading": "Günün cədvəli yüklənir…",
@@ -39,9 +38,6 @@
         "allLocations": "Bütün filiallar",
         "allServices": "Bütün xidmətlər",
         "allSpecialists": "Bütün mütəxəssislər",
-        "upcoming": "Qarşıdan gələn",
-        "past": "Keçmiş",
-        "timeframe": "Vaxt aralığı",
         "views": {
             "minimal": "Minimal",
             "day": "Gün",

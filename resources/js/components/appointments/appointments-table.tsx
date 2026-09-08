@@ -24,7 +24,9 @@ import {
     formatAppointmentTime,
     formatDuration,
     groupAppointmentsByDay,
+    isPastAppointment,
 } from '@/lib/appointments';
+import { cn } from '@/lib/utils';
 import type { Appointment } from '@/types';
 
 type Props = {
@@ -39,6 +41,11 @@ type Props = {
     showLocation: boolean;
     /** Show the specialist column — hidden when the team has a single member. */
     showSpecialist: boolean;
+    /**
+     * Bucket rows under per-day header rows. Off for the single-day minimal view,
+     * where the day switcher already names the day.
+     */
+    groupByDay?: boolean;
     emptyMessage?: string;
 };
 
@@ -51,6 +58,7 @@ export default function AppointmentsTable({
     canModify = () => true,
     showLocation,
     showSpecialist,
+    groupByDay = true,
     emptyMessage,
 }: Props) {
     const { t } = useTranslation('appointments');
@@ -65,7 +73,11 @@ export default function AppointmentsTable({
         );
     }
 
-    const groups = groupAppointmentsByDay(appointments);
+    // With day grouping off (single-day view) the rows render as one flat list
+    // under no header; the day switcher above already names the day.
+    const groups = groupByDay
+        ? groupAppointmentsByDay(appointments)
+        : [{ key: 'all', label: '', appointments }];
     // Time, Service, Customer, [Specialist], Actions.
     const columnCount = showSpecialist ? 5 : 4;
 
@@ -90,20 +102,31 @@ export default function AppointmentsTable({
                 <TableBody>
                     {groups.map((group) => (
                         <Fragment key={group.key}>
-                            <TableRow className="bg-muted/50 hover:bg-muted/50">
-                                <TableCell
-                                    colSpan={columnCount}
-                                    className="py-2 text-xs font-medium tracking-wide text-muted-foreground"
-                                >
-                                    {group.label}
-                                </TableCell>
-                            </TableRow>
+                            {groupByDay ? (
+                                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                                    <TableCell
+                                        colSpan={columnCount}
+                                        className="py-2 text-xs font-medium tracking-wide text-muted-foreground"
+                                    >
+                                        {group.label}
+                                    </TableCell>
+                                </TableRow>
+                            ) : null}
 
                             {group.appointments.map((appointment) => (
                                 <TableRow
                                     key={appointment.id}
                                     data-test="appointment-row"
-                                    className="group/row cursor-pointer"
+                                    data-past={
+                                        isPastAppointment(appointment) ||
+                                        undefined
+                                    }
+                                    className={cn(
+                                        'group/row cursor-pointer',
+                                        // Past appointments read as done: dimmed and muted.
+                                        isPastAppointment(appointment) &&
+                                            'text-muted-foreground opacity-60',
+                                    )}
                                     onClick={() => onView(appointment)}
                                 >
                                     <TableCell className="align-top">
