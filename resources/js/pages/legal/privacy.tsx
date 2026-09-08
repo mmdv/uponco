@@ -2,7 +2,7 @@ import LegalLayout, { LegalSection } from '@/layouts/legal-layout';
 
 export default function Privacy() {
     return (
-        <LegalLayout title="Privacy Policy" lastUpdated="19 July 2026">
+        <LegalLayout title="Privacy Policy" lastUpdated="8 September 2026">
             <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
                 This Privacy Policy explains how Uponco (“Uponco”, “we”, “us” or
                 “our”) collects, uses and protects personal data when you use
@@ -183,14 +183,15 @@ export default function Privacy() {
                         <span className="font-medium text-foreground">
                             Google.
                         </span>{' '}
-                        If a business connects its Google account, we create
-                        calendar events with Google Meet links in that account;
-                        the event contains the service name, the business name,
-                        the appointment time and any notes on the booking. When
-                        a business searches for an address while setting up a
-                        location, the text typed into the address field is sent
-                        to the Google Places API to return suggestions. If you
-                        sign in with Google, Google processes that sign-in;
+                        If a business connects its Google account, we create a
+                        Google Meet link for its online bookings using the Google
+                        Meet scope; we do not create calendar events, add
+                        anything to the business's Google Calendar, or send the
+                        appointment details to Google. When a business searches
+                        for an address while setting up a location, the text
+                        typed into the address field is sent to the Google Places
+                        API to return suggestions. If you sign in with Google,
+                        Google processes that sign-in;
                     </li>
                     <li>
                         Authorities or third parties where required by law or to
@@ -209,8 +210,8 @@ export default function Privacy() {
                         Google API Services User Data Policy
                     </a>
                     , including the Limited Use requirements. Specifically,
-                    Uponco only accesses the Google Calendar events scope to
-                    create appointment events with Google Meet links on a
+                    Uponco only accesses the Google Meet scope
+                    (meetings.space.created) to create a Google Meet link on a
                     connected account; we do not use this data for advertising,
                     do not sell it, and do not transfer it to others except as
                     needed to provide or improve this feature, to comply with
