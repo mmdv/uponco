@@ -67,7 +67,7 @@ function onlineBookableSetup(bool $googleConnected = true): array
  *
  * @param  array<int, string>  $approvedScopes
  */
-function fakeGoogleUser(array $approvedScopes = ['openid', 'email', 'https://www.googleapis.com/auth/calendar.events']): void
+function fakeGoogleUser(array $approvedScopes = ['openid', 'email', 'https://www.googleapis.com/auth/meetings.space.created']): void
 {
     $socialiteUser = Mockery::mock(SocialiteUser::class);
     $socialiteUser->shouldReceive('getEmail')->andReturn('me@gmail.com');
@@ -148,10 +148,10 @@ test('a user can connect their google account', function () {
     expect($raw)->not->toBe('the-access-token');
 });
 
-test('connecting is refused when calendar access is not granted', function () {
+test('connecting is refused when meet access is not granted', function () {
     $user = User::factory()->create();
 
-    // The user unticked the calendar permission on the consent screen.
+    // The user unticked the Meet permission on the consent screen.
     fakeGoogleUser(approvedScopes: ['openid', 'email']);
 
     $this
@@ -196,9 +196,9 @@ test('booking an online appointment generates a google meet link', function () {
 
     Http::fake([
         'oauth2.googleapis.com/token' => Http::response(['access_token' => 'fresh', 'expires_in' => 3600]),
-        'www.googleapis.com/calendar/v3/*' => Http::response([
-            'id' => 'evt_123',
-            'hangoutLink' => 'https://meet.google.com/abc-defg-hij',
+        'meet.googleapis.com/v2/spaces' => Http::response([
+            'name' => 'spaces/abc',
+            'meetingUri' => 'https://meet.google.com/abc-defg-hij',
         ]),
     ]);
 
@@ -212,10 +212,10 @@ test('booking an online appointment generates a google meet link', function () {
     $this->assertDatabaseHas('appointments', [
         'service_id' => $setup['service']->id,
         'meeting_url' => 'https://meet.google.com/abc-defg-hij',
-        'google_calendar_event_id' => 'evt_123',
+        'google_calendar_event_id' => 'spaces/abc',
     ]);
 
-    Http::assertSent(fn ($request) => str_contains($request->url(), 'conferenceDataVersion=1'));
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'meet.googleapis.com/v2/spaces'));
 });
 
 test('booking succeeds without a link when the specialist has not connected google', function () {

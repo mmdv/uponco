@@ -147,12 +147,12 @@ trait InteractsWithAppointmentBooking
         }
 
         try {
-            $meeting = (new GoogleCalendarService)->createMeetEvent($specialist, $appointment);
+            $meeting = (new GoogleCalendarService)->createMeetSpace($specialist, $appointment);
 
             if ($meeting !== null) {
                 $appointment->update([
                     'meeting_url' => $meeting['meet_url'],
-                    'google_calendar_event_id' => $meeting['event_id'],
+                    'google_calendar_event_id' => $meeting['space_name'],
                 ]);
             }
         } catch (\Throwable $e) {

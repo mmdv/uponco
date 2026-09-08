@@ -13,19 +13,20 @@ use Laravel\Socialite\Facades\Socialite;
 class GoogleIntegrationController extends Controller
 {
     /**
-     * The Google Calendar scope that lets us create events with a Meet link.
+     * The Google Meet scope that lets us create a standalone Meet space (no
+     * calendar event is created).
      */
-    protected const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+    protected const MEET_SCOPE = 'https://www.googleapis.com/auth/meetings.space.created';
 
     /**
-     * The Google OAuth scopes required to create Meet links on the user's calendar.
+     * The Google OAuth scopes required to create Meet links.
      *
      * @var array<int, string>
      */
     protected const SCOPES = [
         'openid',
         'email',
-        self::CALENDAR_SCOPE,
+        self::MEET_SCOPE,
     ];
 
     /**
@@ -81,13 +82,13 @@ class GoogleIntegrationController extends Controller
             return to_route('integrations.edit');
         }
 
-        // Google presents Calendar access as a separate checkbox on the consent
+        // Google presents Meet access as a separate checkbox on the consent
         // screen. If the user didn't grant it, the token is useless for creating
         // Meet links, so refuse the connection and tell them exactly what to do.
-        if (! in_array(self::CALENDAR_SCOPE, $googleUser->approvedScopes ?? [], true)) {
+        if (! in_array(self::MEET_SCOPE, $googleUser->approvedScopes ?? [], true)) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => __('Please allow Google Calendar access when connecting so we can create Meet links. Reconnect and tick the calendar permission.'),
+                'message' => __('Please allow Google Meet access when connecting so we can create meeting links. Reconnect and tick the Meet permission.'),
             ]);
 
             return to_route('integrations.edit');

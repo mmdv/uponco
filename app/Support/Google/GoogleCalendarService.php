@@ -6,11 +6,14 @@ use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 
 /**
- * Talks to the Google Calendar API on behalf of a connected specialist to create
- * a calendar event with a Google Meet conference attached, returning the join link.
+ * Talks to the Google Meet REST API on behalf of a connected specialist to create
+ * a standalone Meet space, returning the join link.
+ *
+ * A Meet space is created without any calendar event: the link is placed in the
+ * confirmation email and .ics attachment, and the customer decides whether to add
+ * the appointment to their own calendar.
  *
  * All network failures are reported and surfaced as `null` so a failed Google call
  * can never break the surrounding booking flow.
@@ -23,16 +26,16 @@ class GoogleCalendarService
     protected const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
     /**
-     * The Calendar API endpoint for creating events on the primary calendar.
+     * The Meet REST API endpoint for creating meeting spaces.
      */
-    protected const EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+    protected const SPACES_URL = 'https://meet.googleapis.com/v2/spaces';
 
     /**
-     * Create a calendar event with a Google Meet conference for the appointment.
+     * Create a standalone Google Meet space for the appointment.
      *
-     * @return array{meet_url: string, event_id: string}|null
+     * @return array{meet_url: string, space_name: string}|null
      */
-    public function createMeetEvent(User $specialist, Appointment $appointment): ?array
+    public function createMeetSpace(User $specialist, Appointment $appointment): ?array
     {
         $accessToken = $this->freshAccessToken($specialist);
 
@@ -40,44 +43,24 @@ class GoogleCalendarService
             return null;
         }
 
-        $team = $appointment->team;
-        $timezone = $team->timezone ?: config('app.timezone');
-
         try {
             $response = Http::withToken($accessToken)
-                ->post(self::EVENTS_URL.'?conferenceDataVersion=1', [
-                    'summary' => $appointment->service->title.' · '.$team->name,
-                    'description' => $appointment->notes ?: '',
-                    'start' => [
-                        'dateTime' => $appointment->start_at->copy()->setTimezone($timezone)->toRfc3339String(),
-                        'timeZone' => $timezone,
-                    ],
-                    'end' => [
-                        'dateTime' => $appointment->end_at->copy()->setTimezone($timezone)->toRfc3339String(),
-                        'timeZone' => $timezone,
-                    ],
-                    'conferenceData' => [
-                        'createRequest' => [
-                            'requestId' => (string) Str::uuid(),
-                            'conferenceSolutionKey' => ['type' => 'hangoutsMeet'],
-                        ],
-                    ],
-                ]);
+                ->post(self::SPACES_URL, (object) []);
 
             if ($response->failed()) {
-                report(new \RuntimeException('Google Calendar event creation failed: '.$response->body()));
+                report(new \RuntimeException('Google Meet space creation failed: '.$response->body()));
 
                 return null;
             }
 
-            $meetUrl = $this->extractMeetUrl($response->json());
-            $eventId = $response->json('id');
+            $meetUrl = $response->json('meetingUri');
+            $spaceName = $response->json('name');
 
-            if ($meetUrl === null || $eventId === null) {
+            if ($meetUrl === null || $spaceName === null) {
                 return null;
             }
 
-            return ['meet_url' => $meetUrl, 'event_id' => $eventId];
+            return ['meet_url' => $meetUrl, 'space_name' => $spaceName];
         } catch (\Throwable $e) {
             report($e);
 
@@ -130,29 +113,5 @@ class GoogleCalendarService
 
             return null;
         }
-    }
-
-    /**
-     * Pull the Meet join URL out of a Calendar event response.
-     *
-     * @param  array<string, mixed>|null  $event
-     */
-    protected function extractMeetUrl(?array $event): ?string
-    {
-        if (! is_array($event)) {
-            return null;
-        }
-
-        if (! empty($event['hangoutLink'])) {
-            return $event['hangoutLink'];
-        }
-
-        foreach ($event['conferenceData']['entryPoints'] ?? [] as $entryPoint) {
-            if (($entryPoint['entryPointType'] ?? null) === 'video' && ! empty($entryPoint['uri'])) {
-                return $entryPoint['uri'];
-            }
-        }
-
-        return null;
     }
 }
