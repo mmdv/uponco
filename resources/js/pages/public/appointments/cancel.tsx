@@ -131,7 +131,7 @@ export default function PublicAppointmentCancel({
                                 <h1 className="mt-4 text-xl font-semibold">
                                     {t('cancel.confirmTitle')}
                                 </h1>
-                                <p className="mt-1.5 text-sm text-muted-foreground">
+                                <p className="mt-1.5 text-sm text-foreground">
                                     {t('cancel.confirmDescription')}
                                 </p>
                             </div>
@@ -206,11 +206,11 @@ function StatusPanel({
 }) {
     return (
         <div className="flex animate-in flex-col items-center px-1 py-6 text-center duration-500 fade-in-0">
-            <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <div className="flex size-14 items-center justify-center rounded-full bg-muted text-foreground">
                 <Icon className="size-6" />
             </div>
             <h1 className="mt-4 text-xl font-semibold">{title}</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
+            <p className="mt-1.5 text-sm text-foreground">
                 {description}
             </p>
         </div>

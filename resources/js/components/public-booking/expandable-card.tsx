@@ -34,8 +34,10 @@ export default function ExpandableCard({
     return (
         <div
             className={cn(
-                'overflow-hidden rounded-2xl border bg-card transition-colors duration-300',
-                open ? 'border-primary/40 shadow-sm' : 'border-border',
+                'overflow-hidden rounded-2xl border bg-card shadow-soft transition-all duration-300',
+                open
+                    ? 'border-primary/40 shadow-lg'
+                    : 'border-black/[0.08] dark:border-border',
             )}
         >
             <button
@@ -61,7 +63,7 @@ export default function ExpandableCard({
 
                 <div className="min-w-0 flex-1">
                     <p className="font-medium">{title}</p>
-                    <p className="truncate text-sm text-muted-foreground">
+                    <p className="truncate text-sm text-foreground">
                         {selectedLabel ?? hint}
                     </p>
                 </div>

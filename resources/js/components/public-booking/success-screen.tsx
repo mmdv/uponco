@@ -45,7 +45,7 @@ export default function SuccessScreen({
             </div>
 
             <h1 className="mt-5 text-xl font-semibold">{t('success.title')}</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
+            <p className="mt-1.5 text-sm text-foreground">
                 {t('success.message', {
                     name: customerName.split(' ')[0] || t('success.there'),
                     company: companyName,
@@ -58,7 +58,7 @@ export default function SuccessScreen({
 
             {calendar && (
                 <div className="mt-6 w-full space-y-2 text-left">
-                    <p className="text-xs font-medium text-muted-foreground">
+                    <p className="text-xs font-medium text-foreground">
                         {t('success.addToCalendar')}
                     </p>
                     <div className="grid grid-cols-2 gap-2">

@@ -37,7 +37,7 @@ export default function LockedRow({
 }: Props) {
     return (
         <div
-            className="rounded-2xl border border-border bg-card p-4"
+            className="rounded-2xl border border-black/[0.08] bg-card p-4 shadow-soft dark:border-border"
             data-test={dataTest}
         >
             <div className="flex items-center gap-3">
@@ -50,7 +50,7 @@ export default function LockedRow({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground">{title}</p>
+                    <p className="text-xs text-foreground">{title}</p>
                     <p className="truncate font-medium">{value}</p>
                 </div>
 
@@ -59,7 +59,7 @@ export default function LockedRow({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="shrink-0 text-muted-foreground"
+                        className="shrink-0 text-foreground"
                         onClick={onShowDetails}
                         aria-label={detailsLabel ?? `About ${value}`}
                         data-test={dataTest ? `${dataTest}-info` : undefined}

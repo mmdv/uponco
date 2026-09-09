@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
@@ -81,6 +82,7 @@ export default function BookingFooter({
                     onClick={onSubmit}
                     data-test="appointment-save-button"
                 >
+                    {processing && <Spinner className="size-5" />}
                     {t('footer.confirm')}
                 </Button>
             )}

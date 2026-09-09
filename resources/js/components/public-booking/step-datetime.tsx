@@ -183,7 +183,7 @@ export default function StepDateTime({
                         ))}
                     </div>
                 ) : visibleSlots.length === 0 ? (
-                    <p className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
+                    <p className="rounded-xl border border-dashed py-8 text-center text-sm text-foreground">
                         {t('datetime.noTimes')}
                     </p>
                 ) : (

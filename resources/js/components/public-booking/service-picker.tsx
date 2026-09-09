@@ -23,7 +23,7 @@ export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
 
     if (groups.length === 0) {
         return (
-            <p className="px-1 py-6 text-center text-sm text-muted-foreground">
+            <p className="px-1 py-6 text-center text-sm text-foreground">
                 {t('selection.noServices')}
             </p>
         );
@@ -34,7 +34,7 @@ export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
             {groups.map((group) => (
                 <div key={group.id ?? 'uncategorized'} className="space-y-2">
                     {group.name !== null && (
-                        <p className="px-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                        <p className="px-1 text-xs font-semibold tracking-wide text-foreground uppercase">
                             {group.name}
                         </p>
                     )}
@@ -62,7 +62,7 @@ export default function ServicePicker({ groups, selectedId, onSelect }: Props) {
                                         <p className="truncate text-sm font-medium">
                                             {service.title}
                                         </p>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                        <p className="mt-0.5 text-xs text-foreground">
                                             {formatDuration(service.duration)}
                                             {price && ` · ${price}`}
                                         </p>

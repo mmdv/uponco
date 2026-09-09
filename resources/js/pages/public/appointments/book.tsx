@@ -31,7 +31,7 @@ export default function PublicAppointmentBooking({
             <div className="flex w-full max-w-[460px] flex-col">
                 {canManage && (
                     <div className="flex items-center justify-between gap-3 px-5 pt-3">
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-foreground">
                             {t('page.viewingOwnPage')}
                         </span>
                         <Button asChild size="sm" variant="outline">

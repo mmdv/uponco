@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Check, Copy, Moon, Settings, Share2, Sun } from 'lucide-react';
+import { Astroid, Check, Copy, Moon, Share2, Sun } from 'lucide-react';
 import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -138,7 +138,7 @@ export default function BookingHeader({
                 <h1 className="text-lg leading-tight font-semibold">
                     {headline}
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-foreground">
                     {tagline || t('header.tagline')}
                 </p>
             </div>
@@ -173,12 +173,11 @@ export default function BookingHeader({
                             aria-label={t('header.menu')}
                             data-test="booking-header-menu"
                         >
-                            <Settings className="size-5" />
+                            <Astroid className="size-5" />
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent align="end" className="w-72 space-y-4">
-                        <div className="space-y-2">
-                            <p className="text-xs font-medium text-muted-foreground">
+                        <div className="space-y-2">                            <p className="text-xs font-medium text-foreground">
                                 {t('header.theme')}
                             </p>
                             <div className="grid grid-cols-2 gap-2">
@@ -211,7 +210,7 @@ export default function BookingHeader({
 
                         {availableLocales.length > 1 ? (
                             <div className="space-y-2">
-                                <p className="text-xs font-medium text-muted-foreground">
+                                <p className="text-xs font-medium text-foreground">
                                     {t('header.language')}
                                 </p>
                                 <Select
@@ -240,7 +239,7 @@ export default function BookingHeader({
                         ) : null}
 
                         <div className="space-y-2">
-                            <p className="text-xs font-medium text-muted-foreground">
+                            <p className="text-xs font-medium text-foreground">
                                 {t('header.share')}
                             </p>
                             {canNativeShare ? (

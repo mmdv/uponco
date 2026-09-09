@@ -34,7 +34,7 @@ export default function SpecialistPicker({
 
     if (specialists.length === 0) {
         return (
-            <p className="px-1 py-6 text-center text-sm text-muted-foreground">
+            <p className="px-1 py-6 text-center text-sm text-foreground">
                 {t('selection.noSpecialists')}
             </p>
         );
@@ -133,7 +133,7 @@ export default function SpecialistPicker({
 
                             {preview && slots.length > 0 ? (
                                 <div className="mt-1.5">
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-foreground">
                                         {t('specialist.nextAvailable', {
                                             label: preview.label,
                                         })}
@@ -142,7 +142,7 @@ export default function SpecialistPicker({
                                         {slots.slice(0, 4).map((slot) => (
                                             <span
                                                 key={slot}
-                                                className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                                                className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] text-foreground"
                                             >
                                                 {slot}
                                             </span>

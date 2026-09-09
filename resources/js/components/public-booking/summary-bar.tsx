@@ -52,7 +52,7 @@ export default function SummaryBar({
 
     if (chips.length === 0) {
         return (
-            <div className="flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/40 px-3 text-xs text-muted-foreground">
+            <div className="flex min-h-[3.5rem] items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/40 px-3 text-xs text-foreground">
                 <Sparkles className="size-3.5" />
                 {t('summary.empty')}
             </div>

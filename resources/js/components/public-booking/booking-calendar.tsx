@@ -99,7 +99,7 @@ export default function BookingCalendar({
                 {WEEKDAY_ORDER.map((weekday) => (
                     <div
                         key={weekday}
-                        className="py-1 text-center text-[11px] font-medium text-muted-foreground"
+                        className="py-1 text-center text-[11px] font-medium text-foreground"
                     >
                         {t(`datetime.weekdays.${weekday}`)}
                     </div>

@@ -68,14 +68,14 @@ export default function BookingSummary({
     }
 
     return (
-        <div className="divide-y rounded-2xl border bg-muted/30">
+        <div className="divide-y rounded-2xl border border-black/[0.08] bg-muted/30 shadow-soft dark:border-border">
             {rows.map((row) => (
                 <div key={row.label} className="flex items-center gap-3 p-3.5">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background text-muted-foreground">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background text-foreground">
                         <row.icon className="size-4" />
                     </span>
                     <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-foreground">
                             {row.label}
                         </p>
                         <p className="truncate text-sm font-medium">

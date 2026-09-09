@@ -34,7 +34,7 @@ export default function LocationDetails({
     return (
         <div className={cn('space-y-1.5 text-sm', className)}>
             {address && (
-                <p className="flex items-start gap-2 text-muted-foreground">
+                <p className="flex items-start gap-2 text-foreground">
                     {!compact && <MapPin className="mt-0.5 size-4 shrink-0" />}
                     <span>{address}</span>
                 </p>

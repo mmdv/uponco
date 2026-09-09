@@ -67,13 +67,13 @@ export default function SpecialistProfileDialog({
                     </DialogDescription>
 
                     {specialist?.job_title ? (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground">
                             {specialist.job_title}
                         </p>
                     ) : null}
                 </DialogHeader>
 
-                <p className="text-center text-sm whitespace-pre-line text-muted-foreground">
+                <p className="text-center text-sm whitespace-pre-line text-foreground">
                     {specialist?.description || t('specialist.noDescription')}
                 </p>
 

@@ -25,7 +25,7 @@ export default function LocationPicker({
 
     if (locations.length === 0) {
         return (
-            <p className="px-1 py-6 text-center text-sm text-muted-foreground">
+            <p className="px-1 py-6 text-center text-sm text-foreground">
                 {t('selection.noLocations')}
             </p>
         );
