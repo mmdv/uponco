@@ -121,7 +121,7 @@ function ServiceCard({
                 </h3>
 
                 <div className="flex shrink-0 items-center gap-1">
-                    <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-foreground uppercase">
                         <span
                             className={cn(
                                 'size-2 rounded-full',
@@ -170,13 +170,13 @@ function ServiceCard({
             <div className="mt-5 space-y-3">
                 <div className="flex items-center gap-2.5 text-sm">
                     <Tag className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="font-medium text-foreground/90">
+                    <span className="font-medium text-foreground">
                         {formatPrice(service, t)}
                     </span>
                 </div>
                 <div className="flex items-center gap-2.5 text-sm">
                     <Clock className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="text-foreground/90">
+                    <span className="text-foreground">
                         {service.duration} min
                         {service.technical_break > 0 &&
                             ` (+${service.technical_break})`}
@@ -212,7 +212,7 @@ function ServiceCard({
             )}
 
             <div className="mt-6 flex items-center justify-between pt-2">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 text-sm text-foreground">
                     <span className="flex items-center gap-1.5 capitalize">
                         <Users className="size-4" />
                         {service.service_type}
@@ -295,7 +295,7 @@ export default function ServicesList({
     if (categories.length === 0 && uncategorizedServices.length === 0) {
         return (
             <div className="rounded-2xl border border-dashed p-10 text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('services.empty')}
                 </p>
             </div>
@@ -378,7 +378,7 @@ export default function ServicesList({
 
                         {categoryServices.length === 0 ? (
                             <div className="rounded-2xl border border-dashed p-8 text-center">
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('services.noServicesInCategory')}
                                 </p>
                             </div>

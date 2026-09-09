@@ -73,7 +73,7 @@ export default function BrandPreview({ team, primary, bookingUrl }: Props) {
                     <h3 className="text-base font-semibold tracking-tight">
                         {t('brand.preview.title')}
                     </h3>
-                    <p className="mt-1 hidden text-sm text-muted-foreground sm:block">
+                    <p className="mt-1 hidden text-sm text-foreground sm:block">
                         {t('brand.preview.description')}
                     </p>
                 </div>
@@ -133,7 +133,7 @@ export default function BrandPreview({ team, primary, bookingUrl }: Props) {
                             <p className="truncate text-sm leading-tight font-semibold text-foreground">
                                 {team.name}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-foreground">
                                 {t('brand.preview.tagline')}
                             </p>
                         </div>
@@ -153,7 +153,7 @@ export default function BrandPreview({ team, primary, bookingUrl }: Props) {
                             </span>
 
                             <div className="min-w-0 flex-1 space-y-2">
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-foreground">
                                     {t('brand.preview.location')}
                                 </p>
                                 <Bar className="h-2.5 w-2/3" />
@@ -186,7 +186,7 @@ export default function BrandPreview({ team, primary, bookingUrl }: Props) {
                             key={kind}
                             className="hidden items-center gap-3 rounded-2xl border bg-card p-4 sm:flex"
                         >
-                            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
                                 <Icon className="size-5" />
                             </span>
 

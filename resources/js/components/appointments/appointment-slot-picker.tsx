@@ -103,11 +103,11 @@ export default function AppointmentSlotPicker({
 
             <div className="mt-1">
                 {selectionIncomplete ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('slots.selectServiceSpecialist')}
                     </p>
                 ) : !date ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('slots.pickDateHint')}
                     </p>
                 ) : loading ? (
@@ -117,7 +117,7 @@ export default function AppointmentSlotPicker({
                         ))}
                     </div>
                 ) : slots.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('slots.noTimes')}
                     </p>
                 ) : (

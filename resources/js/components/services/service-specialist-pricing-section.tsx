@@ -41,7 +41,7 @@ export default function ServiceSpecialistPricingSection({
                     <span className="text-sm font-medium">
                         {t('services.form.specialistPricing')}
                     </span>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('services.form.specialistPricingHint')}
                     </p>
                 </div>

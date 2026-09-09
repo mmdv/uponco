@@ -70,7 +70,7 @@ export default function ScheduleCard({ schedule }: Props) {
                     <h3 className="truncate text-base font-semibold">
                         {t('schedule.title')}
                     </h3>
-                    <p className="text-sm font-medium text-foreground/75">
+                    <p className="text-sm font-medium text-foreground">
                         {t('schedule.description')}
                     </p>
                 </div>

@@ -64,7 +64,7 @@ export default function AppointmentDetailsModal({
                             <DialogTitle className="text-xl leading-tight">
                                 {appointment.service.title}
                             </DialogTitle>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-foreground">
                                 {t('details.with', {
                                     name: appointment.specialist.name,
                                 })}
@@ -104,7 +104,7 @@ export default function AppointmentDetailsModal({
                             <Separator />
 
                             <section className="space-y-3">
-                                <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                <h3 className="text-xs font-semibold tracking-wide text-foreground uppercase">
                                     {t('details.customer')}
                                 </h3>
                                 <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ export default function AppointmentDetailsModal({
                                                 t('customer.noName'),
                                             )}
                                         </p>
-                                        <div className="mt-1 flex flex-col gap-1 text-sm text-muted-foreground">
+                                        <div className="mt-1 flex flex-col gap-1 text-sm text-foreground">
                                             {appointment.customer.email && (
                                                 <ContactLink
                                                     icon={
@@ -166,7 +166,7 @@ export default function AppointmentDetailsModal({
                                 <>
                                     <Separator />
                                     <section className="space-y-2">
-                                        <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                        <h3 className="text-xs font-semibold tracking-wide text-foreground uppercase">
                                             {t('details.notes')}
                                         </h3>
                                         <p className="rounded-lg bg-muted/50 p-3 text-sm whitespace-pre-wrap">
@@ -212,7 +212,7 @@ function InfoTile({
 }) {
     return (
         <div className={cn('rounded-lg border p-3', className)}>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-foreground">
                 {icon}
                 <span className="text-xs font-medium tracking-wide uppercase">
                     {label}

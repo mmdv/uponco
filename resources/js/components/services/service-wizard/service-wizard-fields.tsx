@@ -292,7 +292,7 @@ export default function ServiceWizardFields({
                             inline ? 'pt-5' : 'p-4',
                         )}
                     >
-                        <span className="mr-auto text-xs text-muted-foreground">
+                        <span className="mr-auto text-xs text-foreground">
                             {t('services.wizard.stepLabel', {
                                 current: stepIndex + 1,
                                 total: steps.length,

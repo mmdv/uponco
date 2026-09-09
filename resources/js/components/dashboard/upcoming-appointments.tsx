@@ -65,7 +65,7 @@ export default function UpcomingAppointments({
                     {appointments.length > 0 && (
                         <Link
                             href={appointmentsIndex.url()}
-                            className="text-sm font-medium text-foreground/70 transition-colors hover:text-primary"
+                            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
                         >
                             {t('upcoming.viewAll')}
                         </Link>
@@ -83,7 +83,7 @@ export default function UpcomingAppointments({
                         >
                             <CalendarClock className="size-5" />
                         </div>
-                        <p className="text-sm font-medium text-foreground/75">
+                        <p className="text-sm font-medium text-foreground">
                             {t('upcoming.empty')}
                         </p>
                         <Button
@@ -119,7 +119,7 @@ export default function UpcomingAppointments({
                                     <p className="truncate text-sm font-semibold">
                                         {appointment.service.title}
                                     </p>
-                                    <p className="truncate text-sm font-medium text-foreground/70">
+                                    <p className="truncate text-sm font-medium text-foreground">
                                         {appointmentCustomerLabel(
                                             appointment,
                                             t('upcoming.noName'),
@@ -136,7 +136,7 @@ export default function UpcomingAppointments({
                                             appointment.timezone,
                                         )}
                                     </p>
-                                    <p className="text-xs font-medium text-foreground/65">
+                                    <p className="text-xs font-medium text-foreground">
                                         {formatAppointmentTimeRange(
                                             appointment.start_at,
                                             appointment.end_at,

@@ -93,7 +93,7 @@ export default function CategoryField({
             <Label htmlFor="wizard_category">
                 {t('services.form.category')}
             </Label>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
                 {t('services.form.categoryHint')}
             </p>
             <SearchableSelect

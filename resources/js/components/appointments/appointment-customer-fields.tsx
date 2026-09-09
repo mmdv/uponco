@@ -45,7 +45,7 @@ export default function AppointmentCustomerFields({
                     <h3 className="text-sm font-medium">
                         {t('customer.heading')}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {isEditing
                             ? t('customer.readOnlyNote')
                             : t('customer.autoCreateNote')}
@@ -84,7 +84,7 @@ export default function AppointmentCustomerFields({
 
                     <dl className="space-y-3">
                         <div className="grid gap-0.5">
-                            <dt className="text-sm text-muted-foreground">
+                            <dt className="text-sm text-foreground">
                                 {t('customer.nameLabel')}
                             </dt>
                             <dd className="text-sm font-medium">
@@ -97,7 +97,7 @@ export default function AppointmentCustomerFields({
                             </dd>
                         </div>
                         <div className="grid gap-0.5">
-                            <dt className="text-sm text-muted-foreground">
+                            <dt className="text-sm text-foreground">
                                 {t('customer.emailLabel')}
                             </dt>
                             <dd className="text-sm font-medium">
@@ -105,7 +105,7 @@ export default function AppointmentCustomerFields({
                             </dd>
                         </div>
                         <div className="grid gap-0.5">
-                            <dt className="text-sm text-muted-foreground">
+                            <dt className="text-sm text-foreground">
                                 {t('customer.phoneLabel')}
                             </dt>
                             <dd className="text-sm font-medium">

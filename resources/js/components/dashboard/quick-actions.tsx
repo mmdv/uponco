@@ -104,7 +104,7 @@ export default function QuickActions({
         >
             {open && (
                 <div className="flex w-60 origin-bottom-right animate-in flex-col gap-1 rounded-2xl border bg-popover p-2 text-popover-foreground shadow-xl duration-200 zoom-in-95 fade-in slide-in-from-bottom-2">
-                    <p className="px-2 py-1.5 text-xs font-semibold text-foreground/60">
+                    <p className="px-2 py-1.5 text-xs font-semibold text-foreground">
                         {t('quickActions.label')}
                     </p>
                     {actions.map((action) => (

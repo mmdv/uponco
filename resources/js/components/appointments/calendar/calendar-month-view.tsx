@@ -64,7 +64,7 @@ export default function CalendarMonthView({
                 {WEEKDAY_LABELS.map((label) => (
                     <div
                         key={label}
-                        className="py-2 text-center text-xs font-medium text-muted-foreground"
+                        className="py-2 text-center text-xs font-medium text-foreground"
                     >
                         {label}
                     </div>
@@ -114,7 +114,7 @@ export default function CalendarMonthView({
                                             }
                                             className="flex w-full items-center gap-1 overflow-hidden rounded bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:bg-primary/20"
                                         >
-                                            <span className="font-medium text-muted-foreground">
+                                            <span className="font-medium text-foreground">
                                                 {formatMinutes(
                                                     minutesFromMidnight(
                                                         appointment.start_at,

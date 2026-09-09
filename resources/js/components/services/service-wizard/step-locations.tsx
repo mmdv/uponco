@@ -61,7 +61,7 @@ export default function StepLocations({
                 <h3 className="text-sm font-medium">
                     {t('services.wizard.locations.heading')}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('services.wizard.locations.subheading')}
                 </p>
             </div>
@@ -69,7 +69,7 @@ export default function StepLocations({
             {locations.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center">
                     <MapPin className="size-6 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('services.wizard.locations.empty')}
                     </p>
                     <Button
@@ -90,7 +90,7 @@ export default function StepLocations({
                         onChange={onChange}
                         data-test="wizard-locations-select"
                     />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('services.form.locationsHint')}
                     </p>
                     <Button

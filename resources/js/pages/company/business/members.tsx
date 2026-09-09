@@ -158,7 +158,7 @@ export default function BusinessMembers({
                                         <div className="truncate font-medium">
                                             {member.name}
                                         </div>
-                                        <div className="truncate text-sm text-muted-foreground">
+                                        <div className="truncate text-sm text-foreground">
                                             {member.email}
                                         </div>
                                     </div>
@@ -256,7 +256,7 @@ export default function BusinessMembers({
                                             <div className="font-medium">
                                                 {invitation.email}
                                             </div>
-                                            <div className="text-sm text-muted-foreground">
+                                            <div className="text-sm text-foreground">
                                                 {invitation.role_label}
                                             </div>
                                         </div>

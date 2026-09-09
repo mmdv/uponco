@@ -42,7 +42,7 @@ export default function LocationsGrid({
     if (locations.length === 0) {
         return (
             <div className="rounded-2xl border border-dashed p-10 text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('grid.empty')}
                 </p>
             </div>
@@ -108,7 +108,7 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
                 </h3>
 
                 <div className="flex shrink-0 items-center gap-1">
-                    <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-foreground uppercase">
                         <span
                             className={cn(
                                 'size-2 rounded-full',
@@ -155,7 +155,7 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
             <div className="mt-5 space-y-3">
                 <div className="flex items-start gap-2.5 text-sm">
                     <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <span className="text-foreground/90">{address}</span>
+                    <span className="text-foreground">{address}</span>
                 </div>
                 {location.phone && (
                     <div className="flex items-center gap-2.5 text-sm font-medium">
@@ -166,7 +166,7 @@ function LocationCard({ location, countryLabel, onEdit, onDelete }: CardProps) {
             </div>
 
             <div className="mt-6 flex items-center justify-between pt-2">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 text-sm text-foreground">
                     <span
                         className="flex items-center gap-1.5"
                         title={t('grid.servicesTitle', {

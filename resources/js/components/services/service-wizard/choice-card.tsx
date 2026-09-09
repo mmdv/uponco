@@ -68,12 +68,12 @@ export default function ChoiceCard({
                         {title}
                     </span>
                     {badge ? (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">
                             {badge}
                         </span>
                     ) : null}
                 </span>
-                <span className="block text-sm text-muted-foreground">
+                <span className="block text-sm text-foreground">
                     {description}
                 </span>
             </span>

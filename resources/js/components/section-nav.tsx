@@ -149,7 +149,7 @@ export function SectionNavLayout({
                         {title}
                     </h2>
                     {description && (
-                        <p className="hidden text-sm text-foreground/70 lg:block">
+                        <p className="hidden text-sm text-foreground lg:block">
                             {description}
                         </p>
                     )}

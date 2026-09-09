@@ -70,7 +70,7 @@ export default function TeamLogoUploader({ team }: Props) {
                             className="size-full object-contain"
                         />
                     ) : (
-                        <span className="text-xs text-neutral-400">
+                        <span className="text-xs text-foreground">
                             {t('brand.logoUploader.noLogo')}
                         </span>
                     )}
@@ -119,7 +119,7 @@ export default function TeamLogoUploader({ team }: Props) {
                 </div>
             </div>
 
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-foreground">
                 {t('brand.logoUploader.hint')}
             </p>
 

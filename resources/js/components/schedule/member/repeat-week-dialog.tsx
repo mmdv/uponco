@@ -80,7 +80,7 @@ export default function RepeatWeekDialog({
                 <div className="space-y-4">
                     <div className="rounded-lg border p-3 text-sm">
                         {workingDays.length === 0 ? (
-                            <span className="text-muted-foreground">
+                            <span className="text-foreground">
                                 {t('member.repeatWeekEmpty')}
                             </span>
                         ) : (
@@ -95,7 +95,7 @@ export default function RepeatWeekDialog({
                                         </span>
                                     ))}
                                 </div>
-                                <p className="pt-2 text-xs text-muted-foreground">
+                                <p className="pt-2 text-xs text-foreground">
                                     {t('member.repeatWeekSummary', {
                                         days: workingDays.length,
                                         hours: formatHours(totalMinutes),

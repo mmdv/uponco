@@ -90,7 +90,7 @@ export default function Profile({ profile }: { profile: ProfileData }) {
                                     )}
                                 />
 
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('profile.publicEmailHint')}
                                 </p>
 

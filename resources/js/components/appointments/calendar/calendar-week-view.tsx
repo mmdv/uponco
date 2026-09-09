@@ -60,7 +60,7 @@ export default function CalendarWeekView({
                                 aria-label={`View ${weekdayFormatter.format(day)} ${day.getDate()} in day view`}
                                 className="flex-1 cursor-pointer border-r border-b-2 border-b-transparent py-2 text-center transition-colors last:border-r-0 hover:border-b-primary hover:bg-primary/5"
                             >
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-foreground">
                                     {weekdayFormatter.format(day)}
                                 </p>
                                 <p
@@ -88,7 +88,7 @@ export default function CalendarWeekView({
                             {HOURS.slice(0, -1).map((hour, index) => (
                                 <div
                                     key={hour}
-                                    className="absolute right-2 -translate-y-1/2 text-xs text-muted-foreground"
+                                    className="absolute right-2 -translate-y-1/2 text-xs text-foreground"
                                     style={{ top: index * HOUR_HEIGHT }}
                                 >
                                     {index === 0

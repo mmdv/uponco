@@ -178,7 +178,7 @@ export default function LocationFormFields({
                                 <Label htmlFor="is_active">
                                     {t('form.active')}
                                 </Label>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('form.activeHint')}
                                 </p>
                             </div>

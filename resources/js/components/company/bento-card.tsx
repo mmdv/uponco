@@ -91,7 +91,7 @@ export function BentoCard({
                             <ChevronRight className="size-4 shrink-0 text-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-foreground/80" />
                         </div>
                         {description && (
-                            <p className="mt-1 text-sm leading-snug font-medium text-foreground/75">
+                            <p className="mt-1 text-sm leading-snug font-medium text-foreground">
                                 {description}
                             </p>
                         )}

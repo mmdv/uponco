@@ -159,7 +159,7 @@ export default function AppointmentsToolbar({
                                 size="sm"
                                 onClick={clearFilters}
                                 data-test="appointments-clear-filters"
-                                className="h-8 px-2 text-muted-foreground"
+                                className="h-8 px-2 text-foreground"
                             >
                                 <X className="size-4" /> {t('toolbar.clearAll')}
                             </Button>

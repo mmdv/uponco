@@ -194,7 +194,7 @@ export default function AddressAutocomplete({
                                     <span className="block truncate font-medium">
                                         {suggestion.main_text}
                                     </span>
-                                    <span className="block truncate text-xs text-muted-foreground">
+                                    <span className="block truncate text-xs text-foreground">
                                         {suggestion.secondary_text}
                                     </span>
                                 </span>
@@ -204,7 +204,7 @@ export default function AddressAutocomplete({
                 </ul>
             )}
 
-            {/*<p className="mt-2 text-xs text-muted-foreground">*/}
+            {/*<p className="mt-2 text-xs text-foreground">*/}
             {/*    {isVerified*/}
             {/*        ? t('form.addressVerified')*/}
             {/*        : t('form.addressSearchHint')}*/}

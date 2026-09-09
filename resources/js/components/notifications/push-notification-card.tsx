@@ -89,7 +89,7 @@ export default function PushNotificationCard({
                             ? t('pushNotifications.enabled')
                             : t('pushNotifications.disabled')}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {subscribed
                             ? t('pushNotifications.enabledHint')
                             : t('pushNotifications.disabledHint')}
@@ -109,7 +109,7 @@ export default function PushNotificationCard({
 
             {devices > 0 && (
                 <p
-                    className="text-sm text-muted-foreground"
+                    className="text-sm text-foreground"
                     data-test="push-device-count"
                 >
                     {devices === 1

@@ -146,7 +146,7 @@ export function AddressSection({
                         })
                     }
                 />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('form.addressSearchDescription')}
                 </p>
             </div>
@@ -255,7 +255,7 @@ export function DetailsSection({
                         placeholder={t('form.namePlaceholder')}
                         aria-invalid={Boolean(errors.name)}
                     />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('form.nameHint')}
                     </p>
                     <InputError message={errors.name} />
@@ -313,7 +313,7 @@ export function AssignmentsSection({
                         invalid={Boolean(errors.service_ids)}
                         data-test="location-services-select"
                     />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('form.servicesHint')}
                     </p>
                     <InputError message={errors.service_ids} />
@@ -332,7 +332,7 @@ export function AssignmentsSection({
                         invalid={Boolean(errors.user_ids)}
                         data-test="location-specialists-select"
                     />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('form.specialistsHint')}
                     </p>
                     <InputError message={errors.user_ids} />

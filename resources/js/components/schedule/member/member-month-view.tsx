@@ -44,7 +44,7 @@ export default function MemberMonthView({ schedule }: MemberMonthViewProps) {
                 {WEEKDAY_LABELS.map((label, index) => (
                     <span
                         key={index}
-                        className="text-center text-xs font-medium text-muted-foreground"
+                        className="text-center text-xs font-medium text-foreground"
                     >
                         {label}
                     </span>

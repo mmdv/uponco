@@ -160,7 +160,7 @@ export default function StepDetails({
                 placeholder={t('services.form.slotIntervalPlaceholder')}
                 aria-invalid={Boolean(errors.slot_interval)}
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
                 {t('services.form.slotIntervalHint')}
             </p>
             <InputError message={errors.slot_interval} />
@@ -173,7 +173,7 @@ export default function StepDetails({
                 <Label htmlFor="wizard_is_active">
                     {t('services.form.active')}
                 </Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('services.form.activeHint')}
                 </p>
             </div>
@@ -204,7 +204,7 @@ export default function StepDetails({
                 </div>
             ) : null}
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground">
                 {t('services.wizard.details.requiredLegend')}
             </p>
 
@@ -443,7 +443,7 @@ export default function StepDetails({
                             invalid={Boolean(errors.user_ids)}
                             data-test="wizard-specialists-select"
                         />
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground">
                             {t('services.form.specialistsHint')}
                         </p>
                         <InputError message={errors.user_ids} />
@@ -463,7 +463,7 @@ export default function StepDetails({
                         <p className="text-sm font-medium">
                             {t('services.wizard.details.moreInfoTitle')}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground">
                             {moreInfoHint ??
                                 t('services.wizard.details.moreInfoHint')}
                         </p>

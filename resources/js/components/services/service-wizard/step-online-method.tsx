@@ -27,7 +27,7 @@ function MethodPanel({
         >
             <div className="space-y-1">
                 <p className="text-sm font-medium">{heading}</p>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <p className="text-sm text-foreground">{description}</p>
             </div>
             {children}
         </div>
@@ -59,7 +59,7 @@ export default function StepOnlineMethod({
                 <h3 className="text-sm font-medium">
                     {t('services.wizard.online.heading')}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('services.wizard.online.subheading')}
                 </p>
             </div>
@@ -93,7 +93,7 @@ export default function StepOnlineMethod({
                         >
                             {google.connected ? (
                                 <p
-                                    className="text-sm text-muted-foreground"
+                                    className="text-sm text-foreground"
                                     data-test="wizard-google-connected"
                                 >
                                     {t('services.wizard.online.connectedAs', {
@@ -112,7 +112,7 @@ export default function StepOnlineMethod({
                                                 'services.wizard.online.notConnectedTitle',
                                             )}
                                         </p>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-sm text-foreground">
                                             {t(
                                                 'services.wizard.online.notConnectedNote',
                                             )}

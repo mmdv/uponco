@@ -48,14 +48,14 @@ export default function CustomerPreviewModal({
                                         label={t('preview.copyName')}
                                     />
                                 </div>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('preview.customer')}
                                 </p>
                             </div>
                         </DialogHeader>
 
                         <div className="space-y-3 p-6">
-                            <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                            <h3 className="text-xs font-semibold tracking-wide text-foreground uppercase">
                                 {t('preview.contact')}
                             </h3>
 
@@ -83,7 +83,7 @@ export default function CustomerPreviewModal({
                             />
 
                             {!customer.email && !customer.phone && (
-                                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <p className="flex items-center gap-2 text-sm text-foreground">
                                     <User className="size-4" />
                                     {t('preview.noContact')}
                                 </p>
@@ -121,7 +121,7 @@ function ContactRow({
         <div className="flex items-center gap-3 rounded-lg border p-3">
             <span className="text-muted-foreground">{icon}</span>
             <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                <p className="text-xs font-medium tracking-wide text-foreground uppercase">
                     {label}
                 </p>
                 {value ? (
@@ -136,7 +136,7 @@ function ContactRow({
                         <p className="truncate text-sm font-medium">{value}</p>
                     )
                 ) : (
-                    <p className="text-sm text-muted-foreground">—</p>
+                    <p className="text-sm text-foreground">—</p>
                 )}
             </div>
             {value && <CopyButton value={value} label={copyLabel} />}

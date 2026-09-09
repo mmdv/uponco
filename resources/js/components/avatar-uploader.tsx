@@ -117,7 +117,7 @@ export default function AvatarUploader({
                 </div>
             </div>
 
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-foreground">
                 {t('avatarUploader.hint')}
             </p>
 

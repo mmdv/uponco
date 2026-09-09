@@ -260,7 +260,7 @@ export default function CalendarDayView({
         <div className="overflow-hidden rounded-lg border select-none">
             <div ref={scrollRef} className="max-h-[70vh] overflow-auto">
                 {count === 0 ? (
-                    <div className="p-10 text-center text-sm text-muted-foreground">
+                    <div className="p-10 text-center text-sm text-foreground">
                         {workingHoursLoading
                             ? t('dayView.loading')
                             : t('dayView.empty')}
@@ -297,7 +297,7 @@ export default function CalendarDayView({
                                     {HOURS.slice(0, -1).map((hour, index) => (
                                         <div
                                             key={hour}
-                                            className="absolute right-2 -translate-y-1/2 text-xs text-muted-foreground"
+                                            className="absolute right-2 -translate-y-1/2 text-xs text-foreground"
                                             style={{ top: index * HOUR_HEIGHT }}
                                         >
                                             {index === 0

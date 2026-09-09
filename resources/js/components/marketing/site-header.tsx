@@ -72,7 +72,7 @@ export function SiteHeader({
                         <Link
                             key={link.href.url}
                             href={link.href}
-                            className="inline-flex items-center rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                            className="inline-flex items-center rounded-md px-3 py-2 text-base font-medium text-foreground transition-colors hover:text-foreground"
                         >
                             {link.label}
                         </Link>
@@ -95,7 +95,7 @@ export function SiteHeader({
                         <>
                             <Link
                                 href={login()}
-                                className="inline-flex items-center rounded-md px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                className="inline-flex items-center rounded-md px-4 py-2 text-base font-medium text-foreground transition-colors hover:text-foreground"
                             >
                                 {t('nav.signIn')}
                             </Link>

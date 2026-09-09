@@ -84,7 +84,7 @@ export default function StatCard({
                 <p className="text-2xl font-bold tracking-tight tabular-nums">
                     {numberFormatter.format(value)}
                 </p>
-                <p className="text-sm font-medium text-foreground/70">
+                <p className="text-sm font-medium text-foreground">
                     {value === 0 && hint ? hint : label}
                 </p>
             </div>

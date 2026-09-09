@@ -91,7 +91,7 @@ export default function Welcome() {
                             the copy sits directly on the full-bleed overlay,
                             with no panel or blur. */}
                         <div className="text-center lg:rounded-3xl lg:border lg:border-border/50 lg:bg-background/25 lg:py-20 lg:pr-10 lg:pl-12 lg:text-left lg:shadow-sm lg:backdrop-blur-sm">
-                            <span className="inline-flex items-center gap-2 text-base font-medium text-muted-foreground">
+                            <span className="inline-flex items-center gap-2 text-base font-medium text-foreground">
                                 <span className="relative flex size-2">
                                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
                                     <span className="relative inline-flex size-2 rounded-full bg-primary" />
@@ -119,7 +119,7 @@ export default function Welcome() {
                                 </span>
                             </h1>
 
-                            <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-foreground/80 lg:mx-0">
+                            <p className="mx-auto mt-5 max-w-xl text-lg text-balance text-foreground lg:mx-0">
                                 {t('hero.subtitle')}
                             </p>
 
@@ -159,7 +159,7 @@ export default function Welcome() {
                                 )}
                             </div>
 
-                            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground lg:justify-start">
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-foreground lg:justify-start">
                                 {[
                                     t('hero.trust.noCreditCard'),
                                     t('hero.trust.fiveMinuteSetup'),
@@ -188,7 +188,7 @@ export default function Welcome() {
                         <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                             {t('value.heading')}
                         </h2>
-                        <p className="mt-4 text-lg text-foreground/80">
+                        <p className="mt-4 text-lg text-foreground">
                             {t('value.subheading')}
                         </p>
                     </div>
@@ -205,7 +205,7 @@ export default function Welcome() {
                                 <h3 className="mt-6 text-lg font-semibold">
                                     {t(`value.items.${item.i18nKey}.title`)}
                                 </h3>
-                                <p className="mt-2 text-base leading-relaxed text-foreground/70">
+                                <p className="mt-2 text-base leading-relaxed text-foreground">
                                     {t(
                                         `value.items.${item.i18nKey}.description`,
                                     )}
@@ -232,7 +232,7 @@ export default function Welcome() {
                             <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                                 {t('setup.heading')}
                             </h2>
-                            <p className="mt-4 text-lg text-foreground/80">
+                            <p className="mt-4 text-lg text-foreground">
                                 {t('setup.subheading')}
                             </p>
                         </div>
@@ -255,7 +255,7 @@ export default function Welcome() {
                                                 `setup.steps.${step.i18nKey}.title`,
                                             )}
                                         </h3>
-                                        <p className="mt-1 text-base leading-relaxed text-foreground/70">
+                                        <p className="mt-1 text-base leading-relaxed text-foreground">
                                             {t(
                                                 `setup.steps.${step.i18nKey}.description`,
                                             )}
@@ -331,7 +331,7 @@ export default function Welcome() {
                                 <h2 className="text-lg font-semibold">
                                     {t('dataStrip.heading')}
                                 </h2>
-                                <p className="mt-1 text-base leading-relaxed text-foreground/70">
+                                <p className="mt-1 text-base leading-relaxed text-foreground">
                                     {t('dataStrip.description')}
                                 </p>
                             </div>

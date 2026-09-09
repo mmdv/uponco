@@ -156,7 +156,7 @@ export default function TwoFactorRecoveryCodes({
                                     )}
                                 </div>
 
-                                <div className="text-xs text-muted-foreground select-none">
+                                <div className="text-xs text-foreground select-none">
                                     <p id="regenerate-warning">
                                         {t('twoFactor.recoveryCodes.hint', {
                                             button: t(

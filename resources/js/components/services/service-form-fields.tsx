@@ -140,7 +140,7 @@ export default function ServiceFormFields({
                                 <Label htmlFor="is_active">
                                     {t('services.form.active')}
                                 </Label>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('services.form.activeHint')}
                                 </p>
                             </div>
@@ -240,7 +240,7 @@ export default function ServiceFormFields({
                                     'services.form.slotIntervalPlaceholder',
                                 )}
                             />
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-foreground">
                                 {t('services.form.slotIntervalHint')}
                             </p>
                             <InputError message={errors.slot_interval} />
@@ -298,7 +298,7 @@ export default function ServiceFormFields({
                                     invalid={Boolean(errors.location_ids)}
                                     data-test="service-locations-select"
                                 />
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('services.form.locationsHint')}
                                 </p>
                                 <InputError message={errors.location_ids} />
@@ -326,7 +326,7 @@ export default function ServiceFormFields({
                                 invalid={Boolean(errors.user_ids)}
                                 data-test="service-specialists-select"
                             />
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-foreground">
                                 {t('services.form.specialistsHint')}
                             </p>
                             <InputError message={errors.user_ids} />

@@ -38,7 +38,7 @@ export default function CustomersTable({
     if (customers.length === 0) {
         return (
             <div className="rounded-lg border border-dashed p-10 text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {isFiltered ? t('table.emptyFiltered') : t('table.empty')}
                 </p>
             </div>
@@ -71,10 +71,10 @@ export default function CustomersTable({
                             <TableCell className="font-medium">
                                 {customer.name}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">
+                            <TableCell className="text-foreground">
                                 {customer.email ?? '—'}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">
+                            <TableCell className="text-foreground">
                                 {customer.phone ?? '—'}
                             </TableCell>
                             <TableCell className="sticky right-0 z-10 border-l bg-background text-right group-hover/row:bg-muted/50">

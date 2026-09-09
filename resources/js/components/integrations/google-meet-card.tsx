@@ -24,7 +24,7 @@ export default function GoogleMeetCard({ google }: Props) {
                         ? t('integrations.connected')
                         : t('integrations.notConnected')}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {google.connected && google.email
                         ? google.email
                         : t('integrations.connectedHint')}

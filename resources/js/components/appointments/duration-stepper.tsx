@@ -71,7 +71,7 @@ export default function DurationStepper({
                     className="pr-14 text-center"
                     data-test="duration-input"
                 />
-                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground">
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-foreground">
                     {formatDuration(clamp(value || min))}
                 </span>
             </div>

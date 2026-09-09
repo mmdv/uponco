@@ -52,7 +52,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
 
     if (!isSupported) {
         return (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-foreground">
                 {t('passkeys.notSupported')}
             </div>
         );
@@ -84,7 +84,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
                     className="mt-1 block w-full border-foreground/20"
                     autoFocus
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-foreground">
                     {t('passkeys.registerHint')}
                 </p>
             </div>

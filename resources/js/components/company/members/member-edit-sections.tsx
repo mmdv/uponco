@@ -125,7 +125,7 @@ export function ProfileSection({
                                     'business.memberEdit.profile.publicEmailPlaceholder',
                                 )}
                             />
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-foreground">
                                 {t(
                                     'business.memberEdit.profile.publicEmailHint',
                                 )}
@@ -300,7 +300,7 @@ export function AccessSection({
             <Separator />
 
             {member.role === 'owner' ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {t('business.memberEdit.access.ownerNotice')}{' '}
                     <Badge variant="secondary">{member.role_label}</Badge>{' '}
                     {t('business.memberEdit.access.ownerCannotChange')}

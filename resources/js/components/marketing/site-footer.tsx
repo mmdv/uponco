@@ -37,7 +37,7 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
                             alt="Uponco"
                             className="h-8 w-auto"
                         />
-                        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                        <p className="mt-4 text-base leading-relaxed text-foreground">
                             {t('footer.tagline')}
                         </p>
                         <a
@@ -49,7 +49,7 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
                     </div>
 
                     <nav className="sm:min-w-48">
-                        <p className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                        <p className="text-sm font-semibold tracking-wide text-foreground uppercase">
                             {t('footer.linksHeading')}
                         </p>
                         <ul className="mt-4 flex flex-col gap-3">
@@ -57,7 +57,7 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
                                 <li key={link.label}>
                                     <Link
                                         href={link.href}
-                                        className="text-base text-muted-foreground transition-colors hover:text-foreground"
+                                        className="text-base text-foreground transition-colors hover:text-foreground"
                                     >
                                         {link.label}
                                     </Link>
@@ -66,7 +66,7 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
                             <li>
                                 <a
                                     href={`mailto:${SUPPORT_EMAIL}`}
-                                    className="text-base text-muted-foreground transition-colors hover:text-foreground"
+                                    className="text-base text-foreground transition-colors hover:text-foreground"
                                 >
                                     {t('footer.contact')}
                                 </a>
@@ -75,7 +75,7 @@ export function SiteFooter({ maxWidth = 'max-w-6xl' }: { maxWidth?: string }) {
                     </nav>
                 </div>
 
-                <p className="mt-12 border-t border-border/60 pt-8 text-sm text-muted-foreground">
+                <p className="mt-12 border-t border-border/60 pt-8 text-sm text-foreground">
                     © {currentYear} {t('footer.copyright')}
                 </p>
             </div>

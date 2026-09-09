@@ -34,7 +34,7 @@ export default function ScheduleGridHeader({
                     >
                         {column.dayNumber}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-[11px] text-foreground">
                         {column.weekday}
                     </span>
                 </div>

@@ -146,7 +146,7 @@ export default function CompanyIndex({
                                     </div>
                                 ))}
                                 {business.total > business.people.length && (
-                                    <div className="flex size-11 items-center justify-center rounded-xl border border-dashed bg-muted/50 text-xs font-semibold text-foreground/70 ring-2 ring-card">
+                                    <div className="flex size-11 items-center justify-center rounded-xl border border-dashed bg-muted/50 text-xs font-semibold text-foreground ring-2 ring-card">
                                         +
                                         {business.total -
                                             business.people.length}
@@ -159,7 +159,7 @@ export default function CompanyIndex({
                                     <span className="text-3xl font-bold tracking-tight tabular-nums">
                                         {business.total}
                                     </span>
-                                    <span className="text-sm font-medium text-foreground/70">
+                                    <span className="text-sm font-medium text-foreground">
                                         {t('business.stats', {
                                             member:
                                                 business.total === 1
@@ -220,13 +220,13 @@ export default function CompanyIndex({
                                     <span className="text-3xl font-bold tracking-tight tabular-nums">
                                         {services.count}
                                     </span>
-                                    <span className="text-sm font-medium text-foreground/70">
+                                    <span className="text-sm font-medium text-foreground">
                                         {services.count === 1
                                             ? t('services.serviceSingular')
                                             : t('services.servicePlural')}
                                     </span>
                                 </div>
-                                <p className="mt-0.5 text-xs font-medium text-foreground/65">
+                                <p className="mt-0.5 text-xs font-medium text-foreground">
                                     {services.categories}{' '}
                                     {services.categories === 1
                                         ? t('services.categorySingular')
@@ -247,7 +247,7 @@ export default function CompanyIndex({
                                             <div className="truncate text-sm font-semibold text-foreground">
                                                 {service.title}
                                             </div>
-                                            <div className="text-xs font-medium text-foreground/65">
+                                            <div className="text-xs font-medium text-foreground">
                                                 {service.duration} min
                                                 {formatPrice(service.price)
                                                     ? ` · ${formatPrice(service.price)}`
@@ -257,7 +257,7 @@ export default function CompanyIndex({
                                     </div>
                                 ))}
                                 {services.count === 0 && (
-                                    <span className="text-sm font-medium text-foreground/70">
+                                    <span className="text-sm font-medium text-foreground">
                                         {t('services.empty')}
                                     </span>
                                 )}
@@ -305,14 +305,14 @@ export default function CompanyIndex({
                                 <span className="text-3xl font-bold tracking-tight tabular-nums">
                                     {locations.count}
                                 </span>
-                                <span className="text-sm font-medium text-foreground/70">
+                                <span className="text-sm font-medium text-foreground">
                                     {locations.count === 1
                                         ? t('locations.locationSingular')
                                         : t('locations.locationPlural')}
                                 </span>
                             </div>
                             {locations.cities.length > 0 && (
-                                <p className="mt-1 truncate text-xs font-medium text-foreground/65">
+                                <p className="mt-1 truncate text-xs font-medium text-foreground">
                                     {locations.cities.join(' · ')}
                                 </p>
                             )}

@@ -55,7 +55,7 @@ export default function ManageTwoFactor(props: Props) {
             />
             {twoFactorEnabled ? (
                 <div className="flex flex-col items-start justify-start space-y-4">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('twoFactor.enabledHint')}
                     </p>
 
@@ -81,7 +81,7 @@ export default function ManageTwoFactor(props: Props) {
                 </div>
             ) : (
                 <div className="flex flex-col items-start justify-start space-y-4">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('twoFactor.disabledHint')}
                     </p>
 

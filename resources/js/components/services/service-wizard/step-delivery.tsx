@@ -30,7 +30,7 @@ export default function StepDelivery({
                     <h3 className="text-sm font-medium">
                         {t('services.wizard.delivery.heading')}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                         {t('services.wizard.delivery.subheading')}
                     </p>
                 </div>

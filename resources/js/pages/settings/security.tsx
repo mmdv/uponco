@@ -156,7 +156,7 @@ export default function Security({
                                 />
 
                                 {!hasPassword && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-foreground">
                                         {t('account.socialManagedNote')}
                                     </p>
                                 )}
@@ -164,7 +164,7 @@ export default function Security({
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
                                         <div>
-                                            <p className="-mt-2 text-sm text-muted-foreground">
+                                            <p className="-mt-2 text-sm text-foreground">
                                                 {t('account.unverified')}{' '}
                                                 <Link
                                                     href={send()}
@@ -213,7 +213,7 @@ export default function Security({
                                         required
                                     />
 
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-foreground">
                                         {t('account.currentPasswordHint')}
                                     </p>
 

@@ -97,7 +97,7 @@ export default function CustomerFormDialog({
                                     <InputError message={errors.phone} />
                                 </div>
 
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-foreground">
                                     {t('form.contactHint')}
                                 </p>
                             </div>

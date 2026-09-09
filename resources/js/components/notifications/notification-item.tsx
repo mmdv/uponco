@@ -81,7 +81,7 @@ export default function NotificationItem({
                 <p className="text-sm font-medium">
                     {t(`alert.${notification.alert}`)}
                     {showSpecialist && (
-                        <span className="font-normal text-muted-foreground">
+                        <span className="font-normal text-foreground">
                             {' '}
                             {t('forSpecialist', {
                                 name: notification.specialist_name,
@@ -89,7 +89,7 @@ export default function NotificationItem({
                         </span>
                     )}
                 </p>
-                <p className="truncate text-sm text-muted-foreground">
+                <p className="truncate text-sm text-foreground">
                     {customer} · {service}
                 </p>
                 {/* "3 minutes ago" is measured against the clock of whoever
@@ -97,7 +97,7 @@ export default function NotificationItem({
                     construction. The client value is the correct one and wins
                     on hydration; the warning is the only thing suppressed. */}
                 <p
-                    className="text-xs text-muted-foreground"
+                    className="text-xs text-foreground"
                     suppressHydrationWarning
                 >
                     {when}

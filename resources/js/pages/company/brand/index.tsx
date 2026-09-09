@@ -309,7 +309,7 @@ export default function BrandIndex({
                                                         />
                                                     </div>
 
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-xs text-foreground">
                                                         {t('brand.color.hint')}
                                                     </p>
 
@@ -342,12 +342,12 @@ export default function BrandIndex({
                                                                     previewAccent,
                                                             }}
                                                         />
-                                                        <span className="font-mono text-xs text-muted-foreground">
+                                                        <span className="font-mono text-xs text-foreground">
                                                             {previewAccent}
                                                         </span>
                                                     </div>
 
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-xs text-foreground">
                                                         {t(
                                                             'brand.color.accentHint',
                                                         )}
@@ -511,7 +511,7 @@ export default function BrandIndex({
                                                                             locale.native
                                                                         }
                                                                     </span>
-                                                                    <span className="text-xs text-muted-foreground uppercase">
+                                                                    <span className="text-xs text-foreground uppercase">
                                                                         {
                                                                             locale.code
                                                                         }
@@ -583,7 +583,7 @@ export default function BrandIndex({
                                                     value={defaultLocale}
                                                 />
 
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="text-xs text-foreground">
                                                     {t('brand.languages.hint')}
                                                 </p>
 
@@ -623,7 +623,7 @@ export default function BrandIndex({
                                     <h3 className="text-base font-semibold tracking-tight">
                                         {t('brand.widget.title')}
                                     </h3>
-                                    <p className="mt-1 text-sm text-muted-foreground">
+                                    <p className="mt-1 text-sm text-foreground">
                                         {t('brand.widget.description')}
                                     </p>
                                 </div>

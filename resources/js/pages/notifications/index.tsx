@@ -40,7 +40,7 @@ export default function NotificationsIndex({ notifications }: Props) {
                     <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-16 text-center">
                         <BellOff className="size-8 text-muted-foreground" />
                         <p className="text-sm font-medium">{t('empty')}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground">
                             {t('emptyHint')}
                         </p>
                     </div>

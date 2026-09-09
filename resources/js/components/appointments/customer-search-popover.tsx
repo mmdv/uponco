@@ -146,16 +146,16 @@ export default function CustomerSearchPopover({ onSelect, id }: Props) {
                 </div>
                 <div className="max-h-72 min-h-0 flex-1 overflow-y-auto p-1">
                     {loading ? (
-                        <p className="flex items-center justify-center gap-2 px-2 py-3 text-center text-sm text-muted-foreground">
+                        <p className="flex items-center justify-center gap-2 px-2 py-3 text-center text-sm text-foreground">
                             <Loader2 className="size-4 animate-spin" />
                             {t('customer.searchLoading')}
                         </p>
                     ) : query.trim() === '' ? (
-                        <p className="px-2 py-3 text-center text-sm text-muted-foreground">
+                        <p className="px-2 py-3 text-center text-sm text-foreground">
                             {t('customer.searchHint')}
                         </p>
                     ) : results.length === 0 ? (
-                        <p className="px-2 py-3 text-center text-sm text-muted-foreground">
+                        <p className="px-2 py-3 text-center text-sm text-foreground">
                             {t('customer.searchEmpty')}
                         </p>
                     ) : (
@@ -171,7 +171,7 @@ export default function CustomerSearchPopover({ onSelect, id }: Props) {
                                     {customer.name}
                                 </span>
                                 {customer.email || customer.phone ? (
-                                    <span className="truncate text-xs text-muted-foreground">
+                                    <span className="truncate text-xs text-foreground">
                                         {[customer.email, customer.phone]
                                             .filter(Boolean)
                                             .join(' · ')}

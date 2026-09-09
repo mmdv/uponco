@@ -85,7 +85,7 @@ export default function ScheduleAvailabilityChart({
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                     )}
                 </span>
-                <span className="font-medium text-foreground/75">
+                <span className="font-medium text-foreground">
                     {schedule.openNow
                         ? t('schedule.openNow')
                         : t('schedule.closedNow')}{' '}

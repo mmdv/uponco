@@ -63,7 +63,7 @@ export default function ManageCompanyCard() {
                     <h3 className="truncate text-base font-semibold">
                         {t('manageCompany.title')}
                     </h3>
-                    <p className="text-sm font-medium text-foreground/75">
+                    <p className="text-sm font-medium text-foreground">
                         {t('manageCompany.subtitle')}
                     </p>
                 </div>
@@ -74,7 +74,7 @@ export default function ManageCompanyCard() {
                 {FACETS.map(({ icon: Icon, key }) => (
                     <span
                         key={key}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.07] bg-card/70 px-2.5 py-1 text-xs font-semibold text-foreground/75 dark:border-border dark:bg-card/50"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.07] bg-card/70 px-2.5 py-1 text-xs font-semibold text-foreground dark:border-border dark:bg-card/50"
                     >
                         <Icon className="size-3.5" />
                         {t(`manageCompany.facets.${key}`)}

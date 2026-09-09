@@ -43,7 +43,7 @@ export default function BookingsChart({ trend, mounted }: Props) {
                         <h3 className="text-base font-semibold">
                             {t('chart.title')}
                         </h3>
-                        <p className="text-sm font-medium text-foreground/70">
+                        <p className="text-sm font-medium text-foreground">
                             {t('chart.subtitle')}
                         </p>
                     </div>
@@ -80,7 +80,7 @@ export default function BookingsChart({ trend, mounted }: Props) {
                                         'text-xs font-semibold tabular-nums transition-colors',
                                         day.count > 0
                                             ? 'text-foreground'
-                                            : 'text-foreground/35',
+                                            : 'text-foreground',
                                     )}
                                 >
                                     {day.count}
@@ -108,7 +108,7 @@ export default function BookingsChart({ trend, mounted }: Props) {
                                         'text-[11px] font-medium',
                                         day.isToday
                                             ? 'font-semibold text-foreground'
-                                            : 'text-foreground/65',
+                                            : 'text-foreground',
                                     )}
                                 >
                                     {day.isToday ? t('chart.today') : day.label}

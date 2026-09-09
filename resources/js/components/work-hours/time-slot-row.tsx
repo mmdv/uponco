@@ -46,7 +46,7 @@ export default function TimeSlotRow({
                     className="w-32"
                 />
 
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-foreground">
                     {t('slotEditor.to')}
                 </span>
 

@@ -116,7 +116,7 @@ function WeekDayCard({ day, slots, onEdit }: WeekDayCardProps) {
                         </span>
                     ))
                 ) : (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-xs text-foreground">
                         {!isPast && <Plus className="h-3 w-3" />}
                         {t('member.dayOff')}
                     </span>
@@ -124,7 +124,7 @@ function WeekDayCard({ day, slots, onEdit }: WeekDayCardProps) {
             </div>
 
             {hasSlots && (
-                <span className="shrink-0 text-xs text-muted-foreground tabular-nums lg:mt-auto lg:text-center">
+                <span className="shrink-0 text-xs text-foreground tabular-nums lg:mt-auto lg:text-center">
                     {formatHours(totalSlotMinutes(slots))}
                 </span>
             )}

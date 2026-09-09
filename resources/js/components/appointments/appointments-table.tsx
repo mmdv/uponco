@@ -66,7 +66,7 @@ export default function AppointmentsTable({
     if (appointments.length === 0) {
         return (
             <div className="rounded-lg border border-dashed p-10 text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                     {emptyMessage ?? t('table.empty')}
                 </p>
             </div>
@@ -106,7 +106,7 @@ export default function AppointmentsTable({
                                 <TableRow className="bg-muted/50 hover:bg-muted/50">
                                     <TableCell
                                         colSpan={columnCount}
-                                        className="py-2 text-xs font-medium tracking-wide text-muted-foreground"
+                                        className="py-2 text-xs font-medium tracking-wide text-foreground"
                                     >
                                         {group.label}
                                     </TableCell>
@@ -136,7 +136,7 @@ export default function AppointmentsTable({
                                                 appointment.timezone,
                                             )}
                                         </div>
-                                        <div className="text-xs text-muted-foreground">
+                                        <div className="text-xs text-foreground">
                                             {formatDuration(
                                                 appointmentDurationMinutes(
                                                     appointment,
@@ -149,7 +149,7 @@ export default function AppointmentsTable({
                                             {appointment.service.title}
                                         </div>
                                         {showLocation ? (
-                                            <div className="text-xs text-muted-foreground">
+                                            <div className="text-xs text-foreground">
                                                 @{' '}
                                                 {appointment.location?.name ??
                                                     t('table.online')}
@@ -170,7 +170,7 @@ export default function AppointmentsTable({
                                                 {appointment.customer.name}
                                             </button>
                                         ) : (
-                                            <span className="font-medium text-muted-foreground">
+                                            <span className="font-medium text-foreground">
                                                 {appointmentCustomerLabel(
                                                     appointment,
                                                     t('customer.noName'),
@@ -179,7 +179,7 @@ export default function AppointmentsTable({
                                         )}
                                     </TableCell>
                                     {showSpecialist ? (
-                                        <TableCell className="align-top text-muted-foreground">
+                                        <TableCell className="align-top text-foreground">
                                             {appointment.specialist.name}
                                         </TableCell>
                                     ) : null}

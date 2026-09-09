@@ -114,7 +114,7 @@ export default function BookingShareCard({
                         <h3 className="text-base font-semibold">
                             {t('bookingPage.title')}
                         </h3>
-                        <p className="text-sm font-medium text-foreground/75">
+                        <p className="text-sm font-medium text-foreground">
                             {t('bookingPage.subtitle')}
                         </p>
                     </div>
