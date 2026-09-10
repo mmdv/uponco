@@ -10,11 +10,19 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import AppBackground from '@/components/app-background';
+import CountUp from '@/components/count-up';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { useTranslation } from '@/hooks/use-translation';
 import { captureEvent } from '@/lib/analytics';
-import { dashboard, features, login, pricing, register, yourData } from '@/routes';
+import {
+    dashboard,
+    features,
+    login,
+    pricing,
+    register,
+    yourData,
+} from '@/routes';
 
 /** The three things worth knowing before clicking through to /features. */
 const valueItems: { icon: ReactNode; i18nKey: string }[] = [
@@ -46,7 +54,7 @@ export default function Welcome() {
             <AppBackground className="min-h-screen w-full max-w-full overflow-x-hidden text-foreground">
                 <SiteHeader transparent maxWidth="max-w-7xl" />
 
-                {/* Hero. Pulled up under the (transparent) header with -mt-16 so
+                {/* Hero. Pulled up under the (transparent) header with -mt-20 so
                     the artwork starts at the very top of the page. The desktop
                     ratio is dynamic, getting taller as the viewport narrows so
                     the copy keeps its room: 16:12 on lg (1024–1279), 16:9 on xl
@@ -56,7 +64,7 @@ export default function Welcome() {
                     The `!` is required: Tailwind emits the arbitrary min-[1440px]
                     rule before the lg/xl rules, so without it the xl ratio would
                     win the cascade at >=1440px. */}
-                <section className="relative isolate -mt-16 flex min-h-[85svh] items-center py-16 min-[1440px]:aspect-[16/8]! sm:min-h-[80svh] lg:aspect-[16/12] lg:min-h-0 lg:py-0 xl:aspect-[16/9]">
+                <section className="relative isolate -mt-20 flex min-h-[85svh] items-center py-16 min-[1440px]:aspect-[16/8]! sm:min-h-[80svh] lg:aspect-[16/12] lg:min-h-0 lg:py-0 xl:aspect-[16/9]">
                     {/* Full-bleed hero art covering the header and hero copy.
                         Light/dark variants swap with the theme; the
                         left-to-right fade keeps the copy legible over it. */}
@@ -91,26 +99,32 @@ export default function Welcome() {
                             the copy sits directly on the full-bleed overlay,
                             with no panel or blur. */}
                         <div className="text-center lg:rounded-3xl lg:border lg:border-border/50 lg:bg-background/25 lg:py-20 lg:pr-10 lg:pl-12 lg:text-left lg:shadow-sm lg:backdrop-blur-sm">
-                            <span className="inline-flex items-center gap-2 text-base font-medium text-foreground">
-                                <span className="relative flex size-2">
-                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
-                                    <span className="relative inline-flex size-2 rounded-full bg-primary" />
+                            {/* Free-appointments pill, built as a two-segment
+                                "ticket": a solid gradient tag carries the word
+                                FREE, the rest of the offer sits on the pill
+                                itself with the 100 in gradient type. No icon —
+                                a lone glyph next to wrapping text read as
+                                mis-centred on phones — and no counter, so the
+                                offer is legible the instant the page paints. A
+                                soft primary glow lifts it off the hero art.
+                                The "no card required" half of the old copy now
+                                lives once, in the trust row below. */}
+                            <span className="relative inline-flex items-center gap-2 rounded-full border border-primary/25 bg-background/50 py-1 pr-4 pl-1 text-sm shadow-soft backdrop-blur-sm sm:text-base">
+                                <span
+                                    aria-hidden
+                                    className="pointer-events-none absolute -inset-px -z-10 rounded-full bg-primary/20 opacity-70 blur-md"
+                                />
+                                <span className="rounded-full bg-primary-gradient px-3 py-1 text-xs font-bold tracking-wider text-white uppercase shadow-sm">
+                                    {t('hero.badge.tag')}
                                 </span>
-                                <span>
-                                    {t('hero.badgeLead')}
-                                    <span className="font-semibold text-primary">
-                                        {t('hero.badgeHighlight')}
-                                    </span>
-                                    {t('hero.badgeTrail')}
+                                <span className="font-medium text-foreground">
+                                    {t('hero.badge.lead')}{' '}
+                                    <span className="bg-primary-gradient bg-clip-text text-base font-bold text-transparent tabular-nums sm:text-lg">
+                                        100
+                                    </span>{' '}
+                                    {t('hero.badge.trail')}
                                 </span>
                             </span>
-                            {/* Small primary accent line under the badge: 75px
-                                wide, centered on mobile and left-aligned on
-                                desktop to follow the copy. */}
-                            <span
-                                aria-hidden
-                                className="mx-auto mt-2 block h-0.5 w-full max-w-[75px] rounded-full bg-primary lg:mx-0"
-                            />
 
                             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
                                 {t('hero.titleLead')}{' '}
@@ -271,8 +285,8 @@ export default function Welcome() {
                 <section className="mx-auto w-full max-w-7xl px-6 pb-14">
                     <div className="flex flex-col items-center gap-8 rounded-2xl bg-primary-gradient px-6 py-10 text-white sm:px-12 lg:flex-row lg:justify-between">
                         <div className="text-center lg:text-left">
-                            <p className="text-5xl font-semibold tracking-tight sm:text-6xl">
-                                100
+                            <p className="text-5xl font-semibold tracking-tight tabular-nums sm:text-6xl">
+                                <CountUp to={100} />
                             </p>
                             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                                 {t('free100.heading')}

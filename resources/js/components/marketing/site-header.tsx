@@ -12,8 +12,10 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useTranslation } from '@/hooks/use-translation';
 import { captureEvent } from '@/lib/analytics';
+import { cn } from '@/lib/utils';
 import { dashboard, features, home, login, pricing, register } from '@/routes';
 
 /**
@@ -21,8 +23,10 @@ import { dashboard, features, home, login, pricing, register } from '@/routes';
  * every page a logged-out visitor (or a Google reviewer) can reach carries the
  * same brand mark and the same navigation.
  *
- * Desktop shows the full nav inline; mobile collapses everything except the
- * logo and theme toggle into a hamburger-triggered drawer.
+ * Desktop shows the full nav inline, centred; mobile collapses it into a
+ * hamburger-triggered drawer, leaving only the logo, the theme toggle and the
+ * menu trigger in the bar. Both surfaces mark the current page by colouring
+ * that link with the primary colour.
  */
 export function SiteHeader({
     transparent = false,
@@ -35,6 +39,7 @@ export function SiteHeader({
     const { auth, currentTeam } = usePage().props;
     const dashboardUrl = currentTeam ? dashboard() : '/';
     const [menuOpen, setMenuOpen] = useState(false);
+    const { isCurrentUrl } = useCurrentUrl();
 
     const navLinks = [
         { href: home(), label: t('nav.home') },
@@ -55,10 +60,19 @@ export function SiteHeader({
                     : 'sticky top-0 z-50 border-b border-border/60 bg-background md:bg-transparent md:backdrop-blur'
             }
         >
+            {/* Below md this is a plain flex row. From md up it becomes a
+                three-column grid with equal 1fr rails either side of an auto
+                centre column, so the nav links sit on the true centre line of
+                the header no matter how wide the actions cluster grows (a
+                "Dashboard" pill for signed-in visitors is far wider than
+                "Sign in / Get started"). justify-between could never do that. */}
             <nav
-                className={`mx-auto flex h-16 w-full ${maxWidth} items-center justify-between px-6`}
+                className={`mx-auto flex h-20 w-full ${maxWidth} items-center justify-between px-6 md:grid md:grid-cols-[1fr_auto_1fr]`}
             >
-                <Link href={home()} className="flex items-center">
+                <Link
+                    href={home()}
+                    className="flex items-center md:justify-self-start"
+                >
                     <img
                         src="/icons/horizontal-logo.svg"
                         alt="Uponco"
@@ -66,21 +80,32 @@ export function SiteHeader({
                     />
                 </Link>
 
-                {/* Desktop navigation */}
-                <div className="hidden items-center gap-1 md:flex">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.href.url}
-                            href={link.href}
-                            className="inline-flex items-center rounded-md px-3 py-2 text-base font-medium text-foreground transition-colors hover:text-foreground"
-                        >
-                            {link.label}
-                        </Link>
-                    ))}
+                {/* Desktop navigation. Plain links; the current page is marked
+                    with the primary colour and nothing else. */}
+                <div className="hidden items-center gap-1 md:flex md:justify-self-center">
+                    {navLinks.map((link) => {
+                        const isActive = isCurrentUrl(link.href);
+
+                        return (
+                            <Link
+                                key={link.href.url}
+                                href={link.href}
+                                aria-current={isActive ? 'page' : undefined}
+                                className={cn(
+                                    'inline-flex items-center rounded-md px-3 py-2 text-base font-medium transition-colors',
+                                    isActive
+                                        ? 'text-primary'
+                                        : 'text-foreground',
+                                )}
+                            >
+                                {link.label}
+                            </Link>
+                        );
+                    })}
                 </div>
 
                 {/* Desktop actions */}
-                <div className="hidden items-center gap-2 md:flex">
+                <div className="hidden items-center gap-2 md:flex md:justify-self-end">
                     <ThemeSwitcher />
                     <LanguageSwitcher />
                     {auth.user ? (
@@ -114,18 +139,22 @@ export function SiteHeader({
                     )}
                 </div>
 
-                {/* Mobile bar: theme toggle + hamburger only */}
-                <div className="flex items-center gap-1 md:hidden">
+                {/* Mobile bar: theme toggle + hamburger. The two used to be
+                    identical ghost icon buttons, which read as a pair doing the
+                    same kind of thing. The theme toggle stays a bare ghost icon
+                    (a setting you flip in place); the menu becomes a filled,
+                    bordered pill carrying its own label (a control that opens
+                    something), so purpose is legible before the icon is. */}
+                <div className="flex items-center gap-2 md:hidden">
                     <ThemeSwitcher />
                     <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                         <SheetTrigger asChild>
                             <Button
                                 variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 cursor-pointer"
+                                className="h-9 cursor-pointer gap-1.5 rounded-lg border border-border bg-secondary/70 px-3 text-sm font-medium hover:bg-secondary"
                             >
-                                <Menu className="size-5!" />
-                                <span className="sr-only">{t('nav.menu')}</span>
+                                <Menu className="size-4!" />
+                                {t('nav.menu')}
                             </Button>
                         </SheetTrigger>
                         <SheetContent
@@ -173,16 +202,35 @@ export function SiteHeader({
 
                                 {/* Menu items */}
                                 <nav className="flex flex-col">
-                                    {navLinks.map((link) => (
-                                        <SheetClose asChild key={link.href.url}>
-                                            <Link
-                                                href={link.href}
-                                                className="flex items-center rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+                                    {navLinks.map((link) => {
+                                        const isActive = isCurrentUrl(
+                                            link.href,
+                                        );
+
+                                        return (
+                                            <SheetClose
+                                                asChild
+                                                key={link.href.url}
                                             >
-                                                {link.label}
-                                            </Link>
-                                        </SheetClose>
-                                    ))}
+                                                <Link
+                                                    href={link.href}
+                                                    aria-current={
+                                                        isActive
+                                                            ? 'page'
+                                                            : undefined
+                                                    }
+                                                    className={cn(
+                                                        'flex items-center rounded-md px-3 py-3 text-base font-medium transition-colors hover:bg-secondary',
+                                                        isActive
+                                                            ? 'text-primary'
+                                                            : 'text-foreground',
+                                                    )}
+                                                >
+                                                    {link.label}
+                                                </Link>
+                                            </SheetClose>
+                                        );
+                                    })}
                                 </nav>
 
                                 {!auth.user && (

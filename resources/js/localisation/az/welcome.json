@@ -10,9 +10,11 @@
         "menu": "Menyu"
     },
     "hero": {
-        "badgeLead": "İlk ",
-        "badgeHighlight": "100 görüş",
-        "badgeTrail": " pulsuz — kart tələb olunmur",
+        "badge": {
+            "tag": "Pulsuz",
+            "lead": "İlk",
+            "trail": "görüş"
+        },
         "titleLead": "Müştərilərinizə rəqəmsal",
         "titleHighlight": "körpünüz",
         "subtitle": "Uponco biznesiniz üçün görüş rezervasiyası proqramıdır — hər filial, hər xidmət, onlayn və ya yerində. Beş dəqiqəyə qurun və müştərilərin saniyələr içində rezervasiya etməsinə imkan yaradın.",
