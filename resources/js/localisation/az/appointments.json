@@ -106,6 +106,19 @@
         "left": "{count} yer qalıb",
         "fullyBooked": "Tam doludur"
     },
+    "customerTerm": {
+        "customer": "Müştəri",
+        "client": "Müştəri",
+        "patient": "Pasiyent",
+        "student": "Şagird"
+    },
+    "validation": {
+        "serviceRequired": "Xidmət seçin.",
+        "locationRequired": "Filial seçin.",
+        "specialistRequired": "Mütəxəssis seçin.",
+        "slotRequired": "Mövcud vaxt seçin.",
+        "customerRequired": "Görüş üçün müştəri adı və ya qeyd əlavə edin."
+    },
     "cancel": {
         "title": "Görüşü ləğv et",
         "confirm": "\"{name}\" üçün görüşü ləğv etmək istədiyinizə əminsiniz? Müştəriyə e-poçt ilə bildiriş göndəriləcək.",

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BusinessCategory;
 use App\Enums\OnboardingStepStatus;
 use App\Enums\TeamRole;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -10,6 +11,7 @@ use App\Models\ScheduleSlot;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 
 /**
  * Create a team with a regular member so the onboarding wizard is skipped and
@@ -299,7 +301,7 @@ test('members get their own availability summary in place of the company card', 
     [$member, $team] = dashboardMember();
 
     $timezone = $team->timezone ?: config('app.timezone');
-    $today = \Carbon\CarbonImmutable::now($timezone)->toDateString();
+    $today = CarbonImmutable::now($timezone)->toDateString();
 
     ScheduleSlot::create([
         'team_id' => $team->id,
@@ -328,4 +330,17 @@ test('admins do not receive the schedule summary on the dashboard', function () 
         ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->where('schedule', null));
+});
+
+test('the shared current team carries its business category', function () {
+    [$owner, $team] = dashboardOwner();
+    $team->update(['business_category' => BusinessCategory::MedicalClinic]);
+
+    $this
+        ->actingAs($owner)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('currentTeam.businessCategory', 'medical_clinic')
+        );
 });

@@ -20,6 +20,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { useCustomerTerm } from '@/hooks/use-customer-term';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     appointmentCustomerLabel,
@@ -45,6 +46,7 @@ export default function AppointmentDetailsModal({
     onEdit,
 }: Props) {
     const { t } = useTranslation('appointments');
+    const customerTerm = useCustomerTerm();
     const isOnline = appointment ? appointment.location === null : false;
 
     return (
@@ -105,7 +107,7 @@ export default function AppointmentDetailsModal({
 
                             <section className="space-y-3">
                                 <h3 className="text-xs font-semibold tracking-wide text-foreground uppercase">
-                                    {t('details.customer')}
+                                    {customerTerm}
                                 </h3>
                                 <div className="flex items-center gap-3">
                                     <Avatar className="size-10">

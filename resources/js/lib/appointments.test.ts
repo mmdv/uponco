@@ -4,6 +4,7 @@ import {
     appointmentCustomerLabel,
     appointmentHasCustomer,
     groupServicesByCategory,
+    validateAppointmentForm,
 } from '@/lib/appointments';
 import type { Appointment, AppointmentServiceOption } from '@/types';
 
@@ -144,5 +145,111 @@ describe('groupServicesByCategory', () => {
 
     it('returns no groups for an empty service list', () => {
         expect(groupServicesByCategory([])).toEqual([]);
+    });
+});
+
+describe('validateAppointmentForm', () => {
+    const messages = {
+        serviceRequired: 'service required',
+        locationRequired: 'location required',
+        specialistRequired: 'specialist required',
+        slotRequired: 'slot required',
+        customerRequired: 'customer required',
+    };
+
+    function makeFormData(fields: Record<string, string> = {}): FormData {
+        const data = new FormData();
+
+        for (const [name, value] of Object.entries(fields)) {
+            data.set(name, value);
+        }
+
+        return data;
+    }
+
+    const completeFields = {
+        service_id: '1',
+        location_id: '10',
+        specialist_id: '20',
+        start_at: '2026-08-10T09:00:00Z',
+        customer_name: 'Jane Doe',
+    };
+
+    it('returns no errors when every required field is present', () => {
+        const errors = validateAppointmentForm(makeFormData(completeFields), {
+            requireLocation: true,
+            messages,
+        });
+
+        expect(errors).toEqual({});
+    });
+
+    it('flags the required service, specialist and slot when missing', () => {
+        const errors = validateAppointmentForm(makeFormData(), {
+            requireLocation: false,
+            messages,
+        });
+
+        expect(errors.service_id).toBe('service required');
+        expect(errors.specialist_id).toBe('specialist required');
+        expect(errors.start_at).toBe('slot required');
+    });
+
+    it('requires a location only when the location field is shown', () => {
+        const fields = { ...completeFields, location_id: '' };
+
+        expect(
+            validateAppointmentForm(makeFormData(fields), {
+                requireLocation: true,
+                messages,
+            }).location_id,
+        ).toBe('location required');
+
+        expect(
+            validateAppointmentForm(makeFormData(fields), {
+                requireLocation: false,
+                messages,
+            }).location_id,
+        ).toBeUndefined();
+    });
+
+    it('requires a customer name only when name, email, phone and notes are all blank', () => {
+        const base = {
+            service_id: '1',
+            specialist_id: '20',
+            start_at: '2026-08-10T09:00:00Z',
+        };
+
+        expect(
+            validateAppointmentForm(makeFormData(base), {
+                requireLocation: false,
+                messages,
+            }).customer_name,
+        ).toBe('customer required');
+
+        // A note alone satisfies the identity requirement.
+        expect(
+            validateAppointmentForm(
+                makeFormData({ ...base, notes: 'Walk-in' }),
+                { requireLocation: false, messages },
+            ).customer_name,
+        ).toBeUndefined();
+
+        // So does an email with no name.
+        expect(
+            validateAppointmentForm(
+                makeFormData({ ...base, customer_email: 'jane@example.com' }),
+                { requireLocation: false, messages },
+            ).customer_name,
+        ).toBeUndefined();
+    });
+
+    it('treats whitespace-only values as blank', () => {
+        const errors = validateAppointmentForm(
+            makeFormData({ ...completeFields, service_id: '   ' }),
+            { requireLocation: true, messages },
+        );
+
+        expect(errors.service_id).toBe('service required');
     });
 });

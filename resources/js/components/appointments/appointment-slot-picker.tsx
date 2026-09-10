@@ -43,6 +43,10 @@ type Props = {
     onSelectSlot: (start: string) => void;
     /** True until a service and specialist are both chosen. */
     selectionIncomplete: boolean;
+    /** `YYYY-MM-DD` days the chosen specialist has a free slot on. */
+    availableDays: string[];
+    /** True while the appointment form is submitting. */
+    submitting: boolean;
     error?: string;
 };
 
@@ -54,11 +58,14 @@ export default function AppointmentSlotPicker({
     selectedStart,
     onSelectSlot,
     selectionIncomplete,
+    availableDays,
+    submitting,
     error,
 }: Props) {
     const { t } = useTranslation('appointments');
     const [open, setOpen] = useState(false);
     const selectedDate = parseDateInputValue(date);
+    const availableSet = new Set(availableDays);
 
     return (
         <div className="grid gap-2">
@@ -87,8 +94,14 @@ export default function AppointmentSlotPicker({
                     <Calendar
                         mode="single"
                         selected={selectedDate}
-                        defaultMonth={selectedDate}
-                        disabled={{ before: startOfToday() }}
+                        defaultMonth={
+                            selectedDate ??
+                            parseDateInputValue(availableDays[0])
+                        }
+                        disabled={(day) =>
+                            day < startOfToday() ||
+                            !availableSet.has(format(day, 'yyyy-MM-dd'))
+                        }
                         autoFocus
                         onSelect={(next) => {
                             if (next) {
@@ -117,9 +130,14 @@ export default function AppointmentSlotPicker({
                         ))}
                     </div>
                 ) : slots.length === 0 ? (
-                    <p className="text-sm text-foreground">
-                        {t('slots.noTimes')}
-                    </p>
+                    // While submitting, the available-slots prop can briefly
+                    // reset before the dialog closes; don't flash the red empty
+                    // state during that window.
+                    submitting ? null : (
+                        <p className="text-sm font-medium text-destructive">
+                            {t('slots.noTimes')}
+                        </p>
+                    )
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
                         {slots.map((slot) => {

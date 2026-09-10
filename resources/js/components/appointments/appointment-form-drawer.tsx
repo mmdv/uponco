@@ -1,6 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import type { MouseEvent } from 'react';
 
 import AppointmentCustomerFields from '@/components/appointments/appointment-customer-fields';
 import AppointmentServiceSelect from '@/components/appointments/appointment-service-select';
@@ -22,6 +23,7 @@ import {
     getAvailableOptions,
     groupServicesByCategory,
     toDateInputValue,
+    validateAppointmentForm,
 } from '@/lib/appointments';
 import { store, update } from '@/routes/appointments';
 import type {
@@ -152,6 +154,11 @@ function AppointmentFormFields({
     const [selectedStart, setSelectedStart] = useState(
         appointment?.start_at ?? '',
     );
+    // Client-side validation errors, shown until the next submit attempt. They
+    // take precedence over server errors for the same field.
+    const [clientErrors, setClientErrors] = useState<
+        Partial<Record<string, string>>
+    >({});
 
     const { availableServices, availableLocations, availableSpecialists } =
         useMemo(
@@ -205,6 +212,12 @@ function AppointmentFormFields({
     // Slots depend only on the specialist's work hours, the service duration
     // and the team timezone, so a location is not required to generate them.
     const selectionIncomplete = serviceId === null || specialistId === null;
+
+    // The calendar only offers days the chosen specialist actually works and has
+    // a free slot on — the same per-specialist availability the public page uses.
+    const availableDays =
+        specialists.find((specialist) => specialist.id === specialistId)
+            ?.available_days ?? [];
 
     const requestSlots = (next: {
         serviceId: number | null;
@@ -341,157 +354,227 @@ function AppointmentFormFields({
             className="flex min-h-0 flex-1 flex-col"
             disableWhileProcessing
         >
-            {({ errors, processing }) => (
-                <>
-                    <input
-                        type="hidden"
-                        name="service_id"
-                        value={serviceId ?? ''}
-                    />
-                    <input
-                        type="hidden"
-                        name="location_id"
-                        value={locationId ?? ''}
-                    />
-                    <input
-                        type="hidden"
-                        name="specialist_id"
-                        value={specialistId ?? ''}
-                    />
-                    <input
-                        type="hidden"
-                        name="start_at"
-                        value={selectedStart}
-                    />
+            {({ errors, processing, submit }) => {
+                // Server errors merge under client ones; a fresh submit clears
+                // stale client errors, so whichever ran last wins per field.
+                const fieldError = (name: string): string | undefined =>
+                    clientErrors[name] ?? errors[name];
 
-                    <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
-                        {/*
+                const handleSubmit = (event: MouseEvent<HTMLButtonElement>) => {
+                    const form = event.currentTarget.form;
+
+                    if (!form) {
+                        return;
+                    }
+
+                    const nextErrors = validateAppointmentForm(
+                        new FormData(form),
+                        {
+                            requireLocation: showLocation,
+                            messages: {
+                                serviceRequired: t(
+                                    'validation.serviceRequired',
+                                ),
+                                locationRequired: t(
+                                    'validation.locationRequired',
+                                ),
+                                specialistRequired: t(
+                                    'validation.specialistRequired',
+                                ),
+                                slotRequired: t('validation.slotRequired'),
+                                customerRequired: t(
+                                    'validation.customerRequired',
+                                ),
+                            },
+                        },
+                    );
+
+                    setClientErrors(nextErrors);
+
+                    if (Object.keys(nextErrors).length === 0) {
+                        submit();
+                    }
+                };
+
+                return (
+                    <>
+                        <input
+                            type="hidden"
+                            name="service_id"
+                            value={serviceId ?? ''}
+                        />
+                        <input
+                            type="hidden"
+                            name="location_id"
+                            value={locationId ?? ''}
+                        />
+                        <input
+                            type="hidden"
+                            name="specialist_id"
+                            value={specialistId ?? ''}
+                        />
+                        <input
+                            type="hidden"
+                            name="start_at"
+                            value={selectedStart}
+                        />
+
+                        <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                            {/*
                             Mobile keeps everything in one stacked column. From
                             md up the booking selectors sit in a left column and
                             the customer details in a right one, so the wider
                             dialog fills its horizontal space instead of running
                             as one long scroll.
                         */}
-                        <div className="grid gap-5 md:grid-cols-2 md:items-start md:gap-6">
-                            <div className="space-y-5">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="service_id">
-                                        {t('form.service')}
-                                    </Label>
-                                    <AppointmentServiceSelect
-                                        id="service_id"
-                                        groups={serviceGroups}
-                                        value={serviceId?.toString() ?? ''}
-                                        onChange={handleServiceChange}
-                                        invalid={Boolean(errors.service_id)}
-                                        data-test="appointment-service-select"
-                                    />
-                                    <InputError message={errors.service_id} />
-                                </div>
-
-                                {showLocation && (
+                            <div className="grid gap-5 md:grid-cols-2 md:items-start md:gap-6">
+                                <div className="space-y-5">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="location_id">
-                                            {t('form.location')}
+                                        <Label htmlFor="service_id">
+                                            {t('form.service')}
                                         </Label>
-                                        <SearchableSelect
-                                            id="location_id"
-                                            options={locationOptions}
-                                            value={locationId?.toString() ?? ''}
-                                            onChange={handleLocationChange}
-                                            placeholder={t(
-                                                'form.selectLocation',
-                                            )}
-                                            searchPlaceholder={t(
-                                                'form.searchLocations',
-                                            )}
-                                            emptyMessage={t('form.noLocations')}
+                                        <AppointmentServiceSelect
+                                            id="service_id"
+                                            groups={serviceGroups}
+                                            value={serviceId?.toString() ?? ''}
+                                            onChange={handleServiceChange}
                                             invalid={Boolean(
-                                                errors.location_id,
+                                                fieldError('service_id'),
                                             )}
-                                            data-test="appointment-location-select"
+                                            data-test="appointment-service-select"
                                         />
                                         <InputError
-                                            message={errors.location_id}
+                                            message={fieldError('service_id')}
                                         />
                                     </div>
-                                )}
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="specialist_id">
-                                        {t('form.specialist')}
-                                    </Label>
-                                    <SearchableSelect
-                                        id="specialist_id"
-                                        options={specialistOptions}
-                                        value={specialistId?.toString() ?? ''}
-                                        onChange={handleSpecialistChange}
-                                        placeholder={t('form.selectSpecialist')}
-                                        searchPlaceholder={t(
-                                            'form.searchSpecialists',
-                                        )}
-                                        emptyMessage={t('form.noSpecialists')}
-                                        invalid={Boolean(errors.specialist_id)}
-                                        data-test="appointment-specialist-select"
-                                    />
-                                    <InputError
-                                        message={errors.specialist_id}
+                                    {showLocation && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="location_id">
+                                                {t('form.location')}
+                                            </Label>
+                                            <SearchableSelect
+                                                id="location_id"
+                                                options={locationOptions}
+                                                value={
+                                                    locationId?.toString() ?? ''
+                                                }
+                                                onChange={handleLocationChange}
+                                                placeholder={t(
+                                                    'form.selectLocation',
+                                                )}
+                                                searchPlaceholder={t(
+                                                    'form.searchLocations',
+                                                )}
+                                                emptyMessage={t(
+                                                    'form.noLocations',
+                                                )}
+                                                invalid={Boolean(
+                                                    fieldError('location_id'),
+                                                )}
+                                                data-test="appointment-location-select"
+                                            />
+                                            <InputError
+                                                message={fieldError(
+                                                    'location_id',
+                                                )}
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="specialist_id">
+                                            {t('form.specialist')}
+                                        </Label>
+                                        <SearchableSelect
+                                            id="specialist_id"
+                                            options={specialistOptions}
+                                            value={
+                                                specialistId?.toString() ?? ''
+                                            }
+                                            onChange={handleSpecialistChange}
+                                            placeholder={t(
+                                                'form.selectSpecialist',
+                                            )}
+                                            searchPlaceholder={t(
+                                                'form.searchSpecialists',
+                                            )}
+                                            emptyMessage={t(
+                                                'form.noSpecialists',
+                                            )}
+                                            invalid={Boolean(
+                                                fieldError('specialist_id'),
+                                            )}
+                                            data-test="appointment-specialist-select"
+                                        />
+                                        <InputError
+                                            message={fieldError(
+                                                'specialist_id',
+                                            )}
+                                        />
+                                    </div>
+
+                                    <AppointmentSlotPicker
+                                        date={date}
+                                        onDateChange={handleDateChange}
+                                        slots={availableSlots}
+                                        loading={slotsLoading}
+                                        selectedStart={selectedStart}
+                                        onSelectSlot={setSelectedStart}
+                                        selectionIncomplete={
+                                            selectionIncomplete
+                                        }
+                                        availableDays={availableDays}
+                                        submitting={processing}
+                                        error={fieldError('start_at')}
                                     />
                                 </div>
 
-                                <AppointmentSlotPicker
-                                    date={date}
-                                    onDateChange={handleDateChange}
-                                    slots={availableSlots}
-                                    loading={slotsLoading}
-                                    selectedStart={selectedStart}
-                                    onSelectSlot={setSelectedStart}
-                                    selectionIncomplete={selectionIncomplete}
-                                    error={errors.start_at}
+                                <AppointmentCustomerFields
+                                    appointment={appointment}
+                                    errors={{ ...errors, ...clientErrors }}
                                 />
                             </div>
-
-                            <AppointmentCustomerFields
-                                appointment={appointment}
-                                errors={errors}
-                            />
                         </div>
-                    </div>
 
-                    <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t px-4 py-4 sm:px-6">
-                        {isEditing && onCancelAppointment && (
+                        <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t px-4 py-4 sm:px-6">
+                            {isEditing && onCancelAppointment && (
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="mr-auto"
+                                    data-test="appointment-cancel-appointment-button"
+                                    aria-label={t('form.cancelAppointment')}
+                                    title={t('form.cancelAppointment')}
+                                    onClick={() =>
+                                        onCancelAppointment(appointment)
+                                    }
+                                >
+                                    <Trash2 className="size-4" />
+                                </Button>
+                            )}
                             <Button
                                 type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="mr-auto"
-                                data-test="appointment-cancel-appointment-button"
-                                aria-label={t('form.cancelAppointment')}
-                                title={t('form.cancelAppointment')}
-                                onClick={() => onCancelAppointment(appointment)}
+                                variant="secondary"
+                                onClick={onCancel}
                             >
-                                <Trash2 className="size-4" />
+                                {t('form.cancel')}
                             </Button>
-                        )}
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={onCancel}
-                        >
-                            {t('form.cancel')}
-                        </Button>
-                        <Button
-                            type="submit"
-                            data-test="appointment-save-button"
-                            disabled={processing || selectedStart === ''}
-                        >
-                            {isEditing
-                                ? t('form.saveChanges')
-                                : t('form.bookAppointment')}
-                        </Button>
-                    </DialogFooter>
-                </>
-            )}
+                            <Button
+                                type="button"
+                                data-test="appointment-save-button"
+                                disabled={processing}
+                                onClick={handleSubmit}
+                            >
+                                {isEditing
+                                    ? t('form.saveChanges')
+                                    : t('form.bookAppointment')}
+                            </Button>
+                        </DialogFooter>
+                    </>
+                );
+            }}
         </Form>
     );
 }

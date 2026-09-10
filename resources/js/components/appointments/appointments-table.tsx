@@ -16,6 +16,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useCustomerTerm } from '@/hooks/use-customer-term';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     appointmentCustomerLabel,
@@ -62,6 +63,7 @@ export default function AppointmentsTable({
     emptyMessage,
 }: Props) {
     const { t } = useTranslation('appointments');
+    const customerTerm = useCustomerTerm();
 
     if (appointments.length === 0) {
         return (
@@ -88,7 +90,7 @@ export default function AppointmentsTable({
                     <TableRow>
                         <TableHead>{t('table.time')}</TableHead>
                         <TableHead>{t('table.service')}</TableHead>
-                        <TableHead>{t('table.customer')}</TableHead>
+                        <TableHead>{customerTerm}</TableHead>
                         {showSpecialist ? (
                             <TableHead>{t('table.specialist')}</TableHead>
                         ) : null}

@@ -1,4 +1,4 @@
-import { Loader2, ScanSearch, Search } from 'lucide-react';
+import { Loader2, Search, TextSearch } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -125,7 +125,7 @@ export default function CustomerSearchPopover({ onSelect, id }: Props) {
                     className="shrink-0"
                     data-test="appointment-customer-search-button"
                 >
-                    <ScanSearch className="size-5" />
+                    <TextSearch className="size-5" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent

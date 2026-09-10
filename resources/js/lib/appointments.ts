@@ -300,6 +300,68 @@ export function appointmentCustomerLabel(
     );
 }
 
+/** The translated messages the appointment form validator emits per field. */
+export type AppointmentValidationMessages = {
+    serviceRequired: string;
+    locationRequired: string;
+    specialistRequired: string;
+    slotRequired: string;
+    customerRequired: string;
+};
+
+export type ValidateAppointmentFormOptions = {
+    /** True when the location field is shown (a non-online service). */
+    requireLocation: boolean;
+    messages: AppointmentValidationMessages;
+};
+
+/**
+ * Validate the appointment form's submitted values on the client, mirroring the
+ * server-side rules in `SaveAppointmentRequest`. Returns a field => message map;
+ * an empty object means the form is safe to submit.
+ *
+ * The customer is optional: a bare note-only booking is allowed, so a customer
+ * name is required only when nothing else (email, phone or a note) identifies
+ * the appointment — matching the `required_without_all` rule.
+ */
+export function validateAppointmentForm(
+    data: FormData,
+    { requireLocation, messages }: ValidateAppointmentFormOptions,
+): Partial<Record<string, string>> {
+    const value = (name: string): string =>
+        (data.get(name) as string | null)?.trim() ?? '';
+
+    const errors: Partial<Record<string, string>> = {};
+
+    if (value('service_id') === '') {
+        errors.service_id = messages.serviceRequired;
+    }
+
+    if (requireLocation && value('location_id') === '') {
+        errors.location_id = messages.locationRequired;
+    }
+
+    if (value('specialist_id') === '') {
+        errors.specialist_id = messages.specialistRequired;
+    }
+
+    if (value('start_at') === '') {
+        errors.start_at = messages.slotRequired;
+    }
+
+    const hasCustomerIdentity =
+        value('customer_name') !== '' ||
+        value('customer_email') !== '' ||
+        value('customer_phone') !== '' ||
+        value('notes') !== '';
+
+    if (!hasCustomerIdentity) {
+        errors.customer_name = messages.customerRequired;
+    }
+
+    return errors;
+}
+
 /**
  * Format a service duration in minutes as a short human label, e.g. "1h 30m".
  */

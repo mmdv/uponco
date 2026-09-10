@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Textarea } from '@/components/ui/textarea';
+import { useCustomerTerm } from '@/hooks/use-customer-term';
 import { useTranslation } from '@/hooks/use-translation';
 import { appointmentCustomerLabel } from '@/lib/appointments';
 import type { Appointment } from '@/types';
@@ -29,6 +30,7 @@ export default function AppointmentCustomerFields({
     errors,
 }: Props) {
     const { t } = useTranslation('appointments');
+    const customerTerm = useCustomerTerm();
     const customer = appointment?.customer ?? null;
     const isEditing = appointment !== null;
 
@@ -42,9 +44,7 @@ export default function AppointmentCustomerFields({
         <div className="space-y-4 rounded-lg border p-4">
             <div className="flex items-start justify-between gap-3">
                 <div className="space-y-0.5">
-                    <h3 className="text-sm font-medium">
-                        {t('customer.heading')}
-                    </h3>
+                    <h3 className="text-sm font-medium">{customerTerm}</h3>
                     <p className="text-sm text-foreground">
                         {isEditing
                             ? t('customer.readOnlyNote')
