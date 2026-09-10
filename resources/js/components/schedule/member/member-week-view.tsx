@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { dateKey } from '@/lib/calendar-grid';
 import {
     formatHours,
-    isPastDay,
+    isEditableDay,
     totalSlotMinutes,
 } from '@/lib/member-schedule';
 import { cn } from '@/lib/utils';
@@ -68,22 +68,22 @@ type WeekDayCardProps = {
 function WeekDayCard({ day, slots, onEdit }: WeekDayCardProps) {
     const { t } = useTranslation('schedule');
     const key = dateKey(day);
-    const isPast = isPastDay(day);
+    const editable = isEditableDay(day);
     const isToday = key === dateKey(new Date());
     const hasSlots = slots.length > 0;
 
     return (
         <button
             type="button"
-            disabled={isPast}
+            disabled={!editable}
             onClick={onEdit}
             aria-label={`${weekdayFormatter.format(day)} ${day.getDate()}`}
             className={cn(
                 'flex w-full flex-row items-center gap-3 rounded-lg border p-3 text-left transition-colors lg:h-40 lg:flex-col lg:items-stretch',
-                isPast
+                !editable
                     ? 'cursor-not-allowed border-border/60 bg-muted/40 opacity-60'
                     : 'hover:border-primary/40 hover:bg-muted/40',
-                isToday && !isPast && 'border-primary',
+                isToday && 'border-primary',
             )}
         >
             <div className="flex w-20 shrink-0 items-baseline gap-1.5 lg:w-auto lg:justify-between">
@@ -117,7 +117,7 @@ function WeekDayCard({ day, slots, onEdit }: WeekDayCardProps) {
                     ))
                 ) : (
                     <span className="flex items-center gap-1 text-xs text-foreground">
-                        {!isPast && <Plus className="h-3 w-3" />}
+                        {editable && <Plus className="h-3 w-3" />}
                         {t('member.dayOff')}
                     </span>
                 )}

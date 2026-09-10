@@ -128,6 +128,25 @@ export function isPastDay(day: Date, today: Date = new Date()): boolean {
 }
 
 /**
+ * Whether a day falls in the Mon–Sun week containing `today`.
+ */
+export function isCurrentWeek(day: Date, today: Date = new Date()): boolean {
+    const week = weekDays(today);
+    const key = dateKey(day);
+
+    return key >= dateKey(week[0]) && key <= dateKey(week[6]);
+}
+
+/**
+ * Whether a day can be edited. Past days are read-only, except days already
+ * elapsed in the *current* week — those stay editable so someone starting
+ * mid-week can fill the whole week in and repeat it forward.
+ */
+export function isEditableDay(day: Date, today: Date = new Date()): boolean {
+    return !isPastDay(day, today) || isCurrentWeek(day, today);
+}
+
+/**
  * The payload that copies a week's pattern onto the following `weeks` weeks.
  *
  * Every day is emitted, including days with no blocks — copying a week means

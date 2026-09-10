@@ -8,6 +8,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     formatHours,
+    isEditableDay,
     isPastDay,
     totalMinutesForDays,
 } from '@/lib/member-schedule';
@@ -255,11 +256,11 @@ export default function MemberSchedule({
 
             <DayEditorSheet
                 dayKeys={editingDays}
-                applicableDays={days.filter(
-                    (day) =>
-                        !isPastDay(day) &&
-                        (view === 'week' ||
-                            day.getMonth() === schedule.anchor.getMonth()),
+                applicableDays={days.filter((day) =>
+                    view === 'week'
+                        ? isEditableDay(day)
+                        : !isPastDay(day) &&
+                          day.getMonth() === schedule.anchor.getMonth(),
                 )}
                 slots={schedule.slots}
                 isSaving={isSaving}

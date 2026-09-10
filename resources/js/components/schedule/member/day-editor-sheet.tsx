@@ -16,11 +16,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/use-translation';
 import { dateKey, parseDateKey } from '@/lib/calendar-grid';
-import {
-    initialSlotsForDays,
-    isPastDay,
-    SCHEDULE_PRESETS,
-} from '@/lib/member-schedule';
+import { initialSlotsForDays, SCHEDULE_PRESETS } from '@/lib/member-schedule';
 import { cn } from '@/lib/utils';
 import type {
     DayScheduleMap,
@@ -90,7 +86,7 @@ export default function DayEditorSheet({
     const otherDays =
         editing.length === 1
             ? applicableDays.filter(
-                  (day) => !isPastDay(day) && !editing.includes(dateKey(day)),
+                  (day) => !editing.includes(dateKey(day)),
               )
             : [];
 

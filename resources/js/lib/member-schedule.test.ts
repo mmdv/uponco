@@ -5,6 +5,8 @@ import {
     DEFAULT_SLOT,
     formatHours,
     initialSlotsForDays,
+    isCurrentWeek,
+    isEditableDay,
     isPastDay,
     repeatWeekPayload,
     shiftAnchor,
@@ -100,6 +102,35 @@ describe('isPastDay', () => {
         expect(isPastDay(new Date(2026, 7, 11), today)).toBe(true);
         expect(isPastDay(today, today)).toBe(false);
         expect(isPastDay(new Date(2026, 7, 13), today)).toBe(false);
+    });
+});
+
+describe('isCurrentWeek', () => {
+    it('spans the whole Mon–Sun week containing today', () => {
+        // Wednesday 12 Aug 2026 → week is Mon 10th … Sun 16th.
+        expect(isCurrentWeek(new Date(2026, 7, 10), WEDNESDAY)).toBe(true);
+        expect(isCurrentWeek(new Date(2026, 7, 16), WEDNESDAY)).toBe(true);
+    });
+
+    it('excludes the neighbouring weeks', () => {
+        expect(isCurrentWeek(new Date(2026, 7, 9), WEDNESDAY)).toBe(false);
+        expect(isCurrentWeek(new Date(2026, 7, 17), WEDNESDAY)).toBe(false);
+    });
+});
+
+describe('isEditableDay', () => {
+    it('allows today and future days', () => {
+        expect(isEditableDay(WEDNESDAY, WEDNESDAY)).toBe(true);
+        expect(isEditableDay(new Date(2026, 7, 13), WEDNESDAY)).toBe(true);
+    });
+
+    it('allows days already elapsed in the current week', () => {
+        expect(isEditableDay(new Date(2026, 7, 10), WEDNESDAY)).toBe(true);
+        expect(isEditableDay(new Date(2026, 7, 11), WEDNESDAY)).toBe(true);
+    });
+
+    it('locks a past day in an earlier week', () => {
+        expect(isEditableDay(new Date(2026, 7, 9), WEDNESDAY)).toBe(false);
     });
 });
 
