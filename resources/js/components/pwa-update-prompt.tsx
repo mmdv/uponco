@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 
 import { FALLBACK_LOCALE, translate } from '@/hooks/use-translation';
+import { isStandalone } from '@/lib/push';
 
 const UPDATE_TOAST_ID = 'pwa-update';
 
@@ -22,8 +23,11 @@ function documentLocale(): string {
 /**
  * Registers the service worker and, once a newer build has been deployed and
  * its worker is waiting, surfaces a persistent toast prompting the user to
- * reload into it. Renders no DOM of its own, so it is safe to mount beside the
- * Inertia app without a hydration mismatch.
+ * reload into it — but only when running as an installed PWA, where a manual
+ * reload is the user's only way to pick up the update. In a browser tab the
+ * worker activates on the next navigation, so the prompt is suppressed there.
+ * Renders no DOM of its own, so it is safe to mount beside the Inertia app
+ * without a hydration mismatch.
  */
 export default function PwaUpdatePrompt() {
     // The worker is registered at `/sw.js` — the same URL the previous
@@ -36,6 +40,14 @@ export default function PwaUpdatePrompt() {
 
     useEffect(() => {
         if (!needRefresh) {
+            return;
+        }
+
+        // In a browser tab the new worker takes over on the next navigation
+        // anyway, so the prompt just nags without adding anything. Only surface
+        // it when running as an installed PWA, where a reload is the user's only
+        // way to pull in the update.
+        if (!isStandalone()) {
             return;
         }
 
