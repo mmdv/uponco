@@ -31,7 +31,7 @@ class AppointmentCalendar
         $description = (new Collection([
             $meetingUrl ? __('Join: :url', ['url' => $meetingUrl]) : null,
             __('Service: :service', ['service' => $appointment->service->title]),
-            __('Specialist: :specialist', ['specialist' => $appointment->specialist->name]),
+            __('Specialist: :specialist', ['specialist' => $appointment->specialistDisplayName()]),
             // The name and unit still matter to the customer once they arrive,
             // so they move into the description rather than being dropped.
             $place && ! $meetingUrl ? __('Place: :name', ['name' => $place->name]) : null,

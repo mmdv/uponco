@@ -181,6 +181,14 @@ export default function AppointmentsIndex({
             return;
         }
 
+        // A deleted specialist leaves the appointment with no one to schedule
+        // against, so it can only be previewed, not rescheduled.
+        if (appointment.specialist_id === null) {
+            openDetails(appointment);
+
+            return;
+        }
+
         if (blockWhenOffline()) {
             return;
         }

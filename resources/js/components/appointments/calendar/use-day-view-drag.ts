@@ -99,6 +99,11 @@ export function useDayViewDrag({
             return;
         }
 
+        // An appointment whose specialist was deleted has no column to drag in.
+        if (item.appointment.specialist_id === null) {
+            return;
+        }
+
         const columnEl = columnRefs.current.get(item.appointment.specialist_id);
 
         if (!columnEl) {

@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'service_id',
     'location_id',
     'specialist_id',
+    'specialist_name',
     'customer_id',
     'start_at',
     'end_at',
@@ -35,6 +36,40 @@ class Appointment extends Model
 {
     /** @use HasFactory<AppointmentFactory> */
     use HasFactory, SoftDeletes;
+
+    /**
+     * Snapshot the specialist's name onto the appointment whenever the
+     * specialist link is set, so the history survives the user being deleted.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Appointment $appointment): void {
+            if ($appointment->specialist_id === null) {
+                return;
+            }
+
+            // Only refresh the snapshot when the specialist link changes or the
+            // snapshot is still missing, so ordinary updates skip the lookup.
+            if (! $appointment->isDirty('specialist_id') && filled($appointment->specialist_name)) {
+                return;
+            }
+
+            $name = User::find($appointment->specialist_id)?->name;
+
+            if ($name !== null) {
+                $appointment->specialist_name = $name;
+            }
+        });
+    }
+
+    /**
+     * The specialist's name for display: the live user if they still exist,
+     * otherwise the snapshot taken at booking time, otherwise a neutral label.
+     */
+    public function specialistDisplayName(): string
+    {
+        return $this->specialist?->name ?? $this->specialist_name ?? __('Former specialist');
+    }
 
     /**
      * Get the team that owns the appointment.
@@ -74,6 +109,10 @@ class Appointment extends Model
 
     /**
      * Get the specialist providing the service.
+     *
+     * The link is nulled (not cascaded) when the user is deleted, so this can be
+     * null on historical appointments — read the name via {@see specialistDisplayName()},
+     * which falls back to the `specialist_name` snapshot.
      *
      * @return BelongsTo<User, $this>
      */

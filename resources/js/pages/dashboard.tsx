@@ -108,6 +108,12 @@ export default function Dashboard({
             return;
         }
 
+        // A deleted specialist leaves the appointment with no one to schedule
+        // against, so it cannot be rescheduled through the slot picker.
+        if (appointment.specialist_id === null) {
+            return;
+        }
+
         setDetailsOpen(false);
         setEditingAppointment(appointment);
         setEditOpen(true);

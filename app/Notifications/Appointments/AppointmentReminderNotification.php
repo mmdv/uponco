@@ -86,7 +86,7 @@ class AppointmentReminderNotification extends Notification implements ShouldQueu
                 'teamName' => $team->name,
                 'teamLogoUrl' => $team->logoUrl(),
                 'serviceTitle' => $appointment->service->title,
-                'specialistName' => $appointment->specialist->name,
+                'specialistName' => $appointment->specialistDisplayName(),
                 'locationName' => $location?->name ?? __('Online'),
                 'locationAddress' => $location?->mappableAddress(),
                 'locationUnit' => $location?->unit,

@@ -84,7 +84,7 @@ class AppointmentBooked extends Notification implements ShouldQueue
                 'teamName' => $team->name,
                 'teamLogoUrl' => $team->logoUrl(),
                 'serviceTitle' => $appointment->service->title,
-                'specialistName' => $appointment->specialist->name,
+                'specialistName' => $appointment->specialistDisplayName(),
                 'locationName' => $location?->name ?? __('Online'),
                 // The postal address only — the unit is shown on its own line
                 // so the address stays exactly what a map can resolve.

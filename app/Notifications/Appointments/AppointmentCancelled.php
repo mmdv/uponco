@@ -65,7 +65,7 @@ class AppointmentCancelled extends Notification implements ShouldQueue
                 'teamName' => $team->name,
                 'teamLogoUrl' => $team->logoUrl(),
                 'serviceTitle' => $appointment->service->title,
-                'specialistName' => $appointment->specialist->name,
+                'specialistName' => $appointment->specialistDisplayName(),
                 'locationName' => $location?->name ?? __('Online'),
                 'dateLine' => $start->translatedFormat('l, j F Y'),
                 'timeLine' => __(':start–:end (:timezone)', [

@@ -493,8 +493,10 @@ trait InteractsWithAppointmentBooking
                 'name' => $appointment->location->name,
             ] : null,
             'specialist' => [
+                // The id is null once the specialist's account is deleted; the
+                // name falls back to the snapshot so the history stays readable.
                 'id' => $appointment->specialist?->id ?? $appointment->specialist_id,
-                'name' => $appointment->specialist?->name ?? __('Unknown specialist'),
+                'name' => $appointment->specialistDisplayName(),
             ],
             'customer' => [
                 // A note-only appointment has no customer: the id is null and the

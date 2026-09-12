@@ -108,7 +108,9 @@ export type Appointment = {
     notes: string | null;
     service: { id: number; title: string };
     location: { id: number; name: string } | null;
-    specialist: { id: number; name: string };
+    // `id` is null once the specialist's account is deleted; `name` always
+    // resolves (the live user, else the snapshot taken at booking time).
+    specialist: { id: number | null; name: string };
     customer: {
         id: number | null;
         name: string;
@@ -117,5 +119,5 @@ export type Appointment = {
     };
     service_id: number;
     location_id: number | null;
-    specialist_id: number;
+    specialist_id: number | null;
 };
