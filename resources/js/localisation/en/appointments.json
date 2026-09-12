@@ -22,6 +22,7 @@
     },
     "toast": {
         "cancelError": "Couldn't cancel the appointment. Please try again.",
+        "creating": "Adding appointment…",
         "createError": "Couldn't create the appointment. Please try again.",
         "updateError": "Couldn't update the appointment. Please try again."
     },

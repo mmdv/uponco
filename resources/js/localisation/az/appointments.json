@@ -22,6 +22,7 @@
     },
     "toast": {
         "cancelError": "Görüşü ləğv etmək alınmadı. Yenidən cəhd edin.",
+        "creating": "Görüş əlavə olunur…",
         "createError": "Görüşü yaratmaq alınmadı. Yenidən cəhd edin.",
         "updateError": "Görüşü yeniləmək alınmadı. Yenidən cəhd edin."
     },

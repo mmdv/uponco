@@ -91,6 +91,10 @@ export default function AppointmentDayFormFields({
     // can be rolled back on failure.
     const pendingTempId = useRef<number | null>(null);
 
+    // Id of the "adding…" toast raised on a create submit, so it can be swapped
+    // in place for the result. Non-null only while a create is in flight.
+    const creatingToastId = useRef<string | number | null>(null);
+
     const dayKey = useMemo(
         () => zonedDayKey(startIso, timezone),
         [startIso, timezone],
@@ -244,6 +248,12 @@ export default function AppointmentDayFormFields({
                 const tempId = nextTemporaryId();
                 pendingTempId.current = tempId;
                 onOptimisticAdd(buildOptimisticAppointment(tempId));
+
+                // The placeholder is on the grid, so close the form at once and
+                // track the request with a toast. Inertia keeps the visit alive
+                // past this unmount, so the handlers below still reconcile it.
+                creatingToastId.current = toast.loading(t('toast.creating'));
+                onSuccess();
             }}
             onError={() => {
                 if (pendingTempId.current !== null) {
@@ -251,12 +261,30 @@ export default function AppointmentDayFormFields({
                     pendingTempId.current = null;
                 }
 
-                toast.error(
-                    isEditing ? t('toast.updateError') : t('toast.createError'),
-                );
+                if (creatingToastId.current !== null) {
+                    toast.error(t('toast.createError'), {
+                        id: creatingToastId.current,
+                    });
+                    creatingToastId.current = null;
+
+                    return;
+                }
+
+                toast.error(t('toast.updateError'));
             }}
             onSuccess={() => {
                 pendingTempId.current = null;
+
+                if (creatingToastId.current !== null) {
+                    // The backend flashes its own "created" confirmation, so just
+                    // clear the loading toast rather than raise a second one. The
+                    // form already closed on submit.
+                    toast.dismiss(creatingToastId.current);
+                    creatingToastId.current = null;
+
+                    return;
+                }
+
                 onSuccess();
             }}
             className="flex min-h-0 flex-1 flex-col"
