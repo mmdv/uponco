@@ -41,7 +41,7 @@ export default function AppointmentCustomerFields({
     const [phone, setPhone] = useState(customer?.phone ?? '');
 
     return (
-        <div className="space-y-4 rounded-lg border p-4">
+        <div className="min-w-0 space-y-4 rounded-lg border p-4">
             <div className="flex items-start justify-between gap-3">
                 <div className="space-y-0.5">
                     <h3 className="text-sm font-medium">{customerTerm}</h3>

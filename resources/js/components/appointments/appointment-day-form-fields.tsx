@@ -312,7 +312,7 @@ export default function AppointmentDayFormFields({
 
                     <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
                         <div className="grid gap-5 md:grid-cols-2 md:items-start md:gap-6">
-                            <div className="space-y-5">
+                            <div className="min-w-0 space-y-5">
                                 <div className="grid gap-2">
                                     <Label htmlFor="service_id">
                                         {t('form.service')}
@@ -371,6 +371,7 @@ export default function AppointmentDayFormFields({
                                         }
                                         aria-invalid={Boolean(errors.start_at)}
                                         data-test="day-appointment-start"
+                                        className="w-full max-w-40"
                                     />
                                     <InputError message={errors.start_at} />
                                 </div>
