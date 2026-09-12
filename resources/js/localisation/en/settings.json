@@ -163,6 +163,14 @@
         "chooseFile": "Choose file",
         "savePicture": "Save picture",
         "remove": "Remove",
-        "hint": "SVG, PNG or JPG. Up to 2MB."
+        "hint": "JPG, PNG or WebP. Up to 2MB. Cropped to a square.",
+        "crop": {
+            "title": "Crop your picture",
+            "description": "Drag to reposition and use the slider to zoom. The picture is saved as a square.",
+            "zoom": "Zoom",
+            "apply": "Apply",
+            "cancel": "Cancel",
+            "error": "Couldn't crop the image. Please try another file."
+        }
     }
 }

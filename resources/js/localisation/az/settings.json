@@ -163,6 +163,14 @@
         "chooseFile": "Fayl seçin",
         "savePicture": "Şəkli yadda saxla",
         "remove": "Sil",
-        "hint": "SVG, PNG və ya JPG. 2MB-a qədər."
+        "hint": "JPG, PNG və ya WebP. 2MB-a qədər. Kvadrat şəklində kəsilir.",
+        "crop": {
+            "title": "Şəkli kəsin",
+            "description": "Yerini dəyişmək üçün sürüşdürün, yaxınlaşdırmaq üçün sürgüdən istifadə edin. Şəkil kvadrat kimi yadda saxlanılır.",
+            "zoom": "Yaxınlaşdırma",
+            "apply": "Tətbiq et",
+            "cancel": "Ləğv et",
+            "error": "Şəkli kəsmək alınmadı. Başqa fayl seçin."
+        }
     }
 }

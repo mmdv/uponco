@@ -60,7 +60,22 @@ test('uploading a new profile picture removes the previous file', function () {
     Storage::disk('public')->assertExists($secondPath);
 });
 
-test('an svg profile picture is accepted', function () {
+test('a webp profile picture is accepted', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+
+    $this
+        ->actingAs($user)
+        ->post(route('account.avatar.update'), [
+            'avatar' => UploadedFile::fake()->image('me.webp', 200, 200),
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($user->fresh()->avatar_path)->not->toBeNull();
+});
+
+test('an svg profile picture is rejected', function () {
     Storage::fake('public');
 
     $user = User::factory()->create();
@@ -72,9 +87,20 @@ test('an svg profile picture is accepted', function () {
         ->post(route('account.avatar.update'), [
             'avatar' => UploadedFile::fake()->createWithContent('me.svg', $svg),
         ])
-        ->assertSessionHasNoErrors();
+        ->assertSessionHasErrors('avatar');
+});
 
-    expect($user->fresh()->avatar_path)->not->toBeNull();
+test('a non square profile picture is rejected', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+
+    $this
+        ->actingAs($user)
+        ->post(route('account.avatar.update'), [
+            'avatar' => UploadedFile::fake()->image('wide.png', 300, 100),
+        ])
+        ->assertSessionHasErrors('avatar');
 });
 
 test('a non image file is rejected as a profile picture', function () {
