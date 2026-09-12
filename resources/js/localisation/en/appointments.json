@@ -30,7 +30,8 @@
         "calendar": {
             "previous": "Previous",
             "next": "Next",
-            "today": "Today"
+            "today": "Today",
+            "pickDate": "Pick a date"
         },
         "filters": "Filters",
         "clearAll": "Clear all",

@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { CalendarDays, CalendarPlus } from 'lucide-react';
+import { CalendarPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -306,6 +306,19 @@ export default function AppointmentsIndex({
         return dateKey(cursor) === dateKey(now);
     }, [view, cursor]);
 
+    // Label for the "jump to today" FAB: the current day-of-month and short
+    // month, so the button reads as a date rather than a generic icon.
+    const todayLabel = useMemo(() => {
+        const now = new Date();
+
+        return {
+            day: now.getDate(),
+            month: new Intl.DateTimeFormat(undefined, {
+                month: 'short',
+            }).format(now),
+        };
+    }, []);
+
     return (
         <>
             <Head title={t('title')} />
@@ -380,16 +393,23 @@ export default function AppointmentsIndex({
 
             {/* Mobile: jump back to today. Mirrors the create FAB on the opposite
                 side (same line/height), shown in any day-navigable view when the
-                viewed period isn't already the current one. */}
+                viewed period isn't already the current one. It shows today's date
+                so its purpose is obvious — the calendar icon is now the date
+                picker in the nav, and reusing it here would be confusing. */}
             {!isViewingToday && (
                 <button
                     type="button"
-                    className="fixed bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-50 flex size-14 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"
+                    className="fixed bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-50 flex size-14 flex-col items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"
                     data-test="calendar-today-fab"
                     aria-label={t('toolbar.calendar.today')}
                     onClick={() => setCursor(new Date())}
                 >
-                    <CalendarDays className="size-6" />
+                    <span className="text-lg leading-none font-semibold">
+                        {todayLabel.day}
+                    </span>
+                    <span className="text-[10px] leading-tight font-medium tracking-wide uppercase">
+                        {todayLabel.month}
+                    </span>
                 </button>
             )}
 

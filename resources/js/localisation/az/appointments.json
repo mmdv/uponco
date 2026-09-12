@@ -30,7 +30,8 @@
         "calendar": {
             "previous": "Əvvəlki",
             "next": "Növbəti",
-            "today": "Bu gün"
+            "today": "Bu gün",
+            "pickDate": "Tarix seçin"
         },
         "filters": "Filtrlər",
         "clearAll": "Hamısını təmizlə",
