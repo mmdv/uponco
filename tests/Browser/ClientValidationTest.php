@@ -81,6 +81,9 @@ test('a malformed email is rejected in the browser rather than posted', function
 test('the login form still blocks an empty submit with required stripped', function () {
     $page = visit(route('login'));
 
+    // The email form is a second screen now — open it before touching fields.
+    $page->click('@email-login-option');
+
     $page->script(<<<'JS'
         document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
     JS);
@@ -99,6 +102,8 @@ test('the login form still blocks an empty submit with required stripped', funct
 test('the login form rejects a malformed email in the browser rather than posting', function () {
     $page = visit(route('login'));
 
+    $page->click('@email-login-option');
+
     $page->script(<<<'JS'
         document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
         document.getElementById('login-form').noValidate = true;
@@ -114,6 +119,9 @@ test('the login form rejects a malformed email in the browser rather than postin
 
 test('the register form still blocks an empty submit with required stripped', function () {
     $page = visit(route('register'));
+
+    // Email sign-up is a second screen now — open it before touching fields.
+    $page->click('@email-register-option');
 
     $page->script(<<<'JS'
         document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));
@@ -133,6 +141,8 @@ test('the register form still blocks an empty submit with required stripped', fu
 
 test('the register form blocks a submit until the terms are accepted', function () {
     $page = visit(route('register'));
+
+    $page->click('@email-register-option');
 
     $page->script(<<<'JS'
         document.querySelectorAll('[required]').forEach((el) => el.removeAttribute('required'));

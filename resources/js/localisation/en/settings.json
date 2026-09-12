@@ -155,6 +155,7 @@
         "soloTeamsTitle": "These teams and all their data will be deleted with your account:",
         "sharedTeamsTitle": "You still own these teams with other members. Transfer ownership before deleting your account:",
         "sharedTeamsAction": "Manage team members",
+        "confirmDataDeletion": "I understand that my account and all of its data will be permanently deleted.",
         "cancel": "Cancel",
         "confirm": "Delete account"
     },

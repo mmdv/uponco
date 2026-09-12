@@ -74,7 +74,7 @@ export default function AppointmentsIndex({
 
     const [view, setView] = useLocalStorage<AppointmentView>(
         'appointments:view',
-        'minimal',
+        'day',
     );
     const [filters, setFilters] = useLocalStorage<AppointmentFilters>(
         'appointments:filters:v2',

@@ -1,6 +1,8 @@
 import { usePage } from '@inertiajs/react';
+import { Repeat } from 'lucide-react';
 
 import MemberSchedule from '@/components/schedule/member/member-schedule';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useTranslation } from '@/hooks/use-translation';
 import type { DayScheduleMap } from '@/types/schedule';
 import type { StepControls } from './controls';
@@ -42,6 +44,14 @@ export default function StepSchedule({ data, hasSchedule, controls }: Props) {
                 title={t('schedule.title')}
                 description={t('schedule.description')}
             />
+
+            <Alert className="border-primary/20 bg-primary/5">
+                <Repeat className="text-primary" />
+                <AlertTitle>{t('schedule.infoTitle')}</AlertTitle>
+                <AlertDescription>
+                    {t('schedule.infoDescription')}
+                </AlertDescription>
+            </Alert>
 
             <MemberSchedule
                 member={{

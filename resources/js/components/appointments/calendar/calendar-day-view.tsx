@@ -1,5 +1,8 @@
+import { Link } from '@inertiajs/react';
+import { CalendarClock, CalendarCog } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     dateKey,
@@ -13,6 +16,7 @@ import {
     SLOT_MINUTES,
     wallTimeToUtcIso,
 } from '@/lib/calendar-grid';
+import { index as scheduleRoute } from '@/routes/schedule';
 import type { Appointment } from '@/types';
 
 import DayColumn from './day-column';
@@ -260,11 +264,33 @@ export default function CalendarDayView({
         <div className="overflow-hidden rounded-lg border select-none">
             <div ref={scrollRef} className="max-h-[70vh] overflow-auto">
                 {count === 0 ? (
-                    <div className="p-10 text-center text-sm text-foreground">
-                        {workingHoursLoading
-                            ? t('dayView.loading')
-                            : t('dayView.empty')}
-                    </div>
+                    workingHoursLoading ? (
+                        <div className="p-10 text-center text-sm text-muted-foreground">
+                            {t('dayView.loading')}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+                            <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <CalendarClock className="size-7" />
+                            </div>
+                            <div className="space-y-1.5">
+                                <p className="text-base font-semibold text-foreground">
+                                    {t('dayView.empty')}
+                                </p>
+                                <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+                                    {t('dayView.emptyDescription')}
+                                </p>
+                            </div>
+                            {!isPastDay && (
+                                <Button asChild variant="outline">
+                                    <Link href={scheduleRoute()}>
+                                        <CalendarCog className="size-4" />
+                                        {t('dayView.emptyAction')}
+                                    </Link>
+                                </Button>
+                            )}
+                        </div>
+                    )
                 ) : (
                     <div style={{ width: contentWidth }}>
                         {/* Header row — specialist names, pinned to the top */}

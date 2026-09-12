@@ -1,8 +1,7 @@
+import { Briefcase, CalendarOff, Clock, Plus } from 'lucide-react';
 import { useState } from 'react';
 
-import ScheduleSlotEditor from '@/components/schedule/schedule-slot-editor';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -13,16 +12,25 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/use-translation';
 import { dateKey, parseDateKey } from '@/lib/calendar-grid';
-import { initialSlotsForDays, SCHEDULE_PRESETS } from '@/lib/member-schedule';
+import {
+    formatHours,
+    initialSlotsForDays,
+    SCHEDULE_PRESETS,
+    SELECTED_TOGGLE_CLASS,
+    totalSlotMinutes,
+} from '@/lib/member-schedule';
 import { cn } from '@/lib/utils';
 import type {
     DayScheduleMap,
     ScheduleDayPayload,
     ScheduleSlot,
 } from '@/types/schedule';
+
+import DayBlockRow from './day-block-row';
 
 const dayLabelFormatter = new Intl.DateTimeFormat(undefined, {
     weekday: 'short',
@@ -33,6 +41,9 @@ const dayLabelFormatter = new Intl.DateTimeFormat(undefined, {
 const shortWeekdayFormatter = new Intl.DateTimeFormat(undefined, {
     weekday: 'short',
 });
+
+/** Whether the day is being treated as worked or off in this edit. */
+type DayMode = 'working' | 'off';
 
 type DayEditorSheetProps = {
     /** The day keys being edited, or null when the sheet is closed. */
@@ -46,8 +57,10 @@ type DayEditorSheetProps = {
 };
 
 /**
- * The editor for one or more days: presets, the shared time-block list, an
- * "also apply to" picker, and a day-off action that clears the day outright.
+ * The editor for one or more days. A working/day-off switch drives the whole
+ * sheet: working days expose one-tap presets and an editable list of hour
+ * blocks, a day off clears them. An optional "also apply to" picker spreads the
+ * choice across sibling days.
  */
 export default function DayEditorSheet({
     dayKeys,
@@ -60,6 +73,7 @@ export default function DayEditorSheet({
     const { t } = useTranslation('schedule');
     const isMobile = useIsMobile();
 
+    const [mode, setMode] = useState<DayMode>('working');
     const [blocks, setBlocks] = useState<ScheduleSlot[]>([]);
     const [alsoApplyTo, setAlsoApplyTo] = useState<Set<string>>(
         () => new Set(),
@@ -75,6 +89,9 @@ export default function DayEditorSheet({
         if (dayKeys !== null) {
             setBlocks(initialSlotsForDays(dayKeys, slots));
             setAlsoApplyTo(new Set());
+            // Default to "working" so the common add-hours flow needs no extra
+            // tap; the switch still lets someone mark the day off explicitly.
+            setMode('working');
         }
     }
 
@@ -85,14 +102,54 @@ export default function DayEditorSheet({
     // yet more days has no clear meaning.
     const otherDays =
         editing.length === 1
-            ? applicableDays.filter(
-                  (day) => !editing.includes(dateKey(day)),
-              )
+            ? applicableDays.filter((day) => !editing.includes(dateKey(day)))
             : [];
 
     const targetKeys = [...editing, ...alsoApplyTo];
 
-    const submit = (nextBlocks: ScheduleSlot[]): void => {
+    const totalMinutes = totalSlotMinutes(blocks);
+    const hasValidBlocks = blocks.some((block) => block.start && block.end);
+    const canSave = mode === 'off' || hasValidBlocks;
+
+    const updateBlock = (
+        index: number,
+        field: 'start' | 'end',
+        value: string,
+    ): void => {
+        setBlocks((current) =>
+            current.map((block, slotIndex) =>
+                slotIndex === index ? { ...block, [field]: value } : block,
+            ),
+        );
+    };
+
+    const removeBlock = (index: number): void => {
+        setBlocks((current) =>
+            current.filter((_, slotIndex) => slotIndex !== index),
+        );
+    };
+
+    const addBlock = (): void => {
+        setBlocks((current) => [...current, { start: '', end: '' }]);
+    };
+
+    const toggleApplyDay = (key: string): void => {
+        setAlsoApplyTo((current) => {
+            const next = new Set(current);
+
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+
+            return next;
+        });
+    };
+
+    const submit = (): void => {
+        const nextBlocks = mode === 'off' ? [] : blocks;
+
         onSave(
             targetKeys.map((date) => ({
                 date,
@@ -136,55 +193,140 @@ export default function DayEditorSheet({
                     </SheetDescription>
                 </SheetHeader>
 
-                <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+                <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-4">
+                    {/* Working vs. day off — the switch that shapes everything
+                        below, replacing the old ambiguous red text action. */}
                     <div className="space-y-2">
-                        <Label>{t('member.presets')}</Label>
-                        <div className="flex flex-wrap gap-2">
-                            {SCHEDULE_PRESETS.map((preset) => (
-                                <Button
-                                    key={`${preset.start}-${preset.end}`}
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="tabular-nums"
-                                    onClick={() => setBlocks([{ ...preset }])}
-                                >
-                                    {preset.start}–{preset.end}
-                                </Button>
-                            ))}
+                        <Label>{t('member.availabilityLabel')}</Label>
+                        <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            value={mode}
+                            onValueChange={(value) => {
+                                if (value) {
+                                    setMode(value as DayMode);
+                                }
+                            }}
+                            className="w-full"
+                        >
+                            <ToggleGroupItem
+                                value="working"
+                                className={cn('flex-1 gap-2', SELECTED_TOGGLE_CLASS)}
+                            >
+                                <Briefcase className="size-4" />
+                                {t('member.working')}
+                            </ToggleGroupItem>
+                            <ToggleGroupItem
+                                value="off"
+                                className={cn('flex-1 gap-2', SELECTED_TOGGLE_CLASS)}
+                            >
+                                <CalendarOff className="size-4" />
+                                {t('member.dayOff')}
+                            </ToggleGroupItem>
+                        </ToggleGroup>
+                    </div>
+
+                    {mode === 'off' ? (
+                        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-10 text-center">
+                            <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                <CalendarOff className="size-6" />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-foreground">
+                                    {t('member.dayOffStateTitle')}
+                                </p>
+                                <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+                                    {t('member.dayOffStateHint')}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            {/* Presets — soft rounded chips, deliberately unlike
+                                the bordered block rows so the two don't blur. */}
+                            <div className="space-y-2">
+                                <div className="space-y-0.5">
+                                    <Label>{t('member.presets')}</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        {t('member.presetsHint')}
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap gap-2 rounded-lg bg-muted/50 p-3">
+                                    {SCHEDULE_PRESETS.map((preset) => {
+                                        const active =
+                                            blocks.length === 1 &&
+                                            blocks[0].start === preset.start &&
+                                            blocks[0].end === preset.end;
 
-                    <Separator />
+                                        return (
+                                            <button
+                                                key={`${preset.start}-${preset.end}`}
+                                                type="button"
+                                                aria-pressed={active}
+                                                onClick={() =>
+                                                    setBlocks([{ ...preset }])
+                                                }
+                                                className={cn(
+                                                    'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm tabular-nums transition-colors',
+                                                    active
+                                                        ? 'border-primary bg-primary text-primary-foreground'
+                                                        : 'border-transparent bg-background text-foreground shadow-xs hover:bg-accent',
+                                                )}
+                                            >
+                                                <Clock className="size-3.5" />
+                                                {preset.start}–{preset.end}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
 
-                    <div className="space-y-2">
-                        <Label>{t('member.timeBlocks')}</Label>
-                        <ScheduleSlotEditor
-                            slots={blocks}
-                            onAdd={() =>
-                                setBlocks((current) => [
-                                    ...current,
-                                    { start: '', end: '' },
-                                ])
-                            }
-                            onRemove={(index) =>
-                                setBlocks((current) =>
-                                    current.filter(
-                                        (_, slotIndex) => slotIndex !== index,
-                                    ),
-                                )
-                            }
-                            onUpdate={(index, field, value) =>
-                                setBlocks((current) =>
-                                    current.map((block, slotIndex) =>
-                                        slotIndex === index
-                                            ? { ...block, [field]: value }
-                                            : block,
-                                    ),
-                                )
-                            }
-                        />
-                    </div>
+                            <Separator />
+
+                            {/* Editable blocks — each a numbered card with its own
+                                running duration, so the split-shift model is
+                                legible at a glance. */}
+                            <div className="space-y-3">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="space-y-0.5">
+                                        <Label>{t('member.timeBlocks')}</Label>
+                                        <p className="text-xs text-muted-foreground">
+                                            {t('member.timeBlocksHint')}
+                                        </p>
+                                    </div>
+                                    {totalMinutes > 0 && (
+                                        <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary tabular-nums">
+                                            {t('member.hoursTotal', {
+                                                hours: formatHours(totalMinutes),
+                                            })}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    {blocks.map((block, index) => (
+                                        <DayBlockRow
+                                            key={index}
+                                            index={index}
+                                            block={block}
+                                            onUpdate={updateBlock}
+                                            onRemove={removeBlock}
+                                        />
+                                    ))}
+
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full border-dashed"
+                                        onClick={addBlock}
+                                    >
+                                        <Plus className="size-4" />
+                                        {t('slotEditor.addTimeBlock')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
+                    )}
 
                     {otherDays.length > 0 && (
                         <>
@@ -192,51 +334,31 @@ export default function DayEditorSheet({
 
                             <div className="space-y-2">
                                 <Label>{t('member.alsoApplyTo')}</Label>
-                                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                                <div className="flex flex-wrap gap-2">
                                     {otherDays.map((day) => {
                                         const key = dateKey(day);
+                                        const selected = alsoApplyTo.has(key);
 
                                         return (
-                                            <label
+                                            <button
                                                 key={key}
-                                                className="flex items-center gap-2 text-sm"
+                                                type="button"
+                                                aria-pressed={selected}
+                                                onClick={() =>
+                                                    toggleApplyDay(key)
+                                                }
+                                                className={cn(
+                                                    'rounded-full border px-3 py-1.5 text-sm tabular-nums transition-colors',
+                                                    selected
+                                                        ? 'border-primary bg-primary text-primary-foreground'
+                                                        : 'border-input bg-background hover:bg-accent',
+                                                )}
                                             >
-                                                <Checkbox
-                                                    checked={alsoApplyTo.has(
-                                                        key,
-                                                    )}
-                                                    onCheckedChange={() =>
-                                                        setAlsoApplyTo(
-                                                            (current) => {
-                                                                const next =
-                                                                    new Set(
-                                                                        current,
-                                                                    );
-
-                                                                if (
-                                                                    next.has(
-                                                                        key,
-                                                                    )
-                                                                ) {
-                                                                    next.delete(
-                                                                        key,
-                                                                    );
-                                                                } else {
-                                                                    next.add(
-                                                                        key,
-                                                                    );
-                                                                }
-
-                                                                return next;
-                                                            },
-                                                        )
-                                                    }
-                                                />
                                                 {shortWeekdayFormatter.format(
                                                     day,
                                                 )}{' '}
                                                 {day.getDate()}
-                                            </label>
+                                            </button>
                                         );
                                     })}
                                 </div>
@@ -245,34 +367,22 @@ export default function DayEditorSheet({
                     )}
                 </div>
 
-                <SheetFooter className="shrink-0 flex-row items-center justify-between gap-2 border-t">
+                <SheetFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t">
                     <Button
                         type="button"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
+                        variant="secondary"
+                        onClick={onClose}
                         disabled={isSaving}
-                        onClick={() => submit([])}
                     >
-                        {t('member.markDayOff')}
+                        {t('drawer.cancel')}
                     </Button>
-
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={onClose}
-                            disabled={isSaving}
-                        >
-                            {t('drawer.cancel')}
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={() => submit(blocks)}
-                            disabled={isSaving || blocks.length === 0}
-                        >
-                            {isSaving ? t('drawer.saving') : t('drawer.save')}
-                        </Button>
-                    </div>
+                    <Button
+                        type="button"
+                        onClick={submit}
+                        disabled={isSaving || !canSave}
+                    >
+                        {isSaving ? t('drawer.saving') : t('drawer.save')}
+                    </Button>
                 </SheetFooter>
             </SheetContent>
         </Sheet>

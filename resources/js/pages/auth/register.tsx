@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { ChevronLeft, Mail } from 'lucide-react';
 import { useState } from 'react';
 import GoogleLoginButton from '@/components/google-login-button';
 import InputError from '@/components/input-error';
@@ -44,6 +45,10 @@ export default function Register({
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [termsError, setTermsError] = useState<string | null>(null);
 
+    // Providers first; email sign-up is a second screen. Invited users land on
+    // a locked email, so open the form straight away for them.
+    const [showEmailForm, setShowEmailForm] = useState(Boolean(invitationEmail));
+
     // Mirrors CreateNewUser's rules so a submission already known to fail never
     // leaves the browser. Terms is checked alongside these below rather than
     // here: an unticked box is absent from FormData, so its state is the truth.
@@ -88,41 +93,65 @@ export default function Register({
         <>
             <Head title={t('register.headTitle')} />
 
-            <div className="mb-6 flex flex-col gap-6">
-                <GoogleLoginButton />
+            {!showEmailForm ? (
+                <div className="flex flex-col gap-4">
+                    <GoogleLoginButton />
 
-                <div className="relative text-center text-sm">
-                    <span className="absolute inset-x-0 top-1/2 border-t" />
-                    <span className="relative bg-background px-2 text-muted-foreground">
-                        {t('register.orContinueWith')}
-                    </span>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setShowEmailForm(true)}
+                        data-test="email-register-option"
+                    >
+                        <Mail className="h-4 w-4" />
+                        {t('register.signUpWithEmail')}
+                    </Button>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                        {t('register.haveAccount')}{' '}
+                        <TextLink href={login()}>{t('register.logIn')}</TextLink>
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <Form
+                    {...store.form()}
+                    id="register-form"
+                    resetOnSuccess={['password', 'password_confirmation']}
+                    disableWhileProcessing
+                    onChange={validation.onChange}
+                    onBefore={() => {
+                        // Evaluate both so every problem is reported at once, rather
+                        // than making the user fix the fields and the box in turn.
+                        const fieldsValid = validation.onBefore();
 
-            <Form
-                {...store.form()}
-                id="register-form"
-                resetOnSuccess={['password', 'password_confirmation']}
-                disableWhileProcessing
-                onChange={validation.onChange}
-                onBefore={() => {
-                    // Evaluate both so every problem is reported at once, rather
-                    // than making the user fix the fields and the box in turn.
-                    const fieldsValid = validation.onBefore();
+                        const termsValid = termsAccepted;
 
-                    const termsValid = termsAccepted;
+                        if (!termsValid) {
+                            setTermsError(t('register.termsError'));
+                        }
 
-                    if (!termsValid) {
-                        setTermsError(t('register.termsError'));
-                    }
+                        return fieldsValid && termsValid;
+                    }}
+                    className="flex flex-col gap-6"
+                >
+                    {({ processing, errors }) => (
+                        <>
+                            {!invitationEmail && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="-ml-2 self-start text-muted-foreground"
+                                    onClick={() => setShowEmailForm(false)}
+                                    data-test="email-register-back"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    {t('register.back')}
+                                </Button>
+                            )}
 
-                    return fieldsValid && termsValid;
-                }}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
+                            <div className="grid gap-6">
                             {invitationTeam && (
                                 <p className="text-sm text-muted-foreground">
                                     {t('register.invited', {
@@ -298,8 +327,9 @@ export default function Register({
                             </TextLink>
                         </div>
                     </>
-                )}
-            </Form>
+                    )}
+                </Form>
+            )}
         </>
     );
 }

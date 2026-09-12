@@ -149,6 +149,8 @@
     "schedule": {
         "title": "Nə vaxt işləyirsiniz?",
         "description": "Müştərilər yalnız bu saatlar daxilində rezervasiya edə bilər.",
+        "infoTitle": "Saatları gün-gün təyin edin",
+        "infoDescription": "İşlədiyiniz vaxtları əlavə etmək üçün hər günə toxunun — saatlar avtomatik doldurulmur. Hər həftə eyni saatları istəyirsiniz? Onları qarşıdakı həftələrə köçürmək üçün “Bu həftəni təkrarla” düyməsindən istifadə edin.",
         "complete": "Qurulmanı tamamla"
     },
     "done": {

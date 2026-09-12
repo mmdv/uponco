@@ -7,6 +7,8 @@
     "dayView": {
         "loading": "Loading the day's schedule…",
         "empty": "No one is scheduled to work on this day.",
+        "emptyDescription": "Set working hours for your team to start booking appointments on this day.",
+        "emptyAction": "Edit schedule",
         "unavailable": "unavailable"
     },
     "dayForm": {

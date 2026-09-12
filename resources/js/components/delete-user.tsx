@@ -1,10 +1,11 @@
 import { Form, Link, usePage } from '@inertiajs/react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import AccountController from '@/actions/App/Http/Controllers/Settings/AccountController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogClose,
@@ -31,6 +32,9 @@ export default function DeleteUser({ ownedTeams }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const hasPassword = auth.hasPassword;
     const passwordInput = useRef<HTMLInputElement>(null);
+    // Explicit acknowledgement that deletion is permanent — the destructive
+    // action stays disabled until it is ticked.
+    const [confirmedDataDeletion, setConfirmedDataDeletion] = useState(false);
 
     const hasBlockingTeams = ownedTeams.shared.length > 0;
 
@@ -71,6 +75,7 @@ export default function DeleteUser({ ownedTeams }: Props) {
                     onOpenChange={(nextOpen) => {
                         if (!nextOpen) {
                             validation.reset();
+                            setConfirmedDataDeletion(false);
                         }
                     }}
                 >
@@ -180,6 +185,22 @@ export default function DeleteUser({ ownedTeams }: Props) {
                                         <InputError message={errors.teams} />
                                     </div>
 
+                                    <label className="flex items-start gap-3 text-sm text-foreground">
+                                        <Checkbox
+                                            checked={confirmedDataDeletion}
+                                            onCheckedChange={(checked) =>
+                                                setConfirmedDataDeletion(
+                                                    checked === true,
+                                                )
+                                            }
+                                            data-test="confirm-data-deletion-checkbox"
+                                            className="mt-0.5"
+                                        />
+                                        <span>
+                                            {t('deleteAccount.confirmDataDeletion')}
+                                        </span>
+                                    </label>
+
                                     <DialogFooter className="gap-2">
                                         <DialogClose asChild>
                                             <Button
@@ -195,7 +216,9 @@ export default function DeleteUser({ ownedTeams }: Props) {
                                         <Button
                                             variant="destructive"
                                             disabled={
-                                                processing || hasBlockingTeams
+                                                processing ||
+                                                hasBlockingTeams ||
+                                                !confirmedDataDeletion
                                             }
                                             asChild
                                         >
@@ -204,7 +227,8 @@ export default function DeleteUser({ ownedTeams }: Props) {
                                                 data-test="confirm-delete-user-button"
                                                 disabled={
                                                     processing ||
-                                                    hasBlockingTeams
+                                                    hasBlockingTeams ||
+                                                    !confirmedDataDeletion
                                                 }
                                             >
                                                 {t('deleteAccount.confirm')}

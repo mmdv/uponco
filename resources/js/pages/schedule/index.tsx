@@ -49,12 +49,22 @@ export default function SchedulePage({
     const { currentTeam } = usePage().props;
     const isAdmin = isTeamManager(currentTeam?.role);
 
-    const [view, setView] = useState<PageView>(viewFromUrl);
+    // The team grid stamps hours across several colleagues at once — only worth
+    // offering to a manager who actually has other members to edit. Members and
+    // solo owners never see it (and can't land on it via a stale ?view=team).
+    const showTeamOption = isAdmin && members.length > 1;
+
+    const [view, setView] = useState<PageView>(() => {
+        const requested = viewFromUrl();
+
+        return requested === 'team' && !showTeamOption ? 'week' : requested;
+    });
 
     const monthTabs = useMemo(() => buildMonthTabs(), []);
     const currentMonth = monthTabs.find((tab) => tab.isCurrent) ?? monthTabs[0];
 
     const teamOption = { value: 'team', label: t('member.team') };
+    const extraViews = showTeamOption ? [teamOption] : [];
 
     return (
         <>
@@ -62,7 +72,7 @@ export default function SchedulePage({
 
             <h1 className="sr-only">{t('title')}</h1>
 
-            {view === 'team' ? (
+            {view === 'team' && showTeamOption ? (
                 <ScheduleProvider
                     members={members}
                     showMemberColumn={isAdmin}
@@ -86,7 +96,7 @@ export default function SchedulePage({
                                         value: 'month',
                                         label: t('member.month'),
                                     },
-                                    teamOption,
+                                    ...extraViews,
                                 ]}
                                 onChange={(next) => setView(next as PageView)}
                             />
@@ -123,8 +133,8 @@ export default function SchedulePage({
                         reloadProps={['memberSchedule']}
                         title={t('title')}
                         description={t('description')}
-                        initialView={view}
-                        extraViews={[teamOption]}
+                        initialView={view === 'team' ? 'week' : view}
+                        extraViews={extraViews}
                         onSelectView={(next) => setView(next as PageView)}
                         members={isAdmin ? members : undefined}
                         onSelectMember={(memberId) =>

@@ -7,6 +7,8 @@
     "dayView": {
         "loading": "Günün cədvəli yüklənir…",
         "empty": "Bu gün üçün işləyən mütəxəssis yoxdur.",
+        "emptyDescription": "Bu gün üçün görüş qəbul etməyə başlamaq üçün komandanızın iş saatlarını təyin edin.",
+        "emptyAction": "Cədvəli redaktə et",
         "unavailable": "əlçatan deyil"
     },
     "dayForm": {

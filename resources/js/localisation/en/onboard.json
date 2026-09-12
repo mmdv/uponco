@@ -149,6 +149,8 @@
     "schedule": {
         "title": "When do you work?",
         "description": "Customers can only book inside these hours.",
+        "infoTitle": "Set your hours day by day",
+        "infoDescription": "Tap each day to add the times you work — hours aren't filled in automatically. Want the same hours every week? Use \"Repeat this week\" to copy them to the weeks ahead.",
         "complete": "Complete onboarding"
     },
     "done": {

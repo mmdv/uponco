@@ -1,4 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
+import { ChevronLeft, Mail } from 'lucide-react';
+import { useState } from 'react';
 import GoogleLoginButton from '@/components/google-login-button';
 import InputError from '@/components/input-error';
 import PasskeyVerify from '@/components/passkey-verify';
@@ -24,6 +26,10 @@ type Props = {
 export default function Login({ status, canResetPassword }: Props) {
     const { t } = useTranslation('auth');
     const { t: tError } = useTranslation('errors');
+
+    // Providers first; the email form is a second screen reached by choice, so
+    // the passwordless options aren't buried under a form nobody has to use.
+    const [showEmailForm, setShowEmailForm] = useState(false);
 
     // Mirrors Fortify's login rules so an empty or malformed submission never
     // spends the route's throttle budget only to bounce back as a 422.
@@ -51,22 +57,57 @@ export default function Login({ status, canResetPassword }: Props) {
         <>
             <Head title={t('login.headTitle')} />
 
-            <div className="mb-6">
-                <GoogleLoginButton />
-            </div>
+            {!showEmailForm ? (
+                <div className="flex flex-col gap-4">
+                    <GoogleLoginButton />
 
-            <PasskeyVerify />
+                    <PasskeyVerify
+                        hideSeparator
+                        label={t('login.passkeyLabel')}
+                        loadingLabel={t('login.passkeyLoadingLabel')}
+                    />
 
-            <Form
-                {...store.form()}
-                id="login-form"
-                onBefore={validation.onBefore}
-                onChange={validation.onChange}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setShowEmailForm(true)}
+                        data-test="email-login-option"
+                    >
+                        <Mail className="h-4 w-4" />
+                        {t('login.signInWithEmail')}
+                    </Button>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                        {t('login.noAccount')}{' '}
+                        <TextLink href={register()}>
+                            {t('login.signUp')}
+                        </TextLink>
+                    </div>
+                </div>
+            ) : (
+                <Form
+                    {...store.form()}
+                    id="login-form"
+                    onBefore={validation.onBefore}
+                    onChange={validation.onChange}
+                    resetOnSuccess={['password']}
+                    className="flex flex-col gap-6"
+                >
+                    {({ processing, errors }) => (
+                        <>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="-ml-2 self-start text-muted-foreground"
+                                onClick={() => setShowEmailForm(false)}
+                                data-test="email-login-back"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                {t('login.back')}
+                            </Button>
+
                         <div className="grid gap-6">
                             <div className="grid gap-2">
                                 <Label htmlFor="email">
@@ -160,8 +201,9 @@ export default function Login({ status, canResetPassword }: Props) {
                             </TextLink>
                         </div>
                     </>
-                )}
-            </Form>
+                    )}
+                </Form>
+            )}
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
