@@ -375,7 +375,12 @@ export default function AppointmentDayFormFields({
                                         }
                                         aria-invalid={Boolean(errors.start_at)}
                                         data-test="day-appointment-start"
-                                        className="w-full sm:max-w-40"
+                                        // iOS Safari renders a native time control
+                                        // that ignores `width` and spills past the
+                                        // dialog, forcing a horizontal scroll.
+                                        // `appearance-none` lets the width apply and
+                                        // `max-w-full` caps it to the container.
+                                        className="w-full max-w-full appearance-none sm:max-w-40"
                                     />
                                     <InputError message={errors.start_at} />
                                 </div>
