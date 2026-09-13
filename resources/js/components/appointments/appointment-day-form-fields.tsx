@@ -1,4 +1,5 @@
 import { Form } from '@inertiajs/react';
+import { Trash2 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -36,6 +37,8 @@ type FieldsProps = {
     appointment: Appointment | null;
     onSuccess: () => void;
     onCancel: () => void;
+    /** Open the cancellation confirmation for the edited appointment. */
+    onCancelAppointment?: (appointment: Appointment) => void;
     onOptimisticAdd: (appointment: Appointment) => void;
     onOptimisticRemove: (tempId: number) => void;
 };
@@ -81,6 +84,7 @@ export default function AppointmentDayFormFields({
     appointment,
     onSuccess,
     onCancel,
+    onCancelAppointment,
     onOptimisticAdd,
     onOptimisticRemove,
 }: FieldsProps) {
@@ -400,6 +404,20 @@ export default function AppointmentDayFormFields({
                     </div>
 
                     <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 border-t px-4 py-4 sm:px-6">
+                        {isEditing && onCancelAppointment && (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="mr-auto"
+                                data-test="day-appointment-cancel-appointment-button"
+                                aria-label={t('form.cancelAppointment')}
+                                title={t('form.cancelAppointment')}
+                                onClick={() => onCancelAppointment(appointment)}
+                            >
+                                <Trash2 className="size-4" />
+                            </Button>
+                        )}
                         <Button
                             type="button"
                             variant="secondary"

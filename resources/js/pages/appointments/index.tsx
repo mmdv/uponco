@@ -241,6 +241,7 @@ export default function AppointmentsIndex({
             onSuccess: () => {
                 setCancelOpen(false);
                 setFormOpen(false);
+                setDayFormOpen(false);
             },
             onError: () => toast.error(t('toast.cancelError')),
         });
@@ -445,6 +446,7 @@ export default function AppointmentsIndex({
                 locations={locations}
                 appointment={dayEditing}
                 onSuccess={() => setDayFormOpen(false)}
+                onCancelAppointment={confirmCancel}
                 onOptimisticAdd={addOptimisticAppointment}
                 onOptimisticRemove={removeOptimisticAppointment}
             />

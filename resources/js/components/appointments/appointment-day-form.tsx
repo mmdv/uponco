@@ -26,6 +26,8 @@ type Props = {
     /** The appointment being edited, or null when quick-creating. */
     appointment: Appointment | null;
     onSuccess: () => void;
+    /** Open the cancellation confirmation for the edited appointment. */
+    onCancelAppointment?: (appointment: Appointment) => void;
     /** Add a placeholder appointment to the grid the moment the form submits. */
     onOptimisticAdd: (appointment: Appointment) => void;
     /** Roll the placeholder back out if the create fails. */
@@ -42,6 +44,7 @@ export default function AppointmentDayForm({
     locations,
     appointment,
     onSuccess,
+    onCancelAppointment,
     onOptimisticAdd,
     onOptimisticRemove,
 }: Props) {
@@ -80,6 +83,7 @@ export default function AppointmentDayForm({
                             appointment={appointment}
                             onSuccess={onSuccess}
                             onCancel={() => onOpenChange(false)}
+                            onCancelAppointment={onCancelAppointment}
                             onOptimisticAdd={onOptimisticAdd}
                             onOptimisticRemove={onOptimisticRemove}
                         />
