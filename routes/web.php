@@ -110,14 +110,16 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
         Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
         Route::patch('onboarding/steps/{step}', [OnboardingController::class, 'update'])->name('onboarding.steps.update');
 
-        Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
-        Route::post('appointments', [AppointmentController::class, 'store'])->name('appointments.store');
-        // Two-segment paths so they aren't captured by the public `appointments/{company}` route.
-        Route::post('appointments/day/store', [AppointmentController::class, 'dayStore'])->name('appointments.day-store');
-        Route::patch('appointments/day/{appointment}', [AppointmentController::class, 'dayUpdate'])->name('appointments.day-update');
-        Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
-        Route::patch('appointments/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
-        Route::patch('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+        // The authed appointments dashboard lives under `/calendar` so its URLs
+        // never overlap with the public booking routes at `appointments/{company}`.
+        // Route names stay `appointments.*`.
+        Route::get('calendar', [AppointmentController::class, 'index'])->name('appointments.index');
+        Route::post('calendar', [AppointmentController::class, 'store'])->name('appointments.store');
+        Route::post('calendar/day/store', [AppointmentController::class, 'dayStore'])->name('appointments.day-store');
+        Route::patch('calendar/day/{appointment}', [AppointmentController::class, 'dayUpdate'])->name('appointments.day-update');
+        Route::patch('calendar/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
+        Route::patch('calendar/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
+        Route::patch('calendar/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
         Route::get('schedule', [ScheduleController::class, 'index'])->name('schedule.index');
         Route::post('schedule', [ScheduleController::class, 'store'])->name('schedule.store');

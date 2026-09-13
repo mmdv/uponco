@@ -9,8 +9,8 @@ function request(path: string, headers: Record<string, string> = {}): Request {
 }
 
 describe('isCacheablePageRequest', () => {
-    it('caches a plain appointments page visit', () => {
-        const req = request('/appointments');
+    it('caches a plain calendar page visit', () => {
+        const req = request('/calendar');
 
         expect(
             isCacheablePageRequest(new URL(req.url), req, ORIGIN),
@@ -26,7 +26,7 @@ describe('isCacheablePageRequest', () => {
     });
 
     it('excludes Inertia partial reloads so they always hit the network', () => {
-        const req = request('/appointments?date=2026-09-21&days=7', {
+        const req = request('/calendar?date=2026-09-21&days=7', {
             'X-Inertia': 'true',
             'X-Inertia-Partial-Data': 'workingHoursWindow',
         });
@@ -36,16 +36,18 @@ describe('isCacheablePageRequest', () => {
         ).toBe(false);
     });
 
-    it('ignores pages outside the offline allow-list', () => {
-        const req = request('/customers');
+    it('ignores pages outside the offline allow-list, incl. public booking', () => {
+        for (const path of ['/customers', '/appointments/acme']) {
+            const req = request(path);
 
-        expect(
-            isCacheablePageRequest(new URL(req.url), req, ORIGIN),
-        ).toBe(false);
+            expect(
+                isCacheablePageRequest(new URL(req.url), req, ORIGIN),
+            ).toBe(false);
+        }
     });
 
     it('ignores cross-origin requests', () => {
-        const req = new Request('https://evil.example/appointments', {
+        const req = new Request('https://evil.example/calendar', {
             method: 'GET',
         });
 
@@ -55,7 +57,7 @@ describe('isCacheablePageRequest', () => {
     });
 
     it('ignores non-GET requests', () => {
-        const req = new Request(`${ORIGIN}/appointments`, { method: 'POST' });
+        const req = new Request(`${ORIGIN}/calendar`, { method: 'POST' });
 
         expect(
             isCacheablePageRequest(new URL(req.url), req, ORIGIN),

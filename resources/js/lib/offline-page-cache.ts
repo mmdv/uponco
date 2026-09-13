@@ -3,8 +3,12 @@
  * be unit tested without triggering Workbox's registration side effects.
  */
 
-/** The routes whose data must survive offline, matched at the site root. */
-export const OFFLINE_PAGES = /^\/(dashboard|appointments)\/?$/;
+/**
+ * The routes whose data must survive offline, matched at the site root.
+ * `/calendar` is the authed appointments dashboard; the public booking pages at
+ * `/appointments/{company}` are deliberately not cached into the logged-in shell.
+ */
+export const OFFLINE_PAGES = /^\/(dashboard|calendar)\/?$/;
 
 /**
  * Inertia partial reloads (e.g. the day view's working hours or slot lookups)
