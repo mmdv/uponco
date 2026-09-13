@@ -22,6 +22,8 @@ import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { NetworkFirst } from 'workbox-strategies';
 
+import { isCacheablePageRequest } from './lib/offline-page-cache';
+
 declare const self: ServiceWorkerGlobalScope & {
     __WB_MANIFEST: Array<PrecacheEntry | string>;
 };
@@ -33,9 +35,6 @@ precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
 const PAGES_CACHE = 'uponco-pages';
-
-/** The routes whose data must survive offline, matched at the site root. */
-const OFFLINE_PAGES = /^\/(dashboard|appointments)\/?$/;
 
 /**
  * A visit to `/dashboard` arrives twice: once as a full-document navigation
@@ -63,17 +62,20 @@ const pageStrategy = new NetworkFirst({
     cacheName: PAGES_CACHE,
     plugins: [
         inertiaVariantPlugin,
-        new CacheableResponsePlugin({ statuses: [0, 200] }),
+        // Only genuine 200s. Opaque (status 0) responses have an unreadable,
+        // empty body; replaying one into Inertia's setPage yields a page with
+        // no `url`, crashing on `hrefToUrl(undefined)`.
+        new CacheableResponsePlugin({ statuses: [200] }),
     ],
 });
 
 // Dashboard and Appointments: serve fresh when online, fall back to the last
-// cached copy (document or Inertia JSON) when offline.
+// cached copy (document or full Inertia page) when offline. Inertia partial
+// reloads are excluded (see isCacheablePageRequest) — they return incomplete
+// pages and must always reach the network.
 registerRoute(
     ({ url, request }) =>
-        request.method === 'GET' &&
-        url.origin === self.location.origin &&
-        OFFLINE_PAGES.test(url.pathname),
+        isCacheablePageRequest(url, request, self.location.origin),
     pageStrategy,
 );
 
