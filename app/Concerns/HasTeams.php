@@ -115,14 +115,21 @@ trait HasTeams
     }
 
     /**
+     * Get the user's membership of the given team.
+     */
+    public function teamMembership(Team $team): ?Membership
+    {
+        return $this->teamMemberships()
+            ->where('team_id', $team->id)
+            ->first();
+    }
+
+    /**
      * Get the user's role on the given team.
      */
     public function teamRole(Team $team): ?TeamRole
     {
-        return $this->teamMemberships()
-            ->where('team_id', $team->id)
-            ->first()
-            ?->role;
+        return $this->teamMembership($team)?->role;
     }
 
     /**
@@ -189,6 +196,6 @@ trait HasTeams
      */
     public function hasTeamPermission(Team $team, TeamPermission $permission): bool
     {
-        return $this->teamRole($team)?->hasPermission($permission) ?? false;
+        return $this->teamMembership($team)?->hasPermission($permission) ?? false;
     }
 }

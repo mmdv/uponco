@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Models\Location;
 use App\Models\OnboardingProgress;
@@ -223,6 +224,94 @@ test('admins cannot change the team owner role', function () {
         ->assertForbidden();
 
     expect($team->members()->where('user_id', $owner->id)->first()->pivot->role->value)->toEqual(TeamRole::Owner->value);
+});
+
+test('admins can grant and revoke member permissions', function () {
+    $admin = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($admin, ['role' => TeamRole::Owner->value]);
+    $admin->switchTeam($team);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    // Grant.
+    $this
+        ->actingAs($admin)
+        ->put(route('company.business.members.permissions.update', ['user' => $member]), [
+            'permissions' => [TeamPermission::ViewAllAppointments->value],
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    expect($member->fresh()->teamMembership($team)->permissions)
+        ->toEqual([TeamPermission::ViewAllAppointments->value]);
+    expect($member->fresh()->hasTeamPermission($team, TeamPermission::ViewAllAppointments))->toBeTrue();
+
+    // Revoke (empty submission clears the overrides).
+    $this
+        ->actingAs($admin)
+        ->put(route('company.business.members.permissions.update', ['user' => $member]))
+        ->assertRedirect();
+
+    expect($member->fresh()->hasTeamPermission($team, TeamPermission::ViewAllAppointments))->toBeFalse();
+});
+
+test('member permissions reject values outside the grantable set', function () {
+    $admin = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($admin, ['role' => TeamRole::Owner->value]);
+    $admin->switchTeam($team);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    $this
+        ->actingAs($admin)
+        ->put(route('company.business.members.permissions.update', ['user' => $member]), [
+            'permissions' => [TeamPermission::DeleteTeam->value],
+        ])
+        ->assertSessionHasErrors('permissions.0');
+
+    expect($member->fresh()->teamMembership($team)->permissions)->toBeNull();
+});
+
+test('plain members cannot update member permissions', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    $this
+        ->actingAs($member)
+        ->put(route('company.business.members.permissions.update', ['user' => $member]), [
+            'permissions' => [TeamPermission::ViewAllAppointments->value],
+        ])
+        ->assertForbidden();
+});
+
+test('admins cannot edit the team owner permissions', function () {
+    $owner = User::factory()->create();
+    $admin = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
+    $team->members()->attach($admin, ['role' => TeamRole::Admin->value]);
+    $admin->switchTeam($team);
+
+    $this
+        ->actingAs($admin)
+        ->put(route('company.business.members.permissions.update', ['user' => $owner]), [
+            'permissions' => [TeamPermission::ViewAllAppointments->value],
+        ])
+        ->assertForbidden();
 });
 
 test('team members can be removed by owners', function () {

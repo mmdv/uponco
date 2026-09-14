@@ -2,6 +2,7 @@
 
 use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentChange;
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Appointment;
@@ -174,6 +175,53 @@ test('members only see appointments assigned to them', function () {
             ->has('appointments', 1)
             ->where('appointments.0.id', $mine->id)
         );
+});
+
+test('a member granted the view-all-appointments permission sees the whole team schedule', function () {
+    $setup = bookableSetup();
+    $member = User::factory()->create();
+    $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($setup['team']);
+    $member->teamMembership($setup['team'])
+        ->update(['permissions' => [TeamPermission::ViewAllAppointments->value]]);
+
+    foreach ([$member->id, $setup['user']->id] as $specialistId) {
+        Appointment::factory()->create([
+            'team_id' => $setup['team']->id,
+            'service_id' => $setup['service']->id,
+            'location_id' => $setup['location']->id,
+            'specialist_id' => $specialistId,
+        ]);
+    }
+
+    $this
+        ->actingAs($member)
+        ->get(route('appointments.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('appointments', 2));
+});
+
+test('a member granted the view-all-appointments permission can cancel another specialist appointment', function () {
+    $setup = bookableSetup();
+    $member = User::factory()->create();
+    $setup['team']->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($setup['team']);
+    $member->teamMembership($setup['team'])
+        ->update(['permissions' => [TeamPermission::ViewAllAppointments->value]]);
+
+    $appointment = Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+    ]);
+
+    $this
+        ->actingAs($member)
+        ->patch(route('appointments.cancel', ['appointment' => $appointment->id]))
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('appointments', ['id' => $appointment->id, 'status' => 'cancelled']);
 });
 
 test('a member cannot cancel an appointment that is not theirs', function () {

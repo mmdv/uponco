@@ -160,6 +160,7 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
             Route::patch('company/business/members/{user}/profile', [BusinessMemberController::class, 'updateProfile'])->name('company.business.members.profile.update');
             Route::put('company/business/members/{user}/locations', [BusinessMemberController::class, 'updateLocations'])->name('company.business.members.locations.update');
             Route::put('company/business/members/{user}/services', [BusinessMemberController::class, 'updateServices'])->name('company.business.members.services.update');
+            Route::put('company/business/members/{user}/permissions', [BusinessMemberController::class, 'updatePermissions'])->name('company.business.members.permissions.update');
             Route::post('company/business/members/{user}/avatar', [BusinessMemberController::class, 'updateAvatar'])->name('company.business.members.avatar.update');
             Route::delete('company/business/members/{user}/avatar', [BusinessMemberController::class, 'destroyAvatar'])->name('company.business.members.avatar.destroy');
             Route::patch('company/business/members/{user}', [BusinessMemberController::class, 'update'])->name('company.business.members.update');

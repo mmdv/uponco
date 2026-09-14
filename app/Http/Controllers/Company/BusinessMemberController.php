@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Enums\OnboardingStep;
 use App\Enums\OnboardingStepStatus;
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MemberScheduleController;
@@ -12,6 +13,7 @@ use App\Http\Requests\Company\SyncMemberLocationsRequest;
 use App\Http\Requests\Company\SyncMemberServicesRequest;
 use App\Http\Requests\Company\UpdateBusinessMemberAccountRequest;
 use App\Http\Requests\Company\UpdateBusinessMemberProfileRequest;
+use App\Http\Requests\Company\UpdateMemberPermissionsRequest;
 use App\Http\Requests\Settings\AvatarUpdateRequest;
 use App\Http\Requests\Teams\TransferTeamOwnershipRequest;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
@@ -108,6 +110,23 @@ class BusinessMemberController extends Controller
     }
 
     /**
+     * Update the per-member permission overrides for a team member.
+     */
+    public function updatePermissions(UpdateMemberPermissionsRequest $request, User $user): RedirectResponse
+    {
+        $team = $this->authorizeMember($request, $user);
+
+        $team->memberships()
+            ->where('user_id', $user->id)
+            ->firstOrFail()
+            ->update(['permissions' => $request->permissions()]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Permissions updated.')]);
+
+        return back();
+    }
+
+    /**
      * Hand ownership of the current team to another member.
      *
      * The acting owner is demoted to Admin so the team always has exactly one
@@ -156,6 +175,9 @@ class BusinessMemberController extends Controller
                 'description' => $profile?->description,
             ],
             'availableRoles' => TeamRole::assignable(),
+            'grantablePermissions' => collect(TeamPermission::grantable())
+                ->map(fn (TeamPermission $permission): array => ['value' => $permission->value])
+                ->values(),
             'locations' => $team->locations()
                 ->orderBy('name')
                 ->get()
@@ -365,11 +387,12 @@ class BusinessMemberController extends Controller
     /**
      * Transform a team member into its array representation for the frontend.
      *
-     * @return array{id: int, name: string, email: string, avatar: ?string, role: ?string, role_label: ?string}
+     * @return array{id: int, name: string, email: string, avatar: ?string, role: ?string, role_label: ?string, permissions: array<int, string>}
      */
     protected function toMemberArray(Team $team, User $user): array
     {
-        $role = $user->teamRole($team);
+        $membership = $user->teamMembership($team);
+        $role = $membership?->role;
 
         return [
             'id' => $user->id,
@@ -378,6 +401,7 @@ class BusinessMemberController extends Controller
             'avatar' => $user->avatar,
             'role' => $role?->value,
             'role_label' => $role?->label(),
+            'permissions' => array_values($membership?->permissions ?? []),
         ];
     }
 }

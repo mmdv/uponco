@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import {
     CalendarDays,
+    KeyRound,
     MapPin,
     ShieldCheck,
     Sparkles,
@@ -19,12 +20,14 @@ import {
     ProfileSection,
 } from '@/components/company/members/member-edit-sections';
 import type {
+    GrantablePermission,
     MemberAccount,
     MemberLocation,
     MemberProfile,
     MemberService,
     SectionArg,
 } from '@/components/company/members/member-edit-types';
+import { PermissionsSection } from '@/components/company/members/member-permissions-section';
 import { SectionNavLayout } from '@/components/section-nav';
 import type { SectionNavItem } from '@/components/section-nav';
 import { useTranslation } from '@/hooks/use-translation';
@@ -38,6 +41,7 @@ type Props = {
     member: MemberAccount;
     profile: MemberProfile;
     availableRoles: RoleOption[];
+    grantablePermissions: GrantablePermission[];
     locations: MemberLocation[];
     assignedLocationIds: number[];
     services: MemberService[];
@@ -46,7 +50,13 @@ type Props = {
     scheduleMembers?: MemberScheduleMember[];
 };
 
-type SectionKey = 'profile' | 'access' | 'locations' | 'services' | 'schedule';
+type SectionKey =
+    | 'profile'
+    | 'access'
+    | 'permissions'
+    | 'locations'
+    | 'services'
+    | 'schedule';
 
 /**
  * The section named in the URL, so links into a particular tab — such as the
@@ -59,6 +69,7 @@ function sectionFromUrl(): SectionKey {
 
     return requested === 'profile' ||
         requested === 'access' ||
+        requested === 'permissions' ||
         requested === 'locations' ||
         requested === 'services' ||
         requested === 'schedule'
@@ -70,6 +81,7 @@ export default function EditMember({
     member,
     profile,
     availableRoles,
+    grantablePermissions,
     locations,
     assignedLocationIds,
     services,
@@ -95,6 +107,11 @@ export default function EditMember({
             key: 'access',
             title: t('business.memberEdit.sections.access'),
             icon: ShieldCheck,
+        },
+        {
+            key: 'permissions',
+            title: t('business.memberEdit.sections.permissions'),
+            icon: KeyRound,
         },
         {
             key: 'locations',
@@ -153,6 +170,13 @@ export default function EditMember({
                         <AccessSection
                             member={member}
                             availableRoles={availableRoles}
+                            arg={memberArg}
+                        />
+                    ) : null}
+                    {section === 'permissions' ? (
+                        <PermissionsSection
+                            member={member}
+                            grantablePermissions={grantablePermissions}
                             arg={memberArg}
                         />
                     ) : null}

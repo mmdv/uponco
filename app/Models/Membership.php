@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['team_id', 'user_id', 'role'])]
+#[Fillable(['team_id', 'user_id', 'role', 'permissions'])]
 class Membership extends Pivot
 {
     /**
@@ -54,6 +55,17 @@ class Membership extends Pivot
     {
         return [
             'role' => TeamRole::class,
+            'permissions' => 'array',
         ];
+    }
+
+    /**
+     * Determine if this membership grants the given permission, whether it
+     * comes from the role or from a per-member override.
+     */
+    public function hasPermission(TeamPermission $permission): bool
+    {
+        return $this->role->hasPermission($permission)
+            || in_array($permission->value, $this->permissions ?? [], true);
     }
 }

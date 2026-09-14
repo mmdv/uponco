@@ -13,4 +13,20 @@ enum TeamPermission: string
 
     case CreateInvitation = 'invitation:create';
     case CancelInvitation = 'invitation:cancel';
+
+    case ViewAllAppointments = 'appointment:view-all';
+
+    /**
+     * Get the permissions that can be granted to an individual member,
+     * overriding what their role alone provides. These surface as the
+     * per-member checkboxes on the member edit page.
+     *
+     * @return array<TeamPermission>
+     */
+    public static function grantable(): array
+    {
+        return [
+            self::ViewAllAppointments,
+        ];
+    }
 }

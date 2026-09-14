@@ -5,7 +5,11 @@ export type MemberAccount = {
     avatar: string | null;
     role: string | null;
     role_label: string | null;
+    permissions: string[];
 };
+
+/** A permission that can be granted to an individual member via a checkbox. */
+export type GrantablePermission = { value: string };
 
 export type MemberProfile = {
     email: string | null;

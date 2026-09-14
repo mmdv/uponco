@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
+use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Models\Appointment;
 use App\Models\ServiceCategory;
@@ -42,8 +43,9 @@ class DashboardController extends Controller
 
         $timezone = $team->timezone ?: config('app.timezone');
 
-        // Admins and owners see the whole team's bookings; members only see their own.
-        $specialistId = $isTeamAdmin ? null : $user->id;
+        // Members with the view-all-appointments permission (admins and owners have it
+        // by role) see the whole team's bookings; others only see their own.
+        $specialistId = $user->hasTeamPermission($team, TeamPermission::ViewAllAppointments) ? null : $user->id;
 
         return Inertia::render('dashboard', [
             'timezone' => $timezone,

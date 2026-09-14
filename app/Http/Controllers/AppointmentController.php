@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentAlert;
-use App\Enums\TeamRole;
+use App\Enums\TeamPermission;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Http\Requests\Appointments\StoreDayAppointmentRequest;
 use App\Http\Requests\Appointments\UpdateDayAppointmentRequest;
@@ -37,8 +37,9 @@ class AppointmentController extends Controller
             'appointments' => $team->appointments()
                 ->booked()
                 ->with(['service:id,title', 'location:id,name', 'specialist:id,name', 'customer:id,name,email,phone'])
-                // Admins and owners see the whole team's schedule; members only see their own.
-                ->unless($user->teamRole($team)?->isAtLeast(TeamRole::Admin), fn ($query) => $query->where('specialist_id', $user->id))
+                // Members with the view-all-appointments permission (admins and owners
+                // have it by role) see the whole team's schedule; others only see their own.
+                ->unless($user->hasTeamPermission($team, TeamPermission::ViewAllAppointments), fn ($query) => $query->where('specialist_id', $user->id))
                 ->orderBy('start_at')
                 ->get()
                 ->map(fn (Appointment $appointment): array => $this->toAppointmentArray($appointment, $timezone)),
@@ -74,7 +75,7 @@ class AppointmentController extends Controller
         $end = $start->addDays(($data['days'] ?? 7) - 1);
 
         $user = $request->user();
-        $onlyUserId = $user->teamRole($team)?->isAtLeast(TeamRole::Admin) ? null : $user->id;
+        $onlyUserId = $user->hasTeamPermission($team, TeamPermission::ViewAllAppointments) ? null : $user->id;
 
         return ScheduleSlotMap::forTeamBetween($team, $start->format('Y-m-d'), $end->format('Y-m-d'), $onlyUserId);
     }
@@ -230,7 +231,7 @@ class AppointmentController extends Controller
         abort_unless($appointment->team_id === $team->id, 403);
 
         abort_unless(
-            $user->teamRole($team)?->isAtLeast(TeamRole::Admin) || $appointment->specialist_id === $user->id,
+            $user->hasTeamPermission($team, TeamPermission::ViewAllAppointments) || $appointment->specialist_id === $user->id,
             403,
         );
 

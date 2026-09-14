@@ -123,6 +123,7 @@
                 "account": "Account",
                 "profile": "Profile",
                 "access": "Access Control",
+                "permissions": "Permissions",
                 "locations": "Locations",
                 "services": "Services",
                 "schedule": "Schedule"
@@ -159,6 +160,19 @@
                 "ownerCannotChange": "The owner's role cannot be changed here.",
                 "role": "Role",
                 "save": "Save"
+            },
+            "permissions": {
+                "title": "Permissions",
+                "description": "Grant this member extra access beyond their role.",
+                "roleGrantedNotice": "These permissions are already included with the role",
+                "empty": "No permissions available.",
+                "save": "Save",
+                "items": {
+                    "appointments": {
+                        "label": "Appointments",
+                        "description": "See and manage the whole team's appointments."
+                    }
+                }
             },
             "locations": {
                 "title": "Locations",

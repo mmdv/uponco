@@ -123,6 +123,7 @@
                 "account": "Hesab",
                 "profile": "Profil",
                 "access": "Giriş nəzarəti",
+                "permissions": "İcazələr",
                 "locations": "Filiallar",
                 "services": "Xidmətlər",
                 "schedule": "Cədvəl"
@@ -159,6 +160,19 @@
                 "ownerCannotChange": "Sahibin rolu burada dəyişdirilə bilməz.",
                 "role": "Rol",
                 "save": "Yadda saxla"
+            },
+            "permissions": {
+                "title": "İcazələr",
+                "description": "Bu üzvə rolundan əlavə giriş imkanı verin.",
+                "roleGrantedNotice": "Bu icazələr artıq rola daxildir",
+                "empty": "Mövcud icazə yoxdur.",
+                "save": "Yadda saxla",
+                "items": {
+                    "appointments": {
+                        "label": "Görüşlər",
+                        "description": "Bütün komandanın görüşlərini görün və idarə edin."
+                    }
+                }
             },
             "locations": {
                 "title": "Filiallar",
