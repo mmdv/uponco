@@ -183,22 +183,24 @@ test('onboarding requires a name, type, category and timezone', function () {
         ->assertSessionHasErrors(['name', 'type', 'business_category', 'timezone']);
 });
 
-test('onboarding rejects a company name that is already taken', function () {
-    Team::factory()->create(['name' => 'Taken Name']);
+test('onboarding accepts a duplicate company name and gives it a unique slug', function () {
+    Team::factory()->create(['name' => 'Taken Name', 'slug' => 'taken-name']);
     [$user, $team] = incompleteTeamOwner();
 
     $this
         ->actingAs($user)
-        ->from(route('onboard.show'))
         ->patch(route('onboard.update'), [
             'name' => 'Taken Name',
             'type' => TeamType::Organisation->value,
             'business_category' => BusinessCategory::Hairdresser->value,
             'timezone' => 'America/New_York',
         ])
-        ->assertSessionHasErrors('name');
+        ->assertRedirect(route('dashboard'));
 
-    expect($team->fresh()->name)->toBeNull();
+    $team->refresh();
+
+    expect($team->name)->toBe('Taken Name');
+    expect($team->slug)->toBe('taken-name-1');
 });
 
 test('members without update permission cannot complete onboarding', function () {

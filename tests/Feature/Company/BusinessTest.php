@@ -66,6 +66,127 @@ test('the team name can be updated by owners', function () {
     ]);
 });
 
+test('the slug can be updated separately by owners', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['name' => 'Original Name', 'slug' => 'original-name']);
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    $this
+        ->actingAs($user)
+        ->patch(businessRoute('company.business.update'), [
+            'name' => 'Original Name',
+            'slug' => 'my-custom-slug',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('teams', [
+        'id' => $team->id,
+        'slug' => 'my-custom-slug',
+    ]);
+});
+
+test('updating the name leaves a custom slug untouched', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['name' => 'Original Name', 'slug' => 'original-name']);
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    $this
+        ->actingAs($user)
+        ->patch(businessRoute('company.business.update'), [
+            'name' => 'A Brand New Name',
+            'slug' => 'original-name',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('teams', [
+        'id' => $team->id,
+        'name' => 'A Brand New Name',
+        'slug' => 'original-name',
+    ]);
+});
+
+test('a slug already used by another team is rejected', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['slug' => 'mine']);
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    Team::factory()->create(['slug' => 'theirs']);
+
+    $this
+        ->actingAs($user)
+        ->patch(businessRoute('company.business.update'), [
+            'name' => $team->name,
+            'slug' => 'theirs',
+        ])
+        ->assertSessionHasErrors('slug');
+});
+
+test('a reserved slug is rejected', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    foreach (['uponco', 'settings'] as $reserved) {
+        $this
+            ->actingAs($user)
+            ->patch(businessRoute('company.business.update'), [
+                'name' => $team->name,
+                'slug' => $reserved,
+            ])
+            ->assertSessionHasErrors('slug');
+    }
+});
+
+test('the slug is normalised before validation and saving', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    $this
+        ->actingAs($user)
+        ->patch(businessRoute('company.business.update'), [
+            'name' => $team->name,
+            'slug' => 'My Slug!',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('teams', [
+        'id' => $team->id,
+        'slug' => 'my-slug',
+    ]);
+});
+
+test('a duplicate team name is allowed on update', function () {
+    Team::factory()->create(['name' => 'Shared Name', 'slug' => 'shared-name']);
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['name' => 'Original Name', 'slug' => 'my-team']);
+    $team->members()->attach($user, ['role' => TeamRole::Owner->value]);
+    $user->switchTeam($team);
+
+    $this
+        ->actingAs($user)
+        ->patch(businessRoute('company.business.update'), [
+            'name' => 'Shared Name',
+            'slug' => 'my-team',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $this->assertDatabaseHas('teams', [
+        'id' => $team->id,
+        'name' => 'Shared Name',
+    ]);
+});
+
 test('the timezone and business category can be updated by owners', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

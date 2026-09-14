@@ -53,7 +53,9 @@ class OnboardController extends Controller
         DB::transaction(function () use ($request, $team): void {
             $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
 
-            $locked->update($request->validated());
+            $locked->fill($request->validated());
+            $locked->slug = Team::generateUniqueTeamSlug($request->string('name')->value(), $locked->id);
+            $locked->save();
         });
 
         $team->refresh();

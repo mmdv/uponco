@@ -35,12 +35,6 @@ class Team extends Model
                 $team->slug = static::generateUniqueTeamSlug((string) $team->name);
             }
         });
-
-        static::updating(function (Team $team) {
-            if ($team->isDirty('name')) {
-                $team->slug = static::generateUniqueTeamSlug((string) $team->name, $team->id);
-            }
-        });
     }
 
     /**

@@ -39,10 +39,8 @@ class OnboardTeamRequest extends FormRequest
      */
     public function rules(): array
     {
-        $teamId = $this->user()?->currentTeam?->id;
-
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('teams', 'name')->ignore($teamId), new TeamName],
+            'name' => ['required', 'string', 'max:255', new TeamName],
             'type' => ['required', 'string', Rule::in(TeamType::values())],
             'business_category' => ['required', 'string', Rule::in(BusinessCategory::values())],
             'business_category_other' => ['nullable', 'required_if:business_category,'.BusinessCategory::Other->value, 'string', 'max:100'],

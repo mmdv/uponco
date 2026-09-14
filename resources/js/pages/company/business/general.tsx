@@ -12,6 +12,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { businessCategoryIcon } from '@/lib/business-category-icons';
 import { index as companyIndex } from '@/routes/company';
 import { edit as editBusiness } from '@/routes/company/business';
+import { show as bookingPage } from '@/routes/public/appointments';
 import type {
     SelectOption,
     Team,
@@ -40,6 +41,17 @@ export default function BusinessGeneral({
     const [timezone, setTimezone] = useState(team.timezone ?? '');
     const [businessCategory, setBusinessCategory] = useState(
         team.businessCategory ?? '',
+    );
+    const [slug, setSlug] = useState(team.slug);
+    const [editingSlug, setEditingSlug] = useState(false);
+    // The public booking link, minus its scheme, so it reads well in the pill.
+    // Origin is read lazily to keep the component render pure.
+    const [origin] = useState(() =>
+        typeof window === 'undefined' ? '' : window.location.origin,
+    );
+    const bookingPrefix = `${origin}${bookingPage.url('')}`.replace(
+        /^https?:\/\//,
+        '',
     );
 
     // The same icon the customer meets on the booking page, so picking a
@@ -95,6 +107,71 @@ export default function BusinessGeneral({
                                                 required
                                             />
                                             <InputError message={errors.name} />
+                                        </div>
+
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="slug">
+                                                {t('business.general.slug')}
+                                            </Label>
+                                            <input
+                                                type="hidden"
+                                                name="slug"
+                                                value={slug}
+                                            />
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex flex-1 items-center overflow-hidden rounded-md border border-input focus-within:ring-1 focus-within:ring-ring">
+                                                    <span className="shrink-0 border-r border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+                                                        {bookingPrefix}
+                                                    </span>
+                                                    <input
+                                                        id="slug"
+                                                        data-test="team-slug-input"
+                                                        value={slug}
+                                                        readOnly={!editingSlug}
+                                                        onChange={(event) =>
+                                                            setSlug(
+                                                                event.target
+                                                                    .value,
+                                                            )
+                                                        }
+                                                        className="w-full bg-transparent px-3 py-2 text-sm outline-none read-only:text-muted-foreground"
+                                                    />
+                                                </div>
+                                                {editingSlug ? (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        data-test="team-slug-cancel-button"
+                                                        onClick={() => {
+                                                            setSlug(team.slug);
+                                                            setEditingSlug(
+                                                                false,
+                                                            );
+                                                        }}
+                                                    >
+                                                        {t(
+                                                            'business.general.slugCancel',
+                                                        )}
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        data-test="team-slug-edit-button"
+                                                        onClick={() =>
+                                                            setEditingSlug(true)
+                                                        }
+                                                    >
+                                                        {t(
+                                                            'business.general.slugEdit',
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-muted-foreground">
+                                                {t('business.general.slugHelp')}
+                                            </p>
+                                            <InputError message={errors.slug} />
                                         </div>
 
                                         <div className="grid gap-2">
