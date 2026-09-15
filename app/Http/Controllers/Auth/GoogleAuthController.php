@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Teams\AcceptTeamInvitation;
 use App\Actions\Teams\CreateTeam;
 use App\Http\Controllers\Controller;
+use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Support\Analytics;
 use Illuminate\Http\RedirectResponse;
@@ -25,6 +27,7 @@ class GoogleAuthController extends Controller
 
     public function __construct(
         private CreateTeam $createTeam,
+        private AcceptTeamInvitation $acceptTeamInvitation,
     ) {
         //
     }
@@ -65,9 +68,23 @@ class GoogleAuthController extends Controller
             return to_route('login')->with('status', __('Could not sign you in with Google. Please try again.'));
         }
 
-        [$user, $isNewUser] = $this->resolveUser($googleUser);
+        // A pending invitation the user arrived with (its code stored in the
+        // session by TeamInvitationController) is honoured only when Google
+        // confirms the same address, mirroring the register/login flows.
+        $invitation = $this->pendingInvitationFor($request, $googleUser->getEmail());
+
+        [$user, $isNewUser] = $this->resolveUser($googleUser, $invitation);
 
         Auth::login($user, remember: true);
+
+        if ($invitation instanceof TeamInvitation) {
+            // Joining the (already-onboarded) inviting team instead of getting a
+            // fresh personal one, so send the user straight to the dashboard.
+            $this->acceptTeamInvitation->handle($user, $invitation);
+            $request->session()->forget('team_invitation');
+
+            return redirect('/dashboard');
+        }
 
         if ($isNewUser) {
             return redirect('/onboard');
@@ -81,6 +98,31 @@ class GoogleAuthController extends Controller
     }
 
     /**
+     * Resolve a pending invitation stored in the session that matches the
+     * Google-verified email, if any.
+     */
+    private function pendingInvitationFor(Request $request, string $email): ?TeamInvitation
+    {
+        $code = $request->session()->get('team_invitation');
+
+        if (! is_string($code) || $code === '') {
+            return null;
+        }
+
+        $invitation = TeamInvitation::where('code', $code)->first();
+
+        if ($invitation === null || ! $invitation->isPending()) {
+            return null;
+        }
+
+        if (strtolower($invitation->email) !== strtolower($email)) {
+            return null;
+        }
+
+        return $invitation;
+    }
+
+    /**
      * Find the user for this Google identity, or create one on first sign-in.
      *
      * Matching falls back from the stable Google id to the (Google-verified)
@@ -88,7 +130,7 @@ class GoogleAuthController extends Controller
      *
      * @return array{0: User, 1: bool} the user and whether it was just created
      */
-    private function resolveUser(\Laravel\Socialite\Contracts\User $googleUser): array
+    private function resolveUser(\Laravel\Socialite\Contracts\User $googleUser, ?TeamInvitation $invitation): array
     {
         $existing = User::where('google_id', $googleUser->getId())
             ->orWhere('email', $googleUser->getEmail())
@@ -102,7 +144,7 @@ class GoogleAuthController extends Controller
             return [$existing, false];
         }
 
-        $user = DB::transaction(function () use ($googleUser) {
+        $user = DB::transaction(function () use ($googleUser, $invitation) {
             $user = User::create([
                 'name' => $googleUser->getName() ?: $googleUser->getEmail(),
                 'email' => $googleUser->getEmail(),
@@ -115,7 +157,11 @@ class GoogleAuthController extends Controller
             // gate on arrival rather than recorded here.
             $user->forceFill(['email_verified_at' => now()])->save();
 
-            $this->createTeam->handle($user, isPersonal: true);
+            // Invited users join the inviting team (accepted by the caller after
+            // login) rather than getting a personal team of their own.
+            if (! $invitation instanceof TeamInvitation) {
+                $this->createTeam->handle($user, isPersonal: true);
+            }
 
             return $user;
         });

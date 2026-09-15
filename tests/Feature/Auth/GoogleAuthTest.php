@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\TeamRole;
+use App\Models\Team;
+use App\Models\TeamInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Socialite\Contracts\Provider;
@@ -7,6 +10,24 @@ use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
 
 uses(RefreshDatabase::class);
+
+/**
+ * Create a team with an owner and a pending invitation for the given email.
+ */
+function googleInvitationFor(string $email): TeamInvitation
+{
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+
+    return TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => $email,
+        'role' => TeamRole::Member,
+        'invited_by' => $owner->id,
+    ]);
+}
 
 /**
  * Fake the Google Socialite driver so the login callback receives the given
@@ -81,6 +102,63 @@ test('an existing account matched by google id is logged in', function () {
 
     $this->assertAuthenticatedAs($user);
     expect(User::count())->toBe(1);
+});
+
+test('a new google user with a pending invitation joins the team instead of onboarding', function () {
+    $invitation = googleInvitationFor('invited@gmail.com');
+
+    fakeGoogleLoginUser(id: 'google-inv', email: 'invited@gmail.com', name: 'Invited Person');
+
+    $this
+        ->withSession(['team_invitation' => $invitation->code])
+        ->get(route('auth.google.callback'))
+        ->assertRedirect('/dashboard')
+        ->assertSessionMissing('team_invitation');
+
+    $user = User::where('email', 'invited@gmail.com')->firstOrFail();
+
+    expect($user->google_id)->toBe('google-inv');
+    expect($user->belongsToTeam($invitation->team))->toBeTrue();
+    expect($user->currentTeam->is($invitation->team))->toBeTrue();
+    expect($user->personalTeam())->toBeNull();
+    expect($user->teams()->count())->toBe(1);
+    expect($invitation->fresh()->accepted_at)->not->toBeNull();
+});
+
+test('an existing google user with a pending invitation joins the team', function () {
+    $invitation = googleInvitationFor('existing@gmail.com');
+    $user = User::factory()->create(['email' => 'existing@gmail.com']);
+
+    fakeGoogleLoginUser(id: 'google-exist', email: 'existing@gmail.com');
+
+    $this
+        ->withSession(['team_invitation' => $invitation->code])
+        ->get(route('auth.google.callback'))
+        ->assertRedirect('/dashboard');
+
+    $this->assertAuthenticatedAs($user);
+
+    $user->refresh();
+    expect($user->belongsToTeam($invitation->team))->toBeTrue();
+    expect($user->currentTeam->is($invitation->team))->toBeTrue();
+    expect($invitation->fresh()->accepted_at)->not->toBeNull();
+});
+
+test('an invitation for a different email is ignored and the user signs up normally', function () {
+    $invitation = googleInvitationFor('invited@gmail.com');
+
+    fakeGoogleLoginUser(id: 'google-other', email: 'someone-else@gmail.com');
+
+    $this
+        ->withSession(['team_invitation' => $invitation->code])
+        ->get(route('auth.google.callback'))
+        ->assertRedirect('/onboard');
+
+    $user = User::where('email', 'someone-else@gmail.com')->firstOrFail();
+
+    expect($user->belongsToTeam($invitation->team))->toBeFalse();
+    expect($user->currentTeam->is_personal)->toBeTrue();
+    expect($invitation->fresh()->accepted_at)->toBeNull();
 });
 
 test('a declined consent redirects to login without authenticating', function () {

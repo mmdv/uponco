@@ -3,40 +3,32 @@ import { useState } from 'react';
 
 import InputError from '@/components/input-error';
 import BookingCalendar from '@/components/public-booking/booking-calendar';
+import { useBooking } from '@/components/public-booking/booking-context';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/use-translation';
-import type { UpcomingDay } from '@/lib/appointments';
 import { cn } from '@/lib/utils';
-import type { AppointmentSlot } from '@/types';
 
 type Props = {
-    days: (UpcomingDay & { available: boolean })[];
-    date: string;
-    onDateChange: (date: string) => void;
     timezone: string;
-    slots: AppointmentSlot[];
-    loading: boolean;
-    selectedStart: string;
-    onSelectSlot: (start: string) => void;
-    error?: string;
 };
 
 /**
  * Step two: pick a day from the horizontal strip, then a time slot. Time slots
  * are generated server-side for the chosen service, specialist and day.
  */
-export default function StepDateTime({
-    days,
-    date,
-    onDateChange,
-    timezone,
-    slots,
-    loading,
-    selectedStart,
-    onSelectSlot,
-    error,
-}: Props) {
+export default function StepDateTime({ timezone }: Props) {
+    const {
+        upcomingDays: days,
+        date,
+        handleDateChange: onDateChange,
+        availableSlots: slots,
+        slotsLoading: loading,
+        selectedStart,
+        handleSelectSlot: onSelectSlot,
+        errors,
+    } = useBooking();
+    const error = errors.start_at;
     const { t, locale } = useTranslation('booking');
     const [view, setView] = useState<'strip' | 'calendar'>('strip');
     const timeFormatter = new Intl.DateTimeFormat(locale, {

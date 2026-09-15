@@ -1,8 +1,8 @@
 import { MapPin, User } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { useBooking } from '@/components/public-booking/booking-context';
 import ExpandableCard from '@/components/public-booking/expandable-card';
 import LocationDetails from '@/components/public-booking/location-details';
 import LocationDetailsDialog from '@/components/public-booking/location-details-dialog';
@@ -12,39 +12,11 @@ import ServicePicker from '@/components/public-booking/service-picker';
 import SpecialistPicker from '@/components/public-booking/specialist-picker';
 import SpecialistProfileDialog from '@/components/public-booking/specialist-profile-dialog';
 import { useTranslation } from '@/hooks/use-translation';
-import type { ServiceCategoryGroup } from '@/lib/appointments';
-import type { EntryCard, SelectionKind } from '@/lib/booking';
-import type { LockedKinds } from '@/lib/booking';
+import type { SelectionKind } from '@/lib/booking';
 import type {
     AppointmentLocationDetail,
-    AppointmentServiceOption,
     AppointmentSpecialistOption,
 } from '@/types';
-
-type Props = {
-    openCard: EntryCard;
-    onToggle: (card: Exclude<EntryCard, null>) => void;
-    serviceGroups: ServiceCategoryGroup[];
-    locations: AppointmentLocationDetail[];
-    specialists: AppointmentSpecialistOption[];
-    serviceId: number | null;
-    locationId: number | null;
-    specialistId: number | null;
-    /** Whether the location card belongs on screen at all. */
-    locationVisible: boolean;
-    selectedService: AppointmentServiceOption | null;
-    selectedLocation: AppointmentLocationDetail | null;
-    selectedSpecialist: AppointmentSpecialistOption | null;
-    /** Which kinds the visitor cannot change — rendered as statements, not pickers. */
-    locked: LockedKinds;
-    /** The order to stack the three sections in, settled ones first. */
-    order: SelectionKind[];
-    onServiceChange: (value: number) => void;
-    onLocationChange: (value: number) => void;
-    onSpecialistChange: (value: number) => void;
-    /** The business category's icon, so a vet clinic isn't fronted by scissors. */
-    serviceIcon: LucideIcon;
-};
 
 /**
  * Step one: the interdependent service / specialist / location entry sections.
@@ -53,29 +25,30 @@ type Props = {
  * decided and shown as a {@link LockedRow} instead of a picker — when all three
  * are, this step is a recap of a booking the visitor never had to assemble.
  *
- * The vertical order is not fixed; it comes in as `order`, which puts whatever
+ * The vertical order is not fixed; it comes from `order`, which puts whatever
  * is already settled at the top. See `cardOrder` in `@/lib/booking`.
  */
-export default function StepSelection({
-    openCard,
-    onToggle,
-    serviceGroups,
-    locations,
-    specialists,
-    serviceId,
-    locationId,
-    specialistId,
-    locationVisible,
-    selectedService,
-    selectedLocation,
-    selectedSpecialist,
-    locked,
-    order,
-    onServiceChange,
-    onLocationChange,
-    onSpecialistChange,
-    serviceIcon: ServiceIcon,
-}: Props) {
+export default function StepSelection() {
+    const {
+        openCard,
+        toggleCard: onToggle,
+        serviceGroups,
+        availableLocations: locations,
+        availableSpecialists: specialists,
+        serviceId,
+        locationId,
+        specialistId,
+        locationVisible,
+        selectedService,
+        selectedLocation,
+        selectedSpecialist,
+        locked,
+        order,
+        handleServiceChange: onServiceChange,
+        handleLocationChange: onLocationChange,
+        handleSpecialistChange: onSpecialistChange,
+        serviceIcon: ServiceIcon,
+    } = useBooking();
     const { t } = useTranslation('booking');
     const [profileSpecialist, setProfileSpecialist] =
         useState<AppointmentSpecialistOption | null>(null);

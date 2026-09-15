@@ -1,3 +1,7 @@
+import {
+    BookingProvider,
+    useBooking,
+} from '@/components/public-booking/booking-context';
 import BookingFooter from '@/components/public-booking/booking-footer';
 import type { PublicTheme } from '@/components/public-booking/booking-header';
 import BookingHeader from '@/components/public-booking/booking-header';
@@ -6,11 +10,9 @@ import StepDetails from '@/components/public-booking/step-details';
 import StepSelection from '@/components/public-booking/step-selection';
 import SuccessScreen from '@/components/public-booking/success-screen';
 import SummaryBar from '@/components/public-booking/summary-bar';
-import { useAppointmentBooking } from '@/hooks/use-appointment-booking';
 import { useTranslation } from '@/hooks/use-translation';
 import type { BookingPreset } from '@/lib/booking';
 import type { BrandPalette } from '@/lib/brand';
-import { businessCategoryIcon } from '@/lib/business-category-icons';
 import type {
     AppointmentLocationDetail,
     AppointmentServiceOption,
@@ -54,48 +56,43 @@ type FlowProps = PublicBookingProps & {
     embedded?: boolean;
 };
 
+type ChromeProps = {
+    theme: PublicTheme;
+    onThemeChange: (theme: PublicTheme) => void;
+    embedded: boolean;
+};
+
 /**
- * The public booking wizard itself, without any page-level chrome, so the
- * dashboard can embed the very same flow admins hand to their customers.
- *
- * This lives outside the Inertia page directory on purpose. Importing a page
- * module from a non-page module demotes it from a Vite entry point to an
- * anonymous chunk, which drops it out of the manifest and 500s the page.
+ * The wizard body. Reads every booking value from context (see
+ * {@link BookingProvider}); only the page chrome — theme and embedding — comes
+ * in as props, since it is not part of the booking state.
  */
-export function PublicBookingFlow({
-    company,
-    timezone,
-    services,
-    locations,
-    specialists,
-    preset = null,
-    slotWindow,
-    theme = 'light',
-    onThemeChange = () => {},
-    embedded = false,
-}: FlowProps) {
+function BookingFlowLayout({ theme, onThemeChange, embedded }: ChromeProps) {
     const { t } = useTranslation('booking');
+    const {
+        company,
+        timezone,
+        preset,
+        serviceIcon,
+        step,
+        stepClass,
+        confirmed,
+        selectionIsFixed,
+        selectionComplete,
+        selectedStart,
+        processing,
+        summary,
+        goToStep,
+        handleContinue,
+        handleSubmit,
+        resetFlow,
+    } = useBooking();
+
     const stepTitles = [
         t('steps.selection'),
         t('steps.datetime'),
         t('steps.details'),
     ];
-
-    const booking = useAppointmentBooking({
-        company,
-        timezone,
-        services,
-        locations,
-        specialists,
-        slotWindow,
-        preset,
-    });
-
-    const { step, confirmed, selectionIsFixed } = booking;
-
-    // What the business does decides how a service is pictured, everywhere the
-    // chosen service is shown back to the customer.
-    const serviceIcon = businessCategoryIcon(company.category);
 
     return (
         <>
@@ -117,10 +114,7 @@ export function PublicBookingFlow({
                  * its place from step two on, once those cards are behind you.
                  */}
                 {confirmed === null && step > 0 && (
-                    <SummaryBar
-                        {...booking.summary}
-                        serviceIcon={serviceIcon}
-                    />
+                    <SummaryBar {...summary} serviceIcon={serviceIcon} />
                 )}
             </header>
 
@@ -134,62 +128,19 @@ export function PublicBookingFlow({
                         summary={confirmed}
                         calendar={confirmed.calendar}
                         serviceIcon={serviceIcon}
-                        onBookAnother={booking.resetFlow}
+                        onBookAnother={resetFlow}
                     />
                 ) : (
-                    <div key={step} className={booking.stepClass}>
+                    <div key={step} className={stepClass}>
                         <h2 className="mb-4 text-base font-semibold">
                             {step === 0 && selectionIsFixed
                                 ? t('steps.recap')
                                 : stepTitles[step]}
                         </h2>
 
-                        {step === 0 && (
-                            <StepSelection
-                                openCard={booking.openCard}
-                                onToggle={booking.toggleCard}
-                                serviceGroups={booking.serviceGroups}
-                                locations={booking.availableLocations}
-                                specialists={booking.availableSpecialists}
-                                serviceId={booking.serviceId}
-                                locationId={booking.locationId}
-                                specialistId={booking.specialistId}
-                                locationVisible={booking.locationVisible}
-                                selectedService={booking.selectedService}
-                                selectedLocation={booking.selectedLocation}
-                                selectedSpecialist={booking.selectedSpecialist}
-                                locked={booking.locked}
-                                order={booking.order}
-                                onServiceChange={booking.handleServiceChange}
-                                onLocationChange={booking.handleLocationChange}
-                                onSpecialistChange={
-                                    booking.handleSpecialistChange
-                                }
-                                serviceIcon={serviceIcon}
-                            />
-                        )}
-
-                        {step === 1 && (
-                            <StepDateTime
-                                days={booking.upcomingDays}
-                                date={booking.date}
-                                onDateChange={booking.handleDateChange}
-                                timezone={timezone}
-                                slots={booking.availableSlots}
-                                loading={booking.slotsLoading}
-                                selectedStart={booking.selectedStart}
-                                onSelectSlot={booking.handleSelectSlot}
-                                error={booking.errors.start_at}
-                            />
-                        )}
-
-                        {step === 2 && (
-                            <StepDetails
-                                values={booking.details}
-                                onChange={booking.handleDetailChange}
-                                errors={booking.errors}
-                            />
-                        )}
+                        {step === 0 && <StepSelection />}
+                        {step === 1 && <StepDateTime timezone={timezone} />}
+                        {step === 2 && <StepDetails />}
                     </div>
                 )}
             </main>
@@ -198,22 +149,45 @@ export function PublicBookingFlow({
                 <BookingFooter
                     step={step}
                     canContinue={
-                        step === 0
-                            ? booking.selectionComplete
-                            : booking.selectedStart !== ''
+                        step === 0 ? selectionComplete : selectedStart !== ''
                     }
                     continueLabel={
                         step === 0 && selectionIsFixed
                             ? t('footer.chooseDateTime')
                             : t('footer.continue')
                     }
-                    processing={booking.processing}
-                    onBack={() => booking.goToStep(step - 1)}
-                    onContinue={booking.handleContinue}
-                    onSubmit={booking.handleSubmit}
+                    processing={processing}
+                    onBack={() => goToStep(step - 1)}
+                    onContinue={handleContinue}
+                    onSubmit={handleSubmit}
                     embedded={embedded}
                 />
             )}
         </>
+    );
+}
+
+/**
+ * The public booking wizard, without any page-level chrome, so the dashboard
+ * can embed the very same flow admins hand to their customers.
+ *
+ * This lives outside the Inertia page directory on purpose. Importing a page
+ * module from a non-page module demotes it from a Vite entry point to an
+ * anonymous chunk, which drops it out of the manifest and 500s the page.
+ */
+export function PublicBookingFlow({
+    theme = 'light',
+    onThemeChange = () => {},
+    embedded = false,
+    ...serverProps
+}: FlowProps) {
+    return (
+        <BookingProvider {...serverProps}>
+            <BookingFlowLayout
+                theme={theme}
+                onThemeChange={onThemeChange}
+                embedded={embedded}
+            />
+        </BookingProvider>
     );
 }

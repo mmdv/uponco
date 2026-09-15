@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { useBooking } from '@/components/public-booking/booking-context';
 import { Input } from '@/components/ui/input';
 import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
 import { Label } from '@/components/ui/label';
@@ -25,17 +26,16 @@ export type CustomerDetails = {
     reminder_offset_minutes: string;
 };
 
-type Props = {
-    values: CustomerDetails;
-    onChange: (field: keyof CustomerDetails, value: string) => void;
-    errors: Partial<Record<string, string>>;
-};
-
 /**
  * Step three: personal information. The booking recap lives in the inline
  * summary bar at the top of the flow.
  */
-export default function StepDetails({ values, onChange, errors }: Props) {
+export default function StepDetails() {
+    const {
+        details: values,
+        handleDetailChange: onChange,
+        errors,
+    } = useBooking();
     const { t } = useTranslation('booking');
 
     return (
