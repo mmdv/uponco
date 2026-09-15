@@ -1,5 +1,6 @@
 import { GripVertical, Plus } from 'lucide-react';
 
+import GoogleMeetIcon from '@/components/icons/google-meet-icon';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatAppointmentTimeRange } from '@/lib/appointments';
 import {
@@ -219,8 +220,13 @@ export default function DayColumn({
                                     timezone,
                                 )}
                             </p>
-                            <p className="truncate text-foreground">
-                                {item.appointment.service.title}
+                            <p className="flex items-center gap-1 text-foreground">
+                                {item.appointment.meeting_url && (
+                                    <GoogleMeetIcon className="size-3 shrink-0" />
+                                )}
+                                <span className="truncate">
+                                    {item.appointment.service.title}
+                                </span>
                             </p>
                         </button>
                     </div>

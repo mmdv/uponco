@@ -210,6 +210,9 @@ export default function AppointmentDayFormFields({
         end_at: wallTimeToUtcIso(dayKey, startMinutes + duration, timezone),
         timezone,
         notes: null,
+        // The real record from the server carries any generated link; the
+        // optimistic stand-in has none yet.
+        meeting_url: null,
         service: {
             id: serviceId as number,
             title: selectedService?.title ?? '',

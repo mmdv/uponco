@@ -484,6 +484,9 @@ trait InteractsWithAppointmentBooking
             'end_at' => $appointment->end_at->toIso8601String(),
             'timezone' => $timezone,
             'notes' => $appointment->notes,
+            // The join URL for an online appointment (e.g. a generated Google
+            // Meet link); null for in-person appointments or before a link exists.
+            'meeting_url' => $appointment->meeting_url,
             'service' => [
                 'id' => $appointment->service?->id ?? $appointment->service_id,
                 'title' => $appointment->service?->title ?? __('Deleted service'),

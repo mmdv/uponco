@@ -3,6 +3,7 @@ import { CalendarClock } from 'lucide-react';
 
 import { ACCENTS } from '@/components/accents';
 import { AgendaGraphic } from '@/components/card-graphics';
+import GoogleMeetIcon from '@/components/icons/google-meet-icon';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import {
@@ -116,8 +117,13 @@ export default function UpcomingAppointments({
                             >
                                 <span className="w-1 shrink-0 rounded-full bg-gradient-to-b from-[#0063ff] to-[#3884fe]" />
                                 <div className="min-w-0 flex-1 space-y-0.5">
-                                    <p className="truncate text-sm font-semibold">
-                                        {appointment.service.title}
+                                    <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+                                        {appointment.meeting_url && (
+                                            <GoogleMeetIcon className="size-4 shrink-0" />
+                                        )}
+                                        <span className="truncate">
+                                            {appointment.service.title}
+                                        </span>
                                     </p>
                                     <p className="truncate text-sm font-medium text-foreground">
                                         {appointmentCustomerLabel(

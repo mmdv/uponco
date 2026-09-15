@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import GoogleMeetIcon from '@/components/icons/google-meet-icon';
 import {
     dateKey,
     formatMinutes,
@@ -165,8 +166,13 @@ export default function CalendarWeekView({
                                         <p className="font-medium text-foreground">
                                             {formatMinutes(item.startMinutes)}
                                         </p>
-                                        <p className="truncate text-foreground">
-                                            {item.appointment.service.title}
+                                        <p className="flex items-center gap-1 text-foreground">
+                                            {item.appointment.meeting_url && (
+                                                <GoogleMeetIcon className="size-2.5 shrink-0" />
+                                            )}
+                                            <span className="truncate">
+                                                {item.appointment.service.title}
+                                            </span>
                                         </p>
                                     </button>
                                 ))}

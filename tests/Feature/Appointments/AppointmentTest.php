@@ -122,6 +122,27 @@ test('the appointments page still renders after the booked service is deleted', 
             ->where('appointments.0.location.name', $setup['location']->name));
 });
 
+test('the appointments payload exposes the meeting url for online appointments', function () {
+    $setup = bookableSetup();
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'online_meeting_provider' => 'google_meet',
+        'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+    ]);
+
+    $this
+        ->actingAs($setup['user'])
+        ->get(route('appointments.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('appointments', 1)
+            ->where('appointments.0.meeting_url', 'https://meet.google.com/abc-defg-hij'));
+});
+
 test('admins see every appointment in the team', function () {
     $setup = bookableSetup();
     $member = User::factory()->create();

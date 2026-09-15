@@ -8,6 +8,7 @@ import {
     User,
 } from 'lucide-react';
 
+import GoogleMeetIcon from '@/components/icons/google-meet-icon';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -102,6 +103,29 @@ export default function AppointmentDetailsModal({
                                     className="col-span-2"
                                 />
                             </section>
+
+                            {isOnline && appointment.meeting_url && (
+                                <a
+                                    href={appointment.meeting_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    data-test="appointment-meeting-link"
+                                    className="flex w-full max-w-full flex-wrap items-center gap-3 rounded-lg border border-[#00832d]/30 bg-[#00832d]/5 p-3 transition-colors hover:bg-[#00832d]/10"
+                                >
+                                    <GoogleMeetIcon className="size-6 shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-medium">
+                                            {t('details.meeting')}
+                                        </p>
+                                        <p className="truncate text-xs text-muted-foreground">
+                                            {appointment.meeting_url}
+                                        </p>
+                                    </div>
+                                    <span className="shrink-0 rounded-full bg-[#00832d] px-3 py-1 text-xs font-semibold text-white">
+                                        {t('details.join')}
+                                    </span>
+                                </a>
+                            )}
 
                             <Separator />
 

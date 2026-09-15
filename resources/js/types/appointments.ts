@@ -106,6 +106,8 @@ export type Appointment = {
     end_at: string;
     timezone: string;
     notes: string | null;
+    /** Join URL for an online appointment (e.g. a Google Meet link), else null. */
+    meeting_url: string | null;
     service: { id: number; title: string };
     location: { id: number; name: string } | null;
     // `id` is null once the specialist's account is deleted; `name` always

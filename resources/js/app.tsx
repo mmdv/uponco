@@ -17,6 +17,7 @@ import {
     startAnalytics,
     trackPageVisit,
 } from '@/lib/analytics';
+import { createNetworkErrorHandler } from '@/lib/network-error';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -104,16 +105,23 @@ router.on('navigate', (event) => {
 // Dashboard and Appointments are served from the service-worker cache offline,
 // but every other page needs the network. When a visit fails purely because we
 // are offline, tell the user why and leave them on the working page they came
-// from rather than surfacing a raw error.
-router.on('networkError', () => {
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        const locale =
-            (typeof document !== 'undefined' && document.documentElement.lang) ||
-            FALLBACK_LOCALE;
+// from rather than surfacing a raw error. The handler also cancels Inertia's
+// default re-throw so transient failures — e.g. the calendar's background
+// `workingHoursWindow` reloads dropping on flaky mobile connections — stop
+// reaching Sentry as unhandled `HttpNetworkError` rejections.
+router.on(
+    'networkError',
+    createNetworkErrorHandler({
+        notifyOffline: () => {
+            const locale =
+                (typeof document !== 'undefined' &&
+                    document.documentElement.lang) ||
+                FALLBACK_LOCALE;
 
-        toast.error(translate('nav', 'offline.unavailable', locale));
-    }
-});
+            toast.error(translate('nav', 'offline.unavailable', locale));
+        },
+    }),
+);
 
 // Flush server-queued events on every page set, including the same-URL
 // redirect-back that carries validation errors (e.g. a booking whose slot was

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import GoogleMeetIcon from '@/components/icons/google-meet-icon';
 import {
     appointmentDateKey,
     dateKey,
@@ -122,6 +123,9 @@ export default function CalendarMonthView({
                                                     ),
                                                 )}
                                             </span>
+                                            {appointment.meeting_url && (
+                                                <GoogleMeetIcon className="size-2.5 shrink-0" />
+                                            )}
                                             <span className="truncate text-foreground">
                                                 {appointment.service.title}
                                             </span>

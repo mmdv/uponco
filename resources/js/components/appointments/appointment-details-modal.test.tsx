@@ -1,0 +1,86 @@
+// @vitest-environment jsdom
+import { cleanup, render } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import AppointmentDetailsModal from '@/components/appointments/appointment-details-modal';
+import type { Appointment } from '@/types';
+
+// Both `useTranslation` and `useCustomerTerm` read the Inertia page props; a
+// minimal stub is enough to render the modal in isolation.
+vi.mock('@inertiajs/react', () => ({
+    usePage: () => ({
+        props: { locale: 'en', currentTeam: { businessCategory: null } },
+    }),
+}));
+
+function makeAppointment(overrides: Partial<Appointment> = {}): Appointment {
+    return {
+        id: 1,
+        start_at: '2026-08-10T09:00:00Z',
+        end_at: '2026-08-10T10:00:00Z',
+        timezone: 'UTC',
+        notes: null,
+        meeting_url: null,
+        service: { id: 1, title: 'Consultation' },
+        location: null,
+        specialist: { id: 20, name: 'Alex' },
+        customer: { id: 5, name: 'Jane Doe', email: null, phone: null },
+        service_id: 1,
+        location_id: null,
+        specialist_id: 20,
+        ...overrides,
+    };
+}
+
+// No global test setup registers it, so unmount the portal between cases.
+afterEach(cleanup);
+
+/** The modal renders into a portal, so query the whole document. */
+const meetingLink = () =>
+    document.querySelector('[data-test="appointment-meeting-link"]');
+
+describe('AppointmentDetailsModal', () => {
+    it('shows a join link pointing at the meeting url for an online appointment', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({
+                    meeting_url: 'https://meet.google.com/abc-defg-hij',
+                })}
+                open
+                onOpenChange={() => {}}
+            />,
+        );
+
+        expect(meetingLink()?.getAttribute('href')).toBe(
+            'https://meet.google.com/abc-defg-hij',
+        );
+    });
+
+    it('omits the join link when the appointment has no meeting url', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment()}
+                open
+                onOpenChange={() => {}}
+            />,
+        );
+
+        expect(meetingLink()).toBeNull();
+    });
+
+    it('omits the join link for an in-person appointment even if a url is set', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({
+                    location: { id: 3, name: 'Downtown' },
+                    location_id: 3,
+                    meeting_url: 'https://meet.google.com/abc-defg-hij',
+                })}
+                open
+                onOpenChange={() => {}}
+            />,
+        );
+
+        expect(meetingLink()).toBeNull();
+    });
+});

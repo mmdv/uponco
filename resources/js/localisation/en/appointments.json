@@ -140,6 +140,8 @@
         "customer": "Customer",
         "noContact": "No contact details",
         "notes": "Notes",
+        "meeting": "Google Meet",
+        "join": "Join",
         "close": "Close",
         "edit": "Edit"
     }
