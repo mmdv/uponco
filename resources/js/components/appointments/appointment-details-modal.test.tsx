@@ -20,6 +20,7 @@ function makeAppointment(overrides: Partial<Appointment> = {}): Appointment {
         end_at: '2026-08-10T10:00:00Z',
         timezone: 'UTC',
         notes: null,
+        source: 'staff',
         meeting_url: null,
         service: { id: 1, title: 'Consultation' },
         location: null,
@@ -82,5 +83,33 @@ describe('AppointmentDetailsModal', () => {
         );
 
         expect(meetingLink()).toBeNull();
+    });
+
+    it('flags an appointment the customer booked online', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({ source: 'public' })}
+                open
+                onOpenChange={() => {}}
+            />,
+        );
+
+        expect(
+            document.body.textContent,
+        ).toContain('Booked online by the customer');
+    });
+
+    it('does not flag a staff-entered appointment as an online booking', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({ source: 'staff' })}
+                open
+                onOpenChange={() => {}}
+            />,
+        );
+
+        expect(document.body.textContent).not.toContain(
+            'Booked online by the customer',
+        );
     });
 });

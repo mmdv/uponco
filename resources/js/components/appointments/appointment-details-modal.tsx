@@ -56,14 +56,21 @@ export default function AppointmentDetailsModal({
                 {appointment && (
                     <>
                         <DialogHeader className="gap-1.5 border-b bg-muted/30 p-6">
-                            <Badge
-                                variant={isOnline ? 'default' : 'secondary'}
-                                className="mb-1 capitalize"
-                            >
-                                {isOnline
-                                    ? t('details.online')
-                                    : t('details.inPerson')}
-                            </Badge>
+                            <div className="mb-1 flex flex-wrap items-center gap-2">
+                                <Badge
+                                    variant={isOnline ? 'default' : 'secondary'}
+                                    className="capitalize"
+                                >
+                                    {isOnline
+                                        ? t('details.online')
+                                        : t('details.inPerson')}
+                                </Badge>
+                                {appointment.source === 'public' && (
+                                    <Badge className="border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                                        {t('onlineBooking')}
+                                    </Badge>
+                                )}
+                            </div>
                             <DialogTitle className="text-xl leading-tight">
                                 {appointment.service.title}
                             </DialogTitle>

@@ -15,6 +15,7 @@ function makeAppointment(overrides: Partial<Appointment> = {}): Appointment {
         end_at: '2026-08-10T10:00:00Z',
         timezone: 'UTC',
         notes: null,
+        source: 'staff',
         meeting_url: null,
         service: { id: 1, title: 'Haircut' },
         location: null,

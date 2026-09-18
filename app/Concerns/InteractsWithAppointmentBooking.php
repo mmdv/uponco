@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentChange;
+use App\Enums\AppointmentSource;
 use App\Enums\DeliveryType;
 use App\Enums\ReminderChannel;
 use App\Enums\ReminderStatus;
@@ -38,9 +39,9 @@ trait InteractsWithAppointmentBooking
     /**
      * Create the appointment for the request and notify the customer by email.
      */
-    protected function createAppointment(Team $team, SaveAppointmentRequest $request): Appointment
+    protected function createAppointment(Team $team, SaveAppointmentRequest $request, AppointmentSource $source = AppointmentSource::Staff): Appointment
     {
-        return $this->persistAppointment($team, $request->appointmentData(), $request->customerData(), $request->service());
+        return $this->persistAppointment($team, $request->appointmentData(), $request->customerData(), $request->service(), $source);
     }
 
     /**
@@ -54,9 +55,9 @@ trait InteractsWithAppointmentBooking
      * @param  array<string, mixed>  $data  Appointment attributes, incl. `start_at`/`end_at`/`specialist_id`.
      * @param  array{name: ?string, email: ?string, phone: ?string}  $contact
      */
-    protected function persistAppointment(Team $team, array $data, array $contact, Service $service): Appointment
+    protected function persistAppointment(Team $team, array $data, array $contact, Service $service, AppointmentSource $source = AppointmentSource::Staff): Appointment
     {
-        $appointment = DB::transaction(function () use ($team, $data, $contact, $service): Appointment {
+        $appointment = DB::transaction(function () use ($team, $data, $contact, $service, $source): Appointment {
             $customer = $this->resolveCustomer($team, $contact);
 
             if ($customer === null) {
@@ -68,6 +69,7 @@ trait InteractsWithAppointmentBooking
             $appointment = $team->appointments()->create([
                 ...$data,
                 'customer_id' => $customer?->id,
+                'source' => $source,
             ]);
 
             $appointment->setRelation('customer', $customer);
@@ -484,6 +486,9 @@ trait InteractsWithAppointmentBooking
             'end_at' => $appointment->end_at->toIso8601String(),
             'timezone' => $timezone,
             'notes' => $appointment->notes,
+            // Where the booking came from: `public` when the customer booked it
+            // themselves on the public page, `staff` when a specialist entered it.
+            'source' => $appointment->source->value,
             // The join URL for an online appointment (e.g. a generated Google
             // Meet link); null for in-person appointments or before a link exists.
             'meeting_url' => $appointment->meeting_url,

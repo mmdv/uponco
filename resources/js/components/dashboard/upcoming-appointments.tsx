@@ -115,7 +115,16 @@ export default function UpcomingAppointments({
                                 }}
                                 className="group flex cursor-pointer items-stretch gap-3 rounded-xl border border-black/[0.08] bg-card/70 p-3 backdrop-blur-[2px] transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm dark:border-border dark:bg-card/50"
                             >
-                                <span className="w-1 shrink-0 rounded-full bg-gradient-to-b from-[#0063ff] to-[#3884fe]" />
+                                {/* Accent bar: green marks a booking the customer
+                                    made themselves, blue a staff-entered one. */}
+                                <span
+                                    className={cn(
+                                        'w-1 shrink-0 rounded-full bg-gradient-to-b',
+                                        appointment.source === 'public'
+                                            ? 'from-emerald-500 to-emerald-400'
+                                            : 'from-[#0063ff] to-[#3884fe]',
+                                    )}
+                                />
                                 <div className="min-w-0 flex-1 space-y-0.5">
                                     <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
                                         {appointment.meeting_url && (

@@ -1,6 +1,7 @@
 {
     "title": "Appointments",
     "newAppointment": "New appointment",
+    "onlineBooking": "Booked online by the customer",
     "empty": {
         "day": "No appointments on this day."
     },

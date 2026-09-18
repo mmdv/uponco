@@ -351,7 +351,6 @@ export default function CalendarDayView({
                                         drag={drag}
                                         drop={drop}
                                         hover={hover}
-                                        timezone={timezone}
                                         registerRef={registerRef}
                                         onColumnClick={handleColumnClick}
                                         onColumnHover={handleColumnHover}

@@ -106,6 +106,8 @@ export type Appointment = {
     end_at: string;
     timezone: string;
     notes: string | null;
+    /** `public` when the customer booked it themselves, `staff` when entered by a specialist. */
+    source: 'staff' | 'public';
     /** Join URL for an online appointment (e.g. a Google Meet link), else null. */
     meeting_url: string | null;
     service: { id: number; title: string };

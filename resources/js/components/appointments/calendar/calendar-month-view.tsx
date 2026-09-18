@@ -113,7 +113,12 @@ export default function CalendarMonthView({
                                             onClick={() =>
                                                 onSelectAppointment(appointment)
                                             }
-                                            className="flex w-full items-center gap-1 overflow-hidden rounded bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:bg-primary/20"
+                                            className={cn(
+                                                'flex w-full items-center gap-1 overflow-hidden rounded bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:bg-primary/20',
+                                                appointment.source ===
+                                                    'public' &&
+                                                    'bg-emerald-500/10 hover:bg-emerald-500/20',
+                                            )}
                                         >
                                             <span className="font-medium text-foreground">
                                                 {formatMinutes(

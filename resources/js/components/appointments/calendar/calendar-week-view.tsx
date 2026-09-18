@@ -155,7 +155,12 @@ export default function CalendarWeekView({
                                                 item.appointment,
                                             )
                                         }
-                                        className="absolute z-10 overflow-hidden rounded border border-primary/30 bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:shadow-md"
+                                        className={cn(
+                                            'absolute z-10 overflow-hidden rounded border border-primary/30 bg-primary/10 px-1 py-0.5 text-left text-[11px] leading-tight hover:shadow-md',
+                                            item.appointment.source ===
+                                                'public' &&
+                                                'border-emerald-500/40 bg-emerald-500/10',
+                                        )}
                                         style={{
                                             top: item.top,
                                             height: item.height,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentAlert;
+use App\Enums\AppointmentSource;
 use App\Enums\TeamType;
 use App\Http\Requests\Appointments\BookPublicAppointmentRequest;
 use App\Models\Appointment;
@@ -177,7 +178,7 @@ class PublicAppointmentController extends Controller
      */
     public function store(BookPublicAppointmentRequest $request, Team $company): RedirectResponse
     {
-        $appointment = $this->createAppointment($company, $request);
+        $appointment = $this->createAppointment($company, $request, AppointmentSource::Public);
 
         // Schedule the reminder the customer asked for (if any) now that the
         // appointment exists.

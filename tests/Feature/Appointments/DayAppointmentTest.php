@@ -40,6 +40,8 @@ test('a fitting appointment is created with the chosen duration', function () {
         'specialist_id' => $setup['user']->id,
         'service_id' => $setup['service']->id,
         'status' => AppointmentStatus::Booked->value,
+        // Entered by a specialist from the day view, so it is a staff booking.
+        'source' => 'staff',
         'start_at' => $setup['startAt']->format('Y-m-d H:i:s'),
         'end_at' => $setup['startAt']->addMinutes(45)->format('Y-m-d H:i:s'),
     ]);

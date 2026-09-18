@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AppointmentSource;
 use App\Enums\AppointmentStatus;
 use App\Enums\DeliveryType;
 use App\Enums\ReminderStatus;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'start_at',
     'end_at',
     'status',
+    'source',
     'cancelled_at',
     'delivery_type',
     'online_meeting_provider',
@@ -212,6 +214,7 @@ class Appointment extends Model
             'end_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'status' => AppointmentStatus::class,
+            'source' => AppointmentSource::class,
             'delivery_type' => DeliveryType::class,
         ];
     }

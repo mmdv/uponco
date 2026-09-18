@@ -125,6 +125,10 @@ export default function AppointmentsTable({
                                     }
                                     className={cn(
                                         'group/row cursor-pointer',
+                                        // Bookings the customer made themselves are
+                                        // tinted green so they stand out in the list.
+                                        appointment.source === 'public' &&
+                                            'bg-emerald-500/5 hover:bg-emerald-500/10',
                                         // Past appointments read as done: dimmed and muted.
                                         isPastAppointment(appointment) &&
                                             'text-muted-foreground opacity-60',

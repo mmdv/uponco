@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AppointmentSource;
 use App\Enums\AppointmentStatus;
 use App\Enums\DeliveryType;
 use App\Models\Appointment;
@@ -36,6 +37,7 @@ class AppointmentFactory extends Factory
             'start_at' => $startAt,
             'end_at' => $endAt,
             'status' => AppointmentStatus::Booked,
+            'source' => AppointmentSource::Staff,
             'cancelled_at' => null,
             'delivery_type' => DeliveryType::Onsite,
             'online_meeting_provider' => null,
@@ -54,6 +56,16 @@ class AppointmentFactory extends Factory
             'location_id' => null,
             'delivery_type' => DeliveryType::Online,
             'online_meeting_provider' => 'google_meet',
+        ]);
+    }
+
+    /**
+     * Indicate that the appointment was booked by the customer on the public page.
+     */
+    public function bookedOnline(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'source' => AppointmentSource::Public,
         ]);
     }
 

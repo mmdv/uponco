@@ -339,6 +339,8 @@ test('a guest can book an appointment and a customer is created', function () {
         'service_id' => $setup['service']->id,
         'specialist_id' => $setup['user']->id,
         'delivery_type' => 'onsite',
+        // The booking came from the public page, so it is recorded as such.
+        'source' => 'public',
     ]);
 });
 

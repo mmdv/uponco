@@ -2,7 +2,7 @@ import { GripVertical, Plus } from 'lucide-react';
 
 import GoogleMeetIcon from '@/components/icons/google-meet-icon';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatAppointmentTimeRange } from '@/lib/appointments';
+import { appointmentCustomerLabel } from '@/lib/appointments';
 import {
     formatMinutes,
     GRID_END_MINUTES,
@@ -44,7 +44,6 @@ type Props = {
     drag: DragState | null;
     drop: DropState | null;
     hover: HoverState | null;
-    timezone: string;
     registerRef: (id: number, element: HTMLDivElement | null) => void;
     onColumnClick: (event: React.MouseEvent, entry: PositionedColumn) => void;
     onColumnHover: (event: React.MouseEvent, entry: PositionedColumn) => void;
@@ -67,7 +66,6 @@ export default function DayColumn({
     drag,
     drop,
     hover,
-    timezone,
     registerRef,
     onColumnClick,
     onColumnHover,
@@ -172,6 +170,9 @@ export default function DayColumn({
             {/* Appointments */}
             {items.map((item) => {
                 const isDragged = drag?.appointment.id === item.appointment.id;
+                // Bookings the customer made themselves are tinted green instead
+                // of the default blue, so they stand out at a glance on the grid.
+                const isPublic = item.appointment.source === 'public';
 
                 return (
                     <div
@@ -179,6 +180,8 @@ export default function DayColumn({
                         data-test="calendar-appointment"
                         className={cn(
                             'absolute z-10 flex overflow-hidden rounded-md border border-primary/30 bg-primary/10 text-xs shadow-sm transition-shadow',
+                            isPublic &&
+                                'border-emerald-500/40 bg-emerald-500/10',
                             isDragged && 'opacity-40',
                         )}
                         style={{
@@ -199,6 +202,8 @@ export default function DayColumn({
                             onPointerCancel={onEndDrag}
                             className={cn(
                                 'flex w-5 shrink-0 touch-none items-center justify-center border-r border-primary/20 bg-primary/15 text-primary/70 hover:bg-primary/25 hover:text-primary',
+                                isPublic &&
+                                    'border-emerald-600/20 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25 hover:text-emerald-800',
                                 drag ? 'cursor-grabbing' : 'cursor-grab',
                             )}
                         >
@@ -213,11 +218,10 @@ export default function DayColumn({
                             }
                             className="min-w-0 flex-1 px-2 py-1 text-left"
                         >
-                            <p className="font-medium text-foreground">
-                                {formatAppointmentTimeRange(
-                                    item.appointment.start_at,
-                                    item.appointment.end_at,
-                                    timezone,
+                            <p className="truncate font-medium text-foreground">
+                                {appointmentCustomerLabel(
+                                    item.appointment,
+                                    t('customer.noName'),
                                 )}
                             </p>
                             <p className="flex items-center gap-1 text-foreground">

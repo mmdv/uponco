@@ -1,6 +1,7 @@
 {
     "title": "Görüşlər",
     "newAppointment": "Yeni görüş",
+    "onlineBooking": "Müştəri onlayn rezerv edib",
     "empty": {
         "day": "Bu gün görüş yoxdur."
     },
