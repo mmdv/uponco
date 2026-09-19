@@ -446,6 +446,13 @@ export function isPastAppointment(appointment: Appointment): boolean {
     return new Date(appointment.start_at).getTime() < Date.now();
 }
 
+/**
+ * Whether the appointment was marked as a no-show (the customer didn't attend).
+ */
+export function isNoShow(appointment: Appointment): boolean {
+    return appointment.status === 'no_show';
+}
+
 export type AppointmentDayGroup = {
     /** `YYYY-MM-DD` key used to bucket appointments by calendar day. */
     key: string;

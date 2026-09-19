@@ -21,11 +21,18 @@
         "durationLabel": "Müddət",
         "submit": "Görüş yarat"
     },
+    "status": {
+        "booked": "Rezerv olunub",
+        "cancelled": "Ləğv olunub",
+        "noShow": "Gəlmədi"
+    },
     "toast": {
         "cancelError": "Görüşü ləğv etmək alınmadı. Yenidən cəhd edin.",
         "creating": "Görüş əlavə olunur…",
         "createError": "Görüşü yaratmaq alınmadı. Yenidən cəhd edin.",
-        "updateError": "Görüşü yeniləmək alınmadı. Yenidən cəhd edin."
+        "updateError": "Görüşü yeniləmək alınmadı. Yenidən cəhd edin.",
+        "noShowError": "Görüşü yeniləmək alınmadı. Yenidən cəhd edin.",
+        "deleteError": "Görüşü silmək alınmadı. Yenidən cəhd edin."
     },
     "toolbar": {
         "calendar": {
@@ -61,7 +68,10 @@
         "online": "Onlayn",
         "viewDetails": "Təfərrüatlara bax",
         "editAppointment": "Görüşü redaktə et",
-        "cancelAppointment": "Görüşü ləğv et"
+        "cancelAppointment": "Görüşü ləğv et",
+        "markNoShow": "Gəlmədi kimi işarələ",
+        "undoNoShow": "Gəlmədini geri al",
+        "deleteAppointment": "Görüşü sil"
     },
     "form": {
         "editTitle": "Görüşü redaktə et",
@@ -131,6 +141,13 @@
         "dismiss": "Görüşü saxla",
         "confirmButton": "Görüşü ləğv et"
     },
+    "delete": {
+        "title": "Görüşü sil",
+        "confirm": "\"{name}\" üçün görüşü silmək istədiyinizə əminsiniz? Bu, onu cədvəlinizdən silir.",
+        "confirmWithDate": "\"{name}\" üçün {date} tarixindəki görüşü silmək istədiyinizə əminsiniz? Bu, onu cədvəlinizdən silir.",
+        "dismiss": "Görüşü saxla",
+        "confirmButton": "Görüşü sil"
+    },
     "details": {
         "online": "Onlayn",
         "inPerson": "Şəxsən",
@@ -144,6 +161,9 @@
         "meeting": "Google Meet",
         "join": "Qoşul",
         "close": "Bağla",
-        "edit": "Redaktə et"
+        "edit": "Redaktə et",
+        "markNoShow": "Gəlmədi kimi işarələ",
+        "undoNoShow": "Gəlmədini geri al",
+        "delete": "Sil"
     }
 }

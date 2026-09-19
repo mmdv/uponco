@@ -160,6 +160,9 @@ export default function CalendarWeekView({
                                             item.appointment.source ===
                                                 'public' &&
                                                 'border-emerald-500/40 bg-emerald-500/10',
+                                            item.appointment.status ===
+                                                'no_show' &&
+                                                'border-rose-500/40 bg-rose-500/10',
                                         )}
                                         style={{
                                             top: item.top,

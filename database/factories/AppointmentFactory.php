@@ -79,4 +79,29 @@ class AppointmentFactory extends Factory
             'cancelled_at' => now(),
         ]);
     }
+
+    /**
+     * Indicate that the past appointment's customer did not attend.
+     */
+    public function noShow(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => AppointmentStatus::NoShow,
+        ]);
+    }
+
+    /**
+     * Place the appointment in the past (yesterday), so past-only rules apply.
+     */
+    public function past(): static
+    {
+        return $this->state(function (array $attributes): array {
+            $startAt = now()->subDay();
+
+            return [
+                'start_at' => $startAt,
+                'end_at' => (clone $startAt)->addMinutes(60),
+            ];
+        });
+    }
 }

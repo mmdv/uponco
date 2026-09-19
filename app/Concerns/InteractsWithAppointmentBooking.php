@@ -486,6 +486,9 @@ trait InteractsWithAppointmentBooking
             'end_at' => $appointment->end_at->toIso8601String(),
             'timezone' => $timezone,
             'notes' => $appointment->notes,
+            // Lifecycle state (booked/cancelled/no_show); drives the status badge
+            // and which past-only actions the client offers.
+            'status' => $appointment->status->value,
             // Where the booking came from: `public` when the customer booked it
             // themselves on the public page, `staff` when a specialist entered it.
             'source' => $appointment->source->value,

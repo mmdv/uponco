@@ -18,6 +18,7 @@ import type {
 import AppointmentCalendar from '@/components/appointments/calendar/appointment-calendar';
 import CalendarDateNav from '@/components/appointments/calendar/calendar-date-nav';
 import CancelAppointmentModal from '@/components/appointments/cancel-appointment-modal';
+import DeleteAppointmentModal from '@/components/appointments/delete-appointment-modal';
 import CustomerPreviewModal from '@/components/customers/customer-preview-modal';
 import { useDayColumns } from '@/hooks/use-day-columns';
 import { useLocalStorage } from '@/hooks/use-local-storage';
@@ -66,11 +67,16 @@ export default function AppointmentsIndex({
     // they are the assigned specialist. Mirrors the backend authorization.
     const isTeamAdmin =
         currentTeam?.role === 'admin' || currentTeam?.role === 'owner';
-    // Past appointments are read-only: they can only be previewed, never edited,
-    // rescheduled or cancelled. The backend enforces this too.
+    // Whether the viewer owns or manages this appointment (mirrors the backend
+    // own-or-view-all rule). The time gate is layered on top per action.
+    const canManageAppointment = (appointment: Appointment) =>
+        isTeamAdmin || appointment.specialist_id === auth.user.id;
+    // Future appointments can be edited, rescheduled or cancelled.
     const canEditAppointment = (appointment: Appointment) =>
-        !isPastAppointment(appointment) &&
-        (isTeamAdmin || appointment.specialist_id === auth.user.id);
+        !isPastAppointment(appointment) && canManageAppointment(appointment);
+    // Past appointments instead allow outcome actions: mark no-show and delete.
+    const canManagePastAppointment = (appointment: Appointment) =>
+        isPastAppointment(appointment) && canManageAppointment(appointment);
 
     const [view, setView] = useLocalStorage<AppointmentView>(
         'appointments:view',
@@ -98,12 +104,18 @@ export default function AppointmentsIndex({
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelling, setCancelling] = useState<Appointment | null>(null);
 
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleting, setDeleting] = useState<Appointment | null>(null);
+
     // Optimistic overlay on the server's appointments, so create and cancel land
     // instantly without a full refresh that would lose the viewed day and scroll.
     const {
         appointments: localAppointments,
         cancelProcessing,
+        deleteProcessing,
         cancel: cancelAppointment,
+        destroy: deleteAppointment,
+        setStatus: setAppointmentStatus,
         add: addOptimisticAppointment,
         remove: removeOptimisticAppointment,
         reschedule,
@@ -247,6 +259,41 @@ export default function AppointmentsIndex({
         });
     };
 
+    const handleMarkNoShow = (appointment: Appointment) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
+        setDetailsOpen(false);
+        setAppointmentStatus(appointment, 'no_show');
+    };
+
+    const handleUndoNoShow = (appointment: Appointment) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
+        setDetailsOpen(false);
+        setAppointmentStatus(appointment, 'booked');
+    };
+
+    const confirmDelete = (appointment: Appointment) => {
+        if (blockWhenOffline()) {
+            return;
+        }
+
+        setDetailsOpen(false);
+        setDeleting(appointment);
+        setDeleteOpen(true);
+    };
+
+    const handleConfirmDelete = (appointment: Appointment) => {
+        deleteAppointment(appointment, {
+            onSuccess: () => setDeleteOpen(false),
+            onError: () => toast.error(t('toast.deleteError')),
+        });
+    };
+
     const openDetails = (appointment: Appointment) => {
         setViewing(appointment);
         setDetailsOpen(true);
@@ -360,9 +407,13 @@ export default function AppointmentsIndex({
                             onEdit={openEdit}
                             onCancel={confirmCancel}
                             onViewCustomer={openCustomer}
+                            onMarkNoShow={handleMarkNoShow}
+                            onUndoNoShow={handleUndoNoShow}
+                            onDelete={confirmDelete}
                             canModify={(appointment) =>
                                 !isPastAppointment(appointment)
                             }
+                            canManagePast={canManagePastAppointment}
                             showLocation={showLocation}
                             showSpecialist={showSpecialist}
                             groupByDay={false}
@@ -459,15 +510,29 @@ export default function AppointmentsIndex({
                 onConfirm={handleConfirmCancel}
             />
 
+            <DeleteAppointmentModal
+                appointment={deleting}
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                processing={deleteProcessing}
+                onConfirm={handleConfirmDelete}
+            />
+
             <AppointmentDetailsModal
                 appointment={viewing}
                 open={detailsOpen}
                 onOpenChange={setDetailsOpen}
                 canEdit={viewing ? canEditAppointment(viewing) : false}
+                canManagePast={
+                    viewing ? canManagePastAppointment(viewing) : false
+                }
                 onEdit={(appointment) => {
                     setDetailsOpen(false);
                     openEdit(appointment);
                 }}
+                onMarkNoShow={handleMarkNoShow}
+                onUndoNoShow={handleUndoNoShow}
+                onDelete={confirmDelete}
             />
 
             <CustomerPreviewModal

@@ -120,6 +120,8 @@ Route::middleware(['auth', 'verified', EnsureTeamMembership::class, EnsureTeamOn
         Route::patch('calendar/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
         Route::patch('calendar/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
         Route::patch('calendar/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+        Route::patch('calendar/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
+        Route::delete('calendar/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
         Route::get('schedule', [ScheduleController::class, 'index'])->name('schedule.index');
         Route::post('schedule', [ScheduleController::class, 'store'])->name('schedule.store');

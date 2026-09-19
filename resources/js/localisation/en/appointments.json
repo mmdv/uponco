@@ -21,11 +21,18 @@
         "durationLabel": "Duration",
         "submit": "Create appointment"
     },
+    "status": {
+        "booked": "Booked",
+        "cancelled": "Cancelled",
+        "noShow": "No-show"
+    },
     "toast": {
         "cancelError": "Couldn't cancel the appointment. Please try again.",
         "creating": "Adding appointment…",
         "createError": "Couldn't create the appointment. Please try again.",
-        "updateError": "Couldn't update the appointment. Please try again."
+        "updateError": "Couldn't update the appointment. Please try again.",
+        "noShowError": "Couldn't update the appointment. Please try again.",
+        "deleteError": "Couldn't delete the appointment. Please try again."
     },
     "toolbar": {
         "calendar": {
@@ -61,7 +68,10 @@
         "online": "Online",
         "viewDetails": "View details",
         "editAppointment": "Edit appointment",
-        "cancelAppointment": "Cancel appointment"
+        "cancelAppointment": "Cancel appointment",
+        "markNoShow": "Mark as no-show",
+        "undoNoShow": "Undo no-show",
+        "deleteAppointment": "Delete appointment"
     },
     "form": {
         "editTitle": "Edit appointment",
@@ -131,6 +141,13 @@
         "dismiss": "Keep appointment",
         "confirmButton": "Cancel appointment"
     },
+    "delete": {
+        "title": "Delete appointment",
+        "confirm": "Are you sure you want to delete the appointment for \"{name}\"? This removes it from your schedule.",
+        "confirmWithDate": "Are you sure you want to delete the appointment for \"{name}\" on {date}? This removes it from your schedule.",
+        "dismiss": "Keep appointment",
+        "confirmButton": "Delete appointment"
+    },
     "details": {
         "online": "Online",
         "inPerson": "In person",
@@ -144,6 +161,9 @@
         "meeting": "Google Meet",
         "join": "Join",
         "close": "Close",
-        "edit": "Edit"
+        "edit": "Edit",
+        "markNoShow": "Mark as no-show",
+        "undoNoShow": "Undo no-show",
+        "delete": "Delete"
     }
 }

@@ -106,6 +106,8 @@ export type Appointment = {
     end_at: string;
     timezone: string;
     notes: string | null;
+    /** Lifecycle state; `no_show` marks a past appointment the customer didn't attend. */
+    status: 'booked' | 'cancelled' | 'no_show';
     /** `public` when the customer booked it themselves, `staff` when entered by a specialist. */
     source: 'staff' | 'public';
     /** Join URL for an online appointment (e.g. a Google Meet link), else null. */

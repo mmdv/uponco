@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { isPastAppointment } from '@/lib/appointments';
 import {
     cancel as cancelRoute,
+    destroy as destroyRoute,
     reschedule as rescheduleRoute,
+    status as statusRoute,
 } from '@/routes/appointments';
 import type { Appointment } from '@/types';
 
@@ -21,8 +23,16 @@ type OptimisticAppointments = {
     /** The list to render: server data with any optimistic edits applied. */
     appointments: Appointment[];
     cancelProcessing: boolean;
+    deleteProcessing: boolean;
     /** Optimistically remove and cancel on the server, rolling back on failure. */
     cancel: (appointment: Appointment, callbacks?: CancelCallbacks) => void;
+    /** Optimistically remove and delete (soft) on the server, rolling back on failure. */
+    destroy: (appointment: Appointment, callbacks?: CancelCallbacks) => void;
+    /** Optimistically set a past appointment's status (no-show/booked), reconciled by reload. */
+    setStatus: (
+        appointment: Appointment,
+        status: Appointment['status'],
+    ) => void;
     /** Optimistically add a (temp-id) appointment to the list. */
     add: (appointment: Appointment) => void;
     /** Remove an optimistic appointment by its temp id. */
@@ -46,6 +56,7 @@ export function useOptimisticAppointments(
     const [appointments, setAppointments] = useState(serverAppointments);
     const [syncedFrom, setSyncedFrom] = useState(serverAppointments);
     const [cancelProcessing, setCancelProcessing] = useState(false);
+    const [deleteProcessing, setDeleteProcessing] = useState(false);
 
     if (serverAppointments !== syncedFrom) {
         setSyncedFrom(serverAppointments);
@@ -81,6 +92,49 @@ export function useOptimisticAppointments(
         });
     };
 
+    const destroy = (appointment: Appointment, callbacks?: CancelCallbacks) => {
+        const snapshot = appointments;
+
+        remove(appointment.id);
+
+        router.delete(destroyRoute.url([appointment.id]), {
+            only: ['appointments'],
+            preserveScroll: true,
+            preserveState: true,
+            onStart: () => setDeleteProcessing(true),
+            onFinish: () => setDeleteProcessing(false),
+            onSuccess: () => callbacks?.onSuccess?.(),
+            onError: () => {
+                setAppointments(snapshot);
+                callbacks?.onError?.();
+            },
+        });
+    };
+
+    const setStatus = (
+        appointment: Appointment,
+        status: Appointment['status'],
+    ) => {
+        const snapshot = appointments;
+
+        setAppointments((prev) =>
+            prev.map((item) =>
+                item.id === appointment.id ? { ...item, status } : item,
+            ),
+        );
+
+        router.patch(
+            statusRoute.url([appointment.id]),
+            { status },
+            {
+                only: ['appointments'],
+                preserveScroll: true,
+                preserveState: true,
+                onError: () => setAppointments(snapshot),
+            },
+        );
+    };
+
     const reschedule = (appointment: Appointment, startIso: string) => {
         if (isPastAppointment(appointment)) {
             return;
@@ -97,5 +151,15 @@ export function useOptimisticAppointments(
         );
     };
 
-    return { appointments, cancelProcessing, cancel, add, remove, reschedule };
+    return {
+        appointments,
+        cancelProcessing,
+        deleteProcessing,
+        cancel,
+        destroy,
+        setStatus,
+        add,
+        remove,
+        reschedule,
+    };
 }

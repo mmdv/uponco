@@ -1,6 +1,15 @@
-import { CalendarX, MoreHorizontal, Pencil, Search } from 'lucide-react';
+import {
+    CalendarX,
+    MoreHorizontal,
+    Pencil,
+    Search,
+    Trash2,
+    UserCheck,
+    UserX,
+} from 'lucide-react';
 import { Fragment } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -36,8 +45,13 @@ type Props = {
     onEdit: (appointment: Appointment) => void;
     onCancel: (appointment: Appointment) => void;
     onViewCustomer: (appointment: Appointment) => void;
+    onMarkNoShow?: (appointment: Appointment) => void;
+    onUndoNoShow?: (appointment: Appointment) => void;
+    onDelete?: (appointment: Appointment) => void;
     /** Whether the appointment may be edited/cancelled; read-only rows show only View. */
     canModify?: (appointment: Appointment) => boolean;
+    /** Whether past-only actions (no-show, delete) are available for the row. */
+    canManagePast?: (appointment: Appointment) => boolean;
     /** Show the "@ location" line under the service — hidden when only one location exists. */
     showLocation: boolean;
     /** Show the specialist column — hidden when the team has a single member. */
@@ -56,7 +70,11 @@ export default function AppointmentsTable({
     onEdit,
     onCancel,
     onViewCustomer,
+    onMarkNoShow,
+    onUndoNoShow,
+    onDelete,
     canModify = () => true,
+    canManagePast = () => false,
     showLocation,
     showSpecialist,
     groupByDay = true,
@@ -132,6 +150,10 @@ export default function AppointmentsTable({
                                         // Past appointments read as done: dimmed and muted.
                                         isPastAppointment(appointment) &&
                                             'text-muted-foreground opacity-60',
+                                        // A no-show is flagged in rose; it wins over the
+                                        // source tint above.
+                                        appointment.status === 'no_show' &&
+                                            'bg-rose-500/5 hover:bg-rose-500/10',
                                     )}
                                     onClick={() => onView(appointment)}
                                 >
@@ -151,8 +173,19 @@ export default function AppointmentsTable({
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-top">
-                                        <div className="font-medium">
-                                            {appointment.service.title}
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium">
+                                                {appointment.service.title}
+                                            </span>
+                                            {appointment.status ===
+                                                'no_show' && (
+                                                <Badge
+                                                    variant="destructive"
+                                                    className="shrink-0"
+                                                >
+                                                    {t('status.noShow')}
+                                                </Badge>
+                                            )}
                                         </div>
                                         {showLocation ? (
                                             <div className="text-xs text-foreground">
@@ -249,6 +282,54 @@ export default function AppointmentsTable({
                                                             <CalendarX className="size-4" />
                                                             {t(
                                                                 'table.cancelAppointment',
+                                                            )}
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
+                                                {canManagePast(appointment) && (
+                                                    <>
+                                                        {appointment.status ===
+                                                        'no_show' ? (
+                                                            <DropdownMenuItem
+                                                                data-test="appointment-undo-no-show-button"
+                                                                onSelect={() =>
+                                                                    onUndoNoShow?.(
+                                                                        appointment,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <UserCheck className="size-4" />
+                                                                {t(
+                                                                    'table.undoNoShow',
+                                                                )}
+                                                            </DropdownMenuItem>
+                                                        ) : (
+                                                            <DropdownMenuItem
+                                                                data-test="appointment-no-show-button"
+                                                                onSelect={() =>
+                                                                    onMarkNoShow?.(
+                                                                        appointment,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <UserX className="size-4" />
+                                                                {t(
+                                                                    'table.markNoShow',
+                                                                )}
+                                                            </DropdownMenuItem>
+                                                        )}
+                                                        <DropdownMenuItem
+                                                            variant="destructive"
+                                                            data-test="appointment-delete-button"
+                                                            onSelect={() =>
+                                                                onDelete?.(
+                                                                    appointment,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                            {t(
+                                                                'table.deleteAppointment',
                                                             )}
                                                         </DropdownMenuItem>
                                                     </>

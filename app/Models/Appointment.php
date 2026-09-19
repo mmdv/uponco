@@ -167,6 +167,14 @@ class Appointment extends Model
     }
 
     /**
+     * Determine whether the appointment has been marked as a no-show.
+     */
+    public function isNoShow(): bool
+    {
+        return $this->status === AppointmentStatus::NoShow;
+    }
+
+    /**
      * Cancel the appointment.
      *
      * Cancelled appointments are kept rather than deleted so they can be counted
@@ -186,6 +194,31 @@ class Appointment extends Model
         $this->reminders()
             ->where('status', ReminderStatus::Pending)
             ->update(['status' => ReminderStatus::Cancelled]);
+    }
+
+    /**
+     * Mark the appointment as a no-show.
+     *
+     * Applies only to a past appointment the customer did not attend. Like a
+     * cancellation it stops the appointment occupying the slot and counting, but
+     * the row is kept so no-shows can be reported. Any still-pending reminder is
+     * voided for parity, though a past appointment rarely has one.
+     */
+    public function markNoShow(): void
+    {
+        $this->update(['status' => AppointmentStatus::NoShow]);
+
+        $this->reminders()
+            ->where('status', ReminderStatus::Pending)
+            ->update(['status' => ReminderStatus::Cancelled]);
+    }
+
+    /**
+     * Restore the appointment to booked, undoing a no-show mark.
+     */
+    public function markBooked(): void
+    {
+        $this->update(['status' => AppointmentStatus::Booked]);
     }
 
     /**

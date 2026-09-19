@@ -20,6 +20,7 @@ function makeAppointment(overrides: Partial<Appointment> = {}): Appointment {
         end_at: '2026-08-10T10:00:00Z',
         timezone: 'UTC',
         notes: null,
+        status: 'booked',
         source: 'staff',
         meeting_url: null,
         service: { id: 1, title: 'Consultation' },
@@ -111,5 +112,74 @@ describe('AppointmentDetailsModal', () => {
         expect(document.body.textContent).not.toContain(
             'Booked online by the customer',
         );
+    });
+
+    it('shows a no-show badge and the no-show/delete actions for a past appointment', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({ status: 'no_show' })}
+                open
+                onOpenChange={() => {}}
+                canManagePast
+                onMarkNoShow={() => {}}
+                onUndoNoShow={() => {}}
+                onDelete={() => {}}
+            />,
+        );
+
+        expect(document.body.textContent).toContain('No-show');
+        // Already a no-show, so it offers Undo, not Mark.
+        expect(
+            document.querySelector(
+                '[data-test="appointment-details-undo-no-show-button"]',
+            ),
+        ).not.toBeNull();
+        expect(
+            document.querySelector(
+                '[data-test="appointment-details-delete-button"]',
+            ),
+        ).not.toBeNull();
+    });
+
+    it('offers the mark-no-show action for a booked appointment under management', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({ status: 'booked' })}
+                open
+                onOpenChange={() => {}}
+                canManagePast
+                onMarkNoShow={() => {}}
+                onDelete={() => {}}
+            />,
+        );
+
+        expect(
+            document.querySelector(
+                '[data-test="appointment-details-no-show-button"]',
+            ),
+        ).not.toBeNull();
+    });
+
+    it('hides past-only actions when management is not allowed', () => {
+        render(
+            <AppointmentDetailsModal
+                appointment={makeAppointment({ status: 'booked' })}
+                open
+                onOpenChange={() => {}}
+                onMarkNoShow={() => {}}
+                onDelete={() => {}}
+            />,
+        );
+
+        expect(
+            document.querySelector(
+                '[data-test="appointment-details-no-show-button"]',
+            ),
+        ).toBeNull();
+        expect(
+            document.querySelector(
+                '[data-test="appointment-details-delete-button"]',
+            ),
+        ).toBeNull();
     });
 });

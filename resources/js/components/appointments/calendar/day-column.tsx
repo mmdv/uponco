@@ -173,6 +173,8 @@ export default function DayColumn({
                 // Bookings the customer made themselves are tinted green instead
                 // of the default blue, so they stand out at a glance on the grid.
                 const isPublic = item.appointment.source === 'public';
+                // A no-show is flagged in rose and wins over the source tint.
+                const isNoShow = item.appointment.status === 'no_show';
 
                 return (
                     <div
@@ -182,6 +184,7 @@ export default function DayColumn({
                             'absolute z-10 flex overflow-hidden rounded-md border border-primary/30 bg-primary/10 text-xs shadow-sm transition-shadow',
                             isPublic &&
                                 'border-emerald-500/40 bg-emerald-500/10',
+                            isNoShow && 'border-rose-500/40 bg-rose-500/10',
                             isDragged && 'opacity-40',
                         )}
                         style={{
@@ -204,6 +207,8 @@ export default function DayColumn({
                                 'flex w-5 shrink-0 touch-none items-center justify-center border-r border-primary/20 bg-primary/15 text-primary/70 hover:bg-primary/25 hover:text-primary',
                                 isPublic &&
                                     'border-emerald-600/20 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25 hover:text-emerald-800',
+                                isNoShow &&
+                                    'border-rose-600/20 bg-rose-500/15 text-rose-700 hover:bg-rose-500/25 hover:text-rose-800',
                                 drag ? 'cursor-grabbing' : 'cursor-grab',
                             )}
                         >

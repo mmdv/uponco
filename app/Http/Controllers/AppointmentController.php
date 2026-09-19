@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentAlert;
+use App\Enums\AppointmentStatus;
 use App\Enums\TeamPermission;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Http\Requests\Appointments\StoreDayAppointmentRequest;
@@ -16,6 +17,7 @@ use App\Support\ScheduleSlotMap;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,7 +37,9 @@ class AppointmentController extends Controller
         return Inertia::render('appointments/index', [
             'timezone' => $timezone,
             'appointments' => $team->appointments()
-                ->booked()
+                // Show live bookings and past no-shows (so staff can see/undo the
+                // mark); cancelled appointments stay hidden from the schedule.
+                ->whereIn('status', [AppointmentStatus::Booked, AppointmentStatus::NoShow])
                 ->with(['service:id,title', 'location:id,name', 'specialist:id,name', 'customer:id,name,email,phone'])
                 // Members with the view-all-appointments permission (admins and owners
                 // have it by role) see the whole team's schedule; others only see their own.
@@ -217,13 +221,71 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Update the outcome status of a past appointment (no-show / attended).
+     *
+     * A no-show marks that the customer did not attend; setting it back to booked
+     * undoes the mark. Only past appointments can be marked, and — unlike a
+     * cancellation — the customer is not emailed (they did not come). Idempotent.
+     */
+    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $this->authorizeAppointment($request, $appointment, requirePast: true);
+
+        $status = $request->validate([
+            'status' => ['required', Rule::enum(AppointmentStatus::class), Rule::in([
+                AppointmentStatus::Booked->value,
+                AppointmentStatus::NoShow->value,
+            ])],
+        ])['status'];
+
+        $target = AppointmentStatus::from($status);
+
+        if ($appointment->status === $target) {
+            return back();
+        }
+
+        if ($target === AppointmentStatus::NoShow) {
+            $appointment->markNoShow();
+            $message = __('Marked as no-show.');
+        } else {
+            $appointment->markBooked();
+            $message = __('Marked as attended.');
+        }
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
+
+        return back();
+    }
+
+    /**
+     * Delete a past appointment.
+     *
+     * For phoned-in cancellations or accidental entries. The appointment is
+     * soft-deleted (recoverable), stays out of the schedule, and — being past —
+     * sends no customer notification.
+     */
+    public function destroy(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $this->authorizeAppointment($request, $appointment, requirePast: true);
+
+        $appointment->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment deleted.')]);
+
+        return back();
+    }
+
+    /**
      * Ensure the user may modify the appointment.
      *
      * The appointment must belong to the user's current team, and members may
      * only touch their own appointments while admins and owners may touch any.
-     * Past appointments are read-only for everyone — they can only be previewed.
+     *
+     * Time gating flips with the action: ordinary edits are future-only (past
+     * appointments are read-only), while past-only actions (no-show, delete)
+     * pass `requirePast: true` to require a past appointment instead.
      */
-    protected function authorizeAppointment(Request $request, Appointment $appointment): void
+    protected function authorizeAppointment(Request $request, Appointment $appointment, bool $requirePast = false): void
     {
         $user = $request->user();
         $team = $user->currentTeam;
@@ -235,6 +297,10 @@ class AppointmentController extends Controller
             403,
         );
 
-        abort_if($appointment->isPast(), 403, __('Past appointments cannot be changed.'));
+        if ($requirePast) {
+            abort_unless($appointment->isPast(), 403, __('Only past appointments can be changed this way.'));
+        } else {
+            abort_if($appointment->isPast(), 403, __('Past appointments cannot be changed.'));
+        }
     }
 }

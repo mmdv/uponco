@@ -118,6 +118,9 @@ export default function CalendarMonthView({
                                                 appointment.source ===
                                                     'public' &&
                                                     'bg-emerald-500/10 hover:bg-emerald-500/20',
+                                                appointment.status ===
+                                                    'no_show' &&
+                                                    'bg-rose-500/10 hover:bg-rose-500/20',
                                             )}
                                         >
                                             <span className="font-medium text-foreground">

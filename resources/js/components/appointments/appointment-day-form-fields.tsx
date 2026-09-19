@@ -210,6 +210,7 @@ export default function AppointmentDayFormFields({
         end_at: wallTimeToUtcIso(dayKey, startMinutes + duration, timezone),
         timezone,
         notes: null,
+        status: 'booked',
         // Created here by a specialist, so it is a staff booking.
         source: 'staff',
         // The real record from the server carries any generated link; the

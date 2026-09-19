@@ -5,7 +5,9 @@ import {
     MapPin,
     Pencil,
     Phone,
+    Trash2,
     User,
+    UserX,
 } from 'lucide-react';
 
 import GoogleMeetIcon from '@/components/icons/google-meet-icon';
@@ -36,7 +38,12 @@ type Props = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     canEdit?: boolean;
+    /** Whether the viewer may run past-only actions (no-show, delete) on this one. */
+    canManagePast?: boolean;
     onEdit?: (appointment: Appointment) => void;
+    onMarkNoShow?: (appointment: Appointment) => void;
+    onUndoNoShow?: (appointment: Appointment) => void;
+    onDelete?: (appointment: Appointment) => void;
 };
 
 export default function AppointmentDetailsModal({
@@ -44,18 +51,23 @@ export default function AppointmentDetailsModal({
     open,
     onOpenChange,
     canEdit = false,
+    canManagePast = false,
     onEdit,
+    onMarkNoShow,
+    onUndoNoShow,
+    onDelete,
 }: Props) {
     const { t } = useTranslation('appointments');
     const customerTerm = useCustomerTerm();
     const isOnline = appointment ? appointment.location === null : false;
+    const isNoShow = appointment?.status === 'no_show';
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
+            <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
                 {appointment && (
                     <>
-                        <DialogHeader className="gap-1.5 border-b bg-muted/30 p-6">
+                        <DialogHeader className="shrink-0 gap-1.5 border-b bg-muted/30 p-6">
                             <div className="mb-1 flex flex-wrap items-center gap-2">
                                 <Badge
                                     variant={isOnline ? 'default' : 'secondary'}
@@ -70,6 +82,11 @@ export default function AppointmentDetailsModal({
                                         {t('onlineBooking')}
                                     </Badge>
                                 )}
+                                {isNoShow && (
+                                    <Badge variant="destructive">
+                                        {t('status.noShow')}
+                                    </Badge>
+                                )}
                             </div>
                             <DialogTitle className="text-xl leading-tight">
                                 {appointment.service.title}
@@ -81,7 +98,7 @@ export default function AppointmentDetailsModal({
                             </p>
                         </DialogHeader>
 
-                        <div className="space-y-6 p-6">
+                        <div className="flex-1 space-y-6 overflow-x-hidden overflow-y-auto p-6">
                             <section className="grid grid-cols-2 gap-4">
                                 <InfoTile
                                     icon={<Calendar className="size-4" />}
@@ -210,21 +227,68 @@ export default function AppointmentDetailsModal({
                             )}
                         </div>
 
-                        <DialogFooter className="border-t p-4">
-                            <DialogClose asChild>
-                                <Button variant="secondary">
-                                    {t('details.close')}
-                                </Button>
-                            </DialogClose>
-                            {canEdit && onEdit && (
-                                <Button
-                                    data-test="appointment-details-edit-button"
-                                    onClick={() => onEdit(appointment)}
-                                >
-                                    <Pencil /> {t('details.edit')}
-                                </Button>
-                            )}
-                        </DialogFooter>
+                        {canManagePast ? (
+                            <DialogFooter className="shrink-0 flex-row items-center justify-between gap-2 border-t p-4">
+                                {onDelete ? (
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="text-destructive hover:text-destructive"
+                                        data-test="appointment-details-delete-button"
+                                        aria-label={t('details.delete')}
+                                        title={t('details.delete')}
+                                        onClick={() => onDelete(appointment)}
+                                    >
+                                        <Trash2 />
+                                    </Button>
+                                ) : (
+                                    <span />
+                                )}
+                                {isNoShow
+                                    ? onUndoNoShow && (
+                                          <Button
+                                              variant="outline"
+                                              data-test="appointment-details-undo-no-show-button"
+                                              onClick={() =>
+                                                  onUndoNoShow(appointment)
+                                              }
+                                          >
+                                              {t('details.undoNoShow')}
+                                          </Button>
+                                      )
+                                    : onMarkNoShow && (
+                                          <Button
+                                              variant="warning"
+                                              data-test="appointment-details-no-show-button"
+                                              onClick={() =>
+                                                  onMarkNoShow(appointment)
+                                              }
+                                          >
+                                              <UserX /> {t('details.markNoShow')}
+                                          </Button>
+                                      )}
+                            </DialogFooter>
+                        ) : (
+                            <DialogFooter className="shrink-0 border-t p-4">
+                                <DialogClose asChild>
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full sm:w-auto"
+                                    >
+                                        {t('details.close')}
+                                    </Button>
+                                </DialogClose>
+                                {canEdit && onEdit && (
+                                    <Button
+                                        className="w-full sm:w-auto"
+                                        data-test="appointment-details-edit-button"
+                                        onClick={() => onEdit(appointment)}
+                                    >
+                                        <Pencil /> {t('details.edit')}
+                                    </Button>
+                                )}
+                            </DialogFooter>
+                        )}
                     </>
                 )}
             </DialogContent>
