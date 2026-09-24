@@ -129,7 +129,7 @@ class PublicAppointmentController extends Controller
 
         App::setLocale($locale);
 
-        return Inertia::render('public/appointments/book', [
+        return Inertia::render($company->bookingPageDesign()->component(), [
             'locale' => $locale,
             'availableLocales' => Localization::optionsFor($available),
             'company' => $this->companyHeaderPayload($company),

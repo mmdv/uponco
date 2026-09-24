@@ -408,6 +408,15 @@
             "reset": "Standart rəngə qaytar",
             "save": "Rəngləri yadda saxla"
         },
+        "design": {
+            "title": "Rezervasiya səhifəsi dizaynı",
+            "description": "Müştərilərin rezerv edərkən gördüyü tərtibatı seçin",
+            "classic": "Dizayn 1",
+            "classicHint": "Cari dizayn, qısa xidmət siyahısı üçün ən yaxşısıdır.",
+            "v2": "Dizayn 2",
+            "v2Hint": "Sınaq mərhələsində. Böyük xidmət siyahıları üçün nəzərdə tutulub.",
+            "save": "Dizaynı yadda saxla"
+        },
         "preview": {
             "title": "Canlı önbaxış",
             "description": "Rezervasiya səhifəniz müştərilərə belə görünür",

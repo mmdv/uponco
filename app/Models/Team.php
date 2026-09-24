@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\GeneratesUniqueTeamSlugs;
+use App\Enums\BookingPageDesign;
 use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Enums\TeamType;
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path', 'brand_primary_color', 'default_locale', 'available_locales'])]
+#[Fillable(['name', 'slug', 'is_personal', 'type', 'timezone', 'business_category', 'business_category_other', 'logo_path', 'brand_primary_color', 'booking_page_design', 'default_locale', 'available_locales'])]
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -56,6 +57,15 @@ class Team extends Model
     public function brandPrimaryColor(): string
     {
         return BrandPalette::normalise($this->brand_primary_color) ?? BrandPalette::DEFAULT_PRIMARY;
+    }
+
+    /**
+     * The design the team's public booking page renders with, falling back to
+     * the default (classic) design when the team hasn't picked one.
+     */
+    public function bookingPageDesign(): BookingPageDesign
+    {
+        return $this->booking_page_design ?? BookingPageDesign::default();
     }
 
     /**
@@ -234,6 +244,7 @@ class Team extends Model
             'is_personal' => 'boolean',
             'type' => TeamType::class,
             'business_category' => BusinessCategory::class,
+            'booking_page_design' => BookingPageDesign::class,
             'available_locales' => 'array',
         ];
     }

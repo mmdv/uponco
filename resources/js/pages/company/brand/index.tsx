@@ -42,16 +42,22 @@ const PRESET_COLORS = [
 
 type Props = {
     team: Team & {
+        bookingPageDesign: string;
         defaultLocale: string;
         availableLocales: string[];
     };
     permissions: TeamPermissions;
     defaultPrimaryColor: string;
+    /** Whether the booking-page design switch is offered in this environment. */
+    canSelectDesign: boolean;
     widget: {
         scriptUrl: string;
         bookingUrl: string;
     };
 };
+
+/** The selectable booking-page designs, in the order they're shown. */
+const BOOKING_DESIGNS = ['classic', 'v2'] as const;
 
 /**
  * Colour one line of HTML the way an editor would: tags, attribute names and
@@ -177,6 +183,7 @@ export default function BrandIndex({
     team,
     permissions,
     defaultPrimaryColor,
+    canSelectDesign,
     widget,
 }: Props) {
     const { t } = useTranslation('company');
@@ -203,6 +210,9 @@ export default function BrandIndex({
     // The team's current selection, edited locally until saved.
     const [available, setAvailable] = useState<string[]>(team.availableLocales);
     const [defaultLocale, setDefaultLocale] = useState(team.defaultLocale);
+
+    // The chosen booking-page design, edited locally until saved.
+    const [design, setDesign] = useState(team.bookingPageDesign);
 
     const toggleAvailable = (code: string, checked: boolean): void => {
         setAvailable((current) => {
@@ -427,6 +437,70 @@ export default function BrandIndex({
                                                     {t('brand.color.reset')}
                                                 </Button>
                                             </div>
+                                        </>
+                                    )}
+                                </Form>
+                            </Section>
+                        ) : null}
+
+                        {permissions.canUpdateTeam && canSelectDesign ? (
+                            <Section
+                                title={t('brand.design.title')}
+                                description={t('brand.design.description')}
+                            >
+                                <Form
+                                    {...BrandController.updateDesign.form()}
+                                    options={{ preserveScroll: true }}
+                                    className="space-y-6"
+                                >
+                                    {({ processing }) => (
+                                        <>
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                {BOOKING_DESIGNS.map((option) => (
+                                                    <button
+                                                        key={option}
+                                                        type="button"
+                                                        aria-pressed={
+                                                            design === option
+                                                        }
+                                                        data-test={`brand-design-${option}`}
+                                                        onClick={() =>
+                                                            setDesign(option)
+                                                        }
+                                                        className={cn(
+                                                            'flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-colors',
+                                                            design === option
+                                                                ? 'border-primary bg-primary/10'
+                                                                : 'hover:bg-muted',
+                                                        )}
+                                                    >
+                                                        <span className="text-sm font-medium">
+                                                            {t(
+                                                                `brand.design.${option}`,
+                                                            )}
+                                                        </span>
+                                                        <span className="text-xs text-foreground">
+                                                            {t(
+                                                                `brand.design.${option}Hint`,
+                                                            )}
+                                                        </span>
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <input
+                                                type="hidden"
+                                                name="booking_page_design"
+                                                value={design}
+                                            />
+
+                                            <Button
+                                                type="submit"
+                                                data-test="brand-design-save"
+                                                disabled={processing}
+                                            >
+                                                {t('brand.design.save')}
+                                            </Button>
                                         </>
                                     )}
                                 </Form>

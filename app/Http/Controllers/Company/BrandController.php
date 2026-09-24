@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Company\SaveBookingDesignRequest;
 use App\Http\Requests\Company\SaveBrandRequest;
 use App\Http\Requests\Company\SaveTeamLanguagesRequest;
 use App\Http\Requests\Company\SaveTeamLogoRequest;
@@ -33,12 +34,14 @@ class BrandController extends Controller
                 'slug' => $team->slug,
                 'logoUrl' => $team->logoUrl(),
                 'brandPrimaryColor' => $team->brand_primary_color,
+                'bookingPageDesign' => $team->bookingPageDesign()->value,
                 'defaultLocale' => $team->defaultLocale(),
                 'availableLocales' => $team->availableLocales(),
             ],
             'permissions' => $user->toTeamPermissions($team),
             'palette' => BrandPalette::forTeam($team),
             'defaultPrimaryColor' => BrandPalette::DEFAULT_PRIMARY,
+            'canSelectDesign' => (bool) config('booking.design_switching'),
             'widget' => [
                 'scriptUrl' => route('public.widget.script', ['company' => $team->slug]),
                 'bookingUrl' => route('public.appointments.show', ['company' => $team->slug]),
@@ -89,6 +92,26 @@ class BrandController extends Controller
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Languages updated.')]);
+
+        return to_route('company.brand.index');
+    }
+
+    /**
+     * Update the design the team's public booking page renders with.
+     */
+    public function updateDesign(SaveBookingDesignRequest $request): RedirectResponse
+    {
+        $team = $request->user()->currentTeam;
+
+        $design = $request->validated('booking_page_design');
+
+        DB::transaction(function () use ($team, $design): void {
+            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
+
+            $locked->update(['booking_page_design' => $design]);
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Booking page design updated.')]);
 
         return to_route('company.brand.index');
     }

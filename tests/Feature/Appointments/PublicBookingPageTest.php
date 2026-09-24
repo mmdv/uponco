@@ -346,3 +346,20 @@ test('a visitor cookie only wins when the team still offers that language', func
             ->etc(),
         );
 });
+
+test('the page renders the classic design by default', function () {
+    $setup = bookableSetup();
+
+    visitBooking($setup)
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('public/appointments/book'));
+});
+
+test('the page renders the v2 design when the team has chosen it', function () {
+    $setup = bookableSetup();
+    $setup['team']->update(['booking_page_design' => 'v2']);
+
+    visitBooking($setup)
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('public/appointments/book-v2'));
+});

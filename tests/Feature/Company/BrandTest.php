@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BookingPageDesign;
 use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Models\User;
@@ -223,6 +224,114 @@ test('a member cannot save the team languages', function () {
         ->assertForbidden();
 
     expect($team->fresh()->default_locale)->toBeNull();
+});
+
+test('the brand page exposes the booking page design and whether it can be switched', function () {
+    [$user, $team] = brandOwner();
+
+    $team->update(['booking_page_design' => 'v2']);
+
+    config(['booking.design_switching' => true]);
+
+    $this
+        ->actingAs($user)
+        ->get(brandRoute('company.brand.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('team.bookingPageDesign', 'v2')
+            ->where('canSelectDesign', true)
+        );
+});
+
+test('the brand page defaults the booking page design to classic', function () {
+    [$user] = brandOwner();
+
+    $this
+        ->actingAs($user)
+        ->get(brandRoute('company.brand.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('team.bookingPageDesign', 'classic')
+        );
+});
+
+test('an admin can save the booking page design', function () {
+    [$user, $team] = brandOwner();
+
+    config(['booking.design_switching' => true]);
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.design.update'), [
+            'booking_page_design' => 'v2',
+        ])
+        ->assertRedirect(route('company.brand.index'))
+        ->assertSessionHasNoErrors();
+
+    expect($team->fresh()->booking_page_design)->toBe(BookingPageDesign::V2);
+});
+
+test('an unknown booking page design is rejected', function () {
+    [$user, $team] = brandOwner();
+
+    config(['booking.design_switching' => true]);
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.design.update'), [
+            'booking_page_design' => 'nope',
+        ])
+        ->assertSessionHasErrors('booking_page_design');
+
+    expect($team->fresh()->booking_page_design)->toBeNull();
+});
+
+test('the booking page design cannot be changed while switching is disabled', function () {
+    [$user, $team] = brandOwner();
+
+    config(['booking.design_switching' => false]);
+
+    $this
+        ->actingAs($user)
+        ->patch(brandRoute('company.brand.design.update'), [
+            'booking_page_design' => 'v2',
+        ])
+        ->assertForbidden();
+
+    expect($team->fresh()->booking_page_design)->toBeNull();
+});
+
+test('the brand page hides the design switch when it is disabled', function () {
+    [$user] = brandOwner();
+
+    config(['booking.design_switching' => false]);
+
+    $this
+        ->actingAs($user)
+        ->get(brandRoute('company.brand.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('canSelectDesign', false)
+        );
+});
+
+test('a member cannot save the booking page design', function () {
+    [$owner, $team] = brandOwner();
+
+    config(['booking.design_switching' => true]);
+
+    $member = User::factory()->create();
+    $team->members()->attach($member, ['role' => TeamRole::Member->value]);
+    $member->switchTeam($team);
+
+    $this
+        ->actingAs($member)
+        ->patch(brandRoute('company.brand.design.update'), [
+            'booking_page_design' => 'v2',
+        ])
+        ->assertForbidden();
+
+    expect($team->fresh()->booking_page_design)->toBeNull();
 });
 
 test('the team logo can be uploaded by admins', function () {

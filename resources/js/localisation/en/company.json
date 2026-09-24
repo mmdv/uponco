@@ -408,6 +408,15 @@
             "reset": "Reset to default",
             "save": "Save colours"
         },
+        "design": {
+            "title": "Booking page design",
+            "description": "Choose the layout customers see when they book",
+            "classic": "Design 1",
+            "classicHint": "The current design, best for a short list of services.",
+            "v2": "Design 2",
+            "v2Hint": "Experimental. Built for larger service lists.",
+            "save": "Save design"
+        },
         "preview": {
             "title": "Live preview",
             "description": "How your booking page looks to customers",
