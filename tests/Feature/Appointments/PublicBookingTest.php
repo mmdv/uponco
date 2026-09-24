@@ -295,6 +295,40 @@ test('specialist availability excludes fully booked days and reflects only free 
     expect($specialist['next_available']['date'])->toBe($specialist['available_days'][0]);
 });
 
+test('specialist availability preview ignores cancelled and no-show appointments', function () {
+    $setup = bookableSetup();
+
+    // Cover the specialist's entire first working day, but with appointments the
+    // booked() scope excludes. The preview must treat the slots as free, exactly
+    // as the real per-service slot list does, instead of hiding the whole day.
+    $freedDay = $setup['startAt']->startOfDay();
+
+    Appointment::factory()->cancelled()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $freedDay->setTime(9, 0),
+        'end_at' => $freedDay->setTime(13, 0),
+    ]);
+
+    Appointment::factory()->noShow()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $freedDay->setTime(13, 0),
+        'end_at' => $freedDay->setTime(17, 0),
+    ]);
+
+    $specialist = collect(AppointmentOptions::specialists($setup['team']))
+        ->firstWhere('id', $setup['user']->id);
+
+    expect($specialist['available_days'])->toContain($freedDay->format('Y-m-d'));
+    expect($specialist['next_available']['date'])->toBe($freedDay->format('Y-m-d'));
+    expect($specialist['next_available']['slots'])->toContain('09:00');
+});
+
 test('availability extends beyond two weeks to the last scheduled day', function () {
     $setup = bookableSetup();
 

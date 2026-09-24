@@ -305,6 +305,10 @@ class AppointmentOptions
     /**
      * Fetch the specialist's appointment intervals overlapping the given window.
      *
+     * Only genuine (booked) appointments count: cancelled and no-show ones free
+     * their slot, exactly as {@see SlotGenerator} treats them, so the preview
+     * never hides availability the real per-service slot list would offer.
+     *
      * Scoped to the team: this feeds an unauthenticated payload, so a specialist
      * who works for two companies must not have one company's booked times
      * inferable from the other company's public booking page.
@@ -314,6 +318,7 @@ class AppointmentOptions
     protected static function bookedIntervals(User $specialist, int $teamId, CarbonImmutable $windowStart, CarbonImmutable $windowEnd): Collection
     {
         return Appointment::query()
+            ->booked()
             ->where('team_id', $teamId)
             ->where('specialist_id', $specialist->id)
             ->where('start_at', '<', $windowEnd->utc())
