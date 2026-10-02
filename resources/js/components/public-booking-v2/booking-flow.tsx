@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import {
     BookingProvider,
     useBooking,
@@ -5,6 +7,7 @@ import {
 import BookingFooter from '@/components/public-booking-v2/booking-footer';
 import type { PublicTheme } from '@/components/public-booking-v2/booking-header';
 import BookingHeader from '@/components/public-booking-v2/booking-header';
+import { useNextChoice } from '@/components/public-booking-v2/next-choice';
 import StepDateTime from '@/components/public-booking-v2/step-datetime';
 import StepDetails from '@/components/public-booking-v2/step-details';
 import StepSelection from '@/components/public-booking-v2/step-selection';
@@ -78,21 +81,45 @@ function BookingFlowLayout({ theme, onThemeChange, embedded }: ChromeProps) {
         stepClass,
         confirmed,
         selectionIsFixed,
-        selectionComplete,
+        openPicker,
         selectedStart,
         processing,
-        summary,
         goToStep,
         handleContinue,
         handleSubmit,
         resetFlow,
     } = useBooking();
 
-    const stepTitles = [
-        t('steps.selection'),
+    // Each screen starts at its top: arriving mid-page on a new step (or on
+    // the confirmation) hides the very thing that just changed. The page
+    // scrolls inside Inertia's `#app` root (see app.css), not the window.
+    useEffect(() => {
+        if (!embedded) {
+            (document.getElementById('app') ?? window).scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+        }
+    }, [step, confirmed, embedded]);
+
+    const { missing, label: missingLabel } = useNextChoice();
+
+    const titles = [
+        selectionIsFixed ? t('v2.hub.recapTitle') : t('v2.hub.title'),
         t('steps.datetime'),
         t('steps.details'),
     ];
+
+    const continueLabel =
+        step === 0
+            ? missingLabel
+                ? missingLabel
+                : selectionIsFixed
+                  ? t('footer.chooseDateTime')
+                  : t('footer.continue')
+            : selectedStart === ''
+              ? t('v2.footer.pickTime')
+              : t('footer.continue');
 
     return (
         <>
@@ -109,17 +136,19 @@ function BookingFlowLayout({ theme, onThemeChange, embedded }: ChromeProps) {
                 />
 
                 {/*
-                 * Step one already shows every choice in full, so a summary
-                 * above it would only repeat the cards underneath. It earns
-                 * its place from step two on, once those cards are behind you.
+                 * The hub already shows every choice in full; from step two on
+                 * this compact recap takes its place, and tapping it goes back.
                  */}
                 {confirmed === null && step > 0 && (
-                    <SummaryBar {...summary} serviceIcon={serviceIcon} />
+                    <SummaryBar
+                        onEdit={() => goToStep(0)}
+                        showWhen={step > 1}
+                    />
                 )}
             </header>
 
             <main
-                className={embedded ? 'flex-1 px-5 pb-5' : 'flex-1 px-5 pb-28'}
+                className={embedded ? 'flex-1 px-5 pb-5' : 'flex-1 px-5 pb-32'}
             >
                 {confirmed !== null ? (
                     <SuccessScreen
@@ -133,9 +162,7 @@ function BookingFlowLayout({ theme, onThemeChange, embedded }: ChromeProps) {
                 ) : (
                     <div key={step} className={stepClass}>
                         <h2 className="mb-4 text-base font-semibold">
-                            {step === 0 && selectionIsFixed
-                                ? t('steps.recap')
-                                : stepTitles[step]}
+                            {titles[step]}
                         </h2>
 
                         {step === 0 && <StepSelection />}
@@ -148,17 +175,15 @@ function BookingFlowLayout({ theme, onThemeChange, embedded }: ChromeProps) {
             {confirmed === null && (
                 <BookingFooter
                     step={step}
-                    canContinue={
-                        step === 0 ? selectionComplete : selectedStart !== ''
-                    }
-                    continueLabel={
-                        step === 0 && selectionIsFixed
-                            ? t('footer.chooseDateTime')
-                            : t('footer.continue')
-                    }
+                    canContinue={step === 0 || selectedStart !== ''}
+                    continueLabel={continueLabel}
                     processing={processing}
                     onBack={() => goToStep(step - 1)}
-                    onContinue={handleContinue}
+                    onContinue={
+                        step === 0 && missing
+                            ? () => openPicker(missing)
+                            : handleContinue
+                    }
                     onSubmit={handleSubmit}
                     embedded={embedded}
                 />

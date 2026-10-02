@@ -368,6 +368,15 @@ describe('buildMetaLabel', () => {
 
         expect(label).toBe('30 min');
     });
+
+    it("uses the chosen specialist's own duration for the service", () => {
+        const label = buildMetaLabel(
+            makeService({ id: 11, duration: 30, price: '20' }),
+            makeSpecialist({ service_durations: { 11: 45 } }),
+        );
+
+        expect(label).toBe('45 min · €20');
+    });
 });
 
 describe('buildDateTimeLabel', () => {

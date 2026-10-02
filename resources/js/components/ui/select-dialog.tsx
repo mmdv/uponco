@@ -1,12 +1,13 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ArrowLeft, Check, ChevronDown, Search, XIcon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useVisibleViewport } from '@/hooks/use-visible-viewport';
 import { cn } from '@/lib/utils';
 
 export type SelectOption = {
@@ -42,44 +43,6 @@ type SelectDialogProps = {
     customPlaceholder?: string;
     'data-test'?: string;
 };
-
-/**
- * Tracks the visible viewport so the mobile full-screen picker can size itself
- * to the area above the on-screen keyboard. Mobile browsers don't shrink the
- * layout viewport when the keyboard opens, so without this the confirm button
- * and part of the list end up hidden behind it.
- */
-function useVisibleViewport(active: boolean) {
-    const [viewport, setViewport] = useState<{ top: number; height: number }>();
-
-    useEffect(() => {
-        if (!active) {
-            setViewport(undefined);
-
-            return;
-        }
-
-        const visualViewport = window.visualViewport;
-
-        const update = () => {
-            setViewport({
-                top: visualViewport?.offsetTop ?? 0,
-                height: visualViewport?.height ?? window.innerHeight,
-            });
-        };
-
-        update();
-        visualViewport?.addEventListener('resize', update);
-        visualViewport?.addEventListener('scroll', update);
-
-        return () => {
-            visualViewport?.removeEventListener('resize', update);
-            visualViewport?.removeEventListener('scroll', update);
-        };
-    }, [active]);
-
-    return viewport;
-}
 
 export function SelectDialog({
     title,

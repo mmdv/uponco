@@ -1,5 +1,8 @@
+import { useEffect, useRef } from 'react';
+
 import InputError from '@/components/input-error';
 import { useBooking } from '@/components/public-booking-v2/booking-context';
+import ErrorAlert from '@/components/public-booking-v2/error-alert';
 import { Input } from '@/components/ui/input';
 import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
 import { Label } from '@/components/ui/label';
@@ -26,9 +29,21 @@ export type CustomerDetails = {
     reminder_offset_minutes: string;
 };
 
+/** The form's fields in on-screen order, so focus lands on the first bad one. */
+const FIELD_ORDER = [
+    'customer_name',
+    'customer_email',
+    'customer_phone',
+    'notes',
+    'reminder_offset_minutes',
+] as const;
+
 /**
- * Step three: personal information. The booking recap lives in the inline
- * summary bar at the top of the flow.
+ * Step three: personal information. The booking recap sits above it.
+ *
+ * A rejected submit is announced by an alert at the top and the first invalid
+ * field is focused and scrolled to — but only when new errors appear, never
+ * while the visitor is fixing them one by one.
  */
 export default function StepDetails() {
     const {
@@ -37,6 +52,22 @@ export default function StepDetails() {
         errors,
     } = useBooking();
     const { t } = useTranslation('booking');
+    const invalidFields = FIELD_ORDER.filter((field) => errors[field]);
+    const invalidKey = invalidFields.join(',');
+    const previousInvalidCount = useRef(0);
+
+    useEffect(() => {
+        const fields = invalidKey === '' ? [] : invalidKey.split(',');
+
+        if (fields.length > previousInvalidCount.current) {
+            const input = document.getElementById(fields[0]);
+
+            input?.focus({ preventScroll: true });
+            input?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+
+        previousInvalidCount.current = fields.length;
+    }, [invalidKey]);
 
     return (
         <div className="space-y-6">
@@ -51,15 +82,24 @@ export default function StepDetails() {
                 className="space-y-4"
                 onSubmit={(event) => event.preventDefault()}
             >
-                <h2 className="text-sm font-medium">{t('details.heading')}</h2>
+                <h3 className="text-sm font-medium">{t('details.heading')}</h3>
 
-                {errors.booking_conflict && (
-                    <p
-                        role="alert"
-                        className="rounded-lg border border-red-300 bg-red-50 px-3 py-2.5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                {errors.booking_conflict ? (
+                    <ErrorAlert
+                        title={t('v2.errors.title')}
+                        data-test="booking-conflict-error"
                     >
                         {errors.booking_conflict}
-                    </p>
+                    </ErrorAlert>
+                ) : (
+                    invalidFields.length > 0 && (
+                        <ErrorAlert
+                            title={t('v2.errors.title')}
+                            data-test="booking-details-error"
+                        >
+                            {t('v2.errors.fields')}
+                        </ErrorAlert>
+                    )
                 )}
 
                 <div className="grid gap-2">

@@ -1,12 +1,18 @@
-import { CalendarDays, List } from 'lucide-react';
-import { useState } from 'react';
+import { CalendarDays } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
-import InputError from '@/components/input-error';
 import BookingCalendar from '@/components/public-booking-v2/booking-calendar';
 import { useBooking } from '@/components/public-booking-v2/booking-context';
+import ErrorAlert from '@/components/public-booking-v2/error-alert';
 import { Button } from '@/components/ui/button';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/use-translation';
+import { brandStyle } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -19,18 +25,38 @@ type Props = {
  */
 export default function StepDateTime({ timezone }: Props) {
     const {
+        company,
         upcomingDays: days,
         date,
         handleDateChange: onDateChange,
         availableSlots: slots,
         slotsLoading: loading,
         selectedStart,
-        handleSelectSlot: onSelectSlot,
+        handleSelectSlot,
         errors,
+        clearErrors,
     } = useBooking();
     const error = errors.start_at;
+    // Picking another time answers the "that slot was taken" error.
+    const onSelectSlot = (start: string) => {
+        clearErrors(['start_at']);
+        handleSelectSlot(start);
+    };
     const { t, locale } = useTranslation('booking');
-    const [view, setView] = useState<'strip' | 'calendar'>('strip');
+    const [calendarOpen, setCalendarOpen] = useState(false);
+    const stripRef = useRef<HTMLDivElement>(null);
+
+    // Keep the chosen day in view on the strip — a day picked from the
+    // calendar may sit weeks along it.
+    useEffect(() => {
+        stripRef.current
+            ?.querySelector('[data-selected="true"]')
+            ?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center',
+            });
+    }, [date]);
     const timeFormatter = new Intl.DateTimeFormat(locale, {
         timeZone: timezone,
         hour: '2-digit',
@@ -78,90 +104,107 @@ export default function StepDateTime({ timezone }: Props) {
                 <div className="flex items-center justify-between gap-3">
                     <h2 className="text-sm font-medium">{dayHeading}</h2>
 
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        className="size-8"
-                        aria-label={
-                            view === 'strip'
-                                ? t('datetime.showCalendar')
-                                : t('datetime.showAsList')
-                        }
-                        onClick={() =>
-                            setView((current) =>
-                                current === 'strip' ? 'calendar' : 'strip',
-                            )
-                        }
-                    >
-                        {view === 'strip' ? (
-                            <CalendarDays className="size-4" />
-                        ) : (
-                            <List className="size-4" />
-                        )}
-                    </Button>
+                    {/*
+                     * A popover rather than swapping out the strip: on a phone
+                     * the full calendar pushed the times off screen, so picking
+                     * a day changed things the visitor could no longer see.
+                     */}
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="size-8"
+                                aria-label={t('datetime.showCalendar')}
+                                data-test="booking-calendar-toggle"
+                            >
+                                <CalendarDays className="size-4" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                            align="end"
+                            className="w-[min(20rem,calc(100vw-2rem))] p-3"
+                            // Portalled out of the page's brand scope.
+                            style={brandStyle(company.brand)}
+                        >
+                            <BookingCalendar
+                                selectedDate={date}
+                                availableDays={availableDays}
+                                onSelectDay={(day) => {
+                                    onDateChange(day);
+                                    setCalendarOpen(false);
+                                }}
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
 
-                {view === 'calendar' ? (
-                    <BookingCalendar
-                        selectedDate={date}
-                        availableDays={availableDays}
-                        onSelectDay={onDateChange}
-                    />
-                ) : (
-                    <div className="-mx-1 flex [scrollbar-width:thin] [scrollbar-color:var(--color-primary)_transparent] gap-2 overflow-x-auto px-1 pt-1 pb-3 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary/70 [&::-webkit-scrollbar-track]:bg-transparent">
-                        {days.map((day) => {
-                            const isSelected = day.date === date;
+                <div
+                    ref={stripRef}
+                    className="-mx-1 flex [scrollbar-width:thin] [scrollbar-color:var(--color-primary)_transparent] gap-2 overflow-x-auto px-1 pt-1 pb-3 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary/70 [&::-webkit-scrollbar-track]:bg-transparent"
+                >
+                    {days.map((day) => {
+                        const isSelected = day.date === date;
 
-                            return (
-                                <button
-                                    key={day.date}
-                                    type="button"
-                                    disabled={!day.available}
-                                    onClick={() => onDateChange(day.date)}
-                                    data-test={`booking-day-${day.date}`}
+                        return (
+                            <button
+                                key={day.date}
+                                type="button"
+                                disabled={!day.available}
+                                onClick={() => onDateChange(day.date)}
+                                data-selected={isSelected}
+                                data-test={`booking-day-${day.date}`}
+                                className={cn(
+                                    'flex w-14 shrink-0 flex-col items-center rounded-xl border py-2.5 transition-all duration-200',
+                                    isSelected
+                                        ? 'border-primary bg-primary text-primary-foreground'
+                                        : 'border-border bg-card hover:border-primary/40',
+                                    !day.available &&
+                                        'cursor-not-allowed opacity-40 hover:border-border',
+                                )}
+                            >
+                                <span
                                     className={cn(
-                                        'flex w-14 shrink-0 flex-col items-center rounded-xl border py-2.5 transition-all duration-200',
+                                        'text-[11px]',
                                         isSelected
-                                            ? 'border-primary bg-primary text-primary-foreground'
-                                            : 'border-border bg-card hover:border-primary/40',
-                                        !day.available &&
-                                            'cursor-not-allowed opacity-40 hover:border-border',
+                                            ? 'text-primary-foreground/80'
+                                            : 'text-muted-foreground',
                                     )}
                                 >
-                                    <span
-                                        className={cn(
-                                            'text-[11px]',
-                                            isSelected
-                                                ? 'text-primary-foreground/80'
-                                                : 'text-muted-foreground',
-                                        )}
-                                    >
-                                        {day.isToday
-                                            ? t('datetime.today')
-                                            : day.isTomorrow
-                                              ? t('datetime.tomorrow')
-                                              : weekdayLabel(day.date)}
-                                    </span>
-                                    <span className="text-lg font-semibold">
-                                        {day.day}
-                                    </span>
-                                    <span
-                                        className={cn(
-                                            'text-[11px]',
-                                            isSelected
-                                                ? 'text-primary-foreground/80'
-                                                : 'text-muted-foreground',
-                                        )}
-                                    >
-                                        {monthLabel(day.date)}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
+                                    {day.isToday
+                                        ? t('datetime.today')
+                                        : day.isTomorrow
+                                          ? t('datetime.tomorrow')
+                                          : weekdayLabel(day.date)}
+                                </span>
+                                <span className="text-lg font-semibold">
+                                    {day.day}
+                                </span>
+                                <span
+                                    className={cn(
+                                        'text-[11px]',
+                                        isSelected
+                                            ? 'text-primary-foreground/80'
+                                            : 'text-muted-foreground',
+                                    )}
+                                >
+                                    {monthLabel(day.date)}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
             </section>
+
+            {error && (
+                <ErrorAlert
+                    title={t('v2.errors.slot')}
+                    data-test="booking-slot-error"
+                >
+                    {error}
+                </ErrorAlert>
+            )}
 
             <section className="space-y-3">
                 <h2 className="text-sm font-medium">
@@ -175,12 +218,13 @@ export default function StepDateTime({ timezone }: Props) {
                         ))}
                     </div>
                 ) : visibleSlots.length === 0 ? (
-                    <p className="rounded-xl border border-dashed py-8 text-center text-sm text-foreground">
+                    <p className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground motion-safe:animate-rise-in">
                         {t('datetime.noTimes')}
                     </p>
                 ) : (
-                    <div className="grid grid-cols-3 gap-2">
-                        {visibleSlots.map((slot) => {
+                    // Keyed by day so a new day's times stagger in afresh.
+                    <div key={date} className="grid grid-cols-3 gap-2">
+                        {visibleSlots.map((slot, index) => {
                             const isSelected = slot.start === selectedStart;
                             const isFull = slot.remaining === 0;
 
@@ -191,8 +235,11 @@ export default function StepDateTime({ timezone }: Props) {
                                     disabled={isFull}
                                     onClick={() => onSelectSlot(slot.start)}
                                     data-test={`booking-slot-${slot.label.replace(':', '')}`}
+                                    style={{
+                                        animationDelay: `${Math.min(index, 18) * 20}ms`,
+                                    }}
                                     className={cn(
-                                        'flex flex-col items-center rounded-lg border py-2 text-sm font-medium transition-all duration-200',
+                                        'flex flex-col items-center rounded-lg border py-2 text-sm font-medium tabular-nums transition-all duration-200 active:scale-95 motion-safe:animate-rise-in',
                                         isSelected
                                             ? 'border-primary bg-primary text-primary-foreground'
                                             : 'border-border bg-card hover:border-primary/40',
@@ -229,8 +276,6 @@ export default function StepDateTime({ timezone }: Props) {
                         })}
                     </div>
                 )}
-
-                <InputError message={error} />
             </section>
         </div>
     );

@@ -186,6 +186,11 @@ export function useAppointmentBooking({
         // Entry cards (step 0)
         openCard: selection.openCard,
         toggleCard: selection.toggleCard,
+        openPicker: selection.openPicker,
+        clearSelection: selection.clearSelection,
+        clearAllSelections: selection.clearAllSelections,
+        /** Kinds the last choice filled in because only one option fitted. */
+        autoFilled: selection.autoFilled,
         serviceGroups: selection.serviceGroups,
         availableLocations: selection.availableLocations,
         availableSpecialists: selection.availableSpecialists,
@@ -219,6 +224,7 @@ export function useAppointmentBooking({
         details: details.details,
         handleDetailChange: details.handleDetailChange,
         errors: details.errors,
+        clearErrors: details.clearErrors,
         // Submission & summary
         summary: submission.summary,
         processing: submission.processing,

@@ -8,6 +8,7 @@ import {
     applySelection,
     buildBookableDays,
     cardOrder,
+    fillSingleOptions,
     lockedKinds,
     locationIsMandatory,
     nextOpenCard,
@@ -98,9 +99,23 @@ export function useBookingSelection({
     const [specialistId, setSpecialistId] = useState<number | null>(
         initialSelection.specialist,
     );
+    // The kinds the last choice filled in on the visitor's behalf because only
+    // one option fitted. They are dropped again before the next choice, so a
+    // value picked for the visitor never outlives the reason it was picked.
+    const [autoFilled, setAutoFilled] = useState<SelectionKind[]>([]);
     // Nothing is unfolded on arrival: every card that is still a choice starts
     // collapsed, so the step reads as a short list of what it needs.
     const [openCard, setOpenCard] = useState<EntryCard>(null);
+
+    // The option lists narrow only by what the visitor chose (or the page
+    // preselected): a value picked for them is dropped on their next choice, so
+    // letting it hide options would leave them unable to make that choice —
+    // auto-picking the only specialist of one service must not hide the others.
+    const narrowedBy = (kind: SelectionKind, id: number | null) =>
+        autoFilled.includes(kind) ? initialSelection[kind] : id;
+    const narrowServiceId = narrowedBy('service', serviceId);
+    const narrowLocationId = narrowedBy('location', locationId);
+    const narrowSpecialistId = narrowedBy('specialist', specialistId);
 
     const {
         availableServices,
@@ -109,11 +124,18 @@ export function useBookingSelection({
     } = useMemo(
         () =>
             getAvailableOptions(services, locations, specialists, {
-                serviceId,
-                locationId,
-                specialistId,
+                serviceId: narrowServiceId,
+                locationId: narrowLocationId,
+                specialistId: narrowSpecialistId,
             }),
-        [services, locations, specialists, serviceId, locationId, specialistId],
+        [
+            services,
+            locations,
+            specialists,
+            narrowServiceId,
+            narrowLocationId,
+            narrowSpecialistId,
+        ],
     );
 
     // `getAvailableOptions` is shared with the dashboard and so returns the base
@@ -189,22 +211,10 @@ export function useBookingSelection({
         selectionComplete,
     );
 
-    // Selecting one entity keeps each of the other two only while it stays
-    // compatible with the new choice, then opens the next still-missing card.
-    const changeSelection = (kind: SelectionKind, value: number) => {
-        const next = applySelection(
-            { service: services, location: locations, specialist: specialists },
-            {
-                service: serviceId,
-                location: locationId,
-                specialist: specialistId,
-            },
-            kind,
-            value,
-        );
-
-        // A different service or specialist changes what is available on every
-        // day, so the cached windows for the old selection are thrown away.
+    // Every change to the ids goes through here, so the slot hook always hears
+    // about it: a different service or specialist changes what is available on
+    // every day, and the cached windows for the old selection are thrown away.
+    const replaceSelection = (next: SelectionIds) => {
         const poolChanged =
             next.service !== serviceId || next.specialist !== specialistId;
 
@@ -213,7 +223,68 @@ export function useBookingSelection({
         setServiceId(next.service);
         setLocationId(next.location);
         setSpecialistId(next.specialist);
+    };
+
+    // Selecting one entity keeps each of the other two only while it stays
+    // compatible with the new choice, fills in whatever that leaves with a
+    // single option, then opens the next still-missing card.
+    const changeSelection = (kind: SelectionKind, value: number) => {
+        const current: SelectionIds = {
+            service: serviceId,
+            location: locationId,
+            specialist: specialistId,
+        };
+
+        for (const filledKind of autoFilled) {
+            if (filledKind !== kind) {
+                current[filledKind] = initialSelection[filledKind];
+            }
+        }
+
+        const { selection: next, filled } = fillSingleOptions(
+            { services, locations, specialists },
+            applySelection(
+                {
+                    service: services,
+                    location: locations,
+                    specialist: specialists,
+                },
+                current,
+                kind,
+                value,
+            ),
+        );
+
+        replaceSelection(next);
+        setAutoFilled(filled);
         setOpenCard(nextOpenCard(next, order, locationVisibleFor(next)));
+    };
+
+    /**
+     * Un-choose one kind, leaving the other two as they are. A locked kind was
+     * never the visitor's to choose, so it can't be cleared either. The open
+     * card is left alone: clearing a filter from inside a picker keeps that
+     * picker on screen.
+     */
+    const clearSelection = (kind: SelectionKind) => {
+        if (locked[kind]) {
+            return;
+        }
+
+        replaceSelection({
+            service: serviceId,
+            location: locationId,
+            specialist: specialistId,
+            [kind]: null,
+        });
+        setAutoFilled((kinds) => kinds.filter((filled) => filled !== kind));
+    };
+
+    /** Start the choices over from what the page preselected on arrival. */
+    const clearAllSelections = () => {
+        replaceSelection(initialSelection);
+        setAutoFilled([]);
+        setOpenCard(null);
     };
 
     const toggleCard = (card: Exclude<EntryCard, null>) => {
@@ -226,11 +297,13 @@ export function useBookingSelection({
         setServiceId(initialSelection.service);
         setLocationId(initialSelection.location);
         setSpecialistId(initialSelection.specialist);
+        setAutoFilled([]);
         setOpenCard(null);
     };
 
     return {
         initialSelection,
+        autoFilled,
         serviceId,
         locationId,
         specialistId,
@@ -256,6 +329,10 @@ export function useBookingSelection({
         handleSpecialistChange: (value: number) =>
             changeSelection('specialist', value),
         toggleCard,
+        /** Open a specific card (or close them all with `null`). */
+        openPicker: setOpenCard,
+        clearSelection,
+        clearAllSelections,
         resetSelection,
     };
 }

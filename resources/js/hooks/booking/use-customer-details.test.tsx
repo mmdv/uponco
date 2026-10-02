@@ -39,4 +39,19 @@ describe('useCustomerDetails', () => {
 
         expect(errors.customer_name).toBeDefined();
     });
+
+    it('clears only the named errors', () => {
+        const { result } = renderHook(() => useCustomerDetails());
+
+        act(() =>
+            result.current.setErrors({
+                start_at: 'Taken',
+                service_id: 'Gone',
+                customer_name: 'Required',
+            }),
+        );
+        act(() => result.current.clearErrors(['start_at', 'service_id']));
+
+        expect(result.current.errors).toEqual({ customer_name: 'Required' });
+    });
 });

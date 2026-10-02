@@ -1,7 +1,9 @@
-import { Apple, Calendar, Check } from 'lucide-react';
+import { Apple, Calendar, Plus } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 import BookingSummary from '@/components/public-booking-v2/booking-summary';
+import Confetti from '@/components/public-booking-v2/confetti';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CalendarEvent } from '@/lib/calendar';
@@ -23,8 +25,14 @@ type Props = {
     onBookAnother: () => void;
 };
 
+/** Each block rises in after the one above it, once the tick has landed. */
+const after = (ms: number): CSSProperties => ({ animationDelay: `${ms}ms` });
+
 /**
- * The terminal confirmation screen shown after a booking is created.
+ * The confirmation after a booking is created: the badge pops in, its tick
+ * draws itself, a ring pulses out and confetti bursts behind it, then the
+ * message, the booking and the next actions rise in one after another. With
+ * reduced motion it is simply the finished screen.
  */
 export default function SuccessScreen({
     companyName,
@@ -37,28 +45,70 @@ export default function SuccessScreen({
     const { t } = useTranslation('booking');
 
     return (
-        <div className="flex animate-in flex-col items-center px-1 py-6 text-center duration-500 fade-in-0 zoom-in-95">
-            <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <span className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Check className="size-6" />
+        <div
+            className="flex flex-col items-center px-1 pt-4 pb-6 text-center"
+            data-test="booking-success"
+        >
+            <div className="relative flex size-40 items-center justify-center">
+                <span
+                    aria-hidden
+                    className="absolute size-24 rounded-full bg-primary/30 motion-safe:animate-ring-pulse motion-reduce:hidden"
+                />
+                <Confetti />
+
+                <span className="relative flex size-24 items-center justify-center rounded-full bg-primary-gradient text-primary-foreground shadow-xl shadow-primary/30 motion-safe:animate-pop-in">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="size-12"
+                        aria-hidden
+                    >
+                        <path
+                            d="M5 12.5l4.5 4.5L19 7.5"
+                            pathLength={1}
+                            stroke="currentColor"
+                            strokeWidth={2.6}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ strokeDasharray: 1 }}
+                            className="motion-safe:animate-check-draw"
+                        />
+                    </svg>
                 </span>
             </div>
 
-            <h1 className="mt-5 text-xl font-semibold">{t('success.title')}</h1>
-            <p className="mt-1.5 text-sm text-foreground">
+            <h1
+                className="text-2xl font-semibold tracking-tight motion-safe:animate-rise-in"
+                style={after(550)}
+            >
+                {t('success.title')}
+            </h1>
+            <p
+                className="mt-2 max-w-xs text-sm text-muted-foreground motion-safe:animate-rise-in"
+                style={after(650)}
+            >
                 {t('success.message', {
                     name: customerName.split(' ')[0] || t('success.there'),
                     company: companyName,
                 })}
             </p>
 
-            <div className="mt-6 w-full text-left">
+            <div
+                className="mt-7 w-full space-y-2 text-left motion-safe:animate-rise-in"
+                style={after(750)}
+            >
+                <p className="px-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+                    {t('v2.success.summaryTitle')}
+                </p>
                 <BookingSummary {...summary} serviceIcon={serviceIcon} />
             </div>
 
             {calendar && (
-                <div className="mt-6 w-full space-y-2 text-left">
-                    <p className="text-xs font-medium text-foreground">
+                <div
+                    className="mt-6 w-full space-y-2 text-left motion-safe:animate-rise-in"
+                    style={after(850)}
+                >
+                    <p className="px-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
                         {t('success.addToCalendar')}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
@@ -86,10 +136,13 @@ export default function SuccessScreen({
             )}
 
             <Button
-                variant="outline"
-                className="mt-4 h-12 w-full text-base"
+                variant="ghost"
+                className="mt-4 h-12 w-full text-base motion-safe:animate-rise-in"
+                style={after(950)}
                 onClick={onBookAnother}
+                data-test="booking-book-another"
             >
+                <Plus className="size-4" />
                 {t('success.bookAnother')}
             </Button>
         </div>

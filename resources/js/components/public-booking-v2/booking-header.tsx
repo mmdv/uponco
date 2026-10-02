@@ -177,7 +177,9 @@ export default function BookingHeader({
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent align="end" className="w-72 space-y-4">
-                        <div className="space-y-2">                            <p className="text-xs font-medium text-foreground">
+                        <div className="space-y-2">
+                            {' '}
+                            <p className="text-xs font-medium text-foreground">
                                 {t('header.theme')}
                             </p>
                             <div className="grid grid-cols-2 gap-2">

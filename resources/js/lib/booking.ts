@@ -246,18 +246,35 @@ export function buildBookableDays(
 }
 
 /**
- * Short "duration · price" line for the chosen service, or `undefined` when no
- * service is selected. Empty parts are dropped so a free service with no price
- * still reads cleanly.
+ * How long the service runs with the given specialist: their own override
+ * when they have one, otherwise the service's default duration.
+ */
+export function serviceDurationFor(
+    service: AppointmentServiceOption,
+    specialist: AppointmentSpecialistOption | null,
+): number {
+    return (
+        specialist?.service_durations[String(service.id)] ?? service.duration
+    );
+}
+
+/**
+ * Short "duration · price" line for the chosen service (at the chosen
+ * specialist's duration), or `undefined` when no service is selected. Empty
+ * parts are dropped so a free service with no price still reads cleanly.
  */
 export function buildMetaLabel(
     service: AppointmentServiceOption | null,
+    specialist: AppointmentSpecialistOption | null = null,
 ): string | undefined {
     if (!service) {
         return undefined;
     }
 
-    return [formatDuration(service.duration), formatServicePrice(service)]
+    return [
+        formatDuration(serviceDurationFor(service, specialist)),
+        formatServicePrice(service),
+    ]
         .filter(Boolean)
         .join(' · ');
 }
@@ -297,7 +314,7 @@ export function buildSummary(input: {
 }): BookingSummary {
     return {
         serviceTitle: input.service?.title,
-        metaLabel: buildMetaLabel(input.service),
+        metaLabel: buildMetaLabel(input.service, input.specialist),
         specialistName: input.specialist?.name,
         locationName: input.requiresLocation ? input.location?.name : null,
         dateTimeLabel: buildDateTimeLabel(
@@ -494,37 +511,32 @@ export function locationIsMandatory(
 }
 
 /**
- * Decide what is already chosen the moment the page loads.
+ * Fill in every kind that is down to a single possible answer.
  *
  * A choice with exactly one possible answer is not a choice: an appointment
- * cannot exist without a service or a specialist, so a company offering one of
- * either has it selected up front. A location follows the same rule, but only
- * while it is genuinely unavoidable ({@see locationIsMandatory}). Anything the
- * URL pinned via a deep link is applied first and always wins.
+ * cannot exist without a service or a specialist, so once only one of either
+ * fits it is selected for the visitor. A location follows the same rule, but
+ * only while it is genuinely unavoidable ({@see locationIsMandatory}).
  *
  * The passes matter: selecting the only service can narrow the specialists to
  * one, which can in turn narrow the locations to one. Four passes is more than
  * the three kinds can ever need, and bounds the loop.
+ *
+ * Returns the completed selection and the kinds it filled in, so a caller can
+ * tell a value it picked for the visitor from one the visitor chose.
  */
-export function resolveInitialSelection(
+export function fillSingleOptions(
     { services, locations, specialists }: Pools,
-    preset: BookingPreset | null,
-): SelectionIds {
+    initial: SelectionIds,
+): { selection: SelectionIds; filled: SelectionKind[] } {
     const pools: SelectionPools = {
         service: services,
         location: locations,
         specialist: specialists,
     };
 
-    let selection: SelectionIds = {
-        service: null,
-        location: null,
-        specialist: null,
-    };
-
-    if (preset) {
-        selection = applySelection(pools, selection, preset.type, preset.id);
-    }
+    let selection = initial;
+    const filled: SelectionKind[] = [];
 
     for (let pass = 0; pass < 4; pass++) {
         const { availableServices, availableLocations, availableSpecialists } =
@@ -543,6 +555,7 @@ export function resolveInitialSelection(
                 'service',
                 availableServices[0].id,
             );
+            filled.push('service');
             changed = true;
         }
 
@@ -556,6 +569,7 @@ export function resolveInitialSelection(
                 'specialist',
                 availableSpecialists[0].id,
             );
+            filled.push('specialist');
             changed = true;
         }
 
@@ -570,6 +584,7 @@ export function resolveInitialSelection(
                     'location',
                     availableLocations[0].id,
                 );
+                filled.push('location');
                 changed = true;
             }
         }
@@ -579,7 +594,38 @@ export function resolveInitialSelection(
         }
     }
 
-    return selection;
+    return { selection, filled };
+}
+
+/**
+ * Decide what is already chosen the moment the page loads: anything the URL
+ * pinned via a deep link is applied first and always wins, then every kind
+ * left with a single possible answer is filled in ({@see fillSingleOptions}).
+ */
+export function resolveInitialSelection(
+    pools: Pools,
+    preset: BookingPreset | null,
+): SelectionIds {
+    let selection: SelectionIds = {
+        service: null,
+        location: null,
+        specialist: null,
+    };
+
+    if (preset) {
+        selection = applySelection(
+            {
+                service: pools.services,
+                location: pools.locations,
+                specialist: pools.specialists,
+            },
+            selection,
+            preset.type,
+            preset.id,
+        );
+    }
+
+    return fillSingleOptions(pools, selection).selection;
 }
 
 /**

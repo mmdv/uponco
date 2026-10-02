@@ -161,5 +161,54 @@
         "keep": "Keep appointment",
         "cancelling": "Cancelling…",
         "confirmCancel": "Yes, cancel it"
+    },
+    "v2": {
+        "progress": {
+            "label": "Step {current} of {total}: {name}"
+        },
+        "hub": {
+            "title": "What would you like to book?",
+            "recapTitle": "Here's your booking",
+            "startOver": "Start over",
+            "clear": "Clear {name}",
+            "setForYou": "Set for you"
+        },
+        "picker": {
+            "serviceTitle": "Choose a service",
+            "specialistTitle": "Choose a specialist",
+            "locationTitle": "Choose a location",
+            "searchServices": "Search {count} services…",
+            "searchSpecialists": "Search specialists…",
+            "searchLocations": "Search by name or address…",
+            "clearSearch": "Clear search",
+            "allCategories": "All",
+            "found": "{count} found",
+            "noMatches": "Nothing matches “{query}”",
+            "noMatchesHint": "Try another word, or clear the search to see everything.",
+            "filteredBy": "Only showing what fits",
+            "removeFilter": "Remove {name}",
+            "close": "Close",
+            "back": "Back",
+            "selected": "Selected",
+            "done": "Done"
+        },
+        "footer": {
+            "chooseService": "Choose a service",
+            "chooseSpecialist": "Choose a specialist",
+            "chooseLocation": "Choose a location",
+            "pickTime": "Pick a time to continue"
+        },
+        "errors": {
+            "title": "We couldn't book that yet",
+            "fields": "Please fix the highlighted fields below.",
+            "selection": "One of your choices is no longer available. Please choose again.",
+            "slot": "That time can't be booked any more. Please pick another one."
+        },
+        "success": {
+            "summaryTitle": "Booking details"
+        },
+        "summary": {
+            "edit": "Edit booking"
+        }
     }
 }

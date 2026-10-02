@@ -11,6 +11,8 @@ export type CustomerDetailsState = {
     errors: BookingErrors;
     setErrors: React.Dispatch<React.SetStateAction<BookingErrors>>;
     handleDetailChange: (field: keyof CustomerDetails, value: string) => void;
+    /** Drop the given errors, e.g. a rejected slot once another is picked. */
+    clearErrors: (fields: string[]) => void;
     /** Validate the current details, returning the field errors (empty when valid). */
     validate: () => BookingErrors;
     resetDetails: () => void;
@@ -50,6 +52,22 @@ export function useCustomerDetails(): CustomerDetailsState {
         });
     };
 
+    const clearErrors = (fields: string[]) => {
+        setErrors((current) => {
+            if (!fields.some((field) => field in current)) {
+                return current;
+            }
+
+            const next = { ...current };
+
+            for (const field of fields) {
+                delete next[field];
+            }
+
+            return next;
+        });
+    };
+
     const resetDetails = () => {
         setDetails(EMPTY_DETAILS);
         setErrors({});
@@ -60,6 +78,7 @@ export function useCustomerDetails(): CustomerDetailsState {
         errors,
         setErrors,
         handleDetailChange,
+        clearErrors,
         validate: () => validateDetails(details, detailMessages),
         resetDetails,
     };

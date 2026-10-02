@@ -75,9 +75,7 @@ export default function BookingSummary({
                         <row.icon className="size-4" />
                     </span>
                     <div className="min-w-0">
-                        <p className="text-xs text-foreground">
-                            {row.label}
-                        </p>
+                        <p className="text-xs text-foreground">{row.label}</p>
                         <p className="truncate text-sm font-medium">
                             {row.value}
                         </p>

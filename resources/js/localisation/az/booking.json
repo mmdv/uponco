@@ -161,5 +161,54 @@
         "keep": "Görüşü saxla",
         "cancelling": "Ləğv edilir…",
         "confirmCancel": "Bəli, ləğv et"
+    },
+    "v2": {
+        "progress": {
+            "label": "Addım {current}/{total}: {name}"
+        },
+        "hub": {
+            "title": "Nəyə yazılmaq istəyirsiniz?",
+            "recapTitle": "Rezervasiyanız budur",
+            "startOver": "Yenidən başla",
+            "clear": "{name} seçimini sil",
+            "setForYou": "Sizin üçün seçilib"
+        },
+        "picker": {
+            "serviceTitle": "Xidmət seçin",
+            "specialistTitle": "Mütəxəssis seçin",
+            "locationTitle": "Filial seçin",
+            "searchServices": "{count} xidmət arasında axtarın…",
+            "searchSpecialists": "Mütəxəssis axtarın…",
+            "searchLocations": "Ad və ya ünvana görə axtarın…",
+            "clearSearch": "Axtarışı təmizlə",
+            "allCategories": "Hamısı",
+            "found": "{count} nəticə",
+            "noMatches": "“{query}” üzrə heç nə tapılmadı",
+            "noMatchesHint": "Başqa söz yoxlayın və ya hamısını görmək üçün axtarışı təmizləyin.",
+            "filteredBy": "Yalnız uyğun olanlar göstərilir",
+            "removeFilter": "{name} filtrini sil",
+            "close": "Bağla",
+            "back": "Geri",
+            "selected": "Seçildi",
+            "done": "Hazırdır"
+        },
+        "footer": {
+            "chooseService": "Xidmət seçin",
+            "chooseSpecialist": "Mütəxəssis seçin",
+            "chooseLocation": "Filial seçin",
+            "pickTime": "Davam etmək üçün vaxt seçin"
+        },
+        "errors": {
+            "title": "Rezervasiyanı hələ tamamlaya bilmədik",
+            "fields": "Zəhmət olmasa aşağıda qeyd olunan xanaları düzəldin.",
+            "selection": "Seçimlərinizdən biri artıq mövcud deyil. Zəhmət olmasa yenidən seçin.",
+            "slot": "Bu vaxt artıq tutulub. Zəhmət olmasa başqa vaxt seçin."
+        },
+        "success": {
+            "summaryTitle": "Rezervasiya detalları"
+        },
+        "summary": {
+            "edit": "Rezervasiyanı redaktə et"
+        }
     }
 }
