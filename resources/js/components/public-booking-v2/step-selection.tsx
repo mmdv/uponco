@@ -17,7 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/hooks/use-translation';
-import { nameInitials } from '@/lib/appointments';
+import { nameInitials, specialistPreviewFor } from '@/lib/appointments';
 import { buildMetaLabel } from '@/lib/booking';
 import type { SelectionKind } from '@/lib/booking';
 import { brandStyle } from '@/lib/brand';
@@ -90,6 +90,10 @@ export default function StepSelection() {
         };
     const { missing, label: missingLabel } = useNextChoice();
 
+    const selectedSpecialistPreview = selectedSpecialist
+        ? specialistPreviewFor(selectedSpecialist, serviceId)
+        : null;
+
     const selected = {
         service: selectedService,
         specialist: selectedSpecialist,
@@ -159,7 +163,7 @@ export default function StepSelection() {
             <SpecialistPicker
                 specialists={availableSpecialists}
                 selectedId={specialistId}
-                serviceDuration={selectedService?.duration ?? null}
+                serviceId={serviceId}
                 onSelect={choose('specialist', handleSpecialistChange)}
                 filters={filtersFor('specialist')}
                 autoFocus={!isMobile}
@@ -215,9 +219,9 @@ export default function StepSelection() {
                 value={selectedSpecialist?.name}
                 meta={
                     selectedSpecialist?.job_title ??
-                    (selectedSpecialist?.next_available
+                    (selectedSpecialistPreview
                         ? t('specialist.nextAvailable', {
-                              label: selectedSpecialist.next_available.label,
+                              label: selectedSpecialistPreview.label,
                           })
                         : null)
                 }

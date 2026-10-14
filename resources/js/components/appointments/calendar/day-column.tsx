@@ -48,6 +48,8 @@ type Props = {
     onColumnClick: (event: React.MouseEvent, entry: PositionedColumn) => void;
     onColumnHover: (event: React.MouseEvent, entry: PositionedColumn) => void;
     onColumnLeave: () => void;
+    /** Appointment whose drag handle is being held, before the drag starts. */
+    pressingId: number | null;
     onBeginDrag: (
         event: React.PointerEvent,
         item: { appointment: Appointment; top: number },
@@ -70,6 +72,7 @@ export default function DayColumn({
     onColumnClick,
     onColumnHover,
     onColumnLeave,
+    pressingId,
     onBeginDrag,
     onMoveDrag,
     onEndDrag,
@@ -170,6 +173,7 @@ export default function DayColumn({
             {/* Appointments */}
             {items.map((item) => {
                 const isDragged = drag?.appointment.id === item.appointment.id;
+                const isPressing = pressingId === item.appointment.id;
                 // Bookings the customer made themselves are tinted green instead
                 // of the default blue, so they stand out at a glance on the grid.
                 const isPublic = item.appointment.source === 'public';
@@ -186,6 +190,7 @@ export default function DayColumn({
                                 'border-emerald-500/40 bg-emerald-500/10',
                             isNoShow && 'border-rose-500/40 bg-rose-500/10',
                             isDragged && 'opacity-40',
+                            isPressing && 'ring-2 ring-primary/40',
                         )}
                         style={{
                             top: item.top,
@@ -204,7 +209,7 @@ export default function DayColumn({
                             onPointerUp={onEndDrag}
                             onPointerCancel={onEndDrag}
                             className={cn(
-                                'flex w-5 shrink-0 touch-none items-center justify-center border-r border-primary/20 bg-primary/15 text-primary/70 hover:bg-primary/25 hover:text-primary',
+                                'relative flex w-5 shrink-0 touch-none items-center justify-center border-r border-primary/20 bg-primary/15 text-primary/70 hover:bg-primary/25 hover:text-primary',
                                 isPublic &&
                                     'border-emerald-600/20 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25 hover:text-emerald-800',
                                 isNoShow &&
@@ -212,7 +217,19 @@ export default function DayColumn({
                                 drag ? 'cursor-grabbing' : 'cursor-grab',
                             )}
                         >
-                            <GripVertical className="size-3.5" />
+                            {/* Fills bottom-to-top while held; the drag starts once it's full */}
+                            <span
+                                aria-hidden
+                                data-test="calendar-appointment-handle-fill"
+                                className={cn(
+                                    'pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-primary/40',
+                                    isPublic && 'bg-emerald-500/40',
+                                    isNoShow && 'bg-rose-500/40',
+                                    isPressing &&
+                                        'scale-y-100 transition-transform duration-1000 ease-linear',
+                                )}
+                            />
+                            <GripVertical className="relative size-3.5" />
                         </button>
 
                         {/* Content (click to preview) */}

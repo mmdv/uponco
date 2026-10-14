@@ -14,7 +14,7 @@ import SearchField from '@/components/public-booking-v2/search-field';
 import SpecialistProfileDialog from '@/components/public-booking-v2/specialist-profile-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from '@/hooks/use-translation';
-import { filterPreviewSlotsByDuration, nameInitials } from '@/lib/appointments';
+import { nameInitials, specialistPreviewFor } from '@/lib/appointments';
 import { matchesSearch } from '@/lib/booking-search';
 import { cn } from '@/lib/utils';
 import type { AppointmentSpecialistOption } from '@/types';
@@ -22,8 +22,8 @@ import type { AppointmentSpecialistOption } from '@/types';
 type Props = {
     specialists: AppointmentSpecialistOption[];
     selectedId: number | null;
-    /** Duration (minutes) of the chosen service, used to filter preview slots. */
-    serviceDuration: number | null;
+    /** The chosen service, whose own availability preview each row shows. */
+    serviceId: number | null;
     onSelect: (specialistId: number) => void;
     filters?: PickerFilter[];
     autoFocus?: boolean;
@@ -37,7 +37,7 @@ type Props = {
 export default function SpecialistPicker({
     specialists,
     selectedId,
-    serviceDuration,
+    serviceId,
     onSelect,
     filters = [],
     autoFocus = false,
@@ -80,16 +80,13 @@ export default function SpecialistPicker({
                 <div className="space-y-2 pt-3">
                     {visible.map((specialist, index) => {
                         const isSelected = specialist.id === selectedId;
-                        const preview = specialist.next_available;
-                        // Once a service is chosen, only show openings long
-                        // enough to actually hold it.
-                        const slots =
-                            preview && serviceDuration
-                                ? filterPreviewSlotsByDuration(
-                                      preview.slots,
-                                      serviceDuration,
-                                  )
-                                : (preview?.slots ?? []);
+                        // Once a service is chosen, preview the openings
+                        // that service can actually be booked into.
+                        const preview = specialistPreviewFor(
+                            specialist,
+                            serviceId,
+                        );
+                        const slots = preview?.slots ?? [];
 
                         return (
                             // A plain button can't wrap the nested info button,

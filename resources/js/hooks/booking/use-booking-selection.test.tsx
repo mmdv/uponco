@@ -45,6 +45,7 @@ function specialist(
         location_ids: [],
         service_durations: {},
         next_available: null,
+        next_available_by_service: {},
         available_days: [],
         ...overrides,
     };

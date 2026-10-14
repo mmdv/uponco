@@ -329,6 +329,64 @@ test('specialist availability preview ignores cancelled and no-show appointments
     expect($specialist['next_available']['slots'])->toContain('09:00');
 });
 
+test('the per-service preview skips days whose openings are too short for the service', function () {
+    $setup = bookableSetup();
+
+    // Leave only a lone 30-minute gap (09:00–09:30) on the first working day.
+    // The generic preview still lists it, but the 60-minute service can't fit,
+    // so its preview must move on to the next day instead of reading as
+    // "no upcoming availability".
+    $firstDay = $setup['startAt']->startOfDay();
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $firstDay->setTime(9, 30),
+        'end_at' => $firstDay->setTime(17, 0),
+    ]);
+
+    $specialist = collect(AppointmentOptions::specialists($setup['team']))
+        ->firstWhere('id', $setup['user']->id);
+
+    expect($specialist['next_available']['date'])->toBe($firstDay->format('Y-m-d'));
+    expect($specialist['next_available']['slots'])->toBe(['09:00']);
+
+    $servicePreview = $specialist['next_available_by_service'][$setup['service']->id];
+
+    expect($servicePreview['date'])->toBe($firstDay->addDay()->format('Y-m-d'));
+    expect($servicePreview['slots'])->toContain('09:00', '09:30');
+});
+
+test('the per-service preview honours the specialist duration override', function () {
+    $setup = bookableSetup();
+
+    // The service defaults to an hour, but this specialist does it in 30 minutes,
+    // so the lone 30-minute gap on the first day is bookable for them.
+    $setup['service']->specialists()->updateExistingPivot($setup['user']->id, ['duration' => 30]);
+
+    $firstDay = $setup['startAt']->startOfDay();
+
+    Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $setup['user']->id,
+        'start_at' => $firstDay->setTime(9, 30),
+        'end_at' => $firstDay->setTime(17, 0),
+    ]);
+
+    $specialist = collect(AppointmentOptions::specialists($setup['team']))
+        ->firstWhere('id', $setup['user']->id);
+
+    expect($specialist['next_available_by_service'][$setup['service']->id])->toBe([
+        'date' => $firstDay->format('Y-m-d'),
+        'label' => $firstDay->format('D, j M'),
+        'slots' => ['09:00'],
+    ]);
+});
+
 test('availability extends beyond two weeks to the last scheduled day', function () {
     $setup = bookableSetup();
 

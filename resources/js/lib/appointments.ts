@@ -3,6 +3,7 @@ import type {
     AppointmentLocationOption,
     AppointmentServiceOption,
     AppointmentSpecialistOption,
+    SpecialistAvailabilityPreview,
 } from '@/types';
 
 import { formatAmount } from './currency';
@@ -220,49 +221,20 @@ export function buildUpcomingDays(count: number): UpcomingDay[] {
 }
 
 /**
- * Filter a list of half-hour preview start times down to the ones where a
- * service of the given duration actually fits — i.e. enough back-to-back free
- * 30-minute blocks start at that time. A 30-minute opening shouldn't be offered
- * for a one-hour service, so the specialist preview stays honest once a service
- * (and therefore a duration) has been chosen.
+ * Pick the "next available" preview to show for a specialist. With no service
+ * chosen it is the generic half-hour teaser; once a service is chosen it is the
+ * backend's preview for that service, which already accounts for its duration
+ * and moves on to the first day that can actually hold it.
  */
-export function filterPreviewSlotsByDuration(
-    slots: string[],
-    durationMinutes: number,
-): string[] {
-    const step = 30;
-    const blocksNeeded = Math.max(1, Math.ceil(durationMinutes / step));
-
-    if (blocksNeeded === 1) {
-        return slots;
+export function specialistPreviewFor(
+    specialist: AppointmentSpecialistOption,
+    serviceId: number | null,
+): SpecialistAvailabilityPreview | null {
+    if (serviceId === null) {
+        return specialist.next_available;
     }
 
-    const available = new Set(slots);
-
-    const toMinutes = (value: string): number => {
-        const [hours, minutes] = value.split(':').map(Number);
-
-        return hours * 60 + minutes;
-    };
-
-    const toLabel = (total: number): string => {
-        const hours = Math.floor(total / 60);
-        const minutes = total % 60;
-
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-    };
-
-    return slots.filter((slot) => {
-        const start = toMinutes(slot);
-
-        for (let index = 1; index < blocksNeeded; index++) {
-            if (!available.has(toLabel(start + index * step))) {
-                return false;
-            }
-        }
-
-        return true;
-    });
+    return specialist.next_available_by_service[String(serviceId)] ?? null;
 }
 
 /**

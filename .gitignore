@@ -40,3 +40,4 @@ ds-bundle/
 node_modules/uponco
 testsprite_tests/tmp/
 testsprite_tests/tmp/config.json
+/scripts/

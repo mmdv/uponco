@@ -69,6 +69,7 @@ function makeSpecialist(
         location_ids: [10],
         service_durations: {},
         next_available: null,
+        next_available_by_service: {},
         available_days: [],
         ...overrides,
     };

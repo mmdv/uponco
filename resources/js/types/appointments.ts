@@ -66,6 +66,11 @@ export type AppointmentSpecialistOption = {
     service_durations: Record<string, number>;
     next_available: SpecialistAvailabilityPreview | null;
     /**
+     * Next-available preview per offered service id, built with that service's
+     * effective duration; a missing id means no upcoming opening fits it.
+     */
+    next_available_by_service: Record<string, SpecialistAvailabilityPreview>;
+    /**
      * `YYYY-MM-DD` days that have a free slot, from today out to the specialist's
      * furthest scheduled day (bounded by the backend availability horizon).
      */

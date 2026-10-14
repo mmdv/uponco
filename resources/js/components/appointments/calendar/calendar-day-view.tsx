@@ -73,13 +73,14 @@ export default function CalendarDayView({
 
     const dayKey = dateKey(date);
 
-    const { drag, drop, beginDrag, moveDrag, endDrag } = useDayViewDrag({
-        dayKey,
-        timezone,
-        appointments,
-        columnRefs,
-        onReschedule,
-    });
+    const { drag, drop, pressingId, beginDrag, moveDrag, endDrag } =
+        useDayViewDrag({
+            dayKey,
+            timezone,
+            appointments,
+            columnRefs,
+            onReschedule,
+        });
 
     // Track the scroll container's width so the columns can be sized to fill it
     // (up to the per-breakpoint cap) with any extras overflowing to scroll.
@@ -350,6 +351,7 @@ export default function CalendarDayView({
                                         )}
                                         drag={drag}
                                         drop={drop}
+                                        pressingId={pressingId}
                                         hover={hover}
                                         registerRef={registerRef}
                                         onColumnClick={handleColumnClick}

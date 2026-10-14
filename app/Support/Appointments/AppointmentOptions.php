@@ -143,7 +143,7 @@ class AppointmentOptions
     /**
      * Get the team's specialists, including their service and location relationships.
      *
-     * @return array<int, array{id: int, name: string, avatar: ?string, job_title: ?string, description: ?string, service_ids: array<int, int>, location_ids: array<int, int>, service_durations: array<int, int>, next_available: ?array{date: string, label: string, slots: array<int, string>}, available_days: array<int, string>}>
+     * @return array<int, array{id: int, name: string, avatar: ?string, job_title: ?string, description: ?string, service_ids: array<int, int>, location_ids: array<int, int>, service_durations: array<int, int>, next_available: ?array{date: string, label: string, slots: array<int, string>}, next_available_by_service: array<int, array{date: string, label: string, slots: array<int, string>}>, available_days: array<int, string>}>
      */
     public static function specialists(Team $team): array
     {
@@ -164,7 +164,7 @@ class AppointmentOptions
                 // company would otherwise expose that company's row ids here.
                 'services' => fn ($query) => $query
                     ->where('services.team_id', $team->id)
-                    ->select('services.id', 'services.duration'),
+                    ->select('services.id', 'services.duration', 'services.technical_break', 'services.slot_interval'),
                 'locations' => fn ($query) => $query
                     ->where('locations.team_id', $team->id)
                     ->select('locations.id'),
@@ -193,6 +193,9 @@ class AppointmentOptions
                         ])
                         ->all(),
                     'next_available' => $availability['preview'],
+                    // The same teaser per offered service, so picking a service
+                    // never hides openings it fits (or shows ones it doesn't).
+                    'next_available_by_service' => $availability['by_service'],
                     'available_days' => $availability['days'],
                 ];
             })
@@ -211,12 +214,18 @@ class AppointmentOptions
      * Both are teasers only — the real bookable slots are generated per service
      * once a service, specialist and date have all been chosen.
      *
-     * @return array{days: array<int, string>, preview: ?array{date: string, label: string, slots: array<int, string>}}
+     * Each offered service also gets its own preview, built with the same
+     * duration, start grid and technical break {@see SlotGenerator} uses, from
+     * the first day that can actually hold it. Narrowing the generic half-hour
+     * preview on the client instead would wrongly report "no availability"
+     * whenever the first day's openings are too short for the service.
+     *
+     * @return array{days: array<int, string>, preview: ?array{date: string, label: string, slots: array<int, string>}, by_service: array<int, array{date: string, label: string, slots: array<int, string>}>}
      */
     protected static function availability(User $specialist, int $teamId, string $timezone): array
     {
         if ($specialist->scheduleSlots->isEmpty()) {
-            return ['days' => [], 'preview' => null];
+            return ['days' => [], 'preview' => null, 'by_service' => []];
         }
 
         $now = CarbonImmutable::now($timezone);
@@ -235,16 +244,19 @@ class AppointmentOptions
             ->sort()
             ->values();
 
+        $schedule = $dates->mapWithKeys(fn (string $date): array => [
+            $date => [
+                CarbonImmutable::parse($date, $timezone)->startOfDay(),
+                $specialist->scheduleSlots
+                    ->filter(fn (ScheduleSlot $slot): bool => $slot->date->format('Y-m-d') === $date)
+                    ->sortBy('start_time'),
+            ],
+        ]);
+
         $days = [];
         $preview = null;
 
-        foreach ($dates as $date) {
-            $day = CarbonImmutable::parse($date, $timezone)->startOfDay();
-
-            $hours = $specialist->scheduleSlots
-                ->filter(fn (ScheduleSlot $slot): bool => $slot->date->format('Y-m-d') === $date)
-                ->sortBy('start_time');
-
+        foreach ($schedule as $date => [$day, $hours]) {
             $slots = static::previewSlots($hours, $day, $now, $booked, $date === $today);
 
             if ($slots === []) {
@@ -252,25 +264,66 @@ class AppointmentOptions
             }
 
             $days[] = $date;
+            $preview ??= static::previewFor($day, $slots);
+        }
 
-            if ($preview === null) {
-                $preview = [
-                    'date' => $date,
-                    'label' => $day->isToday() ? 'Today' : ($day->isTomorrow() ? 'Tomorrow' : $day->format('D, j M')),
-                    'slots' => $slots,
-                ];
+        // Services sharing a duration, grid and break share a preview, so the
+        // scan runs once per distinct shape rather than once per service.
+        $previews = [];
+        $byService = [];
+
+        foreach ($specialist->services as $service) {
+            $duration = (int) ($service->pivot?->duration ?? $service->duration);
+            $grid = $service->slotIntervalFor($duration);
+            $break = (int) $service->technical_break;
+            $shape = "{$duration}:{$grid}:{$break}";
+
+            if (! array_key_exists($shape, $previews)) {
+                $previews[$shape] = null;
+
+                foreach ($schedule as $date => [$day, $hours]) {
+                    $slots = static::previewSlots($hours, $day, $now, $booked, $date === $today, $duration, $grid, $break);
+
+                    if ($slots !== []) {
+                        $previews[$shape] = static::previewFor($day, $slots);
+
+                        break;
+                    }
+                }
+            }
+
+            if ($previews[$shape] !== null) {
+                $byService[$service->id] = $previews[$shape];
             }
         }
 
-        return ['days' => $days, 'preview' => $preview];
+        return ['days' => $days, 'preview' => $preview, 'by_service' => $byService];
     }
 
     /**
-     * Generate free half-hour preview time labels across a specialist's work
-     * windows, skipping past times and slots overlapping existing appointments.
+     * Shape a day's free time labels into a "next available" preview.
+     *
+     * @param  array<int, string>  $slots
+     * @return array{date: string, label: string, slots: array<int, string>}
+     */
+    protected static function previewFor(CarbonImmutable $day, array $slots): array
+    {
+        return [
+            'date' => $day->format('Y-m-d'),
+            'label' => $day->isToday() ? 'Today' : ($day->isTomorrow() ? 'Tomorrow' : $day->format('D, j M')),
+            'slots' => $slots,
+        ];
+    }
+
+    /**
+     * Generate free preview time labels across a specialist's work windows,
+     * skipping past times and slots overlapping existing appointments.
+     *
+     * Defaults to plain half-hour blocks; a service passes its own duration,
+     * start grid and technical break so the labels match what it can book.
      *
      * @param  Collection<int, ScheduleSlot>  $hours
-     * @param  Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>  $booked
+     * @param  Collection<int, array{0: CarbonInterface, 1: CarbonInterface, 2: int}>  $booked
      * @return array<int, string>
      */
     protected static function previewSlots(
@@ -279,6 +332,9 @@ class AppointmentOptions
         CarbonImmutable $now,
         Collection $booked,
         bool $isToday,
+        int $duration = 30,
+        int $grid = 30,
+        int $break = 0,
     ): array {
         $slots = [];
 
@@ -286,8 +342,8 @@ class AppointmentOptions
             $cursor = $day->setTimeFromTimeString($window->start_time);
             $end = $day->setTimeFromTimeString($window->end_time);
 
-            while ($cursor < $end && count($slots) < 12) {
-                $slotEnd = $cursor->addMinutes(30);
+            while ($cursor->addMinutes($duration)->lessThanOrEqualTo($end) && count($slots) < 12) {
+                $slotEnd = $cursor->addMinutes($duration + $break);
 
                 $isPast = $isToday && $cursor->lessThanOrEqualTo($now);
 
@@ -295,7 +351,7 @@ class AppointmentOptions
                     $slots[] = $cursor->format('H:i');
                 }
 
-                $cursor = $cursor->addMinutes(30);
+                $cursor = $cursor->addMinutes($grid);
             }
         }
 
@@ -313,29 +369,37 @@ class AppointmentOptions
      * who works for two companies must not have one company's booked times
      * inferable from the other company's public booking page.
      *
-     * @return Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>
+     * Each interval carries the booked service's technical break, which keeps
+     * the specialist busy after the appointment ends.
+     *
+     * @return Collection<int, array{0: CarbonInterface, 1: CarbonInterface, 2: int}>
      */
     protected static function bookedIntervals(User $specialist, int $teamId, CarbonImmutable $windowStart, CarbonImmutable $windowEnd): Collection
     {
         return Appointment::query()
             ->booked()
+            ->with('service:id,technical_break')
             ->where('team_id', $teamId)
             ->where('specialist_id', $specialist->id)
             ->where('start_at', '<', $windowEnd->utc())
             ->where('end_at', '>', $windowStart->utc())
-            ->get(['start_at', 'end_at'])
-            ->map(fn (Appointment $appointment): array => [$appointment->start_at, $appointment->end_at]);
+            ->get(['start_at', 'end_at', 'service_id'])
+            ->map(fn (Appointment $appointment): array => [
+                $appointment->start_at,
+                $appointment->end_at,
+                (int) ($appointment->service?->technical_break ?? 0),
+            ]);
     }
 
     /**
      * Determine whether a slot overlaps any of the booked intervals.
      *
-     * @param  Collection<int, array{0: CarbonInterface, 1: CarbonInterface}>  $booked
+     * @param  Collection<int, array{0: CarbonInterface, 1: CarbonInterface, 2: int}>  $booked
      */
     protected static function overlapsAny(CarbonImmutable $slotStart, CarbonImmutable $slotEnd, Collection $booked): bool
     {
-        foreach ($booked as [$bookedStart, $bookedEnd]) {
-            if ($slotStart->lessThan($bookedEnd) && $slotEnd->greaterThan($bookedStart)) {
+        foreach ($booked as [$bookedStart, $bookedEnd, $bookedBreak]) {
+            if ($slotStart->lessThan($bookedEnd->copy()->addMinutes($bookedBreak)) && $slotEnd->greaterThan($bookedStart)) {
                 return true;
             }
         }
