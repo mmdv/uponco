@@ -10,22 +10,45 @@
         "menu": "Menu"
     },
     "hero": {
-        "badge": {
-            "tag": "Free",
-            "lead": "First",
-            "trail": "appointments"
-        },
-        "titleLead": "Your digital bridge to your",
-        "titleHighlight": "customers",
-        "subtitle": "Uponco is appointment booking software for your business — every location, every service, online or onsite. Set up in five minutes and let customers book in seconds.",
-        "ctaStartFree": "Start free",
-        "ctaSeeHow": "See how it works",
-        "ctaLogin": "Log in",
-        "ctaGoDashboard": "Go to dashboard",
+        "title": "Bookings, without the back-and-forth.",
+        "subtitle": "Share one link. Customers pick a service, a specialist and a time — Uponco takes care of the rest.",
+        "ctaPrimary": "Get started free",
+        "ctaDemo": "See a live booking page",
+        "ctaDashboard": "Go to dashboard",
         "trust": {
-            "noCreditCard": "No credit card",
-            "fiveMinuteSetup": "5-minute setup",
-            "cancelAnytime": "Cancel anytime"
+            "freeBeta": "Free during beta",
+            "noCard": "No card needed",
+            "liveFast": "Live in 5 minutes"
+        },
+        "steps": {
+            "label": "Booking steps",
+            "choose": "Choose",
+            "time": "Pick a time",
+            "booked": "You're booked in"
+        },
+        "screens": {
+            "choose": "Studio North's booking page with a haircut and Nora Kim chosen",
+            "time": "Picking a day and a free time on Studio North's booking page",
+            "booked": "The confirmation screen: You're booked in, with Add to your calendar"
+        },
+        "cards": {
+            "nextAvailable": {
+                "title": "Next available",
+                "meta": "Today · 14:30"
+            },
+            "calendar": {
+                "eyebrow": "Add to your calendar",
+                "title": "Google · Apple"
+            },
+            "newBooking": {
+                "eyebrow": "Uponco · now",
+                "title": "New booking",
+                "meta": "Haircut · Sat 12:30 · Alex Morgan"
+            },
+            "confirmation": {
+                "title": "Confirmation sent",
+                "meta": "alex.morgan@example.com"
+            }
         }
     },
     "demo": {
@@ -37,68 +60,258 @@
         "bookedIn": "You're booked in",
         "reminderSent": "Reminder sent"
     },
-    "value": {
-        "heading": "Bookings, without the back-and-forth",
-        "subheading": "Share one link. Uponco takes care of the rest.",
-        "items": {
-            "bookingPage": {
-                "title": "Your own booking page",
-                "description": "Customers pick a service, a specialist and a free time slot — no calls, no messages, no account needed."
-            },
-            "sharedCalendar": {
-                "title": "One calendar for the team",
-                "description": "Every location, service and team member in one place, with double bookings blocked automatically."
-            },
-            "reminders": {
-                "title": "Automatic reminders",
-                "description": "Uponco emails every customer before their appointment, so far fewer of them forget to show up."
-            }
-        },
-        "cta": "Explore all features"
-    },
-    "setup": {
-        "heading": "Live in five minutes",
-        "subheading": "No setup fee, no installation, no training day.",
-        "steps": {
-            "setUp": {
-                "title": "Set up your business",
-                "description": "Add your locations, services, team and working hours."
-            },
-            "share": {
-                "title": "Share your link",
-                "description": "Send your booking link out, or embed it on your own website."
-            },
-            "run": {
-                "title": "Start taking bookings",
-                "description": "Everything lands in one calendar your whole team can see."
-            }
-        }
-    },
-    "free100": {
-        "heading": "Your first 100 appointments are free",
-        "items": {
-            "noPayment": "No payment, no commitment",
-            "allFeatures": "All features included",
-            "payAsYouGrow": "Pay only as you grow"
-        },
-        "ctaClaim": "Claim your free 100",
-        "ctaGoDashboard": "Go to dashboard",
-        "ctaPricing": "See pricing"
-    },
-    "dataStrip": {
-        "heading": "Your data stays yours",
-        "description": "Uponco only asks for what it needs to run your bookings. We never sell your data or your customers' data.",
-        "cta": "See what we collect"
-    },
     "footer": {
-        "tagline": "Uponco is your digital bridge to your customers — easy appointment booking for every location and service, online or onsite.",
-        "linksHeading": "Uponco",
+        "tagline": "Your digital bridge to your customers.",
         "features": "Features",
         "pricing": "Pricing",
         "yourData": "Your data",
         "privacy": "Privacy Policy",
         "terms": "Terms & Conditions",
         "contact": "Contact",
-        "copyright": "Uponco. All rights reserved."
+        "copyright": "Uponco. All rights reserved.",
+        "product": "Product",
+        "company": "Company",
+        "legal": "Legal",
+        "liveDemo": "Live demo"
+    },
+    "categories": {
+        "heading": "Made for anyone who works by appointment",
+        "worksWithLabel": "Works with",
+        "items": {
+            "hairdressers": "Hairdressers",
+            "barbershops": "Barbershops",
+            "nailSalons": "Nail salons",
+            "lashesBrows": "Lashes & brows",
+            "massage": "Massage",
+            "spas": "Spas",
+            "yoga": "Yoga studios",
+            "pilates": "Pilates studios",
+            "personalTrainers": "Personal trainers",
+            "dentalClinics": "Dental clinics",
+            "physiotherapy": "Physiotherapy",
+            "psychologists": "Psychologists",
+            "lifeCoaches": "Life coaches",
+            "vets": "Vets",
+            "petGrooming": "Pet grooming",
+            "tutors": "Tutors",
+            "languageSchools": "Language schools",
+            "musicLessons": "Music lessons",
+            "drivingSchools": "Driving schools",
+            "photographers": "Photographers",
+            "consultants": "Consultants",
+            "carDetailing": "Car detailing",
+            "cleaning": "Cleaning services"
+        }
+    },
+    "brand": {
+        "title": "Your booking page. Your brand.",
+        "subtitle": "Your logo, your colour, your language. One product for every kind of appointment.",
+        "phones": {
+            "studioNorth": {
+                "caption": "Barbershop",
+                "alt": "Booking page of Studio North, a barbershop, in blue"
+            },
+            "lumenYoga": {
+                "caption": "Yoga studio",
+                "alt": "Booking page of Lumen Yoga, a yoga studio, in green"
+            },
+            "harborPhysio": {
+                "caption": "Physio clinic",
+                "alt": "Booking page of Harbor Physio, a physiotherapy clinic, in teal"
+            },
+            "miraTutoring": {
+                "caption": "Online tutor",
+                "alt": "Booking page of Mira Tutoring, an online tutor, in purple"
+            }
+        }
+    },
+    "journey": {
+        "title": "Booked in under a minute.",
+        "subtitle": "Your customers don't need an account — just your link.",
+        "steps": {
+            "choose": {
+                "title": "Choose",
+                "body": "Pick a service, a specialist and a location. No calls, no messages.",
+                "alt": "Choosing a specialist, each with their next available time",
+                "cardTitle": "Nora Kim",
+                "cardMeta": "Next available · Today 14:30"
+            },
+            "time": {
+                "title": "Pick a time",
+                "body": "Only real free slots — double bookings are blocked automatically.",
+                "alt": "A group yoga class time list showing 3 places left at 09:00",
+                "cardTitle": "Morning flow · 09:00",
+                "cardMeta": "3 left"
+            },
+            "booked": {
+                "title": "You're booked in",
+                "body": "Confirmation by email, and one tap to add it to Google or Apple Calendar.",
+                "alt": "The confirmation screen with Add to your calendar buttons",
+                "cardTitle": "Add to your calendar",
+                "cardMeta": "Google · Apple"
+            }
+        }
+    },
+    "calendar": {
+        "title": "One calendar for the whole team.",
+        "body": "See everyone's day side by side. Uponco fills it from your booking page and keeps double bookings out.",
+        "points": {
+            "oneCalendar": "Every location, service and team member in one place.",
+            "edits": "Add, move or cancel a booking in a few taps.",
+            "alerts": "Instant alerts on your phone when something is booked, moved or cancelled — add Uponco to your Home Screen."
+        },
+        "alt": "Studio North's team calendar: a day view with three barbers' bookings side by side",
+        "notices": {
+            "booked": {
+                "eyebrow": "Uponco · now",
+                "title": "New booking",
+                "meta": "Haircut · 15:00 · Hugo Costa"
+            },
+            "moved": {
+                "eyebrow": "Uponco · 2 min ago",
+                "title": "Appointment moved",
+                "meta": "Skin fade · 13:30 → 14:30"
+            },
+            "cancelled": {
+                "eyebrow": "Uponco · 10 min ago",
+                "title": "Booking cancelled",
+                "meta": "Kids cut · 12:00"
+            }
+        }
+    },
+    "embed": {
+        "title": "One line of code. Your whole booking flow.",
+        "body": "Paste one script tag into your website and the full booking flow appears — nothing to configure.",
+        "snippetLabel": "Your booking widget",
+        "siteName": "studionorth.example",
+        "deepLinks": {
+            "title": "Links that arrive ready",
+            "body": "Share links that open with a service, a specialist or a location already chosen — perfect for ads, posts and messages."
+        },
+        "alt": "The booking flow embedded on a business's own website"
+    },
+    "operations": {
+        "title": "Run your business, not your calendar.",
+        "subtitle": "Set it up once. Uponco turns your hours into free slots.",
+        "tabs": {
+            "hours": {
+                "title": "Working hours",
+                "body": "Plan by week or month, use presets, and repeat a week onto the weeks ahead.",
+                "alt": "The schedule screen with a week of working hours",
+                "cardTitle": "Repeat this week",
+                "cardMeta": "Applied to the weeks ahead"
+            },
+            "group": {
+                "title": "Group sessions & online",
+                "body": "Set a capacity for classes. Connect Google and online bookings get a Meet link automatically.",
+                "alt": "A yoga studio's services: a group class, an online class and a private session",
+                "cardTitle": "Google Meet link created",
+                "cardMeta": "Online slow flow · 18:00"
+            },
+            "locations": {
+                "title": "Multiple locations",
+                "body": "Every branch in one calendar. Customers see each address and get directions.",
+                "alt": "Choosing between two clinic branches, each with an address and directions",
+                "cardTitle": "Get directions",
+                "cardMeta": "Harbor Physio Zuid"
+            },
+            "team": {
+                "title": "Team & roles",
+                "body": "Invite your team by email. Owner, Admin or Member — everyone sees what they need.",
+                "alt": "The team members screen with an owner and two members",
+                "cardTitle": "Invitation sent",
+                "cardMeta": "Role · Member"
+            }
+        }
+    },
+    "features": {
+        "title": "And that's not all.",
+        "subtitle": "The small things that make the day run smoother.",
+        "items": {
+            "customers": {
+                "title": "Customer list",
+                "body": "Everyone who's booked, searchable when you add a booking."
+            },
+            "categories": {
+                "title": "Service categories",
+                "body": "Group services for a tidier booking page."
+            },
+            "pricing": {
+                "title": "Fixed, range or free prices",
+                "body": "Show prices the way you charge, in €, $ or ₼."
+            },
+            "breaks": {
+                "title": "Breaks between appointments",
+                "body": "Add buffer time after any service."
+            },
+            "cancellation": {
+                "title": "Self-serve cancellation",
+                "body": "Customers cancel from their email link and the slot frees up."
+            },
+            "staffBookings": {
+                "title": "Bookings by your team",
+                "body": "Add, move or cancel bookings for customers yourself."
+            },
+            "theme": {
+                "title": "Light & dark booking page",
+                "body": "Customers choose what's easier on their eyes."
+            },
+            "languages": {
+                "title": "Speaks your language",
+                "body": "Booking page in English and Azerbaijani."
+            },
+            "twoFactor": {
+                "title": "Two-factor authentication",
+                "body": "Protect your account with an authenticator app."
+            }
+        }
+    },
+    "privacy": {
+        "title": "Your data stays yours.",
+        "body": "We only ask for what bookings need, and we never sell your data or your customers' data. Your customers' details belong to you.",
+        "finePrint": "Google is used only if you connect it — to create calendar events and Meet links.",
+        "cta": "How we handle your data",
+        "alt": "The Google Meet integration screen: connect your Google account so online appointments get a Meet link"
+    },
+    "pricing": {
+        "banner": "In beta — every feature is free right now.",
+        "title": "Simple pricing. Start free.",
+        "subtitle": "No card, no contract. Pay only for the team members who take bookings.",
+        "free": {
+            "name": "Free",
+            "price": "€0",
+            "period": "forever",
+            "caption": "Everything you need to start taking bookings.",
+            "features": {
+                "appointments": "First 100 appointments free, forever",
+                "everything": "Every feature included",
+                "noCard": "No card needed"
+            }
+        },
+        "perUser": {
+            "name": "Per user",
+            "price": "€7.99",
+            "period": "+ VAT / month",
+            "caption": "Per team member who takes bookings, after beta.",
+            "features": {
+                "unlimited": "Unlimited appointments",
+                "everything": "Everything in Free",
+                "cancel": "Cancel anytime"
+            }
+        },
+        "note": "Customers never pay and never need an account. Cancelled bookings don't count.",
+        "cta": "See full pricing"
+    },
+    "testimonials": {
+        "title": "Loved by the people who use it."
+    },
+    "finalCta": {
+        "title": "Live in five minutes.",
+        "subtitle": "No setup fee, no installation, no training day.",
+        "alts": {
+            "booking": "Studio North's booking page",
+            "confirmed": "The You're booked in confirmation screen",
+            "calendar": "Studio North's team calendar"
+        }
     }
 }

@@ -10,22 +10,45 @@
         "menu": "Menyu"
     },
     "hero": {
-        "badge": {
-            "tag": "Pulsuz",
-            "lead": "İlk",
-            "trail": "görüş"
-        },
-        "titleLead": "Müştərilərinizə rəqəmsal",
-        "titleHighlight": "körpünüz",
-        "subtitle": "Uponco biznesiniz üçün görüş rezervasiyası proqramıdır — hər filial, hər xidmət, onlayn və ya yerində. Beş dəqiqəyə qurun və müştərilərin saniyələr içində rezervasiya etməsinə imkan yaradın.",
-        "ctaStartFree": "Pulsuz başla",
-        "ctaSeeHow": "Necə işlədiyinə bax",
-        "ctaLogin": "Daxil ol",
-        "ctaGoDashboard": "İdarə panelinə keç",
+        "title": "Rezervasiya — zəngsiz, yazışmasız.",
+        "subtitle": "Bir link paylaşın. Müştərilər xidməti, mütəxəssisi və vaxtı özləri seçir — qalanını Uponco həll edir.",
+        "ctaPrimary": "Pulsuz başla",
+        "ctaDemo": "Canlı rezervasiya səhifəsinə bax",
+        "ctaDashboard": "İdarə panelinə keç",
         "trust": {
-            "noCreditCard": "Kredit kartı yoxdur",
-            "fiveMinuteSetup": "5 dəqiqəlik quraşdırma",
-            "cancelAnytime": "İstənilən vaxt ləğv et"
+            "freeBeta": "Beta müddətində pulsuz",
+            "noCard": "Kart tələb olunmur",
+            "liveFast": "5 dəqiqəyə hazır"
+        },
+        "steps": {
+            "label": "Rezervasiya addımları",
+            "choose": "Seçin",
+            "time": "Vaxt seçin",
+            "booked": "Rezervasiyanız təsdiqləndi"
+        },
+        "screens": {
+            "choose": "Studio North-un rezervasiya səhifəsi: saç kəsimi və Nora Kim seçilib",
+            "time": "Studio North-un rezervasiya səhifəsində gün və boş vaxt seçimi",
+            "booked": "Təsdiq ekranı: Rezervasiyanız təsdiqləndi, təqvimə əlavə et"
+        },
+        "cards": {
+            "nextAvailable": {
+                "title": "Ən yaxın vaxt",
+                "meta": "Bu gün · 14:30"
+            },
+            "calendar": {
+                "eyebrow": "Təqvimə əlavə et",
+                "title": "Google · Apple"
+            },
+            "newBooking": {
+                "eyebrow": "Uponco · indi",
+                "title": "Yeni rezervasiya",
+                "meta": "Haircut · Şənbə 12:30 · Alex Morgan"
+            },
+            "confirmation": {
+                "title": "Təsdiq göndərildi",
+                "meta": "alex.morgan@example.com"
+            }
         }
     },
     "demo": {
@@ -37,68 +60,258 @@
         "bookedIn": "Rezervasiyanız təsdiqləndi",
         "reminderSent": "Xatırlatma göndərildi"
     },
-    "value": {
-        "heading": "Yazışmasız rezervasiyalar",
-        "subheading": "Bir link paylaşın. Qalanını Uponco edir.",
-        "items": {
-            "bookingPage": {
-                "title": "Öz rezervasiya səhifəniz",
-                "description": "Müştərilər xidməti, mütəxəssisi və boş vaxt aralığını seçir — zəng, yazışma və hesab yaratmaq lazım deyil."
-            },
-            "sharedCalendar": {
-                "title": "Komanda üçün vahid təqvim",
-                "description": "Bütün filiallar, xidmətlər və komanda üzvləri bir yerdə, ikiqat rezervasiya avtomatik bloklanır."
-            },
-            "reminders": {
-                "title": "Avtomatik xatırlatmalar",
-                "description": "Uponco görüşdən əvvəl hər müştəriyə e-poçt göndərir, beləliklə daha az adam gəlməyi unudur."
-            }
-        },
-        "cta": "Bütün imkanlara bax"
-    },
-    "setup": {
-        "heading": "Beş dəqiqəyə hazır",
-        "subheading": "Quraşdırma haqqı yoxdur, proqram yükləmək və təlim keçmək lazım deyil.",
-        "steps": {
-            "setUp": {
-                "title": "Biznesinizi qurun",
-                "description": "Filiallarınızı, xidmətlərinizi, komandanızı və iş saatlarınızı əlavə edin."
-            },
-            "share": {
-                "title": "Linkinizi paylaşın",
-                "description": "Rezervasiya linkinizi paylaşın və ya öz saytınıza yerləşdirin."
-            },
-            "run": {
-                "title": "Rezervasiya qəbuluna başlayın",
-                "description": "Hər şey bütün komandanızın gördüyü vahid təqvimə düşür."
-            }
-        }
-    },
-    "free100": {
-        "heading": "İlk 100 görüşünüz pulsuzdur",
-        "items": {
-            "noPayment": "Ödəniş yoxdur, öhdəlik yoxdur",
-            "allFeatures": "Bütün funksiyalar daxildir",
-            "payAsYouGrow": "Yalnız böyüdükcə ödə"
-        },
-        "ctaClaim": "Pulsuz 100-ü əldə et",
-        "ctaGoDashboard": "İdarə panelinə keç",
-        "ctaPricing": "Qiymətlərə bax"
-    },
-    "dataStrip": {
-        "heading": "Məlumatlarınız sizinkidir",
-        "description": "Uponco yalnız rezervasiyalarınızı idarə etmək üçün lazım olanı istəyir. Nə sizin, nə də müştərilərinizin məlumatlarını heç vaxt satmırıq.",
-        "cta": "Nə topladığımıza baxın"
-    },
     "footer": {
-        "tagline": "Uponco müştərilərinizə rəqəmsal körpünüzdür — hər filial və hər xidmət üçün, onlayn və ya yerində asan görüş rezervasiyası.",
-        "linksHeading": "Uponco",
+        "tagline": "Müştərilərinizə rəqəmsal körpünüz.",
         "features": "İmkanlar",
         "pricing": "Qiymətlər",
         "yourData": "Məlumatlarınız",
         "privacy": "Məxfilik Siyasəti",
         "terms": "Qaydalar və Şərtlər",
         "contact": "Əlaqə",
-        "copyright": "Uponco. Bütün hüquqlar qorunur."
+        "copyright": "Uponco. Bütün hüquqlar qorunur.",
+        "product": "Məhsul",
+        "company": "Şirkət",
+        "legal": "Hüquqi",
+        "liveDemo": "Canlı demo"
+    },
+    "categories": {
+        "heading": "Görüşlə işləyən hər kəs üçün",
+        "worksWithLabel": "İnteqrasiyalar:",
+        "items": {
+            "hairdressers": "Saç ustaları",
+            "barbershops": "Bərbərxanalar",
+            "nailSalons": "Dırnaq salonları",
+            "lashesBrows": "Kirpik və qaş",
+            "massage": "Masaj",
+            "spas": "Spa",
+            "yoga": "Yoqa studiyaları",
+            "pilates": "Pilates studiyaları",
+            "personalTrainers": "Fərdi məşqçilər",
+            "dentalClinics": "Stomatologiya klinikaları",
+            "physiotherapy": "Fizioterapiya",
+            "psychologists": "Psixoloqlar",
+            "lifeCoaches": "Həyat koçları",
+            "vets": "Baytarlar",
+            "petGrooming": "Ev heyvanlarına qulluq",
+            "tutors": "Repetitorlar",
+            "languageSchools": "Dil məktəbləri",
+            "musicLessons": "Musiqi dərsləri",
+            "drivingSchools": "Sürücülük məktəbləri",
+            "photographers": "Fotoqraflar",
+            "consultants": "Məsləhətçilər",
+            "carDetailing": "Avtomobil yuma",
+            "cleaning": "Təmizlik xidmətləri"
+        }
+    },
+    "brand": {
+        "title": "Sizin rezervasiya səhifəniz. Sizin brendiniz.",
+        "subtitle": "Sizin loqonuz, rənginiz, diliniz. Hər növ görüş üçün bir məhsul.",
+        "phones": {
+            "studioNorth": {
+                "caption": "Bərbərxana",
+                "alt": "Studio North bərbərxanasının mavi rezervasiya səhifəsi"
+            },
+            "lumenYoga": {
+                "caption": "Yoqa studiyası",
+                "alt": "Lumen Yoga studiyasının yaşıl rezervasiya səhifəsi"
+            },
+            "harborPhysio": {
+                "caption": "Fizioterapiya klinikası",
+                "alt": "Harbor Physio klinikasının firuzəyi rezervasiya səhifəsi"
+            },
+            "miraTutoring": {
+                "caption": "Onlayn repetitor",
+                "alt": "Mira Tutoring onlayn repetitorunun bənövşəyi rezervasiya səhifəsi"
+            }
+        }
+    },
+    "journey": {
+        "title": "Bir dəqiqədən az vaxtda rezervasiya.",
+        "subtitle": "Müştərilərinizə hesab lazım deyil — yalnız linkiniz.",
+        "steps": {
+            "choose": {
+                "title": "Seçin",
+                "body": "Xidmət, mütəxəssis və məkan seçin. Zəng yox, yazışma yox.",
+                "alt": "Hər birinin ən yaxın boş vaxtı ilə mütəxəssis seçimi",
+                "cardTitle": "Nora Kim",
+                "cardMeta": "Ən yaxın vaxt · Bu gün 14:30"
+            },
+            "time": {
+                "title": "Vaxt seçin",
+                "body": "Yalnız həqiqi boş vaxtlar — ikiqat rezervasiyalar avtomatik bloklanır.",
+                "alt": "Saat 09:00-da 3 yer qalmış qrup yoqa dərsinin vaxt siyahısı",
+                "cardTitle": "Morning flow · 09:00",
+                "cardMeta": "3 yer qalıb"
+            },
+            "booked": {
+                "title": "Rezervasiyanız təsdiqləndi",
+                "body": "E-poçtla təsdiq və bir toxunuşla Google və ya Apple təqviminə əlavə.",
+                "alt": "Təqvimə əlavə et düymələri ilə təsdiq ekranı",
+                "cardTitle": "Təqvimə əlavə et",
+                "cardMeta": "Google · Apple"
+            }
+        }
+    },
+    "calendar": {
+        "title": "Bütün komanda üçün bir təqvim.",
+        "body": "Hamının gününü yan-yana görün. Uponco onu rezervasiya səhifənizdən doldurur və ikiqat rezervasiyaya yol vermir.",
+        "points": {
+            "oneCalendar": "Hər filial, xidmət və komanda üzvü bir yerdə.",
+            "edits": "Rezervasiyanı bir neçə toxunuşla əlavə edin, köçürün və ya ləğv edin.",
+            "alerts": "Nəsə rezerv edildikdə, köçürüldükdə və ya ləğv edildikdə telefonunuza dərhal bildiriş — Uponco-nu Əsas ekrana əlavə edin."
+        },
+        "alt": "Studio North-un komanda təqvimi: üç bərbərin rezervasiyaları yan-yana gündəlik görünüşdə",
+        "notices": {
+            "booked": {
+                "eyebrow": "Uponco · indi",
+                "title": "Yeni rezervasiya",
+                "meta": "Haircut · 15:00 · Hugo Costa"
+            },
+            "moved": {
+                "eyebrow": "Uponco · 2 dəq əvvəl",
+                "title": "Görüş vaxtı dəyişdi",
+                "meta": "Skin fade · 13:30 → 14:30"
+            },
+            "cancelled": {
+                "eyebrow": "Uponco · 10 dəq əvvəl",
+                "title": "Rezervasiya ləğv edildi",
+                "meta": "Kids cut · 12:00"
+            }
+        }
+    },
+    "embed": {
+        "title": "Bir sətir kod. Bütün rezervasiya axını.",
+        "body": "Saytınıza bir script teqi əlavə edin və tam rezervasiya axını görünsün — heç nə tənzimləmək lazım deyil.",
+        "snippetLabel": "Rezervasiya vidcetiniz",
+        "siteName": "studionorth.example",
+        "deepLinks": {
+            "title": "Hazır seçimlə açılan linklər",
+            "body": "Xidmət, mütəxəssis və ya məkan əvvəlcədən seçilmiş linklər paylaşın — reklam, paylaşım və mesajlar üçün ideal."
+        },
+        "alt": "Biznesin öz saytına yerləşdirilmiş rezervasiya axını"
+    },
+    "operations": {
+        "title": "Təqvimi yox, biznesinizi idarə edin.",
+        "subtitle": "Bir dəfə qurun. Uponco iş saatlarınızı boş vaxtlara çevirir.",
+        "tabs": {
+            "hours": {
+                "title": "İş saatları",
+                "body": "Həftəlik və ya aylıq planlayın, hazır şablonlardan istifadə edin və həftəni növbəti həftələrə təkrarlayın.",
+                "alt": "Bir həftəlik iş saatları ilə cədvəl ekranı",
+                "cardTitle": "Bu həftəni təkrarla",
+                "cardMeta": "Növbəti həftələrə tətbiq edildi"
+            },
+            "group": {
+                "title": "Qrup və onlayn görüşlər",
+                "body": "Dərslər üçün yer sayını təyin edin. Google-u qoşun — onlayn rezervasiyalar avtomatik Meet linki alacaq.",
+                "alt": "Yoqa studiyasının xidmətləri: qrup dərsi, onlayn dərs və fərdi məşğələ",
+                "cardTitle": "Google Meet linki yaradıldı",
+                "cardMeta": "Online slow flow · 18:00"
+            },
+            "locations": {
+                "title": "Bir neçə filial",
+                "body": "Bütün filiallar bir təqvimdə. Müştərilər hər ünvanı görür və yol tarifi alır.",
+                "alt": "Ünvan və yol tarifi ilə iki klinika filialı arasında seçim",
+                "cardTitle": "Yol tarifi",
+                "cardMeta": "Harbor Physio Zuid"
+            },
+            "team": {
+                "title": "Komanda və rollar",
+                "body": "Komandanızı e-poçtla dəvət edin. Sahib, Admin və ya Üzv — hər kəs ona lazım olanı görür.",
+                "alt": "Bir sahib və iki üzvlə komanda üzvləri ekranı",
+                "cardTitle": "Dəvət göndərildi",
+                "cardMeta": "Rol · Üzv"
+            }
+        }
+    },
+    "features": {
+        "title": "Və bu, hamısı deyil.",
+        "subtitle": "Günü daha rahat keçirən kiçik detallar.",
+        "items": {
+            "customers": {
+                "title": "Müştəri siyahısı",
+                "body": "Rezerv edən hər kəs — rezervasiya əlavə edərkən axtarışla tapılır."
+            },
+            "categories": {
+                "title": "Xidmət kateqoriyaları",
+                "body": "Daha səliqəli rezervasiya səhifəsi üçün xidmətləri qruplaşdırın."
+            },
+            "pricing": {
+                "title": "Sabit, aralıq və ya pulsuz qiymət",
+                "body": "Qiymətləri necə alırsınızsa elə göstərin — €, $ və ya ₼."
+            },
+            "breaks": {
+                "title": "Görüşlər arası fasilə",
+                "body": "İstənilən xidmətdən sonra fasilə vaxtı əlavə edin."
+            },
+            "cancellation": {
+                "title": "Müştərinin özü ləğv etməsi",
+                "body": "Müştərilər e-poçtdakı linklə ləğv edir və vaxt boşalır."
+            },
+            "staffBookings": {
+                "title": "Komandanızın rezervasiyaları",
+                "body": "Müştərilər üçün rezervasiyanı özünüz əlavə edin, köçürün və ya ləğv edin."
+            },
+            "theme": {
+                "title": "Açıq və tünd rezervasiya səhifəsi",
+                "body": "Müştərilər gözü üçün rahat olanı seçir."
+            },
+            "languages": {
+                "title": "Sizin dilinizdə",
+                "body": "Rezervasiya səhifəsi ingilis və Azərbaycan dillərində."
+            },
+            "twoFactor": {
+                "title": "İki mərhələli doğrulama",
+                "body": "Hesabınızı autentifikator tətbiqi ilə qoruyun."
+            }
+        }
+    },
+    "privacy": {
+        "title": "Məlumatlarınız sizindir.",
+        "body": "Yalnız rezervasiya üçün lazım olanı soruşuruq və nə sizin, nə də müştərilərinizin məlumatlarını heç vaxt satmırıq. Müştərilərinizin məlumatları sizə məxsusdur.",
+        "finePrint": "Google yalnız onu qoşsanız istifadə olunur — təqvim tədbirləri və Meet linkləri yaratmaq üçün.",
+        "cta": "Məlumatlarınızla necə davranırıq",
+        "alt": "Google Meet inteqrasiya ekranı: onlayn görüşlərə Meet linki üçün Google hesabınızı qoşun"
+    },
+    "pricing": {
+        "banner": "Beta mərhələsində — bütün imkanlar hazırda pulsuzdur.",
+        "title": "Sadə qiymət. Pulsuz başlayın.",
+        "subtitle": "Kart yox, müqavilə yox. Yalnız rezervasiya qəbul edən komanda üzvləri üçün ödəyin.",
+        "free": {
+            "name": "Pulsuz",
+            "price": "€0",
+            "period": "həmişəlik",
+            "caption": "Rezervasiya qəbul etməyə başlamaq üçün hər şey.",
+            "features": {
+                "appointments": "İlk 100 görüş həmişəlik pulsuz",
+                "everything": "Bütün imkanlar daxildir",
+                "noCard": "Kart tələb olunmur"
+            }
+        },
+        "perUser": {
+            "name": "İstifadəçi başına",
+            "price": "€7.99",
+            "period": "+ ƏDV / ay",
+            "caption": "Betadan sonra, rezervasiya qəbul edən hər komanda üzvü üçün.",
+            "features": {
+                "unlimited": "Limitsiz görüş",
+                "everything": "Pulsuz plandakı hər şey",
+                "cancel": "İstənilən vaxt ləğv edin"
+            }
+        },
+        "note": "Müştərilər heç vaxt ödəmir və hesab açmalı olmur. Ləğv edilmiş rezervasiyalar sayılmır.",
+        "cta": "Tam qiymətlərə bax"
+    },
+    "testimonials": {
+        "title": "İstifadəçilərimizin sevimlisi."
+    },
+    "finalCta": {
+        "title": "Beş dəqiqəyə hazır.",
+        "subtitle": "Quraşdırma haqqı yox, yükləmə yox, təlim günü yox.",
+        "alts": {
+            "booking": "Studio North-un rezervasiya səhifəsi",
+            "confirmed": "Rezervasiyanız təsdiqləndi ekranı",
+            "calendar": "Studio North-un komanda təqvimi"
+        }
     }
 }

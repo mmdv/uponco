@@ -26,12 +26,15 @@ describe('welcome localisation', () => {
         expect(leafKeys(az).sort()).toEqual(leafKeys(en).sort());
     });
 
-    it('ships the hero badge pieces the home page renders', () => {
+    it('ships the hero copy the home page renders', () => {
         expect(leafKeys(en)).toEqual(
             expect.arrayContaining([
-                'hero.badge.tag',
-                'hero.badge.lead',
-                'hero.badge.trail',
+                'hero.title',
+                'hero.subtitle',
+                'hero.ctaPrimary',
+                'hero.ctaDemo',
+                'hero.trust.freeBeta',
+                'hero.steps.booked',
             ]),
         );
     });

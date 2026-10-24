@@ -45,7 +45,7 @@ Uponco is currently **in beta — every feature is free for every business.** No
 | Plan | Price | What you get |
 |------|-------|--------------|
 | **Free** | €0 forever | First **100 appointments free, forever**. Every feature included. No credit card. Your own public booking page and website widget. |
-| **Per user** (post-beta) | €5.00 / user / month | Unlimited appointments. €5/month **per team member who takes bookings**. Everything in Free, no feature limits. Cancel anytime — no contract, no lock-in. |
+| **Per user** (post-beta) | €7.99 + VAT / user / month | Unlimited appointments. €7.99 + VAT per month **per team member who takes bookings**. Everything in Free, no feature limits. Cancel anytime — no contract, no lock-in. |
 
 **Pricing rules that matter for content:**
 - An "appointment" = any confirmed booking (public page or added by the team). **Cancelled bookings are not counted** against the free 100.
@@ -290,7 +290,7 @@ An internal **backoffice**, restricted to the Uponco operator team, to manage th
 - [x] 2FA, recovery codes, password & email management
 - [x] Data-privacy stance ("your data stays yours")
 - [x] ~50 business categories across 11 groups
-- [x] Free for first 100 appointments; €5/user/month after beta
+- [x] Free for first 100 appointments; €7.99 + VAT/user/month after beta
 
 ---
 
