@@ -243,6 +243,19 @@ test('the brand page exposes the booking page design and whether it can be switc
         );
 });
 
+test('booking page design switching is enabled in production by default', function () {
+    $originalEnvironment = $_SERVER['APP_ENV'] ?? null;
+    $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'production';
+
+    try {
+        $bookingConfig = require config_path('booking.php');
+    } finally {
+        $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $originalEnvironment;
+    }
+
+    expect($bookingConfig['design_switching'])->toBeTrue();
+});
+
 test('the brand page defaults the booking page design to classic', function () {
     [$user] = brandOwner();
 
