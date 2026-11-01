@@ -31,7 +31,7 @@ class AppointmentOptions
     /**
      * Get the bookable services for the team, including their category and relationships.
      *
-     * @return array<int, array{id: int, title: string, description: ?string, duration: int, price_type: string, price: ?string, price_min: ?string, price_max: ?string, currency: string, delivery_type: string, service_type: string, capacity: ?int, category_id: ?int, category_name: ?string, location_ids: array<int, int>, specialist_ids: array<int, int>}>
+     * @return array<int, array{id: int, title: string, description: ?string, duration: int, price_type: string, price: ?string, price_min: ?string, price_max: ?string, currency: string, delivery_type: string, service_type: string, capacity: ?int, category_id: ?int, category_name: ?string, location_ids: array<int, int>, specialist_ids: array<int, int>, specialist_prices: array<int, array{price: ?string, price_min: ?string, price_max: ?string}>}>
      */
     public static function services(Team $team): array
     {
@@ -57,6 +57,17 @@ class AppointmentOptions
                 'category_name' => $service->category?->name,
                 'location_ids' => $service->locations->pluck('id')->all(),
                 'specialist_ids' => $service->specialists->pluck('id')->all(),
+                // Effective price per specialist: their pivot override, falling
+                // back column by column to the service's own price.
+                'specialist_prices' => $service->specialists
+                    ->mapWithKeys(fn (User $specialist): array => [
+                        $specialist->id => [
+                            'price' => $specialist->pivot->price ?? $service->price,
+                            'price_min' => $specialist->pivot->price_min ?? $service->price_min,
+                            'price_max' => $specialist->pivot->price_max ?? $service->price_max,
+                        ],
+                    ])
+                    ->all(),
             ])
             ->all();
     }

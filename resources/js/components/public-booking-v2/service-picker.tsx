@@ -12,15 +12,22 @@ import {
 import type { PickerFilter } from '@/components/public-booking-v2/picker-parts';
 import SearchField from '@/components/public-booking-v2/search-field';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatDuration, formatServicePrice } from '@/lib/appointments';
+import { formatDuration } from '@/lib/appointments';
 import type { ServiceCategoryGroup } from '@/lib/appointments';
+import { formatServicePriceFor, serviceDurationFor } from '@/lib/booking';
 import { filterServiceGroups } from '@/lib/booking-search';
 import { cn } from '@/lib/utils';
+import type { AppointmentSpecialistOption } from '@/types';
 
 type Props = {
     groups: ServiceCategoryGroup[];
     selectedId: number | null;
     onSelect: (serviceId: number) => void;
+    /**
+     * The specialist already chosen, if any: services then show that
+     * specialist's own price and duration instead of the service defaults.
+     */
+    specialist?: AppointmentSpecialistOption | null;
     /** Other choices currently narrowing this list. */
     filters?: PickerFilter[];
     autoFocus?: boolean;
@@ -37,6 +44,7 @@ export default function ServicePicker({
     groups,
     selectedId,
     onSelect,
+    specialist = null,
     filters = [],
     autoFocus = false,
 }: Props) {
@@ -181,7 +189,10 @@ export default function ServicePicker({
                                 {group.services.map((service, index) => {
                                     const isSelected =
                                         service.id === selectedId;
-                                    const price = formatServicePrice(service);
+                                    const price = formatServicePriceFor(
+                                        service,
+                                        specialist,
+                                    );
 
                                     return (
                                         <button
@@ -213,7 +224,10 @@ export default function ServicePicker({
                                                 <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
                                                     <Clock className="size-3" />
                                                     {formatDuration(
-                                                        service.duration,
+                                                        serviceDurationFor(
+                                                            service,
+                                                            specialist,
+                                                        ),
                                                     )}
                                                 </p>
                                             </div>

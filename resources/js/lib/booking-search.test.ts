@@ -31,6 +31,7 @@ function service(
         category_name: null,
         location_ids: [],
         specialist_ids: [],
+        specialist_prices: {},
         ...overrides,
     } as AppointmentServiceOption;
 }

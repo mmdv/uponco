@@ -42,6 +42,7 @@ function makeService(
         category_name: 'Hair',
         location_ids: [10],
         specialist_ids: [20],
+        specialist_prices: {},
         ...overrides,
     };
 }

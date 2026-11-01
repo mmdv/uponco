@@ -30,6 +30,7 @@ function service(
         category_name: 'General',
         location_ids: [],
         specialist_ids: [20, 21],
+        specialist_prices: {},
         ...overrides,
     };
 }

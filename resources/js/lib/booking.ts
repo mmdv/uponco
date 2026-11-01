@@ -259,8 +259,69 @@ export function serviceDurationFor(
 }
 
 /**
+ * The service priced for the given specialist: their own override when they
+ * have one, otherwise the service unchanged.
+ */
+export function servicePricedFor(
+    service: AppointmentServiceOption,
+    specialist: AppointmentSpecialistOption | null,
+): AppointmentServiceOption {
+    const override = specialist
+        ? service.specialist_prices[String(specialist.id)]
+        : undefined;
+
+    return override ? { ...service, ...override } : service;
+}
+
+/**
+ * Price label for the service. With a specialist it is their own price; without
+ * one it spans every specialist offering the service, so a fixed price that
+ * differs between them reads as a range ("€40–60").
+ */
+export function formatServicePriceFor(
+    service: AppointmentServiceOption,
+    specialist: AppointmentSpecialistOption | null = null,
+): string {
+    if (specialist || service.price_type === 'free') {
+        return formatServicePrice(servicePricedFor(service, specialist));
+    }
+
+    const prices = Object.values(service.specialist_prices);
+    const lows = prices
+        .map((entry) =>
+            service.price_type === 'range' ? entry.price_min : entry.price,
+        )
+        .filter((amount): amount is string => amount !== null)
+        .map(Number);
+    const highs = prices
+        .map((entry) =>
+            service.price_type === 'range' ? entry.price_max : entry.price,
+        )
+        .filter((amount): amount is string => amount !== null)
+        .map(Number);
+
+    if (lows.length === 0 || highs.length === 0) {
+        return formatServicePrice(service);
+    }
+
+    const low = Math.min(...lows);
+    const high = Math.max(...highs);
+
+    return formatServicePrice(
+        low === high
+            ? { ...service, price_type: 'fixed', price: String(low) }
+            : {
+                  ...service,
+                  price_type: 'range',
+                  price_min: String(low),
+                  price_max: String(high),
+              },
+    );
+}
+
+/**
  * Short "duration · price" line for the chosen service (at the chosen
- * specialist's duration), or `undefined` when no service is selected. Empty
+ * specialist's duration and price), or `undefined` when no service is selected. Empty
  * parts are dropped so a free service with no price still reads cleanly.
  */
 export function buildMetaLabel(
@@ -273,7 +334,7 @@ export function buildMetaLabel(
 
     return [
         formatDuration(serviceDurationFor(service, specialist)),
-        formatServicePrice(service),
+        formatServicePriceFor(service, specialist),
     ]
         .filter(Boolean)
         .join(' · ');

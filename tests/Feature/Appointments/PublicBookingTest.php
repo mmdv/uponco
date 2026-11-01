@@ -169,6 +169,20 @@ test('the booking page exposes service pricing and specialist availability', fun
         );
 });
 
+test('the booking page exposes each specialist price, falling back to the service price', function () {
+    $setup = bookableSetup(['price_type' => 'fixed', 'price' => 50]);
+    $member = teamMemberSpecialist($setup);
+    $setup['service']->specialists()->updateExistingPivot($member->id, ['price' => 70]);
+
+    $this
+        ->get(route('public.appointments.show', ['company' => $setup['team']->slug]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where("services.0.specialist_prices.{$setup['user']->id}.price", fn ($price) => (float) $price === 50.0)
+            ->where("services.0.specialist_prices.{$member->id}.price", fn ($price) => (float) $price === 70.0)
+            ->etc(),
+        );
+});
+
 test('the booking page exposes the company logo and specialist avatars', function () {
     $setup = bookableSetup();
 

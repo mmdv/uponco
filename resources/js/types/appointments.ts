@@ -22,6 +22,17 @@ export type AppointmentServiceOption = {
     category_name: string | null;
     location_ids: number[];
     specialist_ids: number[];
+    /**
+     * Effective price per specialist id: their own override, falling back to
+     * the service's price column by column.
+     */
+    specialist_prices: Record<string, SpecialistServicePrice>;
+};
+
+export type SpecialistServicePrice = {
+    price: string | null;
+    price_min: string | null;
+    price_max: string | null;
 };
 
 export type AppointmentLocationOption = {

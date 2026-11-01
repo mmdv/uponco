@@ -155,6 +155,7 @@ export default function StepSelection() {
                 groups={serviceGroups}
                 selectedId={serviceId}
                 onSelect={choose('service', handleServiceChange)}
+                specialist={selectedSpecialist}
                 filters={filtersFor('service')}
                 autoFocus={!isMobile}
             />

@@ -10,6 +10,7 @@ import {
     buildSummary,
     buildUpcomingDaysWithAvailability,
     daysBetween,
+    formatServicePriceFor,
     nextPrefetchStart,
     resolveBookableDate,
     serviceRequiresLocation,
@@ -44,6 +45,7 @@ function makeService(
         category_name: 'Hair',
         location_ids: [10, 11],
         specialist_ids: [20, 21],
+        specialist_prices: {},
         ...overrides,
     };
 }
@@ -370,6 +372,22 @@ describe('buildMetaLabel', () => {
         expect(label).toBe('30 min');
     });
 
+    it("uses the chosen specialist's own price for the service", () => {
+        const label = buildMetaLabel(
+            makeService({
+                id: 11,
+                duration: 30,
+                price: '20',
+                specialist_prices: {
+                    20: { price: '35', price_min: null, price_max: null },
+                },
+            }),
+            makeSpecialist({ id: 20 }),
+        );
+
+        expect(label).toBe('30 min · €35');
+    });
+
     it("uses the chosen specialist's own duration for the service", () => {
         const label = buildMetaLabel(
             makeService({ id: 11, duration: 30, price: '20' }),
@@ -377,6 +395,60 @@ describe('buildMetaLabel', () => {
         );
 
         expect(label).toBe('45 min · €20');
+    });
+});
+
+describe('formatServicePriceFor', () => {
+    const fixed = (prices: Record<string, string | null>) =>
+        makeService({
+            price_type: 'fixed',
+            price: '50',
+            specialist_prices: Object.fromEntries(
+                Object.entries(prices).map(([id, price]) => [
+                    id,
+                    { price, price_min: null, price_max: null },
+                ]),
+            ),
+        });
+
+    it('shows a range when specialists charge different fixed prices', () => {
+        expect(formatServicePriceFor(fixed({ 20: '50', 21: '70' }))).toBe(
+            '€50–70',
+        );
+    });
+
+    it('shows a single price when every specialist charges the same', () => {
+        expect(formatServicePriceFor(fixed({ 20: '60', 21: '60' }))).toBe(
+            '€60',
+        );
+    });
+
+    it('falls back to the service price without specialist prices', () => {
+        expect(formatServicePriceFor(fixed({}))).toBe('€50');
+    });
+
+    it("shows only the chosen specialist's price", () => {
+        expect(
+            formatServicePriceFor(
+                fixed({ 20: '50', 21: '70' }),
+                makeSpecialist({ id: 21 }),
+            ),
+        ).toBe('€70');
+    });
+
+    it('spans the lowest minimum and highest maximum of range prices', () => {
+        const service = makeService({
+            price_type: 'range',
+            price: null,
+            price_min: '30',
+            price_max: '60',
+            specialist_prices: {
+                20: { price: null, price_min: '30', price_max: '60' },
+                21: { price: null, price_min: '40', price_max: '90' },
+            },
+        });
+
+        expect(formatServicePriceFor(service)).toBe('€30–90');
     });
 });
 

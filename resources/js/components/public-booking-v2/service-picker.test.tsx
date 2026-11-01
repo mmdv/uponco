@@ -10,7 +10,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import ServicePicker from '@/components/public-booking-v2/service-picker';
 import type { ServiceCategoryGroup } from '@/lib/appointments';
-import type { AppointmentServiceOption } from '@/types';
+import type {
+    AppointmentServiceOption,
+    AppointmentSpecialistOption,
+} from '@/types';
 
 // `useTranslation` reads the locale from the Inertia page props.
 vi.mock('@inertiajs/react', () => ({
@@ -41,6 +44,7 @@ function service(
         category_name: null,
         location_ids: [],
         specialist_ids: [],
+        specialist_prices: {},
     };
 }
 
@@ -129,5 +133,54 @@ describe('ServicePicker', () => {
         );
 
         expect(onSelect).toHaveBeenCalledWith(2);
+    });
+
+    it("shows the chosen specialist's own price and duration", () => {
+        const haircut: AppointmentServiceOption = {
+            ...service(3, 'Haircut', 2),
+            specialist_prices: {
+                7: { price: '50', price_min: null, price_max: null },
+                8: { price: '80', price_min: null, price_max: null },
+            },
+        };
+        const specialist: AppointmentSpecialistOption = {
+            id: 8,
+            name: 'Sam',
+            service_ids: [3],
+            location_ids: [],
+            service_durations: { 3: 45 },
+            next_available: null,
+            next_available_by_service: {},
+            available_days: [],
+        };
+        const haircutGroups = [{ id: 2, name: 'Hair', services: [haircut] }];
+        const row = () =>
+            document.querySelector<HTMLElement>(
+                '[data-test="booking-service-3"]',
+            )!;
+
+        const { rerender } = render(
+            <ServicePicker
+                groups={haircutGroups}
+                selectedId={null}
+                onSelect={vi.fn()}
+            />,
+        );
+
+        expect(row().textContent).toContain('€50–80');
+        expect(row().textContent).toContain('1h');
+
+        rerender(
+            <ServicePicker
+                groups={haircutGroups}
+                selectedId={null}
+                onSelect={vi.fn()}
+                specialist={specialist}
+            />,
+        );
+
+        expect(row().textContent).toContain('€80');
+        expect(row().textContent).not.toContain('€50');
+        expect(row().textContent).toContain('45 min');
     });
 });
