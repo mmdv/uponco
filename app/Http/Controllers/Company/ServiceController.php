@@ -141,6 +141,7 @@ class ServiceController extends Controller
             'currency' => $service->currency->value,
             'duration' => $service->duration,
             'technical_break' => $service->technical_break,
+            'slot_interval' => $service->slot_interval,
             'service_type' => $service->service_type->value,
             'delivery_type' => $service->delivery_type->value,
             'online_meeting_provider' => $service->online_meeting_provider,

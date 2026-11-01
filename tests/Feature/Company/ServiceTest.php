@@ -252,6 +252,23 @@ test('a blank slot interval is stored as null', function () {
     ]);
 });
 
+test('the services page ships the saved slot interval so the edit drawer can prefill it', function () {
+    $user = User::factory()->create();
+    $team = $user->currentTeam;
+    Service::factory()->uncategorized()->create([
+        'team_id' => $team->id,
+        'slot_interval' => 45,
+    ]);
+
+    $this
+        ->actingAs($user)
+        ->get(route('company.services.index'))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page->where('services.0.slot_interval', 45),
+        );
+});
+
 test('a free service clears price columns', function () {
     $user = User::factory()->create();
     $team = $user->currentTeam;
