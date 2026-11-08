@@ -84,7 +84,7 @@ Web: `CustomerController`, `pages/customers/index.tsx`, `components/customers/*`
 | CUST-1 | List + search customers | M | Paginate / infinite scroll. |
 | CUST-2 | Create / edit customer (name, email, phone) | M | Option: import from device contacts (mobile-only bonus). |
 | CUST-3 | Delete customer | M | |
-| CUST-4 | Customer detail with appointment history | M | Check what web shows; mobile can add call/message actions. |
+| CUST-4 | Customer detail with appointment history | M | Web shows contact only; mobile adds call/message/WhatsApp/email actions and the last 30 appointments (members: their own only). |
 
 ## SVC — Services & categories
 Web: `Company/ServiceController`, `Company/ServiceCategoryController`, `app/Support/ServiceOptions.php`, `pages/company/services/index.tsx`

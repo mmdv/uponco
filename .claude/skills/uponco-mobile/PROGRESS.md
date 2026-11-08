@@ -9,8 +9,8 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 ## Current state
 
 - **Phase:** 3 — Core business features (Phase 2 skeleton done; Google sign-in screen deferred)
-- **Next task:** Continue Manage: team members (TEAM-3..8) / business settings (TEAM-1); Calendar after.
-- **Last session:** 2026-11-08 — Services (list/add/edit/delete + new category) in Manage
+- **Next task:** Ask the user: Manage → team members (TEAM-3..8) / business settings (TEAM-1), or Calendar (APPT-1..12).
+- **Last session:** 2026-11-08 — Customers tab (list + search, detail with history, add/edit/delete)
 
 ## Phase 0 — Decisions
 - [x] Stack: Expo (React Native) + TypeScript + Expo Router — confirmed by user
@@ -43,7 +43,7 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - [ ] Appointment detail (APPT-10)
 - [ ] Create / edit appointment + slot picker (APPT-3, APPT-4, APPT-5, APPT-11)
 - [ ] Reschedule / cancel / status / delete (APPT-6..9)
-- [ ] Customers list, detail, CRUD (CUST-1..4)
+- [x] Customers list, detail, CRUD (CUST-1..4): API tested, checked in the simulator (creating/deleting a real customer not exercised to keep dev data clean; covered by API tests). Device-contacts import not built
 - [ ] Notification feed + badge (NOTIF-1)
 - [ ] Push notifications end-to-end, tap → appointment (NOTIF-2, NOTIF-3)
 
@@ -101,6 +101,8 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - 2026-11-08 — Services API: `GET|POST services`, `GET|PATCH|DELETE services/{id}` (soft delete, like web), `GET services/options` (categories, locations, specialists, currencies, meeting providers, Google connection), `POST service-categories`. Saving goes through `App\Actions\Services\SaveService` (shared with the web controller) and `SaveServiceRequest`. Enum labels are translated in the app; the API sends raw values.
 - 2026-11-08 — `SaveServiceRequest` gotchas: online services must OMIT `location_ids` (an empty list fails `min:1`); the request syncs specialists from `specialist_pricing`, so the app always sends back the existing overrides for still-assigned specialists or they'd be wiped.
 - 2026-11-08 — Service form is one sheet with sections (Details → Delivery → Price → Time → Type → Specialists → Description → Delete), using segmented controls for delivery/price type/currency/meeting links/type instead of the web's step wizard. New category is added inline. Shared form pieces live in `src/components/form.tsx` (FormSection, FormTextField, SwitchRow, SegmentedControl).
+- 2026-11-08 — Customers API: `GET customers?search=&page=` (50/page, name/email/phone match like web), `GET customers/{id}` (customer + last 30 appointments newest first, members only see their own appointments — same rule as the calendar), `POST`, `PATCH`, `DELETE` (soft). Any team member, as on the web (no admin gate). Uses `SaveCustomerRequest`.
+- 2026-11-08 — Customers UI: native header search bar (`headerSearchBarOptions`) + infinite `FlatList`; detail has Contacts-style quick actions (Call, Message, WhatsApp, Email via `Linking`) and Upcoming / History lists; add/edit are modal sheets; delete pops back to the list (`router.dismissTo('/customers')`). `AppointmentRow` gained `showDate` and cancelled/no-show labels.
 - 2026-11-08 — No Apple/Google developer accounts yet — develop in simulator / dev builds; accounts required before TestFlight (Phase 6). Apple enrolment can take days, start before Phase 6.
 
 ## Session log
@@ -116,3 +118,5 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - 2026-11-08 — Simulator check of Manage/Locations/Profile (team 7 owner): avatar button, Manage tab, hub with location count, list, edit sheet pre-filled with assignments, unchanged Save (PATCH round-trip, no DB change), new-location required-field errors, searchable country picker, Profile sheet + Done all OK. Fixed: Cancel now confirms discarding edits; picker search autofocuses. Gotchas: moving route files while Metro runs breaks HMR ("Got unexpected undefined", duplicate `REASharedTransitionBoundary`) — restart with `npx expo start --clear`; typing on the hardware keyboard with nothing focused can hit Expo Go's reload key.
 - 2026-11-08 — Services: extracted `SaveService` action; services/options/categories API + 12 tests (`tests/Feature/Api` + `tests/Feature/Company` 245 passed); app: Manage hub Services row, services list grouped by category, service form with conditional sections + inline category + delete confirm; location form moved onto shared form components — `tsc` + lint clean — not yet viewed in the simulator.
 - 2026-11-08 — Simulator check of Services (team 7 owner): hub row (7), list grouped by category with summaries and Off badge, edit sheet pre-filled (Pilates, onsite, fixed EUR, group of 4, specialists), unchanged Save round-trip with specialist pivots + locations verified unchanged in the DB, new form defaults (single location pre-ticked), Online → meeting-links choice, Range, required-field errors. Fixed: specialist-pricing note showed even with no real overrides (every assigned specialist has an all-null entry). Dev-only: `ROUTE_NAMES_CHANGED`/`PRELOAD … not handled` errors appear after hot reloads of the tabs layout, not on a cold load.
+- 2026-11-08 — Customers: API (index/search/show+history/store/update/destroy) + 9 tests (`tests/Feature/Api` + web customer tests 106 passed); app: searchable infinite list, detail with quick actions and appointment history, add/edit/delete sheets — `tsc` + lint clean — not yet viewed in the simulator.
+- 2026-11-08 — Simulator check of Customers (team 7 owner): list (20, native search bar, avatars), search "priya", detail (quick actions enabled/disabled by available contact, contact rows, history), edit sheet, phone-or-email rule, discard; DB unchanged. Fixed: "1 customers" → singular; quick actions now use SF Symbols / Material Symbols via `expo-symbols`; history rows title with the service (`hideCustomer`) instead of repeating the customer's name. To verify on a real device: in the simulator the first tap after typing in a field (hardware keyboard) is sometimes swallowed.

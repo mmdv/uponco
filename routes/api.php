@@ -3,6 +3,7 @@
 use App\Enums\TeamRole;
 use App\Http\Controllers\Api\V1\AuthTokenController;
 use App\Http\Controllers\Api\V1\CurrentTeamController;
+use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EmailVerificationNotificationController;
 use App\Http\Controllers\Api\V1\GoogleTokenController;
@@ -50,6 +51,19 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // current team). Onboarding is gated in the app, not by a redirect here.
         Route::middleware(['verified', EnsureTeamMembership::class])->group(function () {
             Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+            // Customers: any team member, as on the web.
+            Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
+            Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
+            Route::get('customers/{customer}', [CustomerController::class, 'show'])
+                ->whereNumber('customer')
+                ->name('customers.show');
+            Route::patch('customers/{customer}', [CustomerController::class, 'update'])
+                ->whereNumber('customer')
+                ->name('customers.update');
+            Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])
+                ->whereNumber('customer')
+                ->name('customers.destroy');
 
             // Business management (the app's Manage tab): owners and admins only,
             // same as the web company pages.
