@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Schedule\SaveMemberSchedule;
 use App\Http\Requests\Schedule\SaveMemberScheduleRequest;
-use App\Models\ScheduleSlot;
 use App\Models\Team;
 use App\Models\User;
 use App\Support\ScheduleSlotMap;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -48,35 +47,9 @@ class MemberScheduleController extends Controller
      * and the submitted ones inserted — so an empty `slots` array clears the
      * day, which is how a day off is recorded.
      */
-    public function update(SaveMemberScheduleRequest $request, User $user): RedirectResponse
+    public function update(SaveMemberScheduleRequest $request, User $user, SaveMemberSchedule $saveMemberSchedule): RedirectResponse
     {
-        $team = $request->user()->currentTeam;
-        $days = $request->validated('days');
-
-        DB::transaction(function () use ($team, $user, $days): void {
-            $now = now();
-
-            foreach ($days as $day) {
-                ScheduleSlot::where('team_id', $team->id)
-                    ->where('user_id', $user->id)
-                    ->whereDate('date', $day['date'])
-                    ->delete();
-
-                if ($day['slots'] === []) {
-                    continue;
-                }
-
-                ScheduleSlot::insert(array_map(fn (array $slot): array => [
-                    'team_id' => $team->id,
-                    'user_id' => $user->id,
-                    'date' => $day['date'],
-                    'start_time' => $slot['start'],
-                    'end_time' => $slot['end'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ], $day['slots']));
-            }
-        });
+        $saveMemberSchedule->handle($request->user()->currentTeam, $user, $request->validated('days'));
 
         return back()->with('status', 'member-schedule-updated');
     }

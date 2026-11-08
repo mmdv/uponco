@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\PushTokenController;
+use App\Http\Controllers\Api\V1\ScheduleController;
 use App\Http\Controllers\Api\V1\ServiceCategoryController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\ServiceOptionsController;
@@ -45,6 +46,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('me', MeController::class)->name('me');
         Route::put('me/current-team', [CurrentTeamController::class, 'update'])->name('me.current-team.update');
         Route::post('me/legal-consent', [LegalConsentController::class, 'store'])->name('me.legal-consent.store');
+
+        Route::get('schedule/members', [ScheduleController::class, 'members'])->name('schedule.members');
+        Route::get('schedule/{member}', [ScheduleController::class, 'show'])->whereNumber('member')->name('schedule.show');
+        Route::put('schedule/{user}', [ScheduleController::class, 'update'])->name('schedule.update');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');

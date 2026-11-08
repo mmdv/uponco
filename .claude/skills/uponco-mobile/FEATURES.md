@@ -74,7 +74,7 @@ Web: `ScheduleController`, `MemberScheduleController`, `app/Support/ScheduleSlot
 | SCHED-1 | Team schedule: per-member, per-date working slots (start/end) | M | `ScheduleSlot` (user, team, date, start_time, end_time). Admin view. |
 | SCHED-2 | Edit a member's schedule | M | `schedule/member/{user}`. |
 | SCHED-3 | My schedule (member's own) | M | `schedule/my`. |
-| SCHED-4 | Copy / repeat patterns across days/weeks | M | Check what the web editor supports before building. |
+| SCHED-4 | Copy / repeat patterns across days/weeks | M | Web: "Also apply to" other days in the day editor + "Repeat this week" onto the next 1/2/4 weeks. |
 
 ## CUST — Customers
 Web: `CustomerController`, `pages/customers/index.tsx`, `components/customers/*`
