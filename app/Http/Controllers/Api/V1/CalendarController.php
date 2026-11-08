@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\Appointments\CancelAppointment;
+use App\Actions\Appointments\RescheduleAppointment;
 use App\Actions\Appointments\UpdateAppointmentStatus;
 use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentStatus;
 use App\Enums\TeamPermission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Appointments\SaveAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\User;
 use App\Support\Appointments\AppointmentAccess;
+use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,9 +22,11 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * The mobile Calendar tab (APPT-1, 2, 7..10): appointments by date range and
- * one appointment with the actions the user may take on it. Same visibility
- * and rules as the web calendar (`AppointmentAccess`, shared actions).
+ * The mobile Calendar tab (APPT-1..10): appointments by date range, booking
+ * options and free slots, creating/editing/rescheduling, and one appointment
+ * with the actions the user may take on it. Same rules as the web calendar:
+ * `SaveAppointmentRequest`, `SlotGenerator`, `AppointmentAccess` and the
+ * shared booking helpers/actions.
  */
 class CalendarController extends Controller
 {
@@ -86,6 +91,90 @@ class CalendarController extends Controller
     }
 
     /**
+     * What the booking form can offer: services, locations and specialists with
+     * the links between them and each specialist's next free days (same data
+     * the web appointment drawer uses).
+     */
+    public function options(Request $request): JsonResponse
+    {
+        $team = $request->user()->currentTeam;
+
+        return response()->json([
+            'data' => [
+                'timezone' => $team->timezone ?: config('app.timezone'),
+                'services' => AppointmentOptions::services($team),
+                'locations' => AppointmentOptions::locations($team),
+                'specialists' => AppointmentOptions::specialists($team),
+            ],
+        ]);
+    }
+
+    /**
+     * Start times for a service with a specialist, for up to 14 days from a
+     * date, keyed by day. `appointment_id` frees that appointment's own slot
+     * when editing or rescheduling it.
+     */
+    public function slots(Request $request): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->availableSlotsWindow($request, $request->user()->currentTeam),
+        ]);
+    }
+
+    /**
+     * Book an appointment from the app (staff booking: the customer is emailed
+     * and the team alerted, as on the web).
+     */
+    public function store(SaveAppointmentRequest $request): JsonResponse
+    {
+        $appointment = $this->createAppointment($request->user()->currentTeam, $request);
+
+        return response()->json(
+            // Reload so database defaults (status, source) are present.
+            ['data' => $this->detail($request->user(), $appointment->refresh()->load(self::RELATIONS))],
+            Response::HTTP_CREATED,
+        );
+    }
+
+    /**
+     * Edit an upcoming appointment (service, specialist, location, time,
+     * customer, notes) with the same validation and notifications as the web.
+     */
+    public function update(Request $request, int $appointment): JsonResponse
+    {
+        $model = $this->findVisible($request, $appointment);
+        AppointmentAccess::authorize($request->user(), $model);
+
+        // SaveAppointmentRequest reads the appointment from the route (to free
+        // its own slot), so bind the model before resolving and validating it.
+        $request->route()->setParameter('appointment', $model);
+        $saveRequest = app(SaveAppointmentRequest::class);
+
+        $this->updateAppointment($request->user()->currentTeam, $saveRequest, $model);
+
+        return response()->json(['data' => $this->detail($request->user(), $model->refresh()->load(['service', 'location', 'specialist', 'customer']))]);
+    }
+
+    /**
+     * Move an upcoming appointment to another free start time.
+     */
+    public function reschedule(Request $request, RescheduleAppointment $rescheduleAppointment, int $appointment): JsonResponse
+    {
+        $model = $this->findVisible($request, $appointment);
+        AppointmentAccess::authorize($request->user(), $model);
+
+        $data = $request->validate(['start_at' => ['required', 'date']]);
+
+        if (! $rescheduleAppointment->handle($model, CarbonImmutable::parse($data['start_at']))) {
+            throw ValidationException::withMessages([
+                'start_at' => [__('That time slot is not available.')],
+            ]);
+        }
+
+        return response()->json(['data' => $this->detail($request->user(), $model->refresh()->load(['service', 'location', 'specialist', 'customer']))]);
+    }
+
+    /**
      * One appointment, with the extra details and what the user may do with it.
      */
     public function show(Request $request, int $appointment): JsonResponse
@@ -144,7 +233,11 @@ class CalendarController extends Controller
      */
     protected function findVisible(Request $request, int $appointment): Appointment
     {
-        $model = $request->user()->currentTeam->appointments()->with(self::RELATIONS)->findOrFail($appointment);
+        // Full related records (not the list's narrow columns): editing and
+        // rescheduling read the service's duration and the specialist.
+        $model = $request->user()->currentTeam->appointments()
+            ->with(['service', 'location', 'specialist', 'customer'])
+            ->findOrFail($appointment);
 
         abort_unless(AppointmentAccess::canView($request->user(), $model), 404);
 
@@ -164,6 +257,7 @@ class CalendarController extends Controller
             'client_comment' => $appointment->client_comment,
             'cancelled_at' => $appointment->cancelled_at?->toIso8601String(),
             'can' => [
+                'edit' => AppointmentAccess::canChangeUpcoming($user, $appointment) && ! $appointment->isCancelled() && $appointment->specialist_id !== null,
                 'cancel' => AppointmentAccess::canChangeUpcoming($user, $appointment) && ! $appointment->isCancelled(),
                 'mark_no_show' => AppointmentAccess::canChangePast($user, $appointment) && $appointment->status === AppointmentStatus::Booked,
                 'undo_no_show' => AppointmentAccess::canChangePast($user, $appointment) && $appointment->status === AppointmentStatus::NoShow,

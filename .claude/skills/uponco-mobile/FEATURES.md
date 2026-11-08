@@ -57,7 +57,7 @@ Web: `AppointmentController`, `app/Support/Appointments/*` (`SlotGenerator`, `Ap
 | APPT-3 | Create appointment: service, location, specialist, customer (search or new), time slot, notes | M | Uses available-slot generation; respects working hours. |
 | APPT-4 | Day-view quick create / update (tap empty slot) | M | `dayStore`, `dayUpdate`. Mobile: long-press or tap a free slot. |
 | APPT-5 | Edit appointment | M | |
-| APPT-6 | Reschedule (slot must be free) | M | Mobile: pick new slot in a sheet; drag-to-move optional later. |
+| APPT-6 | Reschedule (slot must be free) | M | Mobile: "Reschedule" sheet with the slot picker (same service/specialist/length). Drag-to-move not built. |
 | APPT-7 | Cancel appointment | M | Triggers customer notification. |
 | APPT-8 | Mark status: booked / no-show (past only) | M | `AppointmentStatus`. Mobile: swipe action. |
 | APPT-9 | Delete appointment | M | Confirm destructively. |

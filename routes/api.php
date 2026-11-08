@@ -55,6 +55,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
             // Calendar: members see their own appointments, others the whole team.
             Route::get('calendar', [CalendarController::class, 'index'])->name('calendar.index');
+            Route::post('calendar', [CalendarController::class, 'store'])->name('calendar.store');
+            Route::get('calendar/options', [CalendarController::class, 'options'])->name('calendar.options');
+            Route::get('calendar/slots', [CalendarController::class, 'slots'])->name('calendar.slots');
+            Route::put('calendar/{appointment}', [CalendarController::class, 'update'])
+                ->whereNumber('appointment')
+                ->name('calendar.update');
+            Route::patch('calendar/{appointment}/reschedule', [CalendarController::class, 'reschedule'])
+                ->whereNumber('appointment')
+                ->name('calendar.reschedule');
             Route::get('calendar/{appointment}', [CalendarController::class, 'show'])
                 ->whereNumber('appointment')
                 ->name('calendar.show');

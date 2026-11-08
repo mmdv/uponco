@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Appointments\CancelAppointment;
+use App\Actions\Appointments\RescheduleAppointment;
 use App\Actions\Appointments\UpdateAppointmentStatus;
 use App\Concerns\InteractsWithAppointmentBooking;
-use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentStatus;
 use App\Enums\TeamPermission;
 use App\Http\Requests\Appointments\SaveAppointmentRequest;
@@ -15,7 +15,6 @@ use App\Models\Appointment;
 use App\Models\Team;
 use App\Support\Appointments\AppointmentAccess;
 use App\Support\Appointments\AppointmentOptions;
-use App\Support\Appointments\SlotGenerator;
 use App\Support\ScheduleSlotMap;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -160,7 +159,7 @@ class AppointmentController extends Controller
      * bookings so the appointment can never land on an unavailable time, even if
      * the client allowed the drop.
      */
-    public function reschedule(Request $request, Appointment $appointment): RedirectResponse
+    public function reschedule(Request $request, Appointment $appointment, RescheduleAppointment $rescheduleAppointment): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment);
 
@@ -168,31 +167,11 @@ class AppointmentController extends Controller
             'start_at' => ['required', 'date'],
         ]);
 
-        $team = $request->user()->currentTeam;
-        $timezone = $team->timezone ?: config('app.timezone');
-        $start = CarbonImmutable::parse($data['start_at'])->utc();
-
-        $available = SlotGenerator::fitsAt(
-            $appointment->service,
-            $appointment->specialist,
-            $team->id,
-            $timezone,
-            $start,
-            $appointment->id,
-        );
-
-        if (! $available) {
+        if (! $rescheduleAppointment->handle($appointment, CarbonImmutable::parse($data['start_at']))) {
             Inertia::flash('toast', ['type' => 'error', 'message' => __('That time slot is not available.')]);
 
             return back();
         }
-
-        $appointment->update([
-            'start_at' => $start,
-            'end_at' => $start->addMinutes($appointment->service->durationFor($appointment->specialist)),
-        ]);
-
-        $this->notifyAppointmentAudience($appointment, AppointmentAlert::Rescheduled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment rescheduled.')]);
 

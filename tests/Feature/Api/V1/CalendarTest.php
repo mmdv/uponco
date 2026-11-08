@@ -119,7 +119,7 @@ test('an upcoming appointment shows what can be done with it', function () {
         ->assertOk()
         ->assertJsonPath('data.id', $appointment->id)
         ->assertJsonPath('data.client_comment', 'Window seat')
-        ->assertJsonPath('data.can', ['cancel' => true, 'mark_no_show' => false, 'undo_no_show' => false, 'delete' => false]);
+        ->assertJsonPath('data.can', ['edit' => true, 'cancel' => true, 'mark_no_show' => false, 'undo_no_show' => false, 'delete' => false]);
 });
 
 test('a colleague\'s or another team\'s appointment is not found for a member', function () {
