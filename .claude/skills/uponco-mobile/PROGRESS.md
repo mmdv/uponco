@@ -9,8 +9,8 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 ## Current state
 
 - **Phase:** 3 — Core business features (Phase 2 skeleton done; Google sign-in screen deferred)
-- **Next task:** Continue Manage (user's priority): Services (SVC-1..5), then team members / business settings; Calendar after.
-- **Last session:** 2026-11-08 — Manage tab + Locations (list/add/edit) + Profile sheet
+- **Next task:** Continue Manage: team members (TEAM-3..8) / business settings (TEAM-1); Calendar after.
+- **Last session:** 2026-11-08 — Services (list/add/edit/delete + new category) in Manage
 
 ## Phase 0 — Decisions
 - [x] Stack: Expo (React Native) + TypeScript + Expo Router — confirmed by user
@@ -48,7 +48,7 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - [ ] Push notifications end-to-end, tap → appointment (NOTIF-2, NOTIF-3)
 
 ## Phase 4 — Management features
-- [ ] Services + categories (SVC-1..5)
+- [x] Services (SVC-1..4) + create category (part of SVC-5): API tested, screens checked in the simulator (creating/deleting a real service not exercised to keep dev data clean; covered by API tests). Per-specialist price/duration overrides are kept but only editable on the web; renaming/deleting categories not built
 - [x] Locations (LOC-1, LOC-2): list, add, edit — API tested, screens checked in the simulator (creating a real location was not exercised end-to-end to keep dev data clean; covered by API tests). Delete (LOC-3) not built (user asked for list/add/edit)
 - [ ] Schedule: team, member, my (SCHED-1..4)
 - [ ] Business settings (TEAM-1)
@@ -98,6 +98,9 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - 2026-11-08 — Locations API: `GET|POST locations`, `GET|PATCH locations/{id}`, `GET locations/options` (countries, services, specialists), `GET locations/address/suggest|resolve` (the web's `AddressLookupController` reused as-is). Saving goes through `App\Actions\Locations\SaveLocation` (shared with the web controller) and `SaveLocationRequest`. Another team's location → 404 (web uses 403).
 - 2026-11-08 — Location form is a modal sheet: Cancel / Save in the header, swipe-to-dismiss disabled while there are unsaved edits, Google address search fills the fields (manual typing clears the stored geocode), country via a searchable page-sheet picker, services/specialists as check lists. Send the full payload on PATCH: `SaveLocationRequest` treats a missing `is_active` as false.
 - 2026-11-08 — Forms: Cancel on an edited form asks "Discard your changes?" (Keep editing / Discard); picker sheets autofocus their search box.
+- 2026-11-08 — Services API: `GET|POST services`, `GET|PATCH|DELETE services/{id}` (soft delete, like web), `GET services/options` (categories, locations, specialists, currencies, meeting providers, Google connection), `POST service-categories`. Saving goes through `App\Actions\Services\SaveService` (shared with the web controller) and `SaveServiceRequest`. Enum labels are translated in the app; the API sends raw values.
+- 2026-11-08 — `SaveServiceRequest` gotchas: online services must OMIT `location_ids` (an empty list fails `min:1`); the request syncs specialists from `specialist_pricing`, so the app always sends back the existing overrides for still-assigned specialists or they'd be wiped.
+- 2026-11-08 — Service form is one sheet with sections (Details → Delivery → Price → Time → Type → Specialists → Description → Delete), using segmented controls for delivery/price type/currency/meeting links/type instead of the web's step wizard. New category is added inline. Shared form pieces live in `src/components/form.tsx` (FormSection, FormTextField, SwitchRow, SegmentedControl).
 - 2026-11-08 — No Apple/Google developer accounts yet — develop in simulator / dev builds; accounts required before TestFlight (Phase 6). Apple enrolment can take days, start before Phase 6.
 
 ## Session log
@@ -111,3 +114,5 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - 2026-11-08 — Simulator check of Today (team 7, owner): empty state, stats 0/41/20, 7-day bars, booking link + native share sheet, dark mode OK; fixed secondary buttons being invisible on cards (now `backgroundSelected`). Dev DB has no future appointments (latest 2026-10-26), so the populated layout wasn't seen.
 - 2026-11-08 — Manage + Locations + Profile: extracted `SaveLocation` action; location API + options + address lookup routes; app restructured into `(tabs)` + Profile modal, More → Manage tab, avatar header button; Manage hub, locations list (pull-to-refresh, empty state, Off badge), location form (address search, country picker, assignments); shared ListSection/ListRow, Avatar, SelectField, CheckList — `tests/Feature/Api` + web Location/AddressLookup tests 84 passed; mobile `tsc` + lint clean — not yet viewed in the simulator.
 - 2026-11-08 — Simulator check of Manage/Locations/Profile (team 7 owner): avatar button, Manage tab, hub with location count, list, edit sheet pre-filled with assignments, unchanged Save (PATCH round-trip, no DB change), new-location required-field errors, searchable country picker, Profile sheet + Done all OK. Fixed: Cancel now confirms discarding edits; picker search autofocuses. Gotchas: moving route files while Metro runs breaks HMR ("Got unexpected undefined", duplicate `REASharedTransitionBoundary`) — restart with `npx expo start --clear`; typing on the hardware keyboard with nothing focused can hit Expo Go's reload key.
+- 2026-11-08 — Services: extracted `SaveService` action; services/options/categories API + 12 tests (`tests/Feature/Api` + `tests/Feature/Company` 245 passed); app: Manage hub Services row, services list grouped by category, service form with conditional sections + inline category + delete confirm; location form moved onto shared form components — `tsc` + lint clean — not yet viewed in the simulator.
+- 2026-11-08 — Simulator check of Services (team 7 owner): hub row (7), list grouped by category with summaries and Off badge, edit sheet pre-filled (Pilates, onsite, fixed EUR, group of 4, specialists), unchanged Save round-trip with specialist pivots + locations verified unchanged in the DB, new form defaults (single location pre-ticked), Online → meeting-links choice, Range, required-field errors. Fixed: specialist-pricing note showed even with no real overrides (every assigned specialist has an all-null entry). Dev-only: `ROUTE_NAMES_CHANGED`/`PRELOAD … not handled` errors appear after hot reloads of the tabs layout, not on a cold load.

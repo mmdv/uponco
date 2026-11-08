@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\V1\LocationOptionsController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\PushTokenController;
+use App\Http\Controllers\Api\V1\ServiceCategoryController;
+use App\Http\Controllers\Api\V1\ServiceController;
+use App\Http\Controllers\Api\V1\ServiceOptionsController;
 use App\Http\Controllers\Company\AddressLookupController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +70,21 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
                 Route::patch('locations/{location}', [LocationController::class, 'update'])
                     ->whereNumber('location')
                     ->name('locations.update');
+
+                Route::get('services/options', ServiceOptionsController::class)->name('services.options');
+                Route::post('service-categories', [ServiceCategoryController::class, 'store'])->name('service-categories.store');
+
+                Route::get('services', [ServiceController::class, 'index'])->name('services.index');
+                Route::post('services', [ServiceController::class, 'store'])->name('services.store');
+                Route::get('services/{service}', [ServiceController::class, 'show'])
+                    ->whereNumber('service')
+                    ->name('services.show');
+                Route::patch('services/{service}', [ServiceController::class, 'update'])
+                    ->whereNumber('service')
+                    ->name('services.update');
+                Route::delete('services/{service}', [ServiceController::class, 'destroy'])
+                    ->whereNumber('service')
+                    ->name('services.destroy');
             });
         });
     });

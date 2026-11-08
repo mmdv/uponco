@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Actions\Services\SaveService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Services\SaveServiceRequest;
 use App\Models\Location;
@@ -68,12 +69,9 @@ class ServiceController extends Controller
     /**
      * Store a newly created service.
      */
-    public function store(SaveServiceRequest $request): RedirectResponse
+    public function store(SaveServiceRequest $request, SaveService $saveService): RedirectResponse
     {
-        $service = Service::create($request->serviceData());
-
-        $service->locations()->sync($request->locationIds());
-        $service->specialists()->sync($request->specialistSyncData());
+        $saveService->handle($request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Service created.')]);
 
@@ -83,14 +81,11 @@ class ServiceController extends Controller
     /**
      * Update the specified service.
      */
-    public function update(SaveServiceRequest $request, Service $service): RedirectResponse
+    public function update(SaveServiceRequest $request, Service $service, SaveService $saveService): RedirectResponse
     {
         $this->authorizeService($request, $service);
 
-        $service->update($request->serviceData());
-
-        $service->locations()->sync($request->locationIds());
-        $service->specialists()->sync($request->specialistSyncData());
+        $saveService->handle($request, $service);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Service updated.')]);
 

@@ -92,10 +92,10 @@ Web: `Company/ServiceController`, `Company/ServiceCategoryController`, `app/Supp
 | ID | Feature | Scope | Notes |
 |---|---|---|---|
 | SVC-1 | List services grouped by category; active toggle | M | |
-| SVC-2 | Create / edit service: title, category, price type (fixed/range/free), price/min/max, currency (EUR/USD/AZN), duration, technical break, slot interval, type (individual/group), capacity, delivery (online/onsite), meeting provider (Google Meet), description | M | Long form → multi-step or grouped sections on mobile. |
+| SVC-2 | Create / edit service: title, category, price type (fixed/range/free), price/min/max, currency (EUR/USD/AZN), duration, technical break, slot interval, type (individual/group), capacity, delivery (online/onsite), meeting provider (Google Meet automatic / custom manual), description | M | Mobile: one grouped sheet. Per-specialist price/duration overrides (`specialist_pricing`) stay web-only for now and are preserved on save. |
 | SVC-3 | Assign specialists & locations to a service | M | |
 | SVC-4 | Delete service | M | |
-| SVC-5 | Service categories CRUD | M | |
+| SVC-5 | Service categories CRUD | M | Create is inline in the service form; rename/delete not built yet. |
 
 ## LOC — Locations
 Web: `Company/LocationController`, `Company/AddressLookupController`, `GooglePlacesService`, `pages/company/locations/index.tsx`
