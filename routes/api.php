@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\LegalConsentController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\LocationOptionsController;
 use App\Http\Controllers\Api\V1\MeController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\PushTokenController;
 use App\Http\Controllers\Api\V1\ServiceCategoryController;
@@ -44,6 +45,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('me', MeController::class)->name('me');
         Route::put('me/current-team', [CurrentTeamController::class, 'update'])->name('me.current-team.update');
         Route::post('me/legal-consent', [LegalConsentController::class, 'store'])->name('me.legal-consent.store');
+
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+        Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 
         Route::put('me/push-token', [PushTokenController::class, 'store'])->name('me.push-token.store');
         Route::delete('me/push-token', [PushTokenController::class, 'destroy'])->name('me.push-token.destroy');
