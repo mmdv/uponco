@@ -52,7 +52,7 @@ Web: `AppointmentController`, `app/Support/Appointments/*` (`SlotGenerator`, `Ap
 
 | ID | Feature | Scope | Notes |
 |---|---|---|---|
-| APPT-1 | Calendar views (day / week / month), timezone-aware | M | Mobile: day agenda + week strip first; month as overview. |
+| APPT-1 | Calendar views (day / week / month), timezone-aware | M | Mobile slice 1: Monday-start week strip + day agenda. Month overview and day timeline not built. |
 | APPT-2 | Filter by specialist / location | M | Members without `appointment:view-all` only see their own. |
 | APPT-3 | Create appointment: service, location, specialist, customer (search or new), time slot, notes | M | Uses available-slot generation; respects working hours. |
 | APPT-4 | Day-view quick create / update (tap empty slot) | M | `dayStore`, `dayUpdate`. Mobile: long-press or tap a free slot. |

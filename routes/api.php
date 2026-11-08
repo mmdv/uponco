@@ -2,6 +2,7 @@
 
 use App\Enums\TeamRole;
 use App\Http\Controllers\Api\V1\AuthTokenController;
+use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\CurrentTeamController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\DashboardController;
@@ -51,6 +52,21 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // current team). Onboarding is gated in the app, not by a redirect here.
         Route::middleware(['verified', EnsureTeamMembership::class])->group(function () {
             Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+            // Calendar: members see their own appointments, others the whole team.
+            Route::get('calendar', [CalendarController::class, 'index'])->name('calendar.index');
+            Route::get('calendar/{appointment}', [CalendarController::class, 'show'])
+                ->whereNumber('appointment')
+                ->name('calendar.show');
+            Route::patch('calendar/{appointment}/cancel', [CalendarController::class, 'cancel'])
+                ->whereNumber('appointment')
+                ->name('calendar.cancel');
+            Route::patch('calendar/{appointment}/status', [CalendarController::class, 'updateStatus'])
+                ->whereNumber('appointment')
+                ->name('calendar.status');
+            Route::delete('calendar/{appointment}', [CalendarController::class, 'destroy'])
+                ->whereNumber('appointment')
+                ->name('calendar.destroy');
 
             // Customers: any team member, as on the web.
             Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');

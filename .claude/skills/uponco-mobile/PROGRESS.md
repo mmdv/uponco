@@ -9,8 +9,8 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 ## Current state
 
 - **Phase:** 3 — Core business features (Phase 2 skeleton done; Google sign-in screen deferred)
-- **Next task:** Ask the user: Manage → team members (TEAM-3..8) / business settings (TEAM-1), or Calendar (APPT-1..12).
-- **Last session:** 2026-11-08 — Customers tab (list + search, detail with history, add/edit/delete)
+- **Next task:** Calendar slice 2: create appointment with slot picker (APPT-3, APPT-4, APPT-11), edit (APPT-5) and reschedule (APPT-6).
+- **Last session:** 2026-11-08 — Calendar slice 1: week view + day agenda, appointment detail sheet with cancel / no-show / delete
 
 ## Phase 0 — Decisions
 - [x] Stack: Expo (React Native) + TypeScript + Expo Router — confirmed by user
@@ -39,10 +39,10 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 
 ## Phase 3 — Core business features (MVP)
 - [~] Dashboard / Today (DASH-1..4): API + screen built; empty state, stats, 7-day bars, share sheet and dark mode checked in the simulator; populated next-up/list/member-schedule views not yet seen (dev DB has no future bookings); DASH-5 quick actions wait for the create flows
-- [ ] Calendar views (APPT-1, APPT-2, APPT-12)
-- [ ] Appointment detail (APPT-10)
+- [x] Calendar views (APPT-1, APPT-2): week strip + day agenda + specialist filter, checked in the simulator; working-hours shading (APPT-12), a day timeline and a month view not built
+- [x] Appointment detail (APPT-10): sheet opens from Calendar, Today and customer history; checked in the simulator
 - [ ] Create / edit appointment + slot picker (APPT-3, APPT-4, APPT-5, APPT-11)
-- [ ] Reschedule / cancel / status / delete (APPT-6..9)
+- [~] Cancel / no-show / delete (APPT-7..9) built + API tested; buttons shown correctly per `can` in the simulator but not tapped (keeps dev data clean); reschedule (APPT-6) not built
 - [x] Customers list, detail, CRUD (CUST-1..4): API tested, checked in the simulator (creating/deleting a real customer not exercised to keep dev data clean; covered by API tests). Device-contacts import not built
 - [ ] Notification feed + badge (NOTIF-1)
 - [ ] Push notifications end-to-end, tap → appointment (NOTIF-2, NOTIF-3)
@@ -103,6 +103,9 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - 2026-11-08 — Service form is one sheet with sections (Details → Delivery → Price → Time → Type → Specialists → Description → Delete), using segmented controls for delivery/price type/currency/meeting links/type instead of the web's step wizard. New category is added inline. Shared form pieces live in `src/components/form.tsx` (FormSection, FormTextField, SwitchRow, SegmentedControl).
 - 2026-11-08 — Customers API: `GET customers?search=&page=` (50/page, name/email/phone match like web), `GET customers/{id}` (customer + last 30 appointments newest first, members only see their own appointments — same rule as the calendar), `POST`, `PATCH`, `DELETE` (soft). Any team member, as on the web (no admin gate). Uses `SaveCustomerRequest`.
 - 2026-11-08 — Customers UI: native header search bar (`headerSearchBarOptions`) + infinite `FlatList`; detail has Contacts-style quick actions (Call, Message, WhatsApp, Email via `Linking`) and Upcoming / History lists; add/edit are modal sheets; delete pops back to the list (`router.dismissTo('/customers')`). `AppointmentRow` gained `showDate` and cancelled/no-show labels.
+- 2026-11-08 — Calendar API: `GET calendar?from&to[&specialist_id]` (≤42 days, team timezone, booked + no-show like the web; members always their own), `GET calendar/{id}` (+ `can.{cancel,mark_no_show,undo_no_show,delete}`), `PATCH calendar/{id}/cancel`, `PATCH calendar/{id}/status`, `DELETE calendar/{id}`. Rules shared with the web via `App\Support\Appointments\AppointmentAccess` + `App\Actions\Appointments\{CancelAppointment,UpdateAppointmentStatus}`. Appointments a member can't see → 404.
+- 2026-11-08 — Calendar UI: Monday-start week strip (tap / swipe / arrows, dots for busy days) + selected day's agenda; "Today" header button when away from today; specialist filter for owners/admins. Appointment detail is an `(app)`-level modal (`/appointment/[id]`, `openAppointment()`), so Today, Calendar and customer history all open the same sheet without switching tabs. Actions only render when the server's `can` flags allow them.
+- 2026-11-08 — Mobile repo has `.prettierrc.json` (single quotes, width 120, bracketSameLine); running prettier without it switches files to double quotes.
 - 2026-11-08 — No Apple/Google developer accounts yet — develop in simulator / dev builds; accounts required before TestFlight (Phase 6). Apple enrolment can take days, start before Phase 6.
 
 ## Session log
@@ -120,3 +123,5 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - 2026-11-08 — Simulator check of Services (team 7 owner): hub row (7), list grouped by category with summaries and Off badge, edit sheet pre-filled (Pilates, onsite, fixed EUR, group of 4, specialists), unchanged Save round-trip with specialist pivots + locations verified unchanged in the DB, new form defaults (single location pre-ticked), Online → meeting-links choice, Range, required-field errors. Fixed: specialist-pricing note showed even with no real overrides (every assigned specialist has an all-null entry). Dev-only: `ROUTE_NAMES_CHANGED`/`PRELOAD … not handled` errors appear after hot reloads of the tabs layout, not on a cold load.
 - 2026-11-08 — Customers: API (index/search/show+history/store/update/destroy) + 9 tests (`tests/Feature/Api` + web customer tests 106 passed); app: searchable infinite list, detail with quick actions and appointment history, add/edit/delete sheets — `tsc` + lint clean — not yet viewed in the simulator.
 - 2026-11-08 — Simulator check of Customers (team 7 owner): list (20, native search bar, avatars), search "priya", detail (quick actions enabled/disabled by available contact, contact rows, history), edit sheet, phone-or-email rule, discard; DB unchanged. Fixed: "1 customers" → singular; quick actions now use SF Symbols / Material Symbols via `expo-symbols`; history rows title with the service (`hideCustomer`) instead of repeating the customer's name. To verify on a real device: in the simulator the first tap after typing in a field (hardware keyboard) is sometimes swallowed.
+- 2026-11-08 — Calendar slice 1: extracted `AppointmentAccess` + cancel/status actions (web tests still green apart from the known date-dependent one); calendar API + 13 tests (`tests/Feature/Api` 100 passed); app: week strip + day agenda + specialist filter, appointment detail sheet with cancel / no-show / undo / delete, rows on Today and customer history open it; added `GestureHandlerRootView` at the root — `tsc` + lint clean — not yet viewed in the simulator.
+- 2026-11-08 — Simulator check of Calendar (team 7 owner, after `expo start --clear`): week strip, arrows, swipe between weeks, busy-day dots, Today button, day agenda (7 on 30 Sep, green public-booking bars), specialist filter (Lisa Berg → 4), appointment sheet for a past booking (only no-show/delete offered). Fixed: rows no longer repeat the specialist when the calendar is filtered to one person.

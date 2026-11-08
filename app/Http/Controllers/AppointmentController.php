@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Appointments\CancelAppointment;
+use App\Actions\Appointments\UpdateAppointmentStatus;
 use App\Concerns\InteractsWithAppointmentBooking;
 use App\Enums\AppointmentAlert;
 use App\Enums\AppointmentStatus;
@@ -11,6 +13,7 @@ use App\Http\Requests\Appointments\StoreDayAppointmentRequest;
 use App\Http\Requests\Appointments\UpdateDayAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Team;
+use App\Support\Appointments\AppointmentAccess;
 use App\Support\Appointments\AppointmentOptions;
 use App\Support\Appointments\SlotGenerator;
 use App\Support\ScheduleSlotMap;
@@ -203,17 +206,13 @@ class AppointmentController extends Controller
      * the row for reporting, frees the slot, and — mirroring the customer's own
      * cancellation flow — emails the customer to let them know.
      */
-    public function cancel(Request $request, Appointment $appointment): RedirectResponse
+    public function cancel(Request $request, Appointment $appointment, CancelAppointment $cancelAppointment): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment);
 
-        if ($appointment->isCancelled()) {
+        if (! $cancelAppointment->handle($appointment)) {
             return back();
         }
-
-        $appointment->cancel();
-        $this->notifyCustomerCancelled($appointment);
-        $this->notifyAppointmentAudience($appointment, AppointmentAlert::Cancelled);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Appointment cancelled.')]);
 
@@ -227,7 +226,7 @@ class AppointmentController extends Controller
      * undoes the mark. Only past appointments can be marked, and — unlike a
      * cancellation — the customer is not emailed (they did not come). Idempotent.
      */
-    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
+    public function updateStatus(Request $request, Appointment $appointment, UpdateAppointmentStatus $updateStatus): RedirectResponse
     {
         $this->authorizeAppointment($request, $appointment, requirePast: true);
 
@@ -240,17 +239,11 @@ class AppointmentController extends Controller
 
         $target = AppointmentStatus::from($status);
 
-        if ($appointment->status === $target) {
+        if (! $updateStatus->handle($appointment, $target)) {
             return back();
         }
 
-        if ($target === AppointmentStatus::NoShow) {
-            $appointment->markNoShow();
-            $message = __('Marked as no-show.');
-        } else {
-            $appointment->markBooked();
-            $message = __('Marked as attended.');
-        }
+        $message = $target === AppointmentStatus::NoShow ? __('Marked as no-show.') : __('Marked as attended.');
 
         Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
 
@@ -287,20 +280,6 @@ class AppointmentController extends Controller
      */
     protected function authorizeAppointment(Request $request, Appointment $appointment, bool $requirePast = false): void
     {
-        $user = $request->user();
-        $team = $user->currentTeam;
-
-        abort_unless($appointment->team_id === $team->id, 403);
-
-        abort_unless(
-            $user->hasTeamPermission($team, TeamPermission::ViewAllAppointments) || $appointment->specialist_id === $user->id,
-            403,
-        );
-
-        if ($requirePast) {
-            abort_unless($appointment->isPast(), 403, __('Only past appointments can be changed this way.'));
-        } else {
-            abort_if($appointment->isPast(), 403, __('Past appointments cannot be changed.'));
-        }
+        AppointmentAccess::authorize($request->user(), $appointment, $requirePast);
     }
 }
