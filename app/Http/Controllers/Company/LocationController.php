@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Actions\Locations\SaveLocation;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Locations\SaveLocationRequest;
 use App\Models\Location;
@@ -50,12 +51,9 @@ class LocationController extends Controller
     /**
      * Store a newly created location.
      */
-    public function store(SaveLocationRequest $request): RedirectResponse
+    public function store(SaveLocationRequest $request, SaveLocation $saveLocation): RedirectResponse
     {
-        $location = $request->user()->currentTeam->locations()->create($request->locationData());
-
-        $location->services()->sync($request->serviceIds());
-        $location->specialists()->sync($request->specialistIds());
+        $saveLocation->handle($request->user()->currentTeam, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Location created.')]);
 
@@ -65,14 +63,11 @@ class LocationController extends Controller
     /**
      * Update the specified location.
      */
-    public function update(SaveLocationRequest $request, Location $location): RedirectResponse
+    public function update(SaveLocationRequest $request, Location $location, SaveLocation $saveLocation): RedirectResponse
     {
         $this->authorizeLocation($request, $location);
 
-        $location->update($request->locationData());
-
-        $location->services()->sync($request->serviceIds());
-        $location->specialists()->sync($request->specialistIds());
+        $saveLocation->handle($request->user()->currentTeam, $request, $location);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Location updated.')]);
 

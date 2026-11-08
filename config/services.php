@@ -40,6 +40,14 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URL', env('APP_URL').'/settings/integrations/google/callback'),
         'places_key' => env('GOOGLE_PLACES_API_KEY'),
+        // iOS / Android OAuth client ids whose ID tokens the mobile app may
+        // exchange for an API token (comma-separated).
+        'mobile_client_ids' => array_filter(explode(',', (string) env('GOOGLE_MOBILE_CLIENT_IDS', ''))),
+    ],
+
+    'expo' => [
+        // Optional: only needed when push security is enabled for the Expo project.
+        'access_token' => env('EXPO_ACCESS_TOKEN'),
     ],
 
 ];

@@ -5,6 +5,7 @@ namespace App\Notifications\Appointments;
 use App\Enums\AppointmentAlert;
 use App\Models\Appointment;
 use App\Models\User;
+use App\Notifications\Channels\ExpoPushChannel;
 use Carbon\CarbonInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,8 +21,9 @@ use NotificationChannels\WebPush\WebPushMessage;
  *
  * - `database` for everyone, which is what fills the notification bell. One row
  *   per recipient, so each person's read state is their own.
- * - `webpush` for the assigned specialist only, reaching their phone while the
- *   app is closed. Managers are not buzzed about other people's bookings.
+ * - `webpush` (PWA) and Expo push (mobile app) for the assigned specialist
+ *   only, reaching their phone while the app is closed. Managers are not
+ *   buzzed about other people's bookings.
  */
 class AppointmentActivity extends Notification implements ShouldQueue
 {
@@ -59,6 +61,7 @@ class AppointmentActivity extends Notification implements ShouldQueue
 
         if ($notifiable instanceof User && $notifiable->getKey() === $this->forSpecialist->getKey()) {
             $channels[] = WebPushChannel::class;
+            $channels[] = ExpoPushChannel::class;
         }
 
         return $channels;
@@ -96,28 +99,7 @@ class AppointmentActivity extends Notification implements ShouldQueue
     {
         $appointment = $this->appointment;
 
-        $when = __(':date at :time', [
-            'date' => $this->startsAt()->translatedFormat('D, j M'),
-            'time' => $this->startsAt()->format('H:i'),
-        ]);
-
-        $service = $appointment->service?->title ?? __('Deleted service');
-        $customer = $appointment->customer?->name ?? $appointment->notes ?? __('Deleted customer');
-
-        [$title, $body] = match ($this->alert) {
-            AppointmentAlert::Booked => [
-                __('New booking — :service', ['service' => $service]),
-                __(':customer · :when', ['customer' => $customer, 'when' => $when]),
-            ],
-            AppointmentAlert::Rescheduled => [
-                __('Appointment moved — :service', ['service' => $service]),
-                __(':customer · now :when', ['customer' => $customer, 'when' => $when]),
-            ],
-            AppointmentAlert::Cancelled => [
-                __('Booking cancelled — :service', ['service' => $service]),
-                __(':customer · was :when', ['customer' => $customer, 'when' => $when]),
-            ],
-        };
+        [$title, $body] = $this->pushText();
 
         return (new WebPushMessage)
             ->title($title)
@@ -131,6 +113,60 @@ class AppointmentActivity extends Notification implements ShouldQueue
                 'url' => route('appointments.index'),
                 'appointment_id' => $appointment->id,
             ]);
+    }
+
+    /**
+     * Build the push the mobile app receives; `data` lets a tap open the
+     * appointment.
+     *
+     * @return array{title: string, body: string, data: array<string, mixed>}
+     */
+    public function toExpoPush(object $notifiable): array
+    {
+        [$title, $body] = $this->pushText();
+
+        return [
+            'title' => $title,
+            'body' => $body,
+            'data' => [
+                'type' => 'appointment_activity',
+                'alert' => $this->alert->value,
+                'appointment_id' => $this->appointment->id,
+            ],
+        ];
+    }
+
+    /**
+     * The title and body shared by the web and mobile pushes.
+     *
+     * @return array{0: string, 1: string}
+     */
+    protected function pushText(): array
+    {
+        $appointment = $this->appointment;
+
+        $when = __(':date at :time', [
+            'date' => $this->startsAt()->translatedFormat('D, j M'),
+            'time' => $this->startsAt()->format('H:i'),
+        ]);
+
+        $service = $appointment->service?->title ?? __('Deleted service');
+        $customer = $appointment->customer?->name ?? $appointment->notes ?? __('Deleted customer');
+
+        return match ($this->alert) {
+            AppointmentAlert::Booked => [
+                __('New booking — :service', ['service' => $service]),
+                __(':customer · :when', ['customer' => $customer, 'when' => $when]),
+            ],
+            AppointmentAlert::Rescheduled => [
+                __('Appointment moved — :service', ['service' => $service]),
+                __(':customer · now :when', ['customer' => $customer, 'when' => $when]),
+            ],
+            AppointmentAlert::Cancelled => [
+                __('Booking cancelled — :service', ['service' => $service]),
+                __(':customer · was :when', ['customer' => $customer, 'when' => $when]),
+            ],
+        };
     }
 
     /**

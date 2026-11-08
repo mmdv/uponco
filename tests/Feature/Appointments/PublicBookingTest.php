@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Notifications\Appointments\AppointmentActivity;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
+use App\Notifications\Channels\ExpoPushChannel;
 use App\Support\Analytics;
 use App\Support\Appointments\AppointmentOptions;
 use Carbon\CarbonImmutable;
@@ -504,9 +505,9 @@ test('a guest booking pushes an alert to the assigned specialist', function () {
     Notification::assertSentTo(
         $setup['user'],
         AppointmentActivity::class,
-        // The assigned specialist gets both the bell entry and the phone push.
+        // The assigned specialist gets the bell entry and both phone pushes (PWA + mobile app).
         fn (AppointmentActivity $notification, array $channels): bool => $notification->alert === AppointmentAlert::Booked
-            && $channels === ['database', WebPushChannel::class],
+            && $channels === ['database', WebPushChannel::class, ExpoPushChannel::class],
     );
 });
 
