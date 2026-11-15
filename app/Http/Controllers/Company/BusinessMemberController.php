@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Company;
 
-use App\Enums\OnboardingStep;
-use App\Enums\OnboardingStepStatus;
+use App\Actions\Teams\AddTeamMember;
+use App\Actions\Teams\RemoveTeamMember;
+use App\Actions\Teams\SyncMemberAssignments;
+use App\Actions\Teams\UpdateMemberAccount;
+use App\Actions\Teams\UpdateMemberProfile;
 use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
@@ -18,17 +21,15 @@ use App\Http\Requests\Settings\AvatarUpdateRequest;
 use App\Http\Requests\Teams\TransferTeamOwnershipRequest;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
 use App\Models\Location;
-use App\Models\OnboardingProgress;
 use App\Models\Service;
 use App\Models\Team;
 use App\Models\User;
+use App\Support\Teams\MemberAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,53 +38,13 @@ class BusinessMemberController extends Controller
     /**
      * Add a new member directly to the current team.
      */
-    public function store(CreateBusinessMemberRequest $request): RedirectResponse
+    public function store(CreateBusinessMemberRequest $request, AddTeamMember $addTeamMember): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
         Gate::authorize('addMember', $team);
 
-        $validated = $request->validated();
-
-        $name = Str::squish($validated['name'].' '.($validated['surname'] ?? ''));
-
-        $member = DB::transaction(function () use ($team, $validated, $name): User {
-            $member = User::create([
-                'name' => $name,
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-            ]);
-
-            $team->memberships()->create([
-                'user_id' => $member->id,
-                'role' => TeamRole::Member,
-            ]);
-
-            $member->profile()->create([
-                'email' => $validated['email'],
-                'job_title' => $validated['job_title'] ?? null,
-            ]);
-
-            // The team is already set up, so the member has nothing to onboard.
-            OnboardingProgress::create([
-                'team_id' => $team->id,
-                'user_id' => $member->id,
-                'services_status' => OnboardingStepStatus::Completed,
-                'profile_status' => OnboardingStepStatus::Completed,
-                'schedule_status' => OnboardingStepStatus::Completed,
-                'current_step' => OnboardingStep::Schedule,
-                'completed_at' => now(),
-            ]);
-
-            $member->switchTeam($team);
-
-            return $member;
-        });
-
-        // The admin typed this address; nobody has proved they can read it. The
-        // member verifies it themselves like any other account, so an admin
-        // cannot mint a pre-verified account at an address they do not own.
-        $member->sendEmailVerificationNotification();
+        $addTeamMember->handle($team, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member added.')]);
 
@@ -227,17 +188,11 @@ class BusinessMemberController extends Controller
     /**
      * Update the member's login account information (name and email).
      */
-    public function updateAccount(UpdateBusinessMemberAccountRequest $request, User $user): RedirectResponse
+    public function updateAccount(UpdateBusinessMemberAccountRequest $request, User $user, UpdateMemberAccount $updateMemberAccount): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
-        $user->fill($request->validated());
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
+        $updateMemberAccount->handle($user, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Account updated.')]);
 
@@ -247,15 +202,11 @@ class BusinessMemberController extends Controller
     /**
      * Update the member's public booking profile.
      */
-    public function updateProfile(UpdateBusinessMemberProfileRequest $request, User $user): RedirectResponse
+    public function updateProfile(UpdateBusinessMemberProfileRequest $request, User $user, UpdateMemberProfile $updateMemberProfile): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
-        $validated = $request->validated();
-
-        $user->update(['name' => $validated['name']]);
-
-        $user->profile()->updateOrCreate([], Arr::except($validated, ['name']));
+        $updateMemberProfile->handle($user, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
@@ -265,12 +216,11 @@ class BusinessMemberController extends Controller
     /**
      * Sync the locations this member works at within the current team.
      */
-    public function updateLocations(SyncMemberLocationsRequest $request, User $user): RedirectResponse
+    public function updateLocations(SyncMemberLocationsRequest $request, User $user, SyncMemberAssignments $syncMemberAssignments): RedirectResponse
     {
         $team = $this->authorizeMember($request, $user);
 
-        $user->locations()->detach($team->locations()->pluck('id'));
-        $user->locations()->attach($request->ids());
+        $syncMemberAssignments->locations($team, $user, $request->ids());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Locations updated.')]);
 
@@ -280,12 +230,11 @@ class BusinessMemberController extends Controller
     /**
      * Sync the services this member provides within the current team.
      */
-    public function updateServices(SyncMemberServicesRequest $request, User $user): RedirectResponse
+    public function updateServices(SyncMemberServicesRequest $request, User $user, SyncMemberAssignments $syncMemberAssignments): RedirectResponse
     {
         $team = $this->authorizeMember($request, $user);
 
-        $user->services()->detach($team->services()->pluck('services.id'));
-        $user->services()->attach($request->ids());
+        $syncMemberAssignments->services($team, $user, $request->ids());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Services updated.')]);
 
@@ -337,7 +286,7 @@ class BusinessMemberController extends Controller
     /**
      * Remove the specified member from the current team.
      */
-    public function destroy(Request $request, User $user): RedirectResponse
+    public function destroy(Request $request, User $user, RemoveTeamMember $removeTeamMember): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
@@ -345,17 +294,7 @@ class BusinessMemberController extends Controller
 
         abort_if($team->owner()?->is($user), 403, __('The team owner cannot be removed.'));
 
-        $team->memberships()
-            ->where('user_id', $user->id)
-            ->delete();
-
-        if ($user->isCurrentTeam($team)) {
-            $fallback = $user->fallbackTeam($team);
-
-            if ($fallback) {
-                $user->switchTeam($fallback);
-            }
-        }
+        $removeTeamMember->handle($team, $user);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member removed.')]);
 
@@ -367,21 +306,7 @@ class BusinessMemberController extends Controller
      */
     protected function authorizeMember(Request $request, User $user): Team
     {
-        $actor = $request->user();
-        $team = $actor->currentTeam;
-
-        Gate::authorize('updateMember', $team);
-
-        abort_unless($user->belongsToTeam($team), 404);
-
-        // Admins may manage members, but only the owner may manage the owner.
-        abort_if(
-            $team->owner()?->is($user) && ! $team->owner()?->is($actor),
-            403,
-            __('Only the owner can manage the team owner.'),
-        );
-
-        return $team;
+        return MemberAccess::authorize($request->user(), $user);
     }
 
     /**

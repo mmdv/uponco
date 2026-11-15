@@ -8,10 +8,12 @@ use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EmailVerificationNotificationController;
 use App\Http\Controllers\Api\V1\GoogleTokenController;
+use App\Http\Controllers\Api\V1\InvitationController;
 use App\Http\Controllers\Api\V1\LegalConsentController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\LocationOptionsController;
 use App\Http\Controllers\Api\V1\MeController;
+use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PasswordResetLinkController;
 use App\Http\Controllers\Api\V1\PushTokenController;
@@ -103,6 +105,20 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             // Business management (the app's Manage tab): owners and admins only,
             // same as the web company pages.
             Route::middleware(EnsureTeamMembership::class.':'.TeamRole::Admin->value)->group(function () {
+                Route::get('members', [MemberController::class, 'index'])->name('members.index');
+                Route::post('members', [MemberController::class, 'store'])->name('members.store');
+                Route::get('members/{user}', [MemberController::class, 'show'])->whereNumber('user')->name('members.show');
+                Route::patch('members/{user}/role', [MemberController::class, 'updateRole'])->whereNumber('user')->name('members.role.update');
+                Route::patch('members/{user}/profile', [MemberController::class, 'updateProfile'])->whereNumber('user')->name('members.profile.update');
+                Route::patch('members/{user}/account', [MemberController::class, 'updateAccount'])->whereNumber('user')->name('members.account.update');
+                Route::put('members/{user}/permissions', [MemberController::class, 'updatePermissions'])->whereNumber('user')->name('members.permissions.update');
+                Route::put('members/{user}/services', [MemberController::class, 'updateServices'])->whereNumber('user')->name('members.services.update');
+                Route::put('members/{user}/locations', [MemberController::class, 'updateLocations'])->whereNumber('user')->name('members.locations.update');
+                Route::delete('members/{user}', [MemberController::class, 'destroy'])->whereNumber('user')->name('members.destroy');
+
+                Route::post('invitations', [InvitationController::class, 'store'])->name('invitations.store');
+                Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
+
                 Route::get('locations/options', LocationOptionsController::class)->name('locations.options');
                 Route::get('locations/address/suggest', [AddressLookupController::class, 'suggest'])
                     ->middleware('throttle:60,1')

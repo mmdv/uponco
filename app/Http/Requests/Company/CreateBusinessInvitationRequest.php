@@ -19,7 +19,8 @@ class CreateBusinessInvitationRequest extends FormRequest
     {
         return [
             'email' => ['required', 'string', 'email', 'max:255', new UniqueTeamInvitation($this->user()->currentTeam)],
-            'role' => ['required', 'string', Rule::enum(TeamRole::class)],
+            // Never Owner: a team has exactly one owner, changed only by a transfer.
+            'role' => ['required', 'string', Rule::in(array_column(TeamRole::assignable(), 'value'))],
         ];
     }
 }

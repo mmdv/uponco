@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Actions\Teams\InviteTeamMember;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateBusinessInvitationRequest;
 use App\Models\TeamInvitation;
-use App\Notifications\Teams\TeamInvitation as TeamInvitationNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class BusinessInvitationController extends Controller
@@ -18,21 +17,18 @@ class BusinessInvitationController extends Controller
     /**
      * Invite a new member to the current team.
      */
-    public function store(CreateBusinessInvitationRequest $request): RedirectResponse
+    public function store(CreateBusinessInvitationRequest $request, InviteTeamMember $inviteTeamMember): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
         Gate::authorize('inviteMember', $team);
 
-        $invitation = $team->invitations()->create([
-            'email' => $request->validated('email'),
-            'role' => TeamRole::from($request->validated('role')),
-            'invited_by' => $request->user()->id,
-            'expires_at' => now()->addDays(3),
-        ]);
-
-        Notification::route('mail', $invitation->email)
-            ->notify(new TeamInvitationNotification($invitation));
+        $inviteTeamMember->handle(
+            $team,
+            $request->user(),
+            $request->validated('email'),
+            TeamRole::from($request->validated('role')),
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Invitation sent.')]);
 

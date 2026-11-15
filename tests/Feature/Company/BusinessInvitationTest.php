@@ -140,3 +140,22 @@ test('team invitations can be cancelled by owners', function () {
         'id' => $invitation->id,
     ]);
 });
+
+test('team invitations cannot make someone an owner', function () {
+    Notification::fake();
+
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => TeamRole::Owner->value]);
+    $owner->switchTeam($team);
+
+    $this
+        ->actingAs($owner)
+        ->post(route('company.business.invitations.store'), [
+            'email' => 'invited@example.com',
+            'role' => TeamRole::Owner->value,
+        ])
+        ->assertSessionHasErrors('role');
+
+    $this->assertDatabaseMissing('team_invitations', ['email' => 'invited@example.com']);
+});
