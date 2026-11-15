@@ -144,3 +144,21 @@ test('the unused device login flow is switched off', function () {
     $this->get('/oauth/device')->assertNotFound();
     $this->postJson('/oauth/device/code')->assertNotFound();
 });
+
+test('a connected assistant can list every uponco tool', function () {
+    Passport::actingAs(User::factory()->create(), ['mcp:use']);
+
+    $tools = $this->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list'])
+        ->assertOk()
+        ->json('result.tools');
+
+    expect(collect($tools)->pluck('name')->sort()->values()->all())->toBe([
+        'find-available-slots',
+        'get-account',
+        'get-appointment',
+        'get-business-overview',
+        'get-working-hours',
+        'list-appointments',
+        'search-customers',
+    ]);
+});
