@@ -63,17 +63,19 @@ abstract class BusinessTool extends Tool
             'user_id' => $user->id,
             'team_id' => $team->id,
             'oauth_client_id' => $token instanceof AccessToken ? $token->oauth_client_id : null,
-            'arguments' => Arr::except($request->all(), ['customer_name', 'customer_email', 'customer_phone', 'notes']),
+            'arguments' => Arr::except($request->all(), ['customer_name', 'customer_email', 'customer_phone', 'name', 'email', 'phone', 'notes']),
             'appointment_id' => data_get($structured, 'appointment.id'),
         ]);
     }
 
     /**
-     * Whether the tool only reads (marked #[IsReadOnly]).
+     * Whether the tool only reads (marked #[IsReadOnly], not #[IsReadOnly(false)]).
      */
     protected function isReadOnly(): bool
     {
-        return (new ReflectionClass($this))->getAttributes(IsReadOnly::class) !== [];
+        $attribute = (new ReflectionClass($this))->getAttributes(IsReadOnly::class)[0] ?? null;
+
+        return $attribute?->newInstance()->value ?? false;
     }
 
     /**

@@ -12,14 +12,18 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('get-appointment')]
 #[Title('Get appointment')]
 #[Description('One appointment with its full details and, under `can`, what the user may do with it now (reschedule or cancel upcoming ones; mark or undo a no-show on past ones).')]
-#[IsReadOnly]
 #[IsIdempotent]
+#[IsReadOnly]
+#[IsDestructive(false)]
+#[IsOpenWorld(false)]
 class GetAppointmentTool extends BusinessTool
 {
     /**

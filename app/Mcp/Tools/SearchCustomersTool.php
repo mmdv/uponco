@@ -13,14 +13,18 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('search-customers')]
 #[Title('Search customers')]
 #[Description('Find the business\'s customers by part of their name, email or phone number. Returns up to 20 matches, sorted by name. Use the id with list-appointments to see a customer\'s bookings.')]
-#[IsReadOnly]
 #[IsIdempotent]
+#[IsReadOnly]
+#[IsDestructive(false)]
+#[IsOpenWorld(false)]
 class SearchCustomersTool extends BusinessTool
 {
     protected const LIMIT = 20;

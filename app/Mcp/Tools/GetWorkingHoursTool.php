@@ -13,14 +13,18 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('get-working-hours')]
 #[Title('Get working hours')]
 #[Description('A specialist\'s working hours for each day in a date range (business timezone). A day with no hours is a day off. Everyone can read their own hours; owners and admins can read anyone\'s.')]
-#[IsReadOnly]
 #[IsIdempotent]
+#[IsReadOnly]
+#[IsDestructive(false)]
+#[IsOpenWorld(false)]
 class GetWorkingHoursTool extends BusinessTool
 {
     /** The longest range one call may read (same as the mobile app). */

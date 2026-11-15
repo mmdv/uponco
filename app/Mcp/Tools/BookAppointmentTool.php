@@ -19,10 +19,16 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('book-appointment')]
 #[Title('Book appointment')]
 #[Description('Book an appointment, exactly as the Uponco calendar does: the time must be a free slot (check find-available-slots first) and the customer is emailed a confirmation when they have an email address. Confirm the service, specialist, day, time and customer with the user before calling. Use customer_id for an existing customer, or name plus email and/or phone for a new one.')]
+#[IsReadOnly(false)]
+#[IsDestructive(true)]
+#[IsOpenWorld(false)]
 class BookAppointmentTool extends BusinessTool
 {
     use InteractsWithAppointmentBooking;

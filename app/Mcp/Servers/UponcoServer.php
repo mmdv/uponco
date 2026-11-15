@@ -2,8 +2,13 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Prompts\BookCustomerPrompt;
+use App\Mcp\Prompts\PlanWeekPrompt;
+use App\Mcp\Prompts\SummarizeDayPrompt;
+use App\Mcp\Tools\AddCustomerTool;
 use App\Mcp\Tools\BookAppointmentTool;
 use App\Mcp\Tools\CancelAppointmentTool;
+use App\Mcp\Tools\CreateServiceTool;
 use App\Mcp\Tools\FindAvailableSlotsTool;
 use App\Mcp\Tools\GetAccountTool;
 use App\Mcp\Tools\GetAppointmentTool;
@@ -16,13 +21,19 @@ use App\Mcp\Tools\SearchCustomersTool;
 use App\Mcp\Tools\SetDayOffTool;
 use App\Mcp\Tools\SetWorkingHoursTool;
 use App\Mcp\Tools\SwitchBusinessTool;
+use App\Mcp\Tools\UpdateCustomerTool;
+use App\Mcp\Tools\UpdateServiceTool;
 use Laravel\Mcp\Server;
+use Laravel\Mcp\Server\Attributes\Icon;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Uponco')]
-#[Version('0.4.0')]
+#[Version('0.5.0')]
+// The logo assistants show next to the connector (MCP `serverInfo.icons`).
+#[Icon('icons/icon-512.png', mimeType: 'image/png', sizes: ['512x512'])]
+#[Icon('favicon.svg', mimeType: 'image/svg+xml', sizes: ['any'])]
 #[Instructions(<<<'MARKDOWN'
     Uponco is appointment booking software. This server acts for the connected
     user inside their current business, with the same permissions they have in
@@ -44,7 +55,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     of implying the business has no other bookings.
 
     Tools that change things (booking, rescheduling, cancelling, working hours,
-    days off) act at once and some email the customer. Before calling one, say
+    days off, customers, services) act at once and some email the customer. Before calling one, say
     exactly what will change — customer, specialist, day and time — and wait for
     the user to confirm. Book and reschedule only into times `find-available-slots`
     returned. Changing hours or adding a day off never cancels bookings; report
@@ -52,6 +63,12 @@ use Laravel\Mcp\Server\Attributes\Version;
     MARKDOWN)]
 class UponcoServer extends Server
 {
+    /**
+     * List every tool in one page: some assistants do not follow the
+     * `tools/list` cursor, and would silently miss the tools past the first page.
+     */
+    public int $defaultPaginationLength = 50;
+
     protected array $tools = [
         GetAccountTool::class,
         GetBusinessOverviewTool::class,
@@ -67,6 +84,10 @@ class UponcoServer extends Server
         SetWorkingHoursTool::class,
         SetDayOffTool::class,
         SwitchBusinessTool::class,
+        AddCustomerTool::class,
+        UpdateCustomerTool::class,
+        CreateServiceTool::class,
+        UpdateServiceTool::class,
     ];
 
     protected array $resources = [
@@ -74,6 +95,8 @@ class UponcoServer extends Server
     ];
 
     protected array $prompts = [
-        //
+        SummarizeDayPrompt::class,
+        PlanWeekPrompt::class,
+        BookCustomerPrompt::class,
     ];
 }

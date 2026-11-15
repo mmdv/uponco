@@ -70,7 +70,7 @@ days off, by chatting. Progress is tracked in `PROGRESS.md` next to this file.
 
 - Manage tools (services, customers, locations) for owners and admins.
 - Prompts such as "summarize my day".
-- Submit to the Claude and ChatGPT connector directories.
+- Submit to the Claude and ChatGPT connector directories (checklist: `DIRECTORY.md`).
 
 ## Known constraints
 

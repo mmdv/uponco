@@ -15,12 +15,18 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('mark-no-show')]
 #[Title('Mark no-show')]
 #[Description('Record that the customer did not come to a past appointment, or undo that with no_show set to false. Only past appointments; nobody is emailed.')]
 #[IsIdempotent]
+#[IsReadOnly(false)]
+#[IsDestructive(true)]
+#[IsOpenWorld(false)]
 class MarkNoShowTool extends BusinessTool
 {
     public function __construct(protected UpdateAppointmentStatus $updateAppointmentStatus) {}

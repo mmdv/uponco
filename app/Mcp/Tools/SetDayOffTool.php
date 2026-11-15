@@ -7,12 +7,18 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('set-day-off')]
 #[Title('Set day off')]
 #[Description('Give a specialist a day off — or several, e.g. a holiday — by removing their working hours on those days, so nobody can book them. Existing bookings on those days are NOT cancelled: they are returned in appointments_outside_hours; tell the user and offer to reschedule or cancel them. Confirm the days with the user first.')]
 #[IsIdempotent]
+#[IsReadOnly(false)]
+#[IsDestructive(true)]
+#[IsOpenWorld(false)]
 class SetDayOffTool extends WorkingHoursChangeTool
 {
     /**

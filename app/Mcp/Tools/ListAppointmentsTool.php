@@ -16,14 +16,18 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('list-appointments')]
 #[Title('List appointments')]
 #[Description('Appointments between two dates (inclusive, business timezone), oldest first. Like the Uponco calendar it shows booked appointments and no-shows; set include_cancelled to see cancelled ones too. Users who cannot see all appointments only get their own.')]
-#[IsReadOnly]
 #[IsIdempotent]
+#[IsReadOnly]
+#[IsDestructive(false)]
+#[IsOpenWorld(false)]
 class ListAppointmentsTool extends BusinessTool
 {
     /** The longest range one call may ask for. */

@@ -12,14 +12,18 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('get-business-overview')]
 #[Title('Get business overview')]
 #[Description('The business\'s active services (duration, price), locations and specialists, with the ids the other tools take and which specialist offers which service where. Call it before looking up slots or appointments by service or specialist name.')]
-#[IsReadOnly]
 #[IsIdempotent]
+#[IsReadOnly]
+#[IsDestructive(false)]
+#[IsOpenWorld(false)]
 class GetBusinessOverviewTool extends BusinessTool
 {
     protected function handleForBusiness(Request $request, User $user, Team $team): Response|ResponseFactory

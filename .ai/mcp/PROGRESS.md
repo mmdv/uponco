@@ -6,9 +6,9 @@ Status keys: `[ ]` not started · `[~]` in progress · `[x]` done and tested · 
 
 ## Current state
 
-- **Phase:** 4 — Product surface (code done and tested; settings section checked in the browser 2026-11-15: light desktop, dark phone, disconnect; not deployed yet)
-- **Next task:** Deploy (the scheduler must run for `passport:purge`), check Settings → Integrations → AI assistants, connect ChatGPT. Then Phase 5.
-- **Last session:** 2026-11-15 — Phase 4 built: AI assistants section with disconnect, `/mcp` rate limit, write-action log, `switch-business`, daily `passport:purge`. Phase 3 deployed.
+- **Phase:** 5 — code done and tested; directory submission waiting on your items in `DIRECTORY.md` §2
+- **Next task:** Deploy, reconnect Claude (new logo, 18 tools, 3 prompts), add the AI-assistants section to the privacy policy, publish a connector docs page, then submit (see `DIRECTORY.md`).
+- **Last session:** 2026-11-15 — Phase 5: customer and service tools, prompts, server logo, explicit tool annotations, one-page tools list, directory checklist. Phase 4 deployed.
 
 ## Phase 1 — Foundation and connect flow
 
@@ -58,9 +58,15 @@ Tests: `tests/Feature/Mcp/AppointmentWriteToolsTest.php`, `WorkingHoursToolsTest
 
 ## Phase 5 — Later
 
-- [ ] Manage tools (services, customers, locations)
-- [ ] Prompts
-- [ ] Claude and ChatGPT directory submissions
+Tests: `tests/Feature/Mcp/ManageToolsTest.php`, plus `ConnectTest` (logo, prompts, annotations).
+
+- [x] Customer tools — `add-customer`, `update-customer` (`SaveCustomerRequest` through the bridge; any member, like the Customers page)
+- [x] Service tools — `create-service`, `update-service` (`SaveServiceRequest` + `SaveService`; owners/admins only; update keeps unspecified fields and specialists' own price/duration overrides). Locations: not done (geocoding/address flow; do on request)
+- [x] Prompts — `summarize-day`, `plan-week`, `book-customer` (`app/Mcp/Prompts`)
+- [x] Logo — `#[Icon]` on `UponcoServer` (Claude showed no logo for the custom connector before)
+- [x] Every tool sets `readOnlyHint`, `destructiveHint`, `openWorldHint` explicitly (ChatGPT requires all three; Claude requires title + one)
+- [x] `tools/list` returns all tools on one page (`$defaultPaginationLength = 50`; the default 15 would have hidden tools)
+- [~] Claude and ChatGPT directory submissions — checklist, portal answers, listing text and privacy-policy draft in `.ai/mcp/DIRECTORY.md`; waiting on privacy policy update, docs page, demo account
 
 ## Decisions
 
@@ -76,6 +82,7 @@ Tests: `tests/Feature/Mcp/AppointmentWriteToolsTest.php`, `WorkingHoursToolsTest
 - 2026-11-15 — The switch tool is named `switch-business` (users and the assistant talk about businesses, not teams). It changes the user's current team, so the web app switches too, like the mobile app's switcher.
 - 2026-11-15 — Write actions go to the default log, not a separate file: production runs in containers where a local log file would be lost.
 - 2026-11-15 — Assistants register a new OAuth client on every connect, so Settings groups connections by client name and Disconnect revokes all of that app's tokens.
+- 2026-11-15 — Destructive hint is true for every write that emails a customer or overwrites data (book, reschedule, cancel, no-show, hours, day off, switch business, update customer/service); false only for purely additive writes (add customer, create service).
 - 2026-11-15 — Write tools take `date` + `time` in the business timezone (not ISO instants), so the assistant cannot get the UTC offset wrong.
 - 2026-11-15 — Permission failures return a tool error the assistant can relay ("You can only see your own …"); appointments the user may not see return "Appointment not found." so their existence does not leak.
 

@@ -15,11 +15,15 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
 use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('cancel-appointment')]
 #[Title('Cancel appointment')]
 #[Description('Cancel an upcoming appointment. The customer is emailed that it was cancelled and the slot opens up again; this cannot be undone. Always confirm with the user first, naming the customer, day and time.')]
-#[IsDestructive]
+#[IsReadOnly(false)]
+#[IsDestructive(true)]
+#[IsOpenWorld(false)]
 class CancelAppointmentTool extends BusinessTool
 {
     public function __construct(protected CancelAppointment $cancelAppointment) {}

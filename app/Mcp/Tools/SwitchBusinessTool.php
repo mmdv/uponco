@@ -12,12 +12,18 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('switch-business')]
 #[Title('Switch business')]
 #[Description('Work in another of the user\'s businesses (get-account lists them). Every other tool then acts on that business. This also switches the business the user sees in the Uponco app, as the business switcher there does.')]
 #[IsIdempotent]
+#[IsReadOnly(false)]
+#[IsDestructive(true)]
+#[IsOpenWorld(false)]
 class SwitchBusinessTool extends Tool
 {
     /**

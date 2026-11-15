@@ -153,8 +153,10 @@ test('a connected assistant can list every uponco tool', function () {
         ->json('result.tools');
 
     expect(collect($tools)->pluck('name')->sort()->values()->all())->toBe([
+        'add-customer',
         'book-appointment',
         'cancel-appointment',
+        'create-service',
         'find-available-slots',
         'get-account',
         'get-appointment',
@@ -167,7 +169,37 @@ test('a connected assistant can list every uponco tool', function () {
         'set-day-off',
         'set-working-hours',
         'switch-business',
+        'update-customer',
+        'update-service',
     ]);
+
+    // The Claude and ChatGPT directories require a title and all three hints, set explicitly, on every tool.
+    foreach ($tools as $tool) {
+        expect($tool['title'] ?? null)->toBeString()->not->toBeEmpty()
+            ->and($tool['annotations'] ?? [])->toHaveKeys(['readOnlyHint', 'destructiveHint', 'openWorldHint']);
+    }
+
+    expect(collect($tools)->firstWhere('name', 'list-appointments')['annotations'])->toMatchArray(['readOnlyHint' => true, 'destructiveHint' => false])
+        ->and(collect($tools)->firstWhere('name', 'cancel-appointment')['annotations'])->toMatchArray(['readOnlyHint' => false, 'destructiveHint' => true])
+        ->and(collect($tools)->firstWhere('name', 'add-customer')['annotations'])->toMatchArray(['readOnlyHint' => false, 'destructiveHint' => false]);
+});
+
+test('the server tells assistants its logo and lists its prompts', function () {
+    Passport::actingAs(User::factory()->create(), ['mcp:use']);
+
+    $this->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => [
+        'protocolVersion' => '2025-11-25',
+        'capabilities' => (object) [],
+        'clientInfo' => ['name' => 'test', 'version' => '1'],
+    ]])
+        ->assertOk()
+        ->assertJsonPath('result.serverInfo.icons.0.src', asset('icons/icon-512.png'));
+
+    $prompts = $this->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'prompts/list'])
+        ->assertOk()
+        ->json('result.prompts');
+
+    expect(collect($prompts)->pluck('name')->sort()->values()->all())->toBe(['book-customer', 'plan-week', 'summarize-day']);
 });
 
 test('the mcp server is rate limited per user', function () {

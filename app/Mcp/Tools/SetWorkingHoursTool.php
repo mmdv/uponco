@@ -7,12 +7,18 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Title;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('set-working-hours')]
 #[Title('Set working hours')]
 #[Description('Set a specialist\'s working hours on one day or a range of days (optionally only some weekdays), replacing whatever hours those days had. Hours are in the business timezone; several blocks per day make a break, e.g. 09:00–13:00 and 14:00–18:00. Existing bookings are kept: any that now fall outside the hours are returned in appointments_outside_hours — tell the user about them. Confirm the days and hours with the user first.')]
 #[IsIdempotent]
+#[IsReadOnly(false)]
+#[IsDestructive(true)]
+#[IsOpenWorld(false)]
 class SetWorkingHoursTool extends WorkingHoursChangeTool
 {
     /**
