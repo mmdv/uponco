@@ -57,8 +57,7 @@ days off, by chatting. Progress is tracked in `PROGRESS.md` next to this file.
   still on that day so the assistant can tell the user.
 - Booking and cancelling email the customer, as on the web. Tool descriptions
   say so.
-- Decision to make: add `AppointmentSource::Assistant` so AI bookings can be
-  counted (recommended), or leave them as `Staff`.
+- Decided 2026-11-15: AI bookings use `AppointmentSource::Assistant`.
 
 ## Phase 4 — Product surface
 

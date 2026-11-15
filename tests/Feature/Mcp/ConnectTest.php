@@ -153,12 +153,18 @@ test('a connected assistant can list every uponco tool', function () {
         ->json('result.tools');
 
     expect(collect($tools)->pluck('name')->sort()->values()->all())->toBe([
+        'book-appointment',
+        'cancel-appointment',
         'find-available-slots',
         'get-account',
         'get-appointment',
         'get-business-overview',
         'get-working-hours',
         'list-appointments',
+        'mark-no-show',
+        'reschedule-appointment',
         'search-customers',
+        'set-day-off',
+        'set-working-hours',
     ]);
 });

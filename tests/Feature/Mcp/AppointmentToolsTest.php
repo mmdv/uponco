@@ -4,28 +4,7 @@ use App\Mcp\Servers\UponcoServer;
 use App\Mcp\Tools\GetAppointmentTool;
 use App\Mcp\Tools\ListAppointmentsTool;
 use App\Models\Appointment;
-use App\Models\Customer;
 use App\Models\User;
-
-/**
- * An appointment on the setup's team, at the given start.
- *
- * @param  array<string, mixed>  $setup
- * @param  array<string, mixed>  $attributes
- */
-function mcpAppointment(array $setup, User $specialist, array $attributes = []): Appointment
-{
-    return Appointment::factory()->create([
-        'team_id' => $setup['team']->id,
-        'service_id' => $setup['service']->id,
-        'location_id' => $setup['location']->id,
-        'specialist_id' => $specialist->id,
-        'customer_id' => Customer::factory()->for($setup['team'])->create(['name' => 'Aysel Mammadova'])->id,
-        'start_at' => $setup['startAt'],
-        'end_at' => $setup['startAt']->addHour(),
-        ...$attributes,
-    ]);
-}
 
 test('business tools relay the account blocker instead of returning data', function () {
     $user = User::factory()->unverified()->create();

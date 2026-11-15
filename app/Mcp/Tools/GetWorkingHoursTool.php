@@ -2,7 +2,6 @@
 
 namespace App\Mcp\Tools;
 
-use App\Enums\TeamRole;
 use App\Models\Team;
 use App\Models\User;
 use App\Support\ScheduleSlotMap;
@@ -79,22 +78,5 @@ class GetWorkingHoursTool extends BusinessTool
             'timezone' => $this->timezone($team),
             'days' => $days,
         ]);
-    }
-
-    /**
-     * The member whose hours are asked for, or null when the user may not see
-     * them — the mobile app's rule: yourself, or anyone for owners and admins.
-     */
-    protected function schedulableMember(User $user, Team $team, int $memberId): ?User
-    {
-        if ($memberId === $user->id) {
-            return $user;
-        }
-
-        if (! ($user->teamRole($team)?->isAtLeast(TeamRole::Admin) ?? false)) {
-            return null;
-        }
-
-        return $team->members()->whereKey($memberId)->first();
     }
 }

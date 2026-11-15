@@ -124,8 +124,8 @@ export type Appointment = {
     notes: string | null;
     /** Lifecycle state; `no_show` marks a past appointment the customer didn't attend. */
     status: 'booked' | 'cancelled' | 'no_show';
-    /** `public` when the customer booked it themselves, `staff` when entered by a specialist. */
-    source: 'staff' | 'public';
+    /** `public` when the customer booked it themselves, `staff` when entered by a specialist, `assistant` when a specialist booked it through an AI assistant. */
+    source: 'staff' | 'public' | 'assistant';
     /** Join URL for an online appointment (e.g. a Google Meet link), else null. */
     meeting_url: string | null;
     service: { id: number; title: string };

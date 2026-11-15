@@ -2,20 +2,26 @@
 
 namespace App\Mcp\Servers;
 
+use App\Mcp\Tools\BookAppointmentTool;
+use App\Mcp\Tools\CancelAppointmentTool;
 use App\Mcp\Tools\FindAvailableSlotsTool;
 use App\Mcp\Tools\GetAccountTool;
 use App\Mcp\Tools\GetAppointmentTool;
 use App\Mcp\Tools\GetBusinessOverviewTool;
 use App\Mcp\Tools\GetWorkingHoursTool;
 use App\Mcp\Tools\ListAppointmentsTool;
+use App\Mcp\Tools\MarkNoShowTool;
+use App\Mcp\Tools\RescheduleAppointmentTool;
 use App\Mcp\Tools\SearchCustomersTool;
+use App\Mcp\Tools\SetDayOffTool;
+use App\Mcp\Tools\SetWorkingHoursTool;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Uponco')]
-#[Version('0.2.0')]
+#[Version('0.3.0')]
 #[Instructions(<<<'MARKDOWN'
     Uponco is appointment booking software. This server acts for the connected
     user inside their current business, with the same permissions they have in
@@ -33,6 +39,13 @@ use Laravel\Mcp\Server\Attributes\Version;
 
     Users who cannot see all appointments only get their own; say so instead
     of implying the business has no other bookings.
+
+    Tools that change things (booking, rescheduling, cancelling, working hours,
+    days off) act at once and some email the customer. Before calling one, say
+    exactly what will change — customer, specialist, day and time — and wait for
+    the user to confirm. Book and reschedule only into times `find-available-slots`
+    returned. Changing hours or adding a day off never cancels bookings; report
+    any `appointments_outside_hours` and ask what to do with them.
     MARKDOWN)]
 class UponcoServer extends Server
 {
@@ -44,6 +57,12 @@ class UponcoServer extends Server
         FindAvailableSlotsTool::class,
         GetWorkingHoursTool::class,
         SearchCustomersTool::class,
+        BookAppointmentTool::class,
+        RescheduleAppointmentTool::class,
+        CancelAppointmentTool::class,
+        MarkNoShowTool::class,
+        SetWorkingHoursTool::class,
+        SetDayOffTool::class,
     ];
 
     protected array $resources = [

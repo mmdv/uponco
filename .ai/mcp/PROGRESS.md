@@ -6,9 +6,9 @@ Status keys: `[ ]` not started · `[~]` in progress · `[x]` done and tested · 
 
 ## Current state
 
-- **Phase:** 2 — Read tools (code done and tested; not deployed yet)
-- **Next task:** Deploy, reconnect in Claude and try the read tools on real data. Then start Phase 3 (write tools).
-- **Last session:** 2026-11-15 — Phase 2 built: six read tools, `BusinessTool` base class (runs the account gates), `AppointmentData` presenter, tests
+- **Phase:** 3 — Write tools (code done and tested; not deployed yet)
+- **Next task:** Deploy, start a new Claude chat and try booking, rescheduling, cancelling and a day off on a test business. Then Phase 4 (Settings → Integrations, rate limit, write log).
+- **Last session:** 2026-11-15 — Phase 3 built: six write tools, `FormRequestBridge`, `AppointmentSource::Assistant`, tests. Phase 2 deployed and used from Claude.
 
 ## Phase 1 — Foundation and connect flow
 
@@ -37,14 +37,16 @@ All extend `App\Mcp\Tools\BusinessTool`; appointments are shown through `App\Mcp
 
 ## Phase 3 — Write tools
 
-- [ ] Bridge from tool arguments to `SaveAppointmentRequest`
-- [ ] `book-appointment`
-- [ ] `reschedule-appointment`
-- [ ] `cancel-appointment`
-- [ ] `set-working-hours`
-- [ ] `set-day-off`
-- [ ] `mark-no-show`
-- [ ] Decide: `AppointmentSource::Assistant`
+Tests: `tests/Feature/Mcp/AppointmentWriteToolsTest.php`, `WorkingHoursToolsTest.php`.
+
+- [x] Bridge from tool arguments to `SaveAppointmentRequest` — `App\Mcp\FormRequestBridge` runs any form request (route parameters and user included); also used for `SaveMemberScheduleRequest`
+- [x] `book-appointment` — `service_id`, `date` + `time` (business timezone), optional `specialist_id` (default: you), `location_id` (auto when only one fits), `customer_id` or new customer details, `notes`; customer emailed
+- [x] `reschedule-appointment` — `RescheduleAppointment` action; upcoming, booked, with a specialist only
+- [x] `cancel-appointment` — `CancelAppointment` action, `#[IsDestructive]`; customer emailed
+- [x] `set-working-hours` — range + optional `weekdays` + `hours` blocks; replaces those days; returns `appointments_outside_hours`
+- [x] `set-day-off` — range + optional `weekdays`; never cancels bookings, returns them in `appointments_outside_hours`
+- [x] `mark-no-show` — past only, `no_show: false` undoes it; no email
+- [x] Decide: `AppointmentSource::Assistant` — added (see Decisions)
 
 ## Phase 4 — Product surface
 
@@ -69,6 +71,8 @@ All extend `App\Mcp\Tools\BusinessTool`; appointments are shown through `App\Mcp
 - 2026-11-15 — Passport's device login flow is switched off (`AppServiceProvider::register`); its page 500'd and nothing uses it.
 - 2026-11-15 — Any redirect domain may register (`mcp.redirect_domains` default `*`); tighten in Phase 4 if wanted.
 - 2026-11-15 — Business tools extend `BusinessTool`, which runs `AccountReadiness` before `handleForBusiness()`, so a new tool cannot forget the gates.
+- 2026-11-15 — AI bookings are stored with `source = assistant` (`AppointmentSource::Assistant`, label "AI assistant") so they can be counted. The column is a string, so no migration; the web shows them like staff bookings (only `public` gets the green tint).
+- 2026-11-15 — Write tools take `date` + `time` in the business timezone (not ISO instants), so the assistant cannot get the UTC offset wrong.
 - 2026-11-15 — Permission failures return a tool error the assistant can relay ("You can only see your own …"); appointments the user may not see return "Appointment not found." so their existence does not leak.
 
 ## Notes for production

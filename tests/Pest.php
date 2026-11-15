@@ -2,6 +2,8 @@
 
 use App\Enums\TeamRole;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Models\Appointment;
+use App\Models\Customer;
 use App\Models\Location;
 use App\Models\ScheduleSlot;
 use App\Models\Service;
@@ -132,6 +134,26 @@ function teamMemberSpecialist(array $setup): User
     }
 
     return $member;
+}
+
+/**
+ * An appointment on the setup's team, at the given start.
+ *
+ * @param  array<string, mixed>  $setup
+ * @param  array<string, mixed>  $attributes
+ */
+function mcpAppointment(array $setup, User $specialist, array $attributes = []): Appointment
+{
+    return Appointment::factory()->create([
+        'team_id' => $setup['team']->id,
+        'service_id' => $setup['service']->id,
+        'location_id' => $setup['location']->id,
+        'specialist_id' => $specialist->id,
+        'customer_id' => Customer::factory()->for($setup['team'])->create(['name' => 'Aysel Mammadova'])->id,
+        'start_at' => $setup['startAt'],
+        'end_at' => $setup['startAt']->addHour(),
+        ...$attributes,
+    ]);
 }
 
 /**

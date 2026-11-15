@@ -3,10 +3,8 @@
 namespace App\Mcp\Tools;
 
 use App\Mcp\AppointmentData;
-use App\Models\Appointment;
 use App\Models\Team;
 use App\Models\User;
-use App\Support\Appointments\AppointmentAccess;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -38,10 +36,9 @@ class GetAppointmentTool extends BusinessTool
     {
         $appointmentId = $request->validate(['appointment_id' => ['required', 'integer']])['appointment_id'];
 
-        $appointment = $team->appointments()->with(AppointmentData::RELATIONS)->find($appointmentId);
+        $appointment = $this->findVisibleAppointment($user, $team, $appointmentId);
 
-        // Same answer for "does not exist" and "not yours", so nothing leaks.
-        if (! $appointment instanceof Appointment || ! AppointmentAccess::canView($user, $appointment)) {
+        if ($appointment === null) {
             return Response::error(__('Appointment not found.'));
         }
 
