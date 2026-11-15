@@ -16,6 +16,8 @@
         "laravel/chisel": "^0.1.1",
         "laravel/fortify": "^1.39",
         "laravel/framework": "^13.30",
+        "laravel/mcp": "^0.9.7",
+        "laravel/passport": "^13.11",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.31",
         "laravel/tinker": "^3.0.2",

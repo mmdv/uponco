@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,7 +35,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Only the authorization code flow is used (AI assistants connecting
+        // to the MCP server). Set here, before Passport boots, so its device
+        // login routes — which have no page in this app — are never registered.
+        Passport::$deviceCodeGrantEnabled = false;
     }
 
     /**
@@ -43,6 +48,20 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureInertiaSsr();
+        $this->configurePassport();
+    }
+
+    /**
+     * Configure the OAuth server that AI assistants use to connect to the MCP
+     * server (routes/ai.php). Access tokens are short-lived and renewed with
+     * the refresh token, so revoking a connection takes effect quickly.
+     */
+    protected function configurePassport(): void
+    {
+        Passport::authorizationView(fn (array $parameters) => view('mcp.authorize', $parameters));
+
+        Passport::tokensExpireIn(CarbonInterval::day());
+        Passport::refreshTokensExpireIn(CarbonInterval::days(90));
     }
 
     /**

@@ -42,7 +42,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // The mobile API and the MCP server (routes/ai.php) always answer in
+        // JSON: an AI client without a valid token must get a 401, not a
+        // redirect to the login page, to start the OAuth flow.
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*', 'mcp'),
         );
     })->create();

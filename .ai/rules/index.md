@@ -9,6 +9,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Concerns/InteractsWithAppointmentBooking.php | .ai/rules/concerns.md |
 | app/Http/Controllers/AppointmentController.php | .ai/rules/controllers.md |
 | resources/js/**, resources/js/sw.ts | .ai/rules/js.md |
+| app/Mcp/** | .ai/rules/mcp.md |
 | app/Models/Team.php, app/Models/Appointment.php | .ai/rules/models.md |
 | resources/js/components/public-booking-v2/** | .ai/rules/public-booking-v2.md |
 | routes/web.php, routes/api.php | .ai/rules/routes.md |
