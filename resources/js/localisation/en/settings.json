@@ -76,7 +76,20 @@
         "notConnected": "Not connected",
         "connectedHint": "Online bookings assigned to you will include a Meet link once connected.",
         "connect": "Connect Google",
-        "disconnect": "Disconnect"
+        "disconnect": "Disconnect",
+        "aiAssistantsTitle": "AI assistants",
+        "aiAssistantsDescription": "Connect Claude or ChatGPT to your Uponco account to check appointments, find free times, book, reschedule and manage working hours by chatting.",
+        "aiServerUrl": "Server URL",
+        "aiCopy": "Copy",
+        "aiCopied": "Copied",
+        "aiStepsTitle": "How to connect",
+        "aiStepClaude": "Claude: Settings → Connectors → Add custom connector. Paste the server URL, then sign in to Uponco and click Connect.",
+        "aiStepChatGpt": "ChatGPT: turn on developer mode, add a custom connector (MCP) with the server URL, then sign in to Uponco and click Connect.",
+        "aiStepNote": "The assistant gets the same access you have in your current business and asks before it changes anything.",
+        "aiConnectedTitle": "Connected apps",
+        "aiNoneConnected": "No AI assistant is connected yet.",
+        "aiLastActive": "Last active {date}",
+        "aiDisconnect": "Disconnect"
     },
     "security": {
         "title": "Update password",

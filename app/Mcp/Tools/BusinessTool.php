@@ -9,10 +9,15 @@ use App\Models\Team;
 use App\Models\User;
 use App\Support\Appointments\AppointmentAccess;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Passport\AccessToken;
+use ReflectionClass;
 
 /**
  * A tool that works on the connected user's current business. It checks the
@@ -33,7 +38,52 @@ abstract class BusinessTool extends Tool
             return Response::error($blocker);
         }
 
-        return $this->handleForBusiness($request, $user, $user->currentTeam);
+        $team = $user->currentTeam;
+        $response = $this->handleForBusiness($request, $user, $team);
+
+        if (! $this->isReadOnly() && ! $this->failed($response)) {
+            $this->logChange($request, $user, $team, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Record a change made through an assistant in the application log: which
+     * tool, for whom, through which connected app and with what. Customer
+     * contact details are left out of the log.
+     */
+    protected function logChange(Request $request, User $user, Team $team, Response|ResponseFactory $response): void
+    {
+        $token = $user->currentAccessToken();
+        $structured = $response instanceof ResponseFactory ? $response->getStructuredContent() : null;
+
+        Log::info('MCP write action', [
+            'tool' => $this->name(),
+            'user_id' => $user->id,
+            'team_id' => $team->id,
+            'oauth_client_id' => $token instanceof AccessToken ? $token->oauth_client_id : null,
+            'arguments' => Arr::except($request->all(), ['customer_name', 'customer_email', 'customer_phone', 'notes']),
+            'appointment_id' => data_get($structured, 'appointment.id'),
+        ]);
+    }
+
+    /**
+     * Whether the tool only reads (marked #[IsReadOnly]).
+     */
+    protected function isReadOnly(): bool
+    {
+        return (new ReflectionClass($this))->getAttributes(IsReadOnly::class) !== [];
+    }
+
+    /**
+     * Whether the tool answered with an error instead of doing its job.
+     */
+    protected function failed(Response|ResponseFactory $response): bool
+    {
+        return $response instanceof Response
+            ? $response->isError()
+            : $response->responses()->contains(fn (Response $part): bool => $part->isError());
     }
 
     /**

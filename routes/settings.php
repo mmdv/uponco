@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\AccountController;
+use App\Http\Controllers\Settings\AiAssistantController;
 use App\Http\Controllers\Settings\GoogleIntegrationController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\PushNotificationController;
@@ -51,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/integrations/google/connect', [GoogleIntegrationController::class, 'redirect'])->name('integrations.google.connect');
     Route::get('settings/integrations/google/callback', [GoogleIntegrationController::class, 'callback'])->name('integrations.google.callback');
     Route::delete('settings/integrations/google', [GoogleIntegrationController::class, 'disconnect'])->name('integrations.google.disconnect');
+    Route::delete('settings/integrations/ai-assistants/{client}', [AiAssistantController::class, 'destroy'])->name('integrations.ai-assistants.destroy');
 
     Route::post('teams', [TeamController::class, 'store'])->name('teams.store');
 

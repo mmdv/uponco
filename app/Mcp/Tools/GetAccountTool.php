@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools;
 
 use App\Mcp\AccountReadiness;
+use App\Models\Team;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Laravel\Mcp\Request;
@@ -17,7 +18,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('get-account')]
 #[Title('Get account')]
-#[Description('Who is connected and which business they are working in: the user, their role, the business name, its timezone and today\'s date there. Call this first — every date and time in the other tools is in the business timezone.')]
+#[Description('Who is connected and which business they are working in: the user, their role, the business name, its timezone and today\'s date there. Call this first — every date and time in the other tools is in the business timezone. Also lists every business the user belongs to.')]
 #[IsReadOnly]
 #[IsIdempotent]
 class GetAccountTool extends Tool
@@ -47,6 +48,15 @@ class GetAccountTool extends Tool
                 'timezone' => $timezone,
                 'today' => CarbonImmutable::now($timezone)->toDateString(),
             ] : null,
+            // Every business the user belongs to; switch-business moves to another.
+            'businesses' => $user->teams()->orderBy('name')->get()
+                ->map(fn (Team $business): array => [
+                    'id' => $business->id,
+                    'name' => $business->name,
+                    'role' => $user->teamRole($business)?->value,
+                    'current' => $business->id === $team?->id,
+                ])
+                ->all(),
             'ready' => $blocker === null,
             'blocker' => $blocker,
         ]);

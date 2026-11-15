@@ -4,8 +4,11 @@ namespace App\Providers;
 
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -62,6 +65,11 @@ class AppServiceProvider extends ServiceProvider
 
         Passport::tokensExpireIn(CarbonInterval::day());
         Passport::refreshTokensExpireIn(CarbonInterval::days(90));
+
+        // Per connected user on /mcp: generous for a conversation (an assistant
+        // may chain several tool calls per answer), low enough to stop a runaway loop.
+        RateLimiter::for('mcp', fn (Request $request): Limit => Limit::perMinute(120)
+            ->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
     }
 
     /**

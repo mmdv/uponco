@@ -17,7 +17,7 @@ test('get-account returns the user and their current business in its timezone', 
     UponcoServer::actingAs($user)
         ->tool(GetAccountTool::class)
         ->assertOk()
-        ->assertStructuredContent([
+        ->assertStructuredContent(fn ($json) => $json->whereAll([
             'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
             'business' => [
                 'id' => $team->id,
@@ -28,7 +28,7 @@ test('get-account returns the user and their current business in its timezone', 
             ],
             'ready' => true,
             'blocker' => null,
-        ]);
+        ])->etc());
 });
 
 test('get-account is not ready until the email is verified', function () {
@@ -82,5 +82,21 @@ test('get-account falls back to another business when the current one is gone', 
         ->assertStructuredContent(fn ($json) => $json
             ->where('business.id', $remainingTeam->id)
             ->where('ready', true)
+            ->etc());
+});
+
+test('get-account lists every business the user belongs to', function () {
+    $user = User::factory()->create();
+    $current = $user->currentTeam;
+    $other = Team::factory()->create(['name' => 'Second Studio']);
+    $other->members()->attach($user, ['role' => TeamRole::Member->value]);
+
+    UponcoServer::actingAs($user)
+        ->tool(GetAccountTool::class)
+        ->assertOk()
+        ->assertStructuredContent(fn ($json) => $json
+            ->has('businesses', 2)
+            ->where('businesses', fn ($businesses) => collect($businesses)->firstWhere('id', $current->id)['current'] === true
+                && collect($businesses)->firstWhere('id', $other->id) === ['id' => $other->id, 'name' => 'Second Studio', 'role' => 'member', 'current' => false])
             ->etc());
 });

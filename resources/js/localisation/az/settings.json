@@ -76,7 +76,20 @@
         "notConnected": "Qoşulmayıb",
         "connectedHint": "Sizə təyin edilmiş onlayn rezervasiyalara qoşulduqdan sonra Meet linki əlavə olunacaq.",
         "connect": "Google-a qoşul",
-        "disconnect": "Ayır"
+        "disconnect": "Ayır",
+        "aiAssistantsTitle": "Süni intellekt köməkçiləri",
+        "aiAssistantsDescription": "Claude və ya ChatGPT-ni Uponco hesabınıza qoşun: söhbət edərək görüşləri yoxlayın, boş vaxt tapın, rezervasiya edin, vaxtı dəyişin və iş saatlarını idarə edin.",
+        "aiServerUrl": "Server ünvanı",
+        "aiCopy": "Kopyala",
+        "aiCopied": "Kopyalandı",
+        "aiStepsTitle": "Necə qoşulmaq olar",
+        "aiStepClaude": "Claude: Settings → Connectors → Add custom connector. Server ünvanını yapışdırın, sonra Uponco-ya daxil olub \"Connect\" düyməsini basın.",
+        "aiStepChatGpt": "ChatGPT: developer mode-u aktiv edin, server ünvanı ilə custom connector (MCP) əlavə edin, sonra Uponco-ya daxil olub \"Connect\" düyməsini basın.",
+        "aiStepNote": "Köməkçi cari biznesinizdə sizinlə eyni icazələrə malik olur və nəyisə dəyişməzdən əvvəl soruşur.",
+        "aiConnectedTitle": "Qoşulmuş tətbiqlər",
+        "aiNoneConnected": "Hələ heç bir süni intellekt köməkçisi qoşulmayıb.",
+        "aiLastActive": "Son aktivlik: {date}",
+        "aiDisconnect": "Ayır"
     },
     "security": {
         "title": "Şifrəni yenilə",

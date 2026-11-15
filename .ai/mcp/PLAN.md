@@ -64,7 +64,7 @@ days off, by chatting. Progress is tracked in `PROGRESS.md` next to this file.
 - "AI assistants" section on Settings → Integrations: server URL, connect steps
   for Claude and ChatGPT, list of connected apps, revoke.
 - Rate limit on `/mcp` and a log of write actions.
-- `switch-team` tool for users in more than one team.
+- `switch-team` tool for users in more than one team (shipped as `switch-business`).
 
 ## Phase 5 — Later
 

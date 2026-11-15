@@ -15,13 +15,14 @@ use App\Mcp\Tools\RescheduleAppointmentTool;
 use App\Mcp\Tools\SearchCustomersTool;
 use App\Mcp\Tools\SetDayOffTool;
 use App\Mcp\Tools\SetWorkingHoursTool;
+use App\Mcp\Tools\SwitchBusinessTool;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Uponco')]
-#[Version('0.3.0')]
+#[Version('0.4.0')]
 #[Instructions(<<<'MARKDOWN'
     Uponco is appointment booking software. This server acts for the connected
     user inside their current business, with the same permissions they have in
@@ -30,7 +31,9 @@ use Laravel\Mcp\Server\Attributes\Version;
     Call `get-account` first. It tells you who is connected, the business
     timezone and today's date there. Every date and time you send or receive is
     in that timezone. If it reports `ready: false`, tell the user what the
-    `blocker` says and stop.
+    `blocker` says and stop. When the user belongs to several businesses
+    (`businesses`), make sure you are in the one they mean; `switch-business`
+    changes it.
 
     Users name services, specialists and customers; the tools take ids. Get
     service, location and specialist ids from `get-business-overview` and
@@ -63,6 +66,7 @@ class UponcoServer extends Server
         MarkNoShowTool::class,
         SetWorkingHoursTool::class,
         SetDayOffTool::class,
+        SwitchBusinessTool::class,
     ];
 
     protected array $resources = [

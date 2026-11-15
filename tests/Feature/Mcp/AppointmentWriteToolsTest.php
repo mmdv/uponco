@@ -12,6 +12,7 @@ use App\Models\Customer;
 use App\Models\Service;
 use App\Notifications\Appointments\AppointmentBooked;
 use App\Notifications\Appointments\AppointmentCancelled;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -169,4 +170,25 @@ test('mark-no-show marks and unmarks past appointments only', function () {
     UponcoServer::actingAs($setup['user'])
         ->tool(MarkNoShowTool::class, ['appointment_id' => $upcoming->id])
         ->assertHasErrors(['Only past appointments can be marked as a no-show.']);
+});
+
+test('changes made through an assistant are logged without customer details', function () {
+    Notification::fake();
+    Log::spy();
+    $setup = bookableSetup();
+
+    UponcoServer::actingAs($setup['user'])
+        ->tool(BookAppointmentTool::class, bookingArguments($setup))
+        ->assertOk();
+
+    UponcoServer::actingAs($setup['user'])
+        ->tool(CancelAppointmentTool::class, ['appointment_id' => 999999])
+        ->assertHasErrors();
+
+    Log::shouldHaveReceived('info')->once()->with('MCP write action', Mockery::on(fn (array $context): bool => $context['tool'] === 'book-appointment'
+        && $context['user_id'] === $setup['user']->id
+        && $context['team_id'] === $setup['team']->id
+        && $context['appointment_id'] === Appointment::latest('id')->value('id')
+        && ! array_key_exists('customer_email', $context['arguments'])
+        && $context['arguments']['service_id'] === $setup['service']->id));
 });

@@ -27,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('appointments:send-reminders')
             ->everyMinute()
             ->withoutOverlapping();
+
+        // Drop expired and revoked OAuth tokens and codes left by AI assistant
+        // connections (routes/ai.php) so the oauth_* tables do not grow forever.
+        $schedule->command('passport:purge')->daily();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'locale']);

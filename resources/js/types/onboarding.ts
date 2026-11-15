@@ -26,6 +26,18 @@ export type GoogleIntegrationStatus = {
     email: string | null;
 };
 
+/** The AI assistants (Claude, ChatGPT, …) connected to the user's account through the MCP server. */
+export type AiAssistantsStatus = {
+    /** The address assistants connect to (`/mcp`). */
+    serverUrl: string;
+    connected: {
+        /** One of the app's OAuth clients; disconnecting revokes all of them. */
+        client_id: string;
+        name: string;
+        last_active_at: string;
+    }[];
+};
+
 export type Onboarding = {
     /** Every step is resolved; only the closing screen is left to show. */
     completed: boolean;

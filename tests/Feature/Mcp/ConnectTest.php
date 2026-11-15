@@ -166,5 +166,14 @@ test('a connected assistant can list every uponco tool', function () {
         'search-customers',
         'set-day-off',
         'set-working-hours',
+        'switch-business',
     ]);
+});
+
+test('the mcp server is rate limited per user', function () {
+    Passport::actingAs(User::factory()->create(), ['mcp:use']);
+
+    $this->postJson('/mcp', getAccountCall())
+        ->assertOk()
+        ->assertHeader('X-RateLimit-Limit', 120);
 });

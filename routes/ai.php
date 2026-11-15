@@ -14,7 +14,8 @@ Route::middleware('throttle:60,1')->group(function (): void {
 
 // The Uponco MCP server. Passport's `api` guard resolves the user from the
 // OAuth access token; account gates (verified email, team, onboarding) are
-// checked inside the tools — see App\Mcp\AccountReadiness.
+// checked inside the tools — see App\Mcp\AccountReadiness. Rate limited per
+// user by the `mcp` limiter (AppServiceProvider::configurePassport).
 Mcp::web('/mcp', UponcoServer::class)
-    ->middleware('auth:api')
+    ->middleware(['auth:api', 'throttle:mcp'])
     ->name('mcp.uponco');

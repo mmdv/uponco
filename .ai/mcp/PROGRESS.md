@@ -6,9 +6,9 @@ Status keys: `[ ]` not started · `[~]` in progress · `[x]` done and tested · 
 
 ## Current state
 
-- **Phase:** 3 — Write tools (code done and tested; not deployed yet)
-- **Next task:** Deploy, start a new Claude chat and try booking, rescheduling, cancelling and a day off on a test business. Then Phase 4 (Settings → Integrations, rate limit, write log).
-- **Last session:** 2026-11-15 — Phase 3 built: six write tools, `FormRequestBridge`, `AppointmentSource::Assistant`, tests. Phase 2 deployed and used from Claude.
+- **Phase:** 4 — Product surface (code done and tested; settings section checked in the browser 2026-11-15: light desktop, dark phone, disconnect; not deployed yet)
+- **Next task:** Deploy (the scheduler must run for `passport:purge`), check Settings → Integrations → AI assistants, connect ChatGPT. Then Phase 5.
+- **Last session:** 2026-11-15 — Phase 4 built: AI assistants section with disconnect, `/mcp` rate limit, write-action log, `switch-business`, daily `passport:purge`. Phase 3 deployed.
 
 ## Phase 1 — Foundation and connect flow
 
@@ -50,10 +50,11 @@ Tests: `tests/Feature/Mcp/AppointmentWriteToolsTest.php`, `WorkingHoursToolsTest
 
 ## Phase 4 — Product surface
 
-- [ ] "AI assistants" section on Settings → Integrations (URL, steps, connected apps, revoke)
-- [ ] Rate limit on `/mcp`
-- [ ] Log of write actions
-- [ ] `switch-team` tool
+- [x] "AI assistants" section on Settings → Integrations — server URL with copy button, Claude/ChatGPT steps, connected apps (grouped by app name, last active) with Disconnect. `App\Mcp\ConnectedAssistants`, `Settings\AiAssistantController@destroy` (route `integrations.ai-assistants.destroy`), `components/integrations/ai-assistants-card.tsx`. Tests: `tests/Feature/Integrations/AiAssistantsTest.php`
+- [x] Rate limit on `/mcp` — `throttle:mcp`, 120 requests/minute per user (`AppServiceProvider::configurePassport`)
+- [x] Log of write actions — `BusinessTool` logs every successful non-read-only tool call to the app log as "MCP write action" (tool, user, team, OAuth client, arguments without customer details/notes, appointment id)
+- [x] `switch-team` tool — shipped as `switch-business`; `get-account` now lists `businesses`
+- [x] `passport:purge` scheduled daily (`bootstrap/app.php`)
 
 ## Phase 5 — Later
 
@@ -72,6 +73,9 @@ Tests: `tests/Feature/Mcp/AppointmentWriteToolsTest.php`, `WorkingHoursToolsTest
 - 2026-11-15 — Any redirect domain may register (`mcp.redirect_domains` default `*`); tighten in Phase 4 if wanted.
 - 2026-11-15 — Business tools extend `BusinessTool`, which runs `AccountReadiness` before `handleForBusiness()`, so a new tool cannot forget the gates.
 - 2026-11-15 — AI bookings are stored with `source = assistant` (`AppointmentSource::Assistant`, label "AI assistant") so they can be counted. The column is a string, so no migration; the web shows them like staff bookings (only `public` gets the green tint).
+- 2026-11-15 — The switch tool is named `switch-business` (users and the assistant talk about businesses, not teams). It changes the user's current team, so the web app switches too, like the mobile app's switcher.
+- 2026-11-15 — Write actions go to the default log, not a separate file: production runs in containers where a local log file would be lost.
+- 2026-11-15 — Assistants register a new OAuth client on every connect, so Settings groups connections by client name and Disconnect revokes all of that app's tokens.
 - 2026-11-15 — Write tools take `date` + `time` in the business timezone (not ISO instants), so the assistant cannot get the UTC offset wrong.
 - 2026-11-15 — Permission failures return a tool error the assistant can relay ("You can only see your own …"); appointments the user may not see return "Appointment not found." so their existence does not leak.
 
@@ -80,4 +84,5 @@ Tests: `tests/Feature/Mcp/AppointmentWriteToolsTest.php`, `WorkingHoursToolsTest
 - Run `php artisan migrate` (five `oauth_*` tables).
 - Passport keys: run `php artisan passport:keys` once on the server, or set `PASSPORT_PRIVATE_KEY` / `PASSPORT_PUBLIC_KEY` in the environment. `storage/*.key` is git-ignored.
 - The app must be served from the domain root: OAuth discovery is at `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource/mcp`.
-- Schedule `passport:purge` (not done yet — add in Phase 4).
+- `passport:purge` runs daily from the scheduler — make sure `schedule:run` runs on the server.
+- MCP write actions are in the normal application log, tagged "MCP write action".

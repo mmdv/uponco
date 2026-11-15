@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Mcp\ConnectedAssistants;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -40,6 +41,10 @@ class GoogleIntegrationController extends Controller
             'google' => [
                 'connected' => $user->hasGoogleConnected(),
                 'email' => $user->google_account_email,
+            ],
+            'aiAssistants' => [
+                'serverUrl' => route('mcp.uponco'),
+                'connected' => ConnectedAssistants::for($user),
             ],
         ]);
     }
