@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Actions\Teams\UpdateBusinessSettings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\SaveBookingDesignRequest;
 use App\Http\Requests\Company\SaveBrandRequest;
@@ -13,7 +14,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -55,17 +55,9 @@ class BrandController extends Controller
      * An empty colour clears the choice, which puts the team back on the
      * platform default rather than storing the default explicitly.
      */
-    public function update(SaveBrandRequest $request): RedirectResponse
+    public function update(SaveBrandRequest $request, UpdateBusinessSettings $settings): RedirectResponse
     {
-        $team = $request->user()->currentTeam;
-
-        $color = BrandPalette::normalise($request->validated('brand_primary_color'));
-
-        DB::transaction(function () use ($team, $color): void {
-            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
-
-            $locked->update(['brand_primary_color' => $color]);
-        });
+        $settings->brandColor($request->user()->currentTeam, $request->validated('brand_primary_color'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Brand updated.')]);
 
@@ -119,23 +111,9 @@ class BrandController extends Controller
     /**
      * Store or replace the current team's logo.
      */
-    public function updateLogo(SaveTeamLogoRequest $request): RedirectResponse
+    public function updateLogo(SaveTeamLogoRequest $request, UpdateBusinessSettings $settings): RedirectResponse
     {
-        $team = $request->user()->currentTeam;
-
-        $path = $request->file('logo')->store('team-logos', 'public');
-
-        DB::transaction(function () use ($team, $path): void {
-            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
-
-            $previousPath = $locked->logo_path;
-
-            $locked->update(['logo_path' => $path]);
-
-            if ($previousPath && $previousPath !== $path) {
-                Storage::disk('public')->delete($previousPath);
-            }
-        });
+        $settings->storeLogo($request->user()->currentTeam, $request->file('logo'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Logo updated.')]);
 
@@ -145,23 +123,13 @@ class BrandController extends Controller
     /**
      * Remove the current team's logo.
      */
-    public function destroyLogo(Request $request): RedirectResponse
+    public function destroyLogo(Request $request, UpdateBusinessSettings $settings): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
         Gate::authorize('update', $team);
 
-        DB::transaction(function () use ($team): void {
-            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
-
-            $previousPath = $locked->logo_path;
-
-            $locked->update(['logo_path' => null]);
-
-            if ($previousPath) {
-                Storage::disk('public')->delete($previousPath);
-            }
-        });
+        $settings->removeLogo($team);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Logo removed.')]);
 

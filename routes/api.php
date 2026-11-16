@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\TeamRole;
+use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthTokenController;
+use App\Http\Controllers\Api\V1\BusinessController;
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\CurrentTeamController;
 use App\Http\Controllers\Api\V1\CustomerController;
@@ -57,6 +59,22 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
         Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 
+        Route::get('me/profile', [AccountController::class, 'profile'])->name('me.profile');
+        Route::patch('me/profile', [AccountController::class, 'updateProfile'])->name('me.profile.update');
+        Route::post('me/avatar', [AccountController::class, 'updateAvatar'])->name('me.avatar.update');
+        Route::delete('me/avatar', [AccountController::class, 'destroyAvatar'])->name('me.avatar.destroy');
+
+        // Same gates as the web security page: verified, throttled, and the
+        // current password in the body (AccountUpdateRequest/PasswordUpdateRequest).
+        Route::middleware('verified')->group(function () {
+            Route::patch('me/email', [AccountController::class, 'updateEmail'])->middleware('throttle:6,1')->name('me.email.update');
+            Route::put('me/password', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('me.password.update');
+            Route::get('me/deletion', [AccountController::class, 'deletion'])->name('me.deletion');
+            Route::delete('me', [AccountController::class, 'destroy'])->middleware('throttle:6,1')->name('me.destroy');
+            Route::get('me/integrations', [AccountController::class, 'integrations'])->name('me.integrations');
+            Route::delete('me/integrations/google', [AccountController::class, 'disconnectGoogle'])->name('me.integrations.google.destroy');
+        });
+
         Route::put('me/push-token', [PushTokenController::class, 'store'])->name('me.push-token.store');
         Route::delete('me/push-token', [PushTokenController::class, 'destroy'])->name('me.push-token.destroy');
 
@@ -105,6 +123,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             // Business management (the app's Manage tab): owners and admins only,
             // same as the web company pages.
             Route::middleware(EnsureTeamMembership::class.':'.TeamRole::Admin->value)->group(function () {
+                Route::get('business', [BusinessController::class, 'show'])->name('business.show');
+                Route::patch('business', [BusinessController::class, 'update'])->name('business.update');
+                Route::patch('business/brand', [BusinessController::class, 'updateBrand'])->name('business.brand.update');
+                Route::post('business/logo', [BusinessController::class, 'updateLogo'])->name('business.logo.update');
+                Route::delete('business/logo', [BusinessController::class, 'destroyLogo'])->name('business.logo.destroy');
+
                 Route::get('members', [MemberController::class, 'index'])->name('members.index');
                 Route::post('members', [MemberController::class, 'store'])->name('members.store');
                 Route::get('members/{user}', [MemberController::class, 'show'])->whereNumber('user')->name('members.show');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Company;
 
 use App\Actions\Teams\DeleteTeam;
+use App\Actions\Teams\UpdateBusinessSettings;
 use App\Enums\BusinessCategory;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
@@ -13,7 +14,6 @@ use App\Models\User;
 use App\Support\LocationOptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,19 +42,13 @@ class BusinessController extends Controller
     /**
      * Update the current team's name.
      */
-    public function update(SaveTeamRequest $request): RedirectResponse
+    public function update(SaveTeamRequest $request, UpdateBusinessSettings $settings): RedirectResponse
     {
         $team = $request->user()->currentTeam;
 
         Gate::authorize('update', $team);
 
-        DB::transaction(function () use ($request, $team): void {
-            $locked = Team::whereKey($team->id)->lockForUpdate()->firstOrFail();
-
-            $locked->update($request->validated());
-        });
-
-        $team->refresh();
+        $settings->details($team, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Team updated.')]);
 

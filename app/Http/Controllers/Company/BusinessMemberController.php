@@ -7,6 +7,7 @@ use App\Actions\Teams\RemoveTeamMember;
 use App\Actions\Teams\SyncMemberAssignments;
 use App\Actions\Teams\UpdateMemberAccount;
 use App\Actions\Teams\UpdateMemberProfile;
+use App\Actions\Users\ManageAvatar;
 use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
@@ -29,7 +30,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -244,19 +244,11 @@ class BusinessMemberController extends Controller
     /**
      * Store or replace the member's profile picture.
      */
-    public function updateAvatar(AvatarUpdateRequest $request, User $user): RedirectResponse
+    public function updateAvatar(AvatarUpdateRequest $request, User $user, ManageAvatar $manageAvatar): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
-        $previousPath = $user->avatar_path;
-
-        $path = $request->file('avatar')->store('avatars', 'public');
-
-        $user->update(['avatar_path' => $path]);
-
-        if ($previousPath && $previousPath !== $path) {
-            Storage::disk('public')->delete($previousPath);
-        }
+        $manageAvatar->store($user, $request->file('avatar'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile picture updated.')]);
 
@@ -266,17 +258,11 @@ class BusinessMemberController extends Controller
     /**
      * Remove the member's profile picture.
      */
-    public function destroyAvatar(Request $request, User $user): RedirectResponse
+    public function destroyAvatar(Request $request, User $user, ManageAvatar $manageAvatar): RedirectResponse
     {
         $this->authorizeMember($request, $user);
 
-        $previousPath = $user->avatar_path;
-
-        $user->update(['avatar_path' => null]);
-
-        if ($previousPath) {
-            Storage::disk('public')->delete($previousPath);
-        }
+        $manageAvatar->remove($user);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile picture removed.')]);
 
