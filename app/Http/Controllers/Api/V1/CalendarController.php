@@ -14,6 +14,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use App\Support\Appointments\AppointmentAccess;
 use App\Support\Appointments\AppointmentOptions;
+use App\Support\ScheduleSlotMap;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -86,6 +87,14 @@ class CalendarController extends Controller
                         ->all()
                     : [],
                 'appointments' => $appointments,
+                // Each specialist's working windows per day, for the day view's
+                // columns and shading (same source as the web day view).
+                'working_hours' => ScheduleSlotMap::forTeamBetween(
+                    $team,
+                    $from->format('Y-m-d'),
+                    $to->format('Y-m-d'),
+                    $specialistId,
+                ),
             ],
         ]);
     }

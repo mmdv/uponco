@@ -3,6 +3,7 @@
 use App\Enums\AppointmentStatus;
 use App\Enums\TeamRole;
 use App\Models\Appointment;
+use App\Models\ScheduleSlot;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\Appointments\AppointmentCancelled;
@@ -65,6 +66,25 @@ test('owners see the team\'s bookings and no-shows in the range, never cancelled
         ->assertJsonCount(2, 'data.appointments')
         ->assertJsonPath('data.appointments.0.id', $noShow->id)
         ->assertJsonPath('data.appointments.1.id', $booked->id);
+});
+
+test('working hours come with the range, per day and specialist, and members see only their own', function () {
+    ['team' => $team, 'owner' => $owner, 'member' => $member] = apiCalendarTeam();
+    ScheduleSlot::factory()->for($owner)->create(['team_id' => $team->id, 'date' => '2026-11-10', 'start_time' => '09:00', 'end_time' => '13:00']);
+    ScheduleSlot::factory()->for($member)->create(['team_id' => $team->id, 'date' => '2026-11-10', 'start_time' => '14:00', 'end_time' => '18:00']);
+    Sanctum::actingAs($owner);
+
+    $this->getJson(route('api.v1.calendar.index', ['from' => '2026-11-09', 'to' => '2026-11-11']))
+        ->assertOk()
+        ->assertJsonPath('data.working_hours.2026-11-09', [])
+        ->assertJsonPath("data.working_hours.2026-11-10.{$owner->id}", [['start' => '09:00', 'end' => '13:00']])
+        ->assertJsonPath("data.working_hours.2026-11-10.{$member->id}", [['start' => '14:00', 'end' => '18:00']]);
+
+    Sanctum::actingAs($member);
+
+    $this->getJson(route('api.v1.calendar.index', ['from' => '2026-11-10', 'to' => '2026-11-10']))
+        ->assertJsonPath("data.working_hours.2026-11-10.{$member->id}", [['start' => '14:00', 'end' => '18:00']])
+        ->assertJsonMissingPath("data.working_hours.2026-11-10.{$owner->id}");
 });
 
 test('the range is read in the team timezone', function () {
