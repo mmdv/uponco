@@ -172,3 +172,24 @@ test('address suggestions use the same lookup as the web', function () {
         ->assertOk()
         ->assertJsonPath('suggestions.0.place_id', 'ChIJabc');
 });
+
+test('an owner deletes a location (soft delete); another team\'s is not found', function () {
+    $owner = User::factory()->create();
+    $location = Location::factory()->create(['team_id' => $owner->currentTeam->id]);
+    $foreign = Location::factory()->create();
+    Sanctum::actingAs($owner);
+
+    $this->deleteJson(route('api.v1.locations.destroy', $foreign->id))->assertNotFound();
+    $this->deleteJson(route('api.v1.locations.destroy', $location->id))->assertNoContent();
+
+    expect($location->fresh()->trashed())->toBeTrue()
+        ->and($foreign->fresh()->trashed())->toBeFalse();
+});
+
+test('members cannot delete locations', function () {
+    $owner = User::factory()->create();
+    $location = Location::factory()->create(['team_id' => $owner->currentTeam->id]);
+    Sanctum::actingAs(apiLocationMember($owner));
+
+    $this->deleteJson(route('api.v1.locations.destroy', $location->id))->assertForbidden();
+});

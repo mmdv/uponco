@@ -198,3 +198,33 @@ test('a category can be created from the service form, unique per team', functio
 
     expect(ServiceCategory::where('team_id', $owner->currentTeam->id)->count())->toBe(1);
 });
+
+test('a category can be renamed, unique per team, and deleting it keeps its services', function () {
+    $owner = User::factory()->create();
+    $team = $owner->currentTeam;
+    $hair = ServiceCategory::factory()->create(['team_id' => $team->id, 'name' => 'Hair']);
+    ServiceCategory::factory()->create(['team_id' => $team->id, 'name' => 'Nails']);
+    $service = Service::factory()->create(['team_id' => $team->id, 'service_category_id' => $hair->id]);
+    Sanctum::actingAs($owner);
+
+    $this->patchJson(route('api.v1.service-categories.update', $hair), ['name' => 'Nails'])
+        ->assertJsonValidationErrors('name');
+    $this->patchJson(route('api.v1.service-categories.update', $hair), ['name' => 'Haircuts'])
+        ->assertOk()
+        ->assertJsonPath('data.label', 'Haircuts');
+
+    $this->deleteJson(route('api.v1.service-categories.destroy', $hair))->assertNoContent();
+
+    expect($hair->fresh()->trashed())->toBeTrue()
+        ->and($service->fresh()->service_category_id)->toBeNull()
+        ->and($service->fresh()->trashed())->toBeFalse();
+});
+
+test('another team\'s category cannot be renamed or deleted', function () {
+    $owner = User::factory()->create();
+    $foreign = ServiceCategory::factory()->create(['name' => 'Theirs']);
+    Sanctum::actingAs($owner);
+
+    $this->patchJson(route('api.v1.service-categories.update', $foreign), ['name' => 'Mine'])->assertNotFound();
+    $this->deleteJson(route('api.v1.service-categories.destroy', $foreign))->assertNotFound();
+});

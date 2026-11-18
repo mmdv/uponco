@@ -58,6 +58,16 @@ class LocationController extends Controller
      * Look the location up within the current team only, so another team's
      * location is a 404 (its existence is not revealed).
      */
+    /**
+     * LOC-3: delete a location (soft delete, as on the web).
+     */
+    public function destroy(Request $request, int $location): Response
+    {
+        $this->findOnCurrentTeam($request, $location)->delete();
+
+        return response()->noContent();
+    }
+
     protected function findOnCurrentTeam(Request $request, int $location): Location
     {
         return $request->user()->currentTeam->locations()->findOrFail($location);

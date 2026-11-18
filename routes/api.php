@@ -139,6 +139,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
                 Route::put('members/{user}/services', [MemberController::class, 'updateServices'])->whereNumber('user')->name('members.services.update');
                 Route::put('members/{user}/locations', [MemberController::class, 'updateLocations'])->whereNumber('user')->name('members.locations.update');
                 Route::delete('members/{user}', [MemberController::class, 'destroy'])->whereNumber('user')->name('members.destroy');
+                Route::post('members/{user}/avatar', [MemberController::class, 'updateAvatar'])->whereNumber('user')->name('members.avatar.update');
+                Route::delete('members/{user}/avatar', [MemberController::class, 'destroyAvatar'])->whereNumber('user')->name('members.avatar.destroy');
+                Route::post('business/owner', [MemberController::class, 'transferOwnership'])->name('business.owner.transfer');
 
                 Route::post('invitations', [InvitationController::class, 'store'])->name('invitations.store');
                 Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
@@ -159,9 +162,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
                 Route::patch('locations/{location}', [LocationController::class, 'update'])
                     ->whereNumber('location')
                     ->name('locations.update');
+                Route::delete('locations/{location}', [LocationController::class, 'destroy'])
+                    ->whereNumber('location')
+                    ->name('locations.destroy');
 
                 Route::get('services/options', ServiceOptionsController::class)->name('services.options');
                 Route::post('service-categories', [ServiceCategoryController::class, 'store'])->name('service-categories.store');
+                Route::patch('service-categories/{serviceCategory}', [ServiceCategoryController::class, 'update'])->name('service-categories.update');
+                Route::delete('service-categories/{serviceCategory}', [ServiceCategoryController::class, 'destroy'])->name('service-categories.destroy');
 
                 Route::get('services', [ServiceController::class, 'index'])->name('services.index');
                 Route::post('services', [ServiceController::class, 'store'])->name('services.store');

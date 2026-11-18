@@ -9,7 +9,9 @@ use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Notifications\Teams\TeamInvitation as TeamInvitationNotification;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 
 /**
@@ -92,7 +94,7 @@ test('a member\'s detail lists the team\'s services and locations with theirs ti
         ->assertJsonPath('data.locations.0.id', $location->id)
         ->assertJsonPath('data.location_ids', [])
         ->assertJsonPath('data.grantable_permissions', [TeamPermission::ViewAllAppointments->value])
-        ->assertJsonPath('data.can', ['change_role' => true, 'remove' => false]);
+        ->assertJsonPath('data.can', ['change_role' => true, 'remove' => false, 'make_owner' => false]);
 });
 
 test('role, profile, login email, permissions and assignments can be changed', function () {
@@ -209,4 +211,48 @@ test('another team\'s invitation cannot be cancelled', function () {
 test('member endpoints require a token', function () {
     $this->getJson(route('api.v1.members.index'))->assertUnauthorized();
     $this->postJson(route('api.v1.invitations.store'))->assertUnauthorized();
+});
+
+test('an admin sets and removes a member\'s photo, but not the owner\'s', function () {
+    Storage::fake('public');
+    $setup = apiMembersTeam();
+    Sanctum::actingAs($setup['admin']);
+
+    $this->postJson(route('api.v1.members.avatar.update', $setup['member']), ['avatar' => UploadedFile::fake()->image('a.png', 300, 200)])
+        ->assertJsonValidationErrors('avatar');
+    $this->postJson(route('api.v1.members.avatar.update', $setup['member']), ['avatar' => UploadedFile::fake()->image('a.png', 200, 200)])
+        ->assertOk();
+
+    $path = $setup['member']->fresh()->avatar_path;
+    Storage::disk('public')->assertExists($path);
+
+    $this->deleteJson(route('api.v1.members.avatar.destroy', $setup['member']))->assertOk()->assertJsonPath('data.avatar', null);
+    Storage::disk('public')->assertMissing($path);
+
+    $this->postJson(route('api.v1.members.avatar.update', $setup['owner']), ['avatar' => UploadedFile::fake()->image('a.png', 200, 200)])
+        ->assertForbidden();
+});
+
+test('the owner transfers ownership with their password and becomes an admin', function () {
+    $setup = apiMembersTeam();
+    $setup['owner']->update(['password' => 'password']);
+    Sanctum::actingAs($setup['owner']);
+
+    $this->getJson(route('api.v1.members.show', $setup['member']))->assertJsonPath('data.can.make_owner', true);
+
+    $this->postJson(route('api.v1.business.owner.transfer'), ['user_id' => $setup['member']->id, 'password' => 'wrong'])
+        ->assertJsonValidationErrors('password');
+    $this->postJson(route('api.v1.business.owner.transfer'), ['user_id' => $setup['member']->id, 'password' => 'password'])
+        ->assertNoContent();
+
+    expect($setup['team']->fresh()->owner()->is($setup['member']))->toBeTrue()
+        ->and($setup['owner']->fresh()->teamRole($setup['team']))->toBe(TeamRole::Admin);
+});
+
+test('only the owner can transfer ownership', function () {
+    $setup = apiMembersTeam();
+    Sanctum::actingAs($setup['admin']);
+
+    $this->getJson(route('api.v1.members.show', $setup['member']))->assertJsonPath('data.can.make_owner', false);
+    $this->postJson(route('api.v1.business.owner.transfer'), ['user_id' => $setup['member']->id])->assertForbidden();
 });

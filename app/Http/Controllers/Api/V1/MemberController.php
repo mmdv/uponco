@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Teams\AddTeamMember;
 use App\Actions\Teams\RemoveTeamMember;
 use App\Actions\Teams\SyncMemberAssignments;
+use App\Actions\Teams\TransferOwnership;
 use App\Actions\Teams\UpdateMemberAccount;
 use App\Actions\Teams\UpdateMemberProfile;
+use App\Actions\Users\ManageAvatar;
 use App\Enums\TeamPermission;
 use App\Enums\TeamRole;
 use App\Http\Controllers\Controller;
@@ -16,6 +18,8 @@ use App\Http\Requests\Company\SyncMemberServicesRequest;
 use App\Http\Requests\Company\UpdateBusinessMemberAccountRequest;
 use App\Http\Requests\Company\UpdateBusinessMemberProfileRequest;
 use App\Http\Requests\Company\UpdateMemberPermissionsRequest;
+use App\Http\Requests\Settings\AvatarUpdateRequest;
+use App\Http\Requests\Teams\TransferTeamOwnershipRequest;
 use App\Http\Requests\Teams\UpdateTeamMemberRequest;
 use App\Models\Location;
 use App\Models\Service;
@@ -204,6 +208,40 @@ class MemberController extends Controller
     }
 
     /**
+     * A member's photo (square JPEG/PNG/WebP up to 2 MB).
+     */
+    public function updateAvatar(AvatarUpdateRequest $request, User $user, ManageAvatar $manageAvatar): JsonResponse
+    {
+        $team = MemberAccess::authorize($request->user(), $user);
+
+        $manageAvatar->store($user, $request->file('avatar'));
+
+        return response()->json(['data' => $this->detail($request->user(), $team, $user->refresh())]);
+    }
+
+    public function destroyAvatar(Request $request, User $user, ManageAvatar $manageAvatar): JsonResponse
+    {
+        $team = MemberAccess::authorize($request->user(), $user);
+
+        $manageAvatar->remove($user);
+
+        return response()->json(['data' => $this->detail($request->user(), $team, $user->refresh())]);
+    }
+
+    /**
+     * TEAM-9: the owner hands the business to another member (current
+     * password required when the account has one) and becomes an admin.
+     */
+    public function transferOwnership(TransferTeamOwnershipRequest $request, TransferOwnership $transferOwnership): Response
+    {
+        $actor = $request->user();
+
+        $transferOwnership->handle($actor->currentTeam, $actor, $request->newOwner());
+
+        return response()->noContent();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function detail(User $actor, Team $team, User $member): array
@@ -261,6 +299,7 @@ class MemberController extends Controller
             'can' => [
                 'change_role' => ! $isOwner,
                 'remove' => ! $isOwner && $actor->hasTeamPermission($team, TeamPermission::RemoveMember),
+                'make_owner' => ! $isOwner && $actor->ownsTeam($team),
             ],
         ];
     }
