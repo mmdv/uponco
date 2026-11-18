@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EmailVerificationNotificationController;
 use App\Http\Controllers\Api\V1\GoogleTokenController;
+use App\Http\Controllers\Api\V1\InvitationAcceptanceController;
 use App\Http\Controllers\Api\V1\InvitationController;
 use App\Http\Controllers\Api\V1\LegalConsentController;
 use App\Http\Controllers\Api\V1\LocationController;
@@ -51,6 +52,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('me', MeController::class)->name('me');
         Route::put('me/current-team', [CurrentTeamController::class, 'update'])->name('me.current-team.update');
         Route::post('me/legal-consent', [LegalConsentController::class, 'store'])->name('me.legal-consent.store');
+
+        // AUTH-10: open from the invitation email; no team or verified email
+        // needed yet — accepting is what adds both (as on the web).
+        Route::get('invitations/{invitation}', [InvitationAcceptanceController::class, 'show'])
+            ->middleware('throttle:10,1')
+            ->name('invitations.show');
+        Route::post('invitations/{invitation}/accept', [InvitationAcceptanceController::class, 'store'])
+            ->middleware('throttle:10,1')
+            ->name('invitations.accept');
 
         Route::get('schedule/members', [ScheduleController::class, 'members'])->name('schedule.members');
         Route::get('schedule/{member}', [ScheduleController::class, 'show'])->whereNumber('member')->name('schedule.show');
