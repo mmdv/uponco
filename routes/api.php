@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\InvitationController;
 use App\Http\Controllers\Api\V1\LegalConsentController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\LocationOptionsController;
+use App\Http\Controllers\Api\V1\ManageController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\NotificationController;
@@ -123,6 +124,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             // Business management (the app's Manage tab): owners and admins only,
             // same as the web company pages.
             Route::middleware(EnsureTeamMembership::class.':'.TeamRole::Admin->value)->group(function () {
+                Route::get('manage', [ManageController::class, 'show'])->name('manage.show');
                 Route::get('business', [BusinessController::class, 'show'])->name('business.show');
                 Route::patch('business', [BusinessController::class, 'update'])->name('business.update');
                 Route::patch('business/brand', [BusinessController::class, 'updateBrand'])->name('business.brand.update');
