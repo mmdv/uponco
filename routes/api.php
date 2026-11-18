@@ -2,6 +2,7 @@
 
 use App\Enums\TeamRole;
 use App\Http\Controllers\Api\V1\AccountController;
+use App\Http\Controllers\Api\V1\AppleTokenController;
 use App\Http\Controllers\Api\V1\AuthTokenController;
 use App\Http\Controllers\Api\V1\BusinessController;
 use App\Http\Controllers\Api\V1\CalendarController;
@@ -37,6 +38,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('auth/google', [GoogleTokenController::class, 'store'])
         ->middleware('throttle:login')
         ->name('auth.google.store');
+
+    Route::post('auth/apple', [AppleTokenController::class, 'store'])
+        ->middleware('throttle:login')
+        ->name('auth.apple.store');
 
     Route::post('auth/forgot-password', [PasswordResetLinkController::class, 'store'])
         ->middleware('throttle:6,1')

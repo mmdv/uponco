@@ -45,6 +45,13 @@ return [
         'mobile_client_ids' => array_filter(explode(',', (string) env('GOOGLE_MOBILE_CLIENT_IDS', ''))),
     ],
 
+    'apple' => [
+        // Bundle ids whose Sign in with Apple identity tokens the mobile app may
+        // exchange for an API token (comma-separated). Add host.exp.Exponent
+        // locally to try it in Expo Go.
+        'client_ids' => array_filter(explode(',', (string) env('APPLE_CLIENT_IDS', 'com.uponco.app'))),
+    ],
+
     'expo' => [
         // Optional: only needed when push security is enabled for the Expo project.
         'access_token' => env('EXPO_ACCESS_TOKEN'),
