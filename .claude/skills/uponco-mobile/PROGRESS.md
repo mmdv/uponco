@@ -10,6 +10,7 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 
 - **Phase:** 3 — Core business features (Phase 2 skeleton done; Google sign-in screen deferred)
 - **Next task:** Ask the user: release prep (Apple Developer account is ready; EAS project, development build → real push + Google sign-in, TestFlight), or remaining app gaps (universal links for AUTH-10 at release, in-app language switch SET-7, QR code, 2FA in app).
+- **Credentials still missing:** Google sign-in (iOS/Android OAuth client ids, `GOOGLE_MOBILE_CLIENT_IDS`, `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID`) and Sign in with Apple (`APPLE_CLIENT_IDS`, capability on the App ID) — see Phase 6 "Sign-in setup".
 - **Last session:** 2026-11-18 — Manage/Services/Locations/Members redesign after the web, gaps closed (delete location, categories, member photo, transfer ownership), pull-to-refresh spinner fix
 
 ## Phase 0 — Decisions
@@ -64,7 +65,7 @@ Phase 1 items are API-only (`[x]` = endpoint built + tested); feature items in P
 - [ ] Offline polish (X-4)
 
 ## Phase 6 — Release
-- [ ] Sign-in setup (user, needs the Apple Developer account + Google Cloud):
+- [ ] Sign-in setup (user, needs the Apple Developer account + Google Cloud). **No Google or Apple sign-in credentials have been added yet (as of 2026-11-18)** — the code is in place, but neither button works until these are done:
   - Apple: in developer.apple.com → Identifiers → `com.uponco.app`, enable **Sign in with Apple** (EAS can also do this on the first build). Laravel `.env`: `APPLE_CLIENT_IDS=com.uponco.app` (add `,host.exp.Exponent` locally to try it in Expo Go on a simulator signed in to an Apple ID).
   - Google Cloud Console (same project as the web login) → Credentials → create an **iOS** OAuth client (bundle id `com.uponco.app`) and an **Android** one (package `com.uponco.app` + the SHA-1 of the EAS signing key, from `eas credentials`). Mobile env (`.env.local` and EAS env vars): `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=<ios id>`, `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=<existing web client id>`. Laravel `.env`: `GOOGLE_MOBILE_CLIENT_IDS=<ios id>,<android id>`.
   - Then a development build (`eas build --profile development`), since Google's native module isn't in Expo Go.
